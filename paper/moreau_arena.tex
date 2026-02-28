@@ -252,23 +252,25 @@ ytick={0,1,2,3,4,5,6,7,8,9,10,11,12},
 yticklabels={Smart,HV,Cons,Flash,GPro,Grok,Greedy,GPT,Codex,Sonnet,Haiku,Opus,Rand},
 y dir=reverse,
 bar width=6pt,
-error bars/.cd, x dir=both, x explicit,
 ]
-\addplot+[error bars/.cd, x dir=both, x explicit] coordinates {
-(1.0000,0) +- (0.3900,0.0000)
-(0.9541,1) +- (0.3995,0.0459)
-(0.6426,2) +- (0.2708,0.2744)
-(0.5028,3) +- (0.2359,0.2686)
-(0.4553,4) +- (0.2088,0.2229)
-(0.4373,5) +- (0.2075,0.2272)
-(0.2388,6) +- (0.1111,0.1068)
-(0.2296,7) +- (0.1079,0.1129)
-(0.1193,8) +- (0.0528,0.0482)
-(0.0656,9) +- (0.0320,0.0317)
-(0.0564,10) +- (0.0263,0.0241)
-(0.0173,11) +- (0.0079,0.0069)
-(0.0054,12) +- (0.0024,0.0024)
+\addplot coordinates {
+(1.0000,0) (0.9541,1) (0.6426,2) (0.5028,3) (0.4553,4) (0.4373,5)
+(0.2388,6) (0.2296,7) (0.1193,8) (0.0656,9) (0.0564,10) (0.0173,11) (0.0054,12)
 };
+% CI whiskers: \draw from CI_lower to CI_upper at each y
+\draw[thick] (axis cs:0.6100,0) -- (axis cs:1.0000,0);
+\draw[thick] (axis cs:0.5546,1) -- (axis cs:1.0000,1);
+\draw[thick] (axis cs:0.3718,2) -- (axis cs:0.9170,2);
+\draw[thick] (axis cs:0.2669,3) -- (axis cs:0.7714,3);
+\draw[thick] (axis cs:0.2465,4) -- (axis cs:0.6782,4);
+\draw[thick] (axis cs:0.2298,5) -- (axis cs:0.6645,5);
+\draw[thick] (axis cs:0.1277,6) -- (axis cs:0.3456,6);
+\draw[thick] (axis cs:0.1217,7) -- (axis cs:0.3425,7);
+\draw[thick] (axis cs:0.0665,8) -- (axis cs:0.1675,8);
+\draw[thick] (axis cs:0.0336,9) -- (axis cs:0.0973,9);
+\draw[thick] (axis cs:0.0301,10) -- (axis cs:0.0805,10);
+\draw[thick] (axis cs:0.0094,11) -- (axis cs:0.0242,11);
+\draw[thick] (axis cs:0.0030,12) -- (axis cs:0.0078,12);
 \addplot[black,dashed] coordinates {(0,2.5) (1.05,2.5)};
 \end{axis}
 \end{tikzpicture}
@@ -411,23 +413,25 @@ ytick={0,1,2,3,4,5,6,7,8,9,10,11,12},
 yticklabels={Codex,Flash,Grok,Opus,Sonnet,GPT,Haiku,GPro,Smart,HV,Cons,Greedy,Rand},
 y dir=reverse,
 bar width=6pt,
-error bars/.cd, x dir=both, x explicit,
 ]
-\addplot+[error bars/.cd, x dir=both, x explicit] coordinates {
-(1.0000,0) +- (0.2075,0.0000)
-(0.6793,1) +- (0.2863,0.3207)
-(0.6496,2) +- (0.2840,0.3504)
-(0.2520,3) +- (0.1091,0.1414)
-(0.2520,4) +- (0.1223,0.1746)
-(0.2520,5) +- (0.1122,0.1697)
-(0.2258,6) +- (0.0989,0.1334)
-(0.1882,7) +- (0.0839,0.1226)
-(0.0926,8) +- (0.0436,0.0539)
-(0.0698,9) +- (0.0319,0.0383)
-(0.0614,10) +- (0.0306,0.0415)
-(0.0426,11) +- (0.0217,0.0335)
-(0.0066,12) +- (0.0028,0.0035)
+\addplot coordinates {
+(1.0000,0) (0.6793,1) (0.6496,2) (0.2520,3) (0.2520,4) (0.2520,5)
+(0.2258,6) (0.1882,7) (0.0926,8) (0.0698,9) (0.0614,10) (0.0426,11) (0.0066,12)
 };
+% CI whiskers: \draw from CI_lower to CI_upper at each y
+\draw[thick] (axis cs:0.7925,0) -- (axis cs:1.0000,0);
+\draw[thick] (axis cs:0.3930,1) -- (axis cs:1.0000,1);
+\draw[thick] (axis cs:0.3656,2) -- (axis cs:1.0000,2);
+\draw[thick] (axis cs:0.1429,3) -- (axis cs:0.3934,3);
+\draw[thick] (axis cs:0.1297,4) -- (axis cs:0.4266,4);
+\draw[thick] (axis cs:0.1398,5) -- (axis cs:0.4217,5);
+\draw[thick] (axis cs:0.1269,6) -- (axis cs:0.3592,6);
+\draw[thick] (axis cs:0.1043,7) -- (axis cs:0.3108,7);
+\draw[thick] (axis cs:0.0490,8) -- (axis cs:0.1465,8);
+\draw[thick] (axis cs:0.0379,9) -- (axis cs:0.1081,9);
+\draw[thick] (axis cs:0.0308,10) -- (axis cs:0.1029,10);
+\draw[thick] (axis cs:0.0209,11) -- (axis cs:0.0761,11);
+\draw[thick] (axis cs:0.0038,12) -- (axis cs:0.0101,12);
 \addplot[black,dashed] coordinates {(0,7.5) (1.05,7.5)};
 \end{axis}
 \end{tikzpicture}
@@ -711,6 +715,8 @@ analyzing reasoning traces to understand \emph{why} some models explore more bro
 running a prompt sensitivity suite (3--5 semantically equivalent prompts) and reporting rank stability (Kendall $\tau$) across prompt variants;
 and computing formal non-transitivity statistics (3-cycle mass, Condorcet winner existence) as the agent pool grows.
 
+We also plan to release a public challenge platform where users can submit custom agent configurations and compete on a live leaderboard, providing crowd-sourced data for future analysis of prompt sensitivity and strategic adaptation.
+
 \section{Ethics and Responsible Benchmarking}
 
 Moreau Arena is designed to support responsible benchmarking:
@@ -731,7 +737,7 @@ The most important result is the gap itself.
 It suggests that for strategic tasks, the limiting factor is often not the existence of reasoning machinery but whether the task representation and feedback channel allow that machinery to operate.
 GPT-5.2-Codex's leap from rank~9 to rank~1 illustrates this vividly: the same model, under different scaffolding, goes from near-worst to overall winner.
 
-We release the complete prompts, configuration hash, match records, and analysis code to support reproducibility and follow-up studies.
+We release the complete prompts, configuration hash, match records, and analysis code at \url{https://github.com/supervitek/moreau-arena-paper} to support reproducibility and follow-up studies.
 
 \section*{Use of Generative AI Tools (Disclosure)}
 Generative AI language tools were used (i) as \emph{subjects} in the tournament experiments analyzed; and (ii) as writing aids for drafting and editing.
