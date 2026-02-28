@@ -1,0 +1,74 @@
+You are designing a creature for Moreau Arena, a 1v1 combat game on an 8x8 grid.
+
+RULES:
+- Allocate exactly 20 stat points across 4 stats: HP, ATK, SPD, WIL (each minimum 1)
+- Choose one of 6 animals, each with a unique passive and two abilities
+
+EXACT STAT FORMULAS:
+  max_hp = 50 + 10 * HP
+    Example: HP=3 -> 80 hp, HP=8 -> 130 hp, HP=14 -> 190 hp
+  base_dmg = floor(2 + 0.85 * ATK)
+    Example: ATK=8 -> 8 dmg, ATK=14 -> 13 dmg
+  dodge = max(0%, min(30%, 2.5% * (SPD - 1)))
+    NOTE: SPD=1 gives 0% dodge, SPD=5 gives 10%, SPD=13 gives 30% (cap)
+  ability_resist = min(60%, WIL * 3.3%)
+    NOTE: Chance to resist OPPONENT's ability procs. WIL=1 gives 3.3%, WIL=10 gives 33%, cap 60%
+  ability_proc_bonus = WIL * 0.08% (additive to YOUR proc rate)
+    Example: WIL=8 adds +0.64% to all your proc rates
+
+COMBAT MECHANICS:
+- Tick-based combat (max 60 ticks)
+- Closing Ring starts at tick 30, dealing increasing damage to outer tiles
+- Abilities proc randomly each tick based on proc chance + WIL bonus
+- Tick order: Attack -> Buff ticks -> Ability procs -> Fury check -> DoTs -> Ring -> Second Wind -> Regen
+- Strong abilities (3.5% base): Berserker Rage, Last Stand, Gore, Mimic, Iron Will
+- Other abilities (4.5% base): Pounce, Hamstring, Pack Howl, Rend, Chaos Strike, Stampede, Thick Hide
+
+AVAILABLE ANIMALS:
+  BEAR
+    Passive: Fury Protocol — gains bonus ATK when damaged. Fury triggers at <50% HP, adding +3 base_dmg for 5 ticks.
+    Abilities:
+  - Berserker Rage: +ATK buff (+4 base_dmg) for 3 ticks. Proc rate: 3.5% per tick.
+  - Last Stand: 2.0x damage multiplier when below 15% HP. Single charge (once per match). Proc rate: 3.5%.
+
+  BUFFALO
+    Passive: Thick Hide — takes reduced damage. Flat 2 damage reduction on every incoming hit.
+    Abilities:
+  - Thick Hide: Reduces incoming damage by 3 for 1 tick. Proc rate: 4.5% per tick.
+  - Iron Will: Survives a killing blow at 1 HP. Single charge (once per match). Proc rate: 3.5%.
+
+  BOAR
+    Passive: Charge — bonus damage on first hit. First attack deals 1.5x base_dmg.
+    Abilities:
+  - Stampede: AoE damage (0.4x base_dmg) + knockback. Proc rate: 4.5% per tick.
+  - Gore: 0.60x damage multiplier but ignores dodge completely. Proc rate: 3.5% per tick.
+
+  TIGER
+    Passive: Ambush Wiring — high dodge, first-strike advantage. +5% dodge bonus, first attack ignores opponent dodge.
+    Abilities:
+  - Pounce: +70% damage bonus + stun (opponent skips next attack). Proc rate: 4.5% per tick.
+  - Hamstring: -55% SPD and -10% dodge for 4 ticks. Proc rate: 4.5% per tick.
+
+  WOLF
+    Passive: Pack Sense — bonus to ability proc chance. +1.5% additive bonus to all ability proc rates.
+    Abilities:
+  - Pack Howl: +ATK buff (+3 base_dmg) for 4 ticks. Proc rate: 4.5% per tick.
+  - Rend: DoT bleed dealing 3 damage per tick for 3 ticks. Proc rate: 4.5% per tick.
+
+  MONKEY
+    Passive: Primate Cortex — adaptive, copies opponent abilities via Mimic.
+    Abilities:
+  - Chaos Strike: Random damage multiplier 0.5x-2.0x on attack. Proc rate: 4.5% per tick.
+  - Mimic: Copies opponent's last procced ability. Proc rate: 3.5% per tick.
+
+META CONTEXT (top builds from previous tournament, ranked by win rate):
+  1. BEAR 8/8/3/1 — 100% win rate (22 games)
+  2. BEAR 8/10/1/1 — 100% win rate (19 games)
+  3. BEAR 10/8/1/1 — 100% win rate (11 games)
+  4. BEAR 9/9/1/1 — 100% win rate (4 games)
+  5. WOLF 7/10/2/1 — 100% win rate (4 games)
+  Note: These builds were tested in blind pick (no adaptation). You can counter them or use them as a starting point.
+
+Respond with a JSON object (no other text):
+{"animal": "ANIMAL_NAME", "hp": N, "atk": N, "spd": N, "wil": N}
+Stats must sum to 20, each >= 1. Animal must be one of the available animals.

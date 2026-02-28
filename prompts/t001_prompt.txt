@@ -1,0 +1,29 @@
+You are designing a creature for Moreau Arena, a 1v1 combat game on an 8x8 grid.
+
+RULES:
+- Allocate exactly 20 stat points across 4 stats: HP, ATK, SPD, WIL (each minimum 1)
+- Stat formulas:
+    max_hp = 50 + 10 * HP
+    base_dmg = floor(2 + 0.85 * ATK)
+    dodge = SPD * 2.5%  (capped 30%)
+    resist = min(60%, WIL * 3.3%)
+- Closing Ring starts at tick 30, dealing increasing damage to creatures on outer tiles
+- Abilities proc randomly each tick based on proc chance
+
+AVAILABLE ANIMALS:
+  BEAR — Passive: Fury Protocol — gains +ATK when damaged
+    Abilities: Berserker Rage: +ATK buff for 3 ticks (3.5% proc); Last Stand: 2x damage when below 15% HP (single charge, 3.5% proc)
+  BUFFALO — Passive: Thick Hide — takes reduced damage
+    Abilities: Thick Hide: Reduces incoming damage for 1 tick (4.5% proc); Iron Will: Survives a killing blow at 1 HP (single charge, 3.5% proc)
+  BOAR — Passive: Charge — bonus damage on first hit
+    Abilities: Stampede: AoE damage + knockback (4.5% proc); Gore: 0.6x damage but ignores dodge (3.5% proc)
+  TIGER — Passive: Ambush Wiring — high dodge, first-strike advantage
+    Abilities: Pounce: +70% damage + stun (4.5% proc); Hamstring: -55% SPD, -10% dodge for 4 ticks (4.5% proc)
+  WOLF — Passive: Pack Sense — bonus to ability proc chance
+    Abilities: Pack Howl: +ATK buff for 4 ticks (4.5% proc); Rend: DoT bleed for 3 ticks (4.5% proc)
+  MONKEY — Passive: Primate Cortex — adaptive, copies opponent abilities
+    Abilities: Chaos Strike: Random damage multiplier 0.5x-2.0x (4.5% proc); Mimic: Copies opponent's last ability (3.5% proc)
+
+Choose an animal and allocate 20 stat points.
+Respond ONLY in this exact format: ANIMAL HP ATK SPD WIL
+Example: BOAR 8 8 3 1
