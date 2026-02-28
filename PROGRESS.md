@@ -19,3 +19,44 @@
 - Displays derived stats (max_hp, base_dmg, dodge%, resist%)
 - Graceful error handling for invalid inputs
 - All three modes tested and verified working.
+
+## Task 3: Challenge Script
+**Status:** COMPLETE
+**Changes:**
+- Created `run_challenge.py` with full LLM challenge pipeline
+- Supports 4 providers (openai, anthropic, google, xai) via urllib.request
+- T001 (blind) and T002 (adaptive) protocols
+- --dry-run mode for testing without API keys
+- Bradley-Terry scoring with paper reference comparison
+- JSONL output with full series/game data
+- Tested: `--dry-run --provider openai --model test --series 3` runs successfully
+
+## Task 4: Laboratory Mode Prototype
+**Status:** COMPLETE
+**Changes:**
+- Created `lab_mode.py` with iteration efficiency curve experiment
+- LLM proposes N builds per round, local round-robin simulation, feedback loop
+- Tracks convergence (first round with <1pp improvement)
+- Final comparison vs SmartAgent's default build
+- --dry-run mode with deterministic random builds
+- JSON output with full curve data
+- Tested: `--dry-run --rounds 3 --builds-per-round 5 --games-per-pair 10` runs successfully
+
+## Task 5: Documentation update
+**Status:** COMPLETE
+**Changes:**
+- Updated README.md with expanded project description, 4 usage sections, animals table, citation
+- Created docs/MECHANICS.md with full game rules, stat formulas, ability details, ring mechanics
+- Created docs/CONTRIBUTING.md with agent interface guide, examples, submission process
+
+## Final Status
+
+- [x] Task 1: Paper fixes (error bars, URL, challenge sentence)
+- [x] Task 2: Standalone simulator (single/round-robin/series)
+- [x] Task 3: Challenge script (run_challenge.py)
+- [x] Task 4: Laboratory mode (lab_mode.py)
+- [x] Task 5: Documentation (README, MECHANICS, CONTRIBUTING)
+
+Total commits: 5 (one per task)
+Total time: ~1 session
+Any issues/blockers: pgfplots 1.18.1 error bar syntax required workaround with explicit \draw whisker lines instead of native error bars. No other blockers.
