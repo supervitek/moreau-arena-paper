@@ -18,10 +18,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from simulator.animals import (
-    Ability,
-    Animal,
     AbilityType,
-    AbilityBuff,
     ActiveEffect,
     ANIMAL_ABILITIES,
     Creature,
@@ -32,8 +29,6 @@ from simulator.grid import Grid
 from simulator.seed import (
     derive_tick_seed,
     derive_hit_seed,
-    derive_proc_seed,
-    seeded_bool,
     seeded_random,
 )
 from simulator.abilities import (

@@ -15,14 +15,12 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import math
 import os
 import re
 import ssl
 import sys
-import struct
 import time
 import urllib.error
 import urllib.request
@@ -35,11 +33,10 @@ from simulator.animals import (
     ANIMAL_PASSIVE,
     Animal,
     Creature,
-    Position,
     Size,
     StatBlock,
 )
-from simulator.engine import CombatConfig, CombatEngine
+from simulator.engine import CombatEngine
 from simulator.grid import Grid
 from simulator.seed import seeded_random
 

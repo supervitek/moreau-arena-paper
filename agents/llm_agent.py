@@ -13,7 +13,7 @@ import re
 from collections.abc import Callable
 
 from agents.baselines import BaseAgent, Build, GreedyAgent
-from simulator.animals import Animal, ANIMAL_ABILITIES, ANIMAL_PASSIVE
+from simulator.animals import Animal, ANIMAL_ABILITIES
 
 _ORIGINAL_ANIMALS = (
     Animal.BEAR,

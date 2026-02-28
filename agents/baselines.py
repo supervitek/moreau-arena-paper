@@ -14,7 +14,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from simulator.animals import Animal, StatBlock
+from simulator.animals import Animal
 from simulator.seed import seeded_random, derive_hit_seed
 
 

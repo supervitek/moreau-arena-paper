@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import json
 import math
 import sys
 from pathlib import Path
@@ -28,13 +27,11 @@ from simulator.animals import (
     ANIMAL_PASSIVE,
     Animal,
     Creature,
-    Position,
     Size,
     StatBlock,
 )
-from simulator.engine import CombatConfig, CombatEngine, CombatResult
+from simulator.engine import CombatEngine, CombatResult
 from simulator.grid import Grid
-from simulator.seed import seeded_random
 
 
 def _load_config_hash() -> str:

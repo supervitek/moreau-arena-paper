@@ -40,7 +40,6 @@ import sys
 import time
 import urllib.error
 import urllib.request
-from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -58,8 +57,6 @@ from agents.llm_agent import LLMAgent
 from agents.llm_agent_v2 import (
     BUILD_JSON_SCHEMA,
     LLMAgentV2,
-    build_prompt_v2,
-    parse_json_response,
 )
 from analysis.bt_ranking import compute_bt_scores, BTResult
 from prompts.meta_extractor import extract_top_builds
@@ -68,13 +65,11 @@ from simulator.animals import (
     ANIMAL_PASSIVE,
     Animal,
     Creature,
-    Position,
     Size,
     StatBlock,
 )
-from simulator.engine import CombatConfig, CombatEngine, CombatResult
+from simulator.engine import CombatEngine, CombatResult
 from simulator.grid import Grid
-from simulator.seed import seeded_random
 
 
 # ---------------------------------------------------------------------------
