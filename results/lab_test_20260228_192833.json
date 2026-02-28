@@ -1,0 +1,167 @@
+{
+  "model": "test",
+  "provider": "openai",
+  "rounds": 3,
+  "builds_per_round": 5,
+  "games_per_pair": 10,
+  "seed": 42,
+  "dry_run": true,
+  "curve": [
+    {
+      "round": 1,
+      "best_build": "buffalo 2/13/3/2",
+      "best_wr": 0.975,
+      "all_builds": [
+        {
+          "animal": "BUFFALO",
+          "hp": 2,
+          "atk": 13,
+          "spd": 3,
+          "wil": 2,
+          "win_rate": 0.975
+        },
+        {
+          "animal": "MONKEY",
+          "hp": 14,
+          "atk": 3,
+          "spd": 1,
+          "wil": 2,
+          "win_rate": 0.675
+        },
+        {
+          "animal": "BUFFALO",
+          "hp": 1,
+          "atk": 9,
+          "spd": 5,
+          "wil": 5,
+          "win_rate": 0.475
+        },
+        {
+          "animal": "WOLF",
+          "hp": 10,
+          "atk": 2,
+          "spd": 4,
+          "wil": 4,
+          "win_rate": 0.3
+        },
+        {
+          "animal": "WOLF",
+          "hp": 9,
+          "atk": 1,
+          "spd": 3,
+          "wil": 7,
+          "win_rate": 0.075
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "best_build": "bear 9/7/2/2",
+      "best_wr": 1.0,
+      "all_builds": [
+        {
+          "animal": "BEAR",
+          "hp": 9,
+          "atk": 7,
+          "spd": 2,
+          "wil": 2,
+          "win_rate": 1.0
+        },
+        {
+          "animal": "TIGER",
+          "hp": 3,
+          "atk": 6,
+          "spd": 3,
+          "wil": 8,
+          "win_rate": 0.725
+        },
+        {
+          "animal": "WOLF",
+          "hp": 6,
+          "atk": 3,
+          "spd": 2,
+          "wil": 9,
+          "win_rate": 0.5
+        },
+        {
+          "animal": "MONKEY",
+          "hp": 10,
+          "atk": 2,
+          "spd": 6,
+          "wil": 2,
+          "win_rate": 0.275
+        },
+        {
+          "animal": "BEAR",
+          "hp": 9,
+          "atk": 1,
+          "spd": 1,
+          "wil": 9,
+          "win_rate": 0.0
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "best_build": "bear 9/9/1/1",
+      "best_wr": 1.0,
+      "all_builds": [
+        {
+          "animal": "BEAR",
+          "hp": 9,
+          "atk": 9,
+          "spd": 1,
+          "wil": 1,
+          "win_rate": 1.0
+        },
+        {
+          "animal": "TIGER",
+          "hp": 11,
+          "atk": 6,
+          "spd": 1,
+          "wil": 2,
+          "win_rate": 0.725
+        },
+        {
+          "animal": "BOAR",
+          "hp": 6,
+          "atk": 8,
+          "spd": 4,
+          "wil": 2,
+          "win_rate": 0.475
+        },
+        {
+          "animal": "TIGER",
+          "hp": 7,
+          "atk": 5,
+          "spd": 6,
+          "wil": 2,
+          "win_rate": 0.275
+        },
+        {
+          "animal": "BOAR",
+          "hp": 3,
+          "atk": 7,
+          "spd": 9,
+          "wil": 1,
+          "win_rate": 0.025
+        }
+      ]
+    }
+  ],
+  "total_simulations": 300,
+  "total_api_calls": 0,
+  "best_build": {
+    "animal": "BEAR",
+    "hp": 9,
+    "atk": 7,
+    "spd": 2,
+    "wil": 2
+  },
+  "best_build_wr": 1.0,
+  "best_build_round": 2,
+  "convergence_round": 3,
+  "vs_smart_agent_wr": 0.28,
+  "improvement_pp": 2.5,
+  "timestamp": "2026-02-28T19:28:33.163431+00:00"
+}
