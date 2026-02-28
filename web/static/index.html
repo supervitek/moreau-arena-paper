@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moreau Arena</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        h1 {
+            text-align: center;
+            color: #e94560;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+        .container {
+            max-width: 640px;
+            margin: 0 auto;
+        }
+        .card {
+            background: #16213e;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #0f3460;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.3rem;
+            font-weight: 600;
+            color: #ccc;
+            font-size: 0.85rem;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #0f3460;
+            border-radius: 4px;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            font-family: monospace;
+        }
+        input:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+        .hint {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: -0.8rem;
+            margin-bottom: 1rem;
+        }
+        button {
+            width: 100%;
+            padding: 0.7rem;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover { background: #c73652; }
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        .results {
+            margin-top: 1rem;
+            display: none;
+        }
+        .results.visible { display: block; }
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #0f3460;
+        }
+        .result-row:last-child { border-bottom: none; }
+        .result-label { color: #888; }
+        .result-value { font-weight: 600; font-family: monospace; }
+        .winner { color: #4ecca3; }
+        .error {
+            color: #e94560;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        .nav {
+            text-align: center;
+            margin-top: 1rem;
+        }
+        .nav a {
+            color: #e94560;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .nav a:hover { text-decoration: underline; }
+        .animals {
+            font-size: 0.75rem;
+            color: #555;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Moreau Arena</h1>
+        <p class="subtitle">Creature combat simulator</p>
+        <p class="animals">Animals: bear, buffalo, boar, tiger, wolf, monkey, crocodile, eagle, snake, raven, shark, owl, fox, scorpion</p>
+
+        <div class="card">
+            <label for="build1">Build 1</label>
+            <input type="text" id="build1" placeholder="bear 8 10 1 1" value="bear 8 10 1 1">
+            <div class="hint">Format: animal hp atk spd wil (stats must sum to 20, each >= 1)</div>
+
+            <label for="build2">Build 2</label>
+            <input type="text" id="build2" placeholder="buffalo 8 6 4 2" value="buffalo 8 6 4 2">
+            <div class="hint">Format: animal hp atk spd wil (stats must sum to 20, each >= 1)</div>
+
+            <label for="games">Games</label>
+            <input type="number" id="games" value="100" min="1" max="10000">
+
+            <button id="fightBtn" onclick="runFight()">Fight!</button>
+
+            <div class="error" id="error"></div>
+
+            <div class="results" id="results">
+                <div class="result-row">
+                    <span class="result-label">Build 1 wins</span>
+                    <span class="result-value" id="b1wins"></span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Build 2 wins</span>
+                    <span class="result-value" id="b2wins"></span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Draws</span>
+                    <span class="result-value" id="draws"></span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Avg ticks</span>
+                    <span class="result-value" id="avgTicks"></span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Verdict</span>
+                    <span class="result-value winner" id="verdict"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav">
+            <a href="/leaderboard">View Leaderboard (JSON)</a>
+        </div>
+    </div>
+
+    <script>
+        async function runFight() {
+            var btn = document.getElementById("fightBtn");
+            var errorEl = document.getElementById("error");
+            var resultsEl = document.getElementById("results");
+
+            btn.disabled = true;
+            btn.textContent = "Simulating...";
+            errorEl.textContent = "";
+            resultsEl.classList.remove("visible");
+
+            var body = {
+                build1: document.getElementById("build1").value,
+                build2: document.getElementById("build2").value,
+                games: parseInt(document.getElementById("games").value, 10) || 100
+            };
+
+            try {
+                var resp = await fetch("/fight", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body)
+                });
+
+                if (!resp.ok) {
+                    var err = await resp.json();
+                    throw new Error(err.detail || "Request failed");
+                }
+
+                var data = await resp.json();
+
+                document.getElementById("b1wins").textContent = data.build1_wins;
+                document.getElementById("b2wins").textContent = data.build2_wins;
+                document.getElementById("draws").textContent = data.draws;
+                document.getElementById("avgTicks").textContent = data.avg_ticks;
+
+                var verdict;
+                if (data.build1_wins > data.build2_wins) {
+                    verdict = "Build 1 wins (" + Math.round(data.build1_wins / body.games * 100) + "%)";
+                } else if (data.build2_wins > data.build1_wins) {
+                    verdict = "Build 2 wins (" + Math.round(data.build2_wins / body.games * 100) + "%)";
+                } else {
+                    verdict = "Tie!";
+                }
+                document.getElementById("verdict").textContent = verdict;
+                resultsEl.classList.add("visible");
+            } catch (e) {
+                errorEl.textContent = e.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Fight!";
+            }
+        }
+    </script>
+</body>
+</html>
