@@ -12,3 +12,17 @@ build/
 *.swp
 *.swo
 *~
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.bbl
+*.blg
+*.synctex.gz
+
+# Claude Code
+a.claudestartup_message.txt
