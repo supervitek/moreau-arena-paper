@@ -27,6 +27,7 @@ from simulator.animals import (
     ANIMAL_PASSIVE,
     Animal,
     Creature,
+    Passive,
     Size,
     StatBlock,
 )
@@ -123,6 +124,10 @@ def _create_creature(
         movement = 2
     else:
         movement = 3
+
+    # Hawk: THERMAL_SOAR — movement range +1
+    if passive == Passive.THERMAL_SOAR:
+        movement += 1
 
     return Creature(
         animal=animal,

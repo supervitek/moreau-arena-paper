@@ -255,6 +255,70 @@ def _apply_ability_proc(
             opponent, skip_next_attack=True,
         )
 
+    # -- Phase 4: Rhino, Panther, Hawk, Viper --
+
+    elif atype == AbilityType.HORN_SLAM:
+        # Rhino: high damage on first hit -- 1-tick buff
+        buff = AbilityBuff(atype, 1, side)
+        creature = dataclasses.replace(
+            creature,
+            active_buffs=[*creature.active_buffs, buff],
+        )
+
+    elif atype == AbilityType.RHINO_TRAMPLE:
+        # Rhino: AoE damage -- instant damage (no stun)
+        dmg_amount = max(1, math.floor(creature.base_dmg * 0.25))
+        opponent = dataclasses.replace(
+            opponent,
+            current_hp=opponent.current_hp - dmg_amount,
+        )
+
+    elif atype == AbilityType.SHADOW_POUNCE:
+        # Panther: gap closer + damage -- 1-tick buff
+        buff = AbilityBuff(atype, 1, side)
+        creature = dataclasses.replace(
+            creature,
+            active_buffs=[*creature.active_buffs, buff],
+        )
+
+    elif atype == AbilityType.FADE_OUT:
+        # Panther: dodge boost for 2 ticks
+        buff = AbilityBuff(atype, ability.duration, side)
+        creature = dataclasses.replace(
+            creature,
+            active_buffs=[*creature.active_buffs, buff],
+        )
+
+    elif atype == AbilityType.DIVE_STRIKE:
+        # Hawk: high damage from range -- 1-tick buff
+        buff = AbilityBuff(atype, 1, side)
+        creature = dataclasses.replace(
+            creature,
+            active_buffs=[*creature.active_buffs, buff],
+        )
+
+    elif atype == AbilityType.SCREECH_DEBUFF:
+        # Hawk: reduce enemy accuracy (debuff on opponent)
+        debuff = AbilityBuff(atype, ability.duration, side)
+        opponent = dataclasses.replace(
+            opponent,
+            active_buffs=[*opponent.active_buffs, debuff],
+        )
+
+    elif atype == AbilityType.QUICK_STRIKE:
+        # Viper: fast attack -- 1-tick buff
+        buff = AbilityBuff(atype, 1, side)
+        creature = dataclasses.replace(
+            creature,
+            active_buffs=[*creature.active_buffs, buff],
+        )
+
+    elif atype == AbilityType.CONSTRICT_STUN:
+        # Viper: stun for 1 tick
+        opponent = dataclasses.replace(
+            opponent, skip_next_attack=True,
+        )
+
     # -- Mimic --
 
     elif atype == AbilityType.MIMIC:
@@ -351,6 +415,19 @@ def apply_ability_attack_mods(
         elif buff.ability_type == AbilityType.DIVE:
             atk_mod *= 1.0 + 1.0 * mimic_scale
 
+        # Phase 4 attack mods
+        elif buff.ability_type == AbilityType.HORN_SLAM:
+            atk_mod *= 1.0 + 0.30 * mimic_scale
+
+        elif buff.ability_type == AbilityType.SHADOW_POUNCE:
+            atk_mod *= 1.0 + 0.60 * mimic_scale
+
+        elif buff.ability_type == AbilityType.DIVE_STRIKE:
+            atk_mod *= 1.0 + 0.90 * mimic_scale
+
+        elif buff.ability_type == AbilityType.QUICK_STRIKE:
+            atk_mod *= 1.0 + 0.25 * mimic_scale
+
     return attacker, atk_mod
 
 
@@ -390,6 +467,16 @@ def get_effective_dodge(creature: Creature) -> float:
         elif buff.ability_type == AbilityType.EVASION:
             scale = 0.75 if buff.is_mimic_copy else 1.0
             dodge += 0.50 * scale
+
+        elif buff.ability_type == AbilityType.FADE_OUT:
+            scale = 0.75 if buff.is_mimic_copy else 1.0
+            dodge += 0.40 * scale
+
+    # Screech Debuff: reduce accuracy (acts like dodge buff on the creature being debuffed)
+    for buff in creature.active_buffs:
+        if buff.ability_type == AbilityType.SCREECH_DEBUFF:
+            scale = 0.75 if buff.is_mimic_copy else 1.0
+            dodge += 0.15 * scale
 
     # Berserker Rage: -40% dodge
     for buff in creature.active_buffs:

@@ -29,6 +29,7 @@ from simulator.grid import Grid
 from simulator.seed import (
     derive_tick_seed,
     derive_hit_seed,
+    seeded_bool,
     seeded_random,
 )
 from simulator.abilities import (
@@ -238,6 +239,28 @@ class CombatEngine:
                             ],
                         )
 
+                    # Viper: HEMOTOXIN — 35% chance per hit to apply DoT
+                    if (attacker.passive == Passive.HEMOTOXIN
+                            and dmg > 0
+                            and seeded_bool(hit_seed + 9999, 0.35)):
+                        existing_toxins = [
+                            e for e in defender.active_effects
+                            if e.name == "hemotoxin"
+                        ]
+                        if len(existing_toxins) < 2:
+                            toxin_dmg = max(1, math.floor(defender.max_hp * 0.01))
+                            toxin = ActiveEffect(
+                                name="hemotoxin",
+                                remaining_ticks=2,
+                                damage_per_tick=toxin_dmg,
+                            )
+                            defender = dataclasses.replace(
+                                defender,
+                                active_effects=[
+                                    *defender.active_effects, toxin
+                                ],
+                            )
+
                     defender = dataclasses.replace(
                         defender,
                         current_hp=defender.current_hp - dmg,
@@ -364,6 +387,11 @@ class CombatEngine:
         if attacker.has_execute and defender.current_hp < defender.max_hp * 0.25:
             atk_mod *= 2.0
 
+        # Panther: SHADOW_STALK — first attack is guaranteed crit (2x)
+        if attacker.passive == Passive.SHADOW_STALK and not attacker.charge_used:
+            atk_mod *= 2.0
+            attacker = dataclasses.replace(attacker, charge_used=True)
+
         return attacker, atk_mod
 
     def _apply_defense_passives(
@@ -373,6 +401,12 @@ class CombatEngine:
             dmg = math.floor(dmg * 0.5)
             dmg = max(1, dmg)
             defender = dataclasses.replace(defender, first_hit_taken=True)
+
+        # Rhino: IRON_HIDE — 20% damage reduction while above 50% HP
+        if defender.passive == Passive.IRON_HIDE:
+            if defender.current_hp >= defender.max_hp * 0.5:
+                dmg = max(1, math.floor(dmg * 0.80))
+
         return defender, dmg
 
     # -- DOT / Effects ---------------------------------------------------------

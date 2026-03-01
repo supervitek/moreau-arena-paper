@@ -25,6 +25,10 @@ class Animal(Enum):
     OWL = "owl"
     FOX = "fox"
     SCORPION = "scorpion"
+    RHINO = "rhino"
+    PANTHER = "panther"
+    HAWK = "hawk"
+    VIPER = "viper"
 
 
 class Passive(Enum):
@@ -42,6 +46,10 @@ class Passive(Enum):
     NIGHT_VISION = "night_vision"
     CUNNING = "cunning"
     PARALYTIC_STING = "paralytic_sting"
+    IRON_HIDE = "iron_hide"
+    SHADOW_STALK = "shadow_stalk"
+    THERMAL_SOAR = "thermal_soar"
+    HEMOTOXIN = "hemotoxin"
 
 
 class ActiveAbilityType(Enum):
@@ -87,6 +95,18 @@ class ActiveAbilityType(Enum):
     # Scorpion
     PINCH = "pinch"
     BURROW = "burrow"
+    # Rhino
+    RHINO_HORN_CHARGE = "rhino_horn_charge"
+    RHINO_STAMPEDE = "rhino_stampede"
+    # Panther
+    PANTHER_POUNCE = "panther_pounce"
+    PANTHER_FADE = "panther_fade"
+    # Hawk
+    DIVE_BOMB = "dive_bomb"
+    HAWK_SCREECH = "hawk_screech"
+    # Viper
+    VIPER_STRIKE = "viper_strike"
+    CONSTRICT = "constrict"
 
 
 class AbilityType(Enum):
@@ -119,6 +139,15 @@ class AbilityType(Enum):
     TRICK = "trick"
     STING = "sting"
     EXOSKELETON = "exoskeleton"
+    # Phase 4 — Rhino, Panther, Hawk, Viper
+    HORN_SLAM = "horn_slam"
+    RHINO_TRAMPLE = "rhino_trample"
+    SHADOW_POUNCE = "shadow_pounce"
+    FADE_OUT = "fade_out"
+    DIVE_STRIKE = "dive_strike"
+    SCREECH_DEBUFF = "screech_debuff"
+    QUICK_STRIKE = "quick_strike"
+    CONSTRICT_STUN = "constrict_stun"
 
 
 ANIMAL_PASSIVE: dict[Animal, Passive] = {
@@ -136,6 +165,10 @@ ANIMAL_PASSIVE: dict[Animal, Passive] = {
     Animal.OWL: Passive.NIGHT_VISION,
     Animal.FOX: Passive.CUNNING,
     Animal.SCORPION: Passive.PARALYTIC_STING,
+    Animal.RHINO: Passive.IRON_HIDE,
+    Animal.PANTHER: Passive.SHADOW_STALK,
+    Animal.HAWK: Passive.THERMAL_SOAR,
+    Animal.VIPER: Passive.HEMOTOXIN,
 }
 
 
@@ -446,6 +479,70 @@ ANIMAL_ABILITIES: dict[Animal, tuple[Ability, Ability]] = {
             proc_chance=_OTHER_RATE,
             duration=0,
             animal=Animal.SCORPION,
+        ),
+    ),
+    Animal.RHINO: (
+        Ability(
+            name="Horn Slam",
+            ability_type=AbilityType.HORN_SLAM,
+            proc_chance=_STRONG_RATE,
+            duration=0,
+            animal=Animal.RHINO,
+        ),
+        Ability(
+            name="Rhino Trample",
+            ability_type=AbilityType.RHINO_TRAMPLE,
+            proc_chance=_OTHER_RATE,
+            duration=0,
+            animal=Animal.RHINO,
+        ),
+    ),
+    Animal.PANTHER: (
+        Ability(
+            name="Shadow Pounce",
+            ability_type=AbilityType.SHADOW_POUNCE,
+            proc_chance=_OTHER_RATE,
+            duration=0,
+            animal=Animal.PANTHER,
+        ),
+        Ability(
+            name="Fade Out",
+            ability_type=AbilityType.FADE_OUT,
+            proc_chance=_OTHER_RATE,
+            duration=2,
+            animal=Animal.PANTHER,
+        ),
+    ),
+    Animal.HAWK: (
+        Ability(
+            name="Dive Strike",
+            ability_type=AbilityType.DIVE_STRIKE,
+            proc_chance=_STRONG_RATE,
+            duration=0,
+            animal=Animal.HAWK,
+        ),
+        Ability(
+            name="Screech Debuff",
+            ability_type=AbilityType.SCREECH_DEBUFF,
+            proc_chance=_OTHER_RATE,
+            duration=3,
+            animal=Animal.HAWK,
+        ),
+    ),
+    Animal.VIPER: (
+        Ability(
+            name="Quick Strike",
+            ability_type=AbilityType.QUICK_STRIKE,
+            proc_chance=_OTHER_RATE,
+            duration=0,
+            animal=Animal.VIPER,
+        ),
+        Ability(
+            name="Constrict Stun",
+            ability_type=AbilityType.CONSTRICT_STUN,
+            proc_chance=_OTHER_RATE,
+            duration=0,
+            animal=Animal.VIPER,
         ),
     ),
 }

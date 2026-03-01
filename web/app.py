@@ -11,7 +11,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
@@ -25,8 +26,26 @@ from simulator.__main__ import _parse_build, _run_games
 
 app = FastAPI(title="Moreau Arena", version="1.0.0")
 
+# CORS middleware — allow all origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 RESULTS_DIR = _project_root / "results"
+
+# Reference builds for the /challenge endpoint
+REFERENCE_BUILDS = [
+    "bear 5 5 5 5",
+    "tiger 3 8 6 3",
+    "buffalo 8 6 4 2",
+    "wolf 4 6 7 3",
+    "scorpion 5 5 5 5",
+]
 
 
 class FightRequest(BaseModel):
@@ -50,6 +69,33 @@ class FightResponse(BaseModel):
     avg_ticks: float
 
 
+class ChallengeRequest(BaseModel):
+    build: str = Field(..., description='Build string, e.g. "bear 3 14 2 1"')
+    games: int = Field(default=100, ge=1, le=10000)
+
+    @field_validator("build")
+    @classmethod
+    def validate_build_string(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("Build string cannot be empty")
+        return v
+
+
+class ChallengeResult(BaseModel):
+    opponent: str
+    wins: int
+    losses: int
+    draws: int
+    win_rate: float
+
+
+class ChallengeResponse(BaseModel):
+    build: str
+    results: list[ChallengeResult]
+    overall_win_rate: float
+
+
 class LeaderboardEntry(BaseModel):
     agent: str
     series_wins: int
@@ -58,20 +104,17 @@ class LeaderboardEntry(BaseModel):
     win_rate: float
 
 
-@app.get("/")
-def index() -> FileResponse:
-    return FileResponse(STATIC_DIR / "index.html")
+# -- Shared logic ----------------------------------------------------------------
 
 
-@app.post("/fight", response_model=FightResponse)
-def fight(req: FightRequest) -> FightResponse:
+def _fight_logic(build1: str, build2: str, games: int) -> FightResponse:
     try:
-        animal_a, hp_a, atk_a, spd_a, wil_a = _parse_build(req.build1)
+        animal_a, hp_a, atk_a, spd_a, wil_a = _parse_build(build1)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=f"Invalid build1: {e}")
 
     try:
-        animal_b, hp_b, atk_b, spd_b, wil_b = _parse_build(req.build2)
+        animal_b, hp_b, atk_b, spd_b, wil_b = _parse_build(build2)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=f"Invalid build2: {e}")
 
@@ -79,7 +122,7 @@ def fight(req: FightRequest) -> FightResponse:
         result = _run_games(
             animal_a, hp_a, atk_a, spd_a, wil_a,
             animal_b, hp_b, atk_b, spd_b, wil_b,
-            req.games, base_seed=42,
+            games, base_seed=42,
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Simulation error: {e}")
@@ -148,9 +191,83 @@ def _load_leaderboard() -> list[dict[str, Any]]:
     return entries
 
 
+def _challenge_logic(build: str, games: int) -> ChallengeResponse:
+    try:
+        animal_c, hp_c, atk_c, spd_c, wil_c = _parse_build(build)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid build: {e}")
+
+    results = []
+    total_wins = 0
+    total_games = 0
+
+    for ref_build in REFERENCE_BUILDS:
+        animal_r, hp_r, atk_r, spd_r, wil_r = _parse_build(ref_build)
+        res = _run_games(
+            animal_c, hp_c, atk_c, spd_c, wil_c,
+            animal_r, hp_r, atk_r, spd_r, wil_r,
+            games, base_seed=42,
+        )
+        wins = res["wins_a"]
+        losses = res["wins_b"]
+        draws = res["draws"]
+        wr = wins / games if games > 0 else 0.0
+        total_wins += wins
+        total_games += games
+        results.append(ChallengeResult(
+            opponent=ref_build,
+            wins=wins,
+            losses=losses,
+            draws=draws,
+            win_rate=round(wr, 4),
+        ))
+
+    overall = total_wins / total_games if total_games > 0 else 0.0
+    return ChallengeResponse(
+        build=build,
+        results=results,
+        overall_win_rate=round(overall, 4),
+    )
+
+
+# -- Original routes (kept working) ---------------------------------------------
+
+
+@app.get("/")
+def index() -> FileResponse:
+    return FileResponse(STATIC_DIR / "index.html")
+
+
+@app.post("/fight", response_model=FightResponse)
+def fight(req: FightRequest) -> FightResponse:
+    return _fight_logic(req.build1, req.build2, req.games)
+
+
 @app.get("/leaderboard")
 def leaderboard() -> list[dict[str, Any]]:
     return _load_leaderboard()
 
+
+# -- API v1 router ---------------------------------------------------------------
+
+api_v1 = APIRouter(prefix="/api/v1")
+
+
+@api_v1.post("/fight", response_model=FightResponse)
+def api_fight(req: FightRequest) -> FightResponse:
+    return _fight_logic(req.build1, req.build2, req.games)
+
+
+@api_v1.get("/leaderboard")
+def api_leaderboard() -> list[dict[str, Any]]:
+    return _load_leaderboard()
+
+
+@api_v1.post("/challenge", response_model=ChallengeResponse)
+def api_challenge(req: ChallengeRequest) -> ChallengeResponse:
+    return _challenge_logic(req.build, req.games)
+
+
+app.include_router(api_v1)
 
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
