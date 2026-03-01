@@ -1,0 +1,74 @@
+Your task: design a combatant for Moreau Arena, a 1-versus-1 grid combat game (8×8 board).
+
+CONSTRAINTS:
+- You have a budget of exactly 20 stat points, split across HP, ATK, SPD, and WIL (each must be at least 1)
+- Pick one of the six animals below — each comes with a passive and two triggered abilities
+
+HOW STATS WORK:
+  max_hp = 50 + 10 * HP
+    (HP=3 means 80 health, HP=8 means 130 health, HP=14 means 190 health)
+  base_dmg = floor(2 + 0.85 * ATK)
+    (ATK=8 means 8 damage, ATK=14 means 13 damage)
+  dodge = max(0%, min(30%, 2.5% * (SPD - 1)))
+    Caveat: SPD=1 yields 0% dodge; SPD=5 yields 10%; SPD=13 hits the 30% ceiling
+  ability_resist = min(60%, WIL * 3.3%)
+    This is your chance to negate the ENEMY's ability procs. WIL=1 → 3.3%; WIL=10 → 33%; maximum 60%
+  ability_proc_bonus = WIL * 0.08% (stacks onto YOUR base proc rates)
+    With WIL=8, all your abilities gain +0.64% proc chance
+
+HOW COMBAT WORKS:
+- The fight runs on a tick system, capped at 60 ticks
+- At tick 30 a contracting ring appears, dealing growing damage to anyone on the outer squares
+- Abilities fire randomly each tick based on (base proc rate + WIL bonus)
+- Each tick resolves in this order: Attack → Buff ticks → Ability procs → Fury check → DoTs → Ring → Second Wind → Regen
+- Abilities with 3.5% base rate: Berserker Rage, Last Stand, Gore, Mimic, Iron Will
+- Abilities with 4.5% base rate: Pounce, Hamstring, Pack Howl, Rend, Chaos Strike, Stampede, Thick Hide
+
+THE SIX ANIMALS:
+  BEAR
+    Passive: Fury Protocol — gains bonus attack power when taking damage. Below 50% HP, Fury kicks in: +3 base_dmg for 5 ticks.
+    Abilities:
+  - Berserker Rage: Temporary ATK increase (+4 base_dmg), lasts 3 ticks. Triggers at 3.5% per tick.
+  - Last Stand: 2.0× damage multiplier when health falls below 15%. Single use per fight. Triggers at 3.5%.
+
+  BUFFALO
+    Passive: Thick Hide — natural damage absorption. Every incoming hit is reduced by a flat 2 damage.
+    Abilities:
+  - Thick Hide: Blocks 3 additional damage for 1 tick. Triggers at 4.5% per tick.
+  - Iron Will: Cheats death once, surviving at 1 HP instead of dying. Single use per fight. Triggers at 3.5%.
+
+  BOAR
+    Passive: Charge — powerful opening blow. The very first attack deals 1.5× base_dmg.
+    Abilities:
+  - Stampede: Hits an area for 0.4× base_dmg and pushes the target back. Triggers at 4.5% per tick.
+  - Gore: Strikes for 0.60× damage, but the hit cannot be dodged. Triggers at 3.5% per tick.
+
+  TIGER
+    Passive: Ambush Wiring — evasion specialist with a guaranteed opener. Gains +5% dodge; first attack bypasses the opponent's dodge.
+    Abilities:
+  - Pounce: +70% damage and stuns the enemy (they miss their next attack). Triggers at 4.5% per tick.
+  - Hamstring: Slashes opponent's SPD by 55% and dodge by 10% for 4 ticks. Triggers at 4.5% per tick.
+
+  WOLF
+    Passive: Pack Sense — enhanced ability triggering. All ability proc rates gain +1.5% bonus.
+    Abilities:
+  - Pack Howl: Buffs ATK (+3 base_dmg) for 4 ticks. Triggers at 4.5% per tick.
+  - Rend: Inflicts a bleed: 3 damage per tick for 3 ticks. Triggers at 4.5% per tick.
+
+  MONKEY
+    Passive: Primate Cortex — learns and copies the opponent's tricks via Mimic.
+    Abilities:
+  - Chaos Strike: Multiplies attack damage by a random factor between 0.5× and 2.0×. Triggers at 4.5% per tick.
+  - Mimic: Steals the opponent's last triggered ability. Triggers at 3.5% per tick.
+
+META CONTEXT (top builds from previous tournament, ranked by win rate):
+  1. BEAR 8/8/3/1 — 100% win rate (22 games)
+  2. BEAR 8/10/1/1 — 100% win rate (19 games)
+  3. BEAR 10/8/1/1 — 100% win rate (11 games)
+  4. BEAR 9/9/1/1 — 100% win rate (4 games)
+  5. WOLF 7/10/2/1 — 100% win rate (4 games)
+  Note: These builds were tested in blind pick (no adaptation). You can counter them or use them as a starting point.
+
+Output only a JSON object in this format:
+{"animal": "ANIMAL_NAME", "hp": N, "atk": N, "spd": N, "wil": N}
+The four stats must total 20, none below 1. Animal must match one listed above.
