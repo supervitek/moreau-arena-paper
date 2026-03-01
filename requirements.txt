@@ -1,5 +1,6 @@
 scipy>=1.10
 numpy>=1.24
+matplotlib>=3.7
 fastapi>=0.100
 uvicorn>=0.20
 flake8>=6.0

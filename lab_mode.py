@@ -1,11 +1,18 @@
-"""Laboratory Mode: iteration efficiency curve experiment.
+"""Laboratory Mode v2: iteration efficiency curve experiment.
 
 Gives an LLM unlimited local simulation access and measures how its
 proposed builds improve over successive rounds of feedback.
 
+v2 additions (Task 3.1):
+- Brute-force known optimum from simulator
+- Distance-to-optimum metric per round
+- iteration_curve.json output
+- Plot output (rounds x best_wr with optimum reference line)
+- Convergence tracking (round where improvement < 1pp)
+
 Usage:
     # Dry run (no API key needed)
-    python lab_mode.py --dry-run --provider openai --model test --rounds 3 \\
+    python lab_mode.py --dry-run --provider openai --model test --rounds 5 \\
         --builds-per-round 5 --games-per-pair 10
 
     # Real run with an LLM
@@ -301,6 +308,202 @@ def _build_pairwise_summary(
         lines.append(row)
 
     return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# Brute-force optimum finder
+# ---------------------------------------------------------------------------
+
+# Default field builds to test candidates against (diverse set from baselines)
+_FIELD_BUILDS = [
+    Build(animal=Animal.BEAR, hp=3, atk=14, spd=2, wil=1),   # SmartAgent
+    Build(animal=Animal.BUFFALO, hp=8, atk=6, spd=4, wil=2),  # Conservative
+    Build(animal=Animal.BOAR, hp=3, atk=13, spd=3, wil=1),    # Aggressive
+    Build(animal=Animal.TIGER, hp=2, atk=8, spd=7, wil=3),    # Speed-focused
+    Build(animal=Animal.WOLF, hp=5, atk=10, spd=3, wil=2),    # Balanced
+    Build(animal=Animal.BEAR, hp=5, atk=5, spd=5, wil=5),     # Even split
+    Build(animal=Animal.MONKEY, hp=4, atk=4, spd=4, wil=8),   # WIL-heavy
+    Build(animal=Animal.BOAR, hp=8, atk=8, spd=3, wil=1),     # HP+ATK tank
+]
+
+
+def _enumerate_all_builds() -> list[Build]:
+    """Enumerate all valid builds across all 6 lab animals.
+
+    For each animal, generates all stat allocations where
+    hp+atk+spd+wil=20 and each stat >= 1.
+    Total: 6 animals * C(19,3) = 6 * 969 = 5814 builds.
+    """
+    builds: list[Build] = []
+    for animal in _LAB_ANIMALS:
+        # Stars-and-bars: distribute 16 remaining points across 4 stats (each starts at 1)
+        for hp_extra in range(17):  # 0..16
+            for atk_extra in range(17 - hp_extra):
+                for spd_extra in range(17 - hp_extra - atk_extra):
+                    wil_extra = 16 - hp_extra - atk_extra - spd_extra
+                    builds.append(Build(
+                        animal=animal,
+                        hp=1 + hp_extra,
+                        atk=1 + atk_extra,
+                        spd=1 + spd_extra,
+                        wil=1 + wil_extra,
+                    ))
+    return builds
+
+
+def _find_optimum(
+    field: list[Build] | None = None,
+    games_per_pair: int = 10,
+    base_seed: int = 7777,
+) -> tuple[Build, float]:
+    """Find the brute-force optimal build by testing all valid builds vs a field.
+
+    Args:
+        field: Builds to test against. Defaults to _FIELD_BUILDS.
+        games_per_pair: Games per candidate-vs-field matchup.
+        base_seed: Base seed for simulations.
+
+    Returns:
+        (best_build, best_win_rate) tuple.
+    """
+    if field is None:
+        field = list(_FIELD_BUILDS)
+
+    all_builds = _enumerate_all_builds()
+    best_build = all_builds[0]
+    best_wr = 0.0
+    seed_offset = base_seed
+
+    total = len(all_builds)
+    for idx, candidate in enumerate(all_builds):
+        wins = 0
+        total_games = 0
+        for opponent in field:
+            if (candidate.animal == opponent.animal
+                    and candidate.hp == opponent.hp
+                    and candidate.atk == opponent.atk
+                    and candidate.spd == opponent.spd
+                    and candidate.wil == opponent.wil):
+                continue
+            res = _run_games(candidate, opponent, games_per_pair, seed_offset)
+            wins += res["wins_a"]
+            total_games += games_per_pair
+            seed_offset += games_per_pair
+
+        wr = wins / total_games if total_games > 0 else 0.0
+        if wr > best_wr:
+            best_wr = wr
+            best_build = candidate
+
+        if (idx + 1) % 1000 == 0:
+            print(f"  Optimum search: {idx + 1}/{total} builds tested...")
+
+    return best_build, best_wr
+
+
+def _compute_distance_to_optimum(
+    model_build: Build,
+    optimum_build: Build,
+    optimum_wr: float,
+    field: list[Build] | None = None,
+    games_per_pair: int = 10,
+    base_seed: int = 8888,
+) -> dict[str, Any]:
+    """Compute distance-to-optimum metrics for a model's best build.
+
+    Returns dict with:
+        model_wr: model build's win rate vs same field
+        optimum_wr: optimum build's win rate
+        distance_pp: difference in percentage points
+        ratio: model_wr / optimum_wr (1.0 = matched optimum)
+        head_to_head: model build vs optimum build win rate
+    """
+    if field is None:
+        field = list(_FIELD_BUILDS)
+
+    # Model build vs field
+    model_wins = 0
+    model_games = 0
+    seed_offset = base_seed
+    for opponent in field:
+        if (model_build.animal == opponent.animal
+                and model_build.hp == opponent.hp
+                and model_build.atk == opponent.atk
+                and model_build.spd == opponent.spd
+                and model_build.wil == opponent.wil):
+            continue
+        res = _run_games(model_build, opponent, games_per_pair, seed_offset)
+        model_wins += res["wins_a"]
+        model_games += games_per_pair
+        seed_offset += games_per_pair
+
+    model_wr = model_wins / model_games if model_games > 0 else 0.0
+
+    # Head-to-head: model vs optimum
+    h2h = _run_games(model_build, optimum_build, max(games_per_pair, 50), seed_offset)
+    h2h_wr = h2h["wins_a"] / max(games_per_pair, 50)
+
+    distance_pp = (optimum_wr - model_wr) * 100
+    ratio = model_wr / optimum_wr if optimum_wr > 0 else 0.0
+
+    return {
+        "model_wr": round(model_wr, 4),
+        "optimum_wr": round(optimum_wr, 4),
+        "distance_pp": round(distance_pp, 1),
+        "ratio": round(ratio, 4),
+        "head_to_head_wr": round(h2h_wr, 4),
+    }
+
+
+# ---------------------------------------------------------------------------
+# Plot generation
+# ---------------------------------------------------------------------------
+
+def _generate_plot(
+    curve: list[dict[str, Any]],
+    optimum_wr: float | None,
+    convergence_round: int,
+    model: str,
+    output_path: str,
+) -> str | None:
+    """Generate iteration curve plot (rounds x best_wr).
+
+    Returns the path to the saved PNG, or None if matplotlib unavailable.
+    """
+    try:
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+    except ImportError:
+        print("  Warning: matplotlib not available, skipping plot generation.")
+        return None
+
+    rounds = [entry["round"] for entry in curve]
+    best_wrs = [entry["best_wr"] for entry in curve]
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.plot(rounds, best_wrs, "b-o", linewidth=2, markersize=6, label="Best WR per round")
+
+    if optimum_wr is not None:
+        ax.axhline(y=optimum_wr, color="r", linestyle="--", linewidth=1.5,
+                    label=f"Known optimum ({optimum_wr:.1%})")
+
+    if convergence_round < len(curve):
+        ax.axvline(x=convergence_round, color="g", linestyle=":", linewidth=1.5,
+                    label=f"Convergence (round {convergence_round})")
+
+    ax.set_xlabel("Round", fontsize=12)
+    ax.set_ylabel("Best Win Rate (vs field)", fontsize=12)
+    ax.set_title(f"Moreau Arena Lab Mode — Iteration Curve\n{model}", fontsize=13)
+    ax.legend(loc="lower right", fontsize=10)
+    ax.set_ylim(0, 1.05)
+    ax.set_xticks(rounds)
+    ax.grid(True, alpha=0.3)
+
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=150)
+    plt.close(fig)
+    return output_path
 
 
 # ---------------------------------------------------------------------------
@@ -600,23 +803,32 @@ def run_lab(
     seed: int,
     dry_run: bool,
     output_dir: str,
+    skip_optimum: bool = False,
+    optimum_games: int = 0,
 ) -> dict[str, Any]:
     """Execute the laboratory mode experiment and return full results.
 
-    Returns a dict with model info, iteration curve, and totals.
+    Returns a dict with model info, iteration curve, distance-to-optimum,
+    and totals. Saves iteration_curve.json and iteration_curve.png.
     """
     curve: list[dict[str, Any]] = []
     total_simulations = 0
     total_api_calls = 0
     round_seed = seed
 
+    # Resolve optimum games: default to games_per_pair scaled down for speed
+    if optimum_games <= 0:
+        optimum_games = max(1, games_per_pair // 5)
+
     print(f"\n{'=' * 60}")
-    print("MOREAU ARENA -- LABORATORY MODE")
+    print("MOREAU ARENA -- LABORATORY MODE v2")
     print(f"{'=' * 60}")
     print(f"Model: {model} ({provider})")
     print(f"Rounds: {rounds} | Builds/round: {builds_per_round} | Games/pair: {games_per_pair}")
     if dry_run:
         print("Mode: DRY RUN (random builds, no API calls)")
+    if not skip_optimum:
+        print(f"Optimum search: enabled ({optimum_games} games/pair)")
     print()
 
     sims_per_round = builds_per_round * (builds_per_round - 1) // 2 * games_per_pair
@@ -763,6 +975,42 @@ def run_lab(
     comparison_res = _run_games(overall_best_build, smart_build, 100, seed + 999999)
     vs_smart_wr = comparison_res["wins_a"] / 100.0
 
+    # Brute-force optimum search
+    optimum_build: Build | None = None
+    optimum_wr: float | None = None
+    distance_metrics: dict[str, Any] | None = None
+
+    if not skip_optimum:
+        print("\n--- Finding brute-force optimum ---")
+        opt_start = time.time()
+        optimum_build, optimum_wr = _find_optimum(
+            games_per_pair=optimum_games,
+            base_seed=seed + 5_000_000,
+        )
+        opt_elapsed = time.time() - opt_start
+        print(
+            f"  Optimum: {_format_build(optimum_build)} "
+            f"({optimum_wr:.1%}) found in {opt_elapsed:.1f}s"
+        )
+
+        # Compute distance-to-optimum for model's best build
+        distance_metrics = _compute_distance_to_optimum(
+            model_build=overall_best_build,
+            optimum_build=optimum_build,
+            optimum_wr=optimum_wr,
+            games_per_pair=optimum_games,
+            base_seed=seed + 6_000_000,
+        )
+        print(
+            f"  Model vs field: {distance_metrics['model_wr']:.1%} | "
+            f"Optimum: {distance_metrics['optimum_wr']:.1%} | "
+            f"Distance: {distance_metrics['distance_pp']:+.1f}pp | "
+            f"Ratio: {distance_metrics['ratio']:.2f}"
+        )
+        print(
+            f"  Head-to-head vs optimum: {distance_metrics['head_to_head_wr']:.1%}"
+        )
+
     # Print final results
     derived = _compute_derived(
         overall_best_build.hp, overall_best_build.atk,
@@ -774,7 +1022,7 @@ def run_lab(
     improvement_pp = (last_wr - first_wr) * 100
 
     print(f"\n{'=' * 60}")
-    print("=== LABORATORY MODE RESULTS ===")
+    print("=== LABORATORY MODE v2 RESULTS ===")
     print(f"{'=' * 60}")
     print()
     print(f"Model: {model}")
@@ -818,8 +1066,18 @@ def run_lab(
         f"  Win rate vs SmartAgent's bear 3/14/2/1: {vs_smart_wr:.1%}"
     )
 
+    if optimum_build is not None and distance_metrics is not None:
+        print()
+        print(f"Known optimum: {_format_build(optimum_build)} ({optimum_wr:.1%} vs field)")
+        print(
+            f"Distance-to-optimum: {distance_metrics['distance_pp']:+.1f}pp "
+            f"(ratio: {distance_metrics['ratio']:.2f})"
+        )
+        print(f"Head-to-head vs optimum: {distance_metrics['head_to_head_wr']:.1%}")
+
     # Build output dict
-    output = {
+    output: dict[str, Any] = {
+        "version": 2,
         "model": model,
         "provider": provider,
         "rounds": rounds,
@@ -839,18 +1097,67 @@ def run_lab(
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
+    if optimum_build is not None and distance_metrics is not None:
+        output["optimum"] = {
+            "build": _build_to_dict(optimum_build),
+            "wr_vs_field": round(optimum_wr, 4),
+            "games_per_pair": optimum_games,
+        }
+        output["distance_to_optimum"] = distance_metrics
+
     # Save results
     out_path = Path(output_dir)
     out_path.mkdir(parents=True, exist_ok=True)
 
     ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     safe_model = re.sub(r"[^a-zA-Z0-9_.-]", "_", model)
+
+    # Save full results JSON
     filename = f"lab_{safe_model}_{ts}.json"
     filepath = out_path / filename
-
     with open(filepath, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
     print(f"\nResults saved to: {filepath}")
+
+    # Save iteration_curve.json (compact format for cross-model comparison)
+    curve_output = {
+        "model": model,
+        "provider": provider,
+        "rounds": rounds,
+        "seed": seed,
+        "convergence_round": convergence_round,
+        "curve": [
+            {
+                "round": entry["round"],
+                "best_build": entry["best_build"],
+                "best_wr": entry["best_wr"],
+            }
+            for entry in curve
+        ],
+    }
+    if optimum_wr is not None:
+        curve_output["optimum_wr"] = round(optimum_wr, 4)
+    if distance_metrics is not None:
+        curve_output["distance_to_optimum"] = distance_metrics
+
+    curve_filename = f"iteration_curve_{safe_model}_{ts}.json"
+    curve_filepath = out_path / curve_filename
+    with open(curve_filepath, "w", encoding="utf-8") as f:
+        json.dump(curve_output, f, indent=2, ensure_ascii=False)
+    print(f"Iteration curve saved to: {curve_filepath}")
+
+    # Generate plot
+    plot_filename = f"iteration_curve_{safe_model}_{ts}.png"
+    plot_filepath = str(out_path / plot_filename)
+    plot_result = _generate_plot(
+        curve=curve,
+        optimum_wr=optimum_wr,
+        convergence_round=convergence_round,
+        model=model,
+        output_path=plot_filepath,
+    )
+    if plot_result:
+        print(f"Plot saved to: {plot_result}")
 
     return output
 
@@ -882,16 +1189,19 @@ def _find_build_from_curve_entry(entry: dict[str, Any]) -> Build | None:
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
-        description="Moreau Arena -- Laboratory Mode (iteration efficiency curve)",
+        description="Moreau Arena -- Laboratory Mode v2 (iteration efficiency curve)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "Examples:\n"
             "  # Dry run (no API key needed)\n"
             '  python lab_mode.py --dry-run --provider openai --model test '
-            "--rounds 3 --builds-per-round 5 --games-per-pair 10\n\n"
+            "--rounds 5 --builds-per-round 5 --games-per-pair 10\n\n"
             "  # Real run\n"
             "  python lab_mode.py --provider anthropic "
-            "--model claude-sonnet-4-5 --rounds 10\n"
+            "--model claude-sonnet-4-5 --rounds 10\n\n"
+            "  # Skip optimum search (faster)\n"
+            "  python lab_mode.py --dry-run --provider openai --model test "
+            "--rounds 5 --skip-optimum\n"
         ),
     )
 
@@ -949,6 +1259,17 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=42,
         help="Random seed for reproducibility (default: 42)",
     )
+    parser.add_argument(
+        "--skip-optimum",
+        action="store_true",
+        help="Skip brute-force optimum search (faster, no distance-to-optimum)",
+    )
+    parser.add_argument(
+        "--optimum-games",
+        type=int,
+        default=0,
+        help="Games per pair for optimum search (default: games_per_pair / 5)",
+    )
 
     return parser.parse_args(argv)
 
@@ -977,6 +1298,8 @@ def main(argv: list[str] | None = None) -> None:
             seed=args.seed,
             dry_run=args.dry_run,
             output_dir=args.output_dir,
+            skip_optimum=args.skip_optimum,
+            optimum_games=args.optimum_games,
         )
     except KeyboardInterrupt:
         print("\nInterrupted by user.")
