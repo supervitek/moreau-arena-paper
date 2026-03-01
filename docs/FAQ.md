@@ -1,66 +1,45 @@
-# Moreau Arena — Frequently Asked Questions
+# FAQ — Moreau Arena
 
----
+## 1. What is Moreau Arena?
 
-### 1. What is Moreau Arena?
+Moreau Arena is a contamination-resistant strategic reasoning benchmark for large language models. It presents LLMs with a novel 1v1 creature combat game that does not exist in any training corpus, then measures how well they reason about stat allocation, counter-picking, and adaptation under uncertainty.
 
-Moreau Arena is a contamination-resistant benchmark for evaluating LLM strategic reasoning. Agents design a "build" (an animal plus a stat allocation) for a novel stochastic combat game whose rules are specified only in the prompt. The game is original — it does not exist in any training corpus — so models cannot rely on memorized strategies.
+## 2. Why is prompt sensitivity a concern?
 
----
+LLM benchmarks can produce different rankings depending on how the prompt is worded. Moreau addresses this through the Prompt Sensitivity Index (PSI): we run the same tournament with multiple paraphrased prompts and measure ranking stability using Kendall's tau. A PSI below 0.15 means the benchmark is prompt-robust.
 
-### 2. What does the benchmark actually measure?
+## 3. Why only six animals in the original tournaments?
 
-It measures whether an LLM can derive a strong strategy from a compact rule description under competition. Specifically, it tests formula comprehension, quantitative trade-off reasoning, adaptation to opponent behavior, and the ability to break prior assumptions when given new evidence.
+Six animals create a rich enough strategic space (6 animals × ~3,000 valid stat allocations = ~18,000 possible builds) while keeping the prompt short enough for single-turn reasoning. The animal roster can expand in future seasons without invalidating existing results, since each season's config is frozen independently.
 
----
+## 4. Is Moreau Arena a game?
 
-### 3. Why two tournaments instead of one?
+Moreau Arena is a benchmark that uses game mechanics as its measurement instrument. The combat is fully deterministic given a seed — there is no player skill involved during the fight. The only decision is the pre-fight build choice. This makes it a strategic reasoning task, not a game-playing task.
 
-The two tournaments form a controlled experiment. Tournament 001 (Track A) uses vague descriptions and no feedback — it reveals how models behave with incomplete information. Tournament 002 (Track B) provides exact formulas, meta context, and per-game adaptation. Comparing the same 13 agents across both conditions isolates what changes performance: not model capability itself, but the information scaffolding around it.
+## 5. Why Bradley-Terry over Elo?
 
----
+Bradley-Terry (BT) is a principled statistical model for pairwise comparisons that produces maximum-likelihood estimates with well-defined confidence intervals. Elo is an online approximation of BT that is order-dependent (results change depending on which games are processed first). We use BT as the primary metric for research and display Elo on the leaderboard only for familiarity.
 
-### 4. What is the "WIL trap"?
+## 6. How is Moreau different from existing LLM benchmarks?
 
-In T001, several LLMs systematically over-invested in willpower (WIL), a stat with low marginal utility under the true game mechanics. The qualitative prompt describes WIL as providing "ability resistance" and a "proc bonus," which sounds valuable — but the actual formulas make its returns negligible compared to ATK or HP. Models that pattern-matched RPG archetypes fell into this trap; baselines that allocated stats numerically did not.
+Most benchmarks test knowledge recall or code generation on problems that may appear in training data. Moreau tests strategic reasoning on a novel game that cannot be memorized. Key differences:
+- **Contamination-resistant:** The game rules are original and not in any training corpus.
+- **Pairwise comparison:** Models compete against each other, not against a fixed answer key.
+- **Adaptation measurement:** Track B measures whether models can learn from opponent feedback within a series.
+- **Reproducible:** All outcomes are deterministic given the seed, config hash, and prompt.
 
----
+## 7. Can I submit my own model?
 
-### 5. How are agents ranked?
+Yes. See `docs/AGENT_API.md` for the submission interface. You implement a `MoreauAgent` class with `get_build()` and optionally `adapt_build()` methods, then run your agent through the standard tournament protocol.
 
-The primary ranking method is Bradley-Terry (BT), computed from series outcomes (not individual games) with 95% confidence intervals via 1000-round bootstrap resampling. Elo is computed as a secondary display metric but is not used for formal claims. Each evaluation track has its own independent leaderboard — rankings are never compared across tracks.
+## 8. How do you ensure reproducibility?
 
----
+Every match outcome is determined by three inputs: the config hash (frozen), the match seed (recorded), and the model's build choice (logged in JSONL). Given these three values, anyone can replay any match and get identical results. The invariant test suite (`tests/test_invariants.py`) verifies this property on every commit.
 
-### 6. Can I submit my own model?
+## 9. What does the closing ring do?
 
-Yes. See `docs/CONTRIBUTING.md` for instructions. You implement the `MoreauAgent` interface (one method for initial build, one for adaptation), specify which track you are running, and submit your JSONL results. Your agent runs against the same frozen config and the same baseline opponents.
+The closing ring is a tiebreaker mechanism. Starting at tick 30 (out of 60 max), outer tiles begin dealing increasing damage to creatures standing on them. This prevents stalemates between defensive builds and ensures every match resolves within 60 ticks.
 
----
+## 10. Can Moreau Arena measure reasoning improvements over time?
 
-### 7. Why not use an existing game (chess, poker, Diplomacy)?
-
-Existing games are heavily represented in training data. An LLM that plays chess well may be retrieving openings, not reasoning strategically. Moreau Arena is a novel game — no corpus contains its rules, optimal strategies, or match transcripts. This makes it harder for models to shortcut via memorization and more likely that observed performance reflects actual reasoning.
-
----
-
-### 8. Is the simulator deterministic?
-
-Yes, given the same seed. Each game in a series uses a deterministic seed derived from the series base seed and the game number. This means any individual game can be replayed exactly. Stochasticity comes from ability procs and movement, but all randomness flows from the seed. The variance budget invariant ensures RNG explains less than 25% of outcomes.
-
----
-
-### 9. What are the four evaluation tracks?
-
-- **Track A (One-Shot):** Qualitative rules, no feedback, no examples. Run as T001.
-- **Track B (Feedback + Counter-Pick):** Exact formulas, meta context, per-game adaptation. Run as T002.
-- **Track C (Meta-Conditioned):** Qualitative rules + top-5 build examples, no formulas, no adaptation. Specified but not yet run.
-- **Track D (Tool-Augmented):** Exact formulas + limited simulator access, no examples, no adaptation. Specified but not yet run.
-
-Each track isolates one dimension. See `docs/TRACKS.md` for full protocols.
-
----
-
-### 10. What does "frozen core" mean?
-
-The game configuration (`config.json`) is cryptographically locked. Its SHA-256 hash is verified before every test run. No stat formula, proc rate, grid size, or combat mechanic can change without creating an entirely new core snapshot — which would invalidate all existing tournament data. This guarantees that T001 and T002 results are measured against identical game rules and that future submissions are compared on the same playing field.
+Yes. Because the benchmark is seasonal (each season freezes its config), you can track the same model across seasons or compare model versions on the same season. Lab Mode (`lab_mode.py`) specifically measures how efficiently a model converges to the optimal strategy over multiple rounds of feedback, providing iteration curves and distance-to-optimum metrics.
