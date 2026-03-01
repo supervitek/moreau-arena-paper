@@ -28,14 +28,11 @@ import json
 import math
 import os
 import random
-import re
 import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-
-from scipy.stats import kendalltau
 
 from agents.baselines import (
     BaseAgent,
@@ -363,18 +360,47 @@ def _fresh_agent(
 
 
 # ---------------------------------------------------------------------------
-# Kendall tau computation
+# Kendall tau computation (stdlib only, no scipy)
 # ---------------------------------------------------------------------------
+
+def _kendall_tau(x: list[int], y: list[int]) -> float:
+    """Compute Kendall tau correlation between two rank lists.
+
+    tau = (C - D) / (C + D)
+
+    where C = concordant pairs, D = discordant pairs.
+    Returns 0.0 if there are no pairs to compare.
+    """
+    n = len(x)
+    if n < 2:
+        return 0.0
+    concordant = 0
+    discordant = 0
+    for i in range(n):
+        for j in range(i + 1, n):
+            dx = x[i] - x[j]
+            dy = y[i] - y[j]
+            product = dx * dy
+            if product > 0:
+                concordant += 1
+            elif product < 0:
+                discordant += 1
+            # ties (product == 0) are ignored
+    total = concordant + discordant
+    if total == 0:
+        return 0.0
+    return (concordant - discordant) / total
+
 
 def _compute_psi(
     rankings: dict[str, list[BTResult]],
 ) -> dict[str, Any]:
-    """Compute pairwise Kendall τ between BT rankings from different prompts."""
+    """Compute pairwise Kendall tau between BT rankings from different prompts."""
     prompt_names = list(rankings.keys())
     if len(prompt_names) < 2:
         return {"error": "Need at least 2 prompt variants"}
 
-    # Build agent → rank mapping for each prompt
+    # Build agent -> rank mapping for each prompt
     rank_maps: dict[str, dict[str, int]] = {}
     for pname, bt_list in rankings.items():
         rank_maps[pname] = {r.name: i for i, r in enumerate(bt_list)}
@@ -398,13 +424,12 @@ def _compute_psi(
             ranks_1 = [rm1[a] for a in common]
             ranks_2 = [rm2[a] for a in common]
 
-            tau, p_value = kendalltau(ranks_1, ranks_2)
+            tau = _kendall_tau(ranks_1, ranks_2)
 
             pairwise_taus.append({
                 "prompt_a": p1,
                 "prompt_b": p2,
                 "kendall_tau": round(tau, 6),
-                "p_value": round(p_value, 6),
                 "n_agents": len(common),
             })
             tau_values.append(tau)
@@ -506,7 +531,7 @@ def run_psi(args: argparse.Namespace) -> None:
     print(f"  Label:        {psi_result.get('label', 'N/A')}")
     print(f"  Mean τ:       {psi_result.get('mean_kendall_tau', 'N/A')}")
     for pw in psi_result.get("pairwise", []):
-        print(f"  {pw['prompt_a']} ↔ {pw['prompt_b']}: τ={pw['kendall_tau']}, p={pw['p_value']}")
+        print(f"  {pw['prompt_a']} <-> {pw['prompt_b']}: tau={pw['kendall_tau']}")
     print(f"{'=' * 65}")
 
     # Save output
