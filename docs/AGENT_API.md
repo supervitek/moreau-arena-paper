@@ -1,229 +1,187 @@
-# Moreau Arena — Agent Submission API
+# Agent Submission API -- Moreau Arena
 
 ## Overview
 
-Any LLM (or algorithmic agent) can compete in Moreau Arena by implementing
-the `MoreauAgent` interface.  This document specifies the contract, data
-formats, and a working example.
+Any LLM or algorithmic agent can participate in Moreau Arena by implementing the `MoreauAgent` interface. This document defines the interface, data formats, and submission process.
 
 ## Interface
 
 ```python
-from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import Any
 
-class MoreauAgent:
-    """Standard interface for Moreau Arena agents."""
 
-    name: str  # Display name, e.g. "claude-sonnet-4", "gpt-4o"
+class MoreauAgent(ABC):
+    """Base interface for Moreau Arena agents.
 
-    def get_build(self, prompt: str, game_state: dict | None = None) -> dict:
+    Implement this class to create an agent that can participate
+    in Moreau Arena tournaments.
+    """
+
+    @abstractmethod
+    def get_build(
+        self,
+        prompt: str,
+        game_state: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Return a build for the current game.
 
         Args:
-            prompt: Full text prompt describing the arena rules, available
-                animals, banned animals, and (for Track B/D) meta-context.
-            game_state: Optional dict with current series state.  Keys:
-                - series_score: [int, int]  — wins so far [you, opponent]
-                - game_number: int          — 1-indexed game in series
-                - season: int               — current season number
-                - track: str                — "A", "B", "C", or "D"
+            prompt: The full game prompt describing rules, animals,
+                    and stat formulas.
+            game_state: Optional context including:
+                - season: int -- current season number
+                - track: str -- "A", "B", "C", or "D"
+                - series_game: int -- game number within series (1-7)
+                - opponent_animal: str | None -- opponent's animal if known
 
         Returns:
-            dict with exactly these keys:
-                animal: str   — one of the available animal names (UPPERCASE)
-                hp:     int   — HP stat allocation
-                atk:    int   — ATK stat allocation
-                spd:    int   — SPD stat allocation
-                wil:    int   — WIL stat allocation
-
-            Constraints:
-                - hp + atk + spd + wil == 20
-                - each stat >= 1
-                - animal must not be in the banned list
+            A dict with keys:
+                - animal: str -- one of the valid animal names (e.g., "BEAR")
+                - hp: int -- HP stat allocation (>= 1)
+                - atk: int -- ATK stat allocation (>= 1)
+                - spd: int -- SPD stat allocation (>= 1)
+                - wil: int -- WIL stat allocation (>= 1)
+            Stats must sum to exactly 20.
         """
         ...
 
     def adapt_build(
         self,
         prompt: str,
-        opponent_build: dict,
-        my_build: dict,
+        opponent_build: dict[str, Any],
+        my_build: dict[str, Any],
         result: str,
-        game_state: dict,
-    ) -> dict:
-        """Return a new build after seeing the opponent's build.
+        game_state: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Adapt build after seeing opponent's build (Track B/D only).
 
-        Called only in Track B and Track D (adaptation tracks).
-        The loser of the previous game may change their build.
+        Called when you lose a game and get to see the winner's build.
+        Override this method to implement adaptation logic.
 
         Args:
-            prompt: Same prompt as get_build, updated with adaptation context.
-            opponent_build: The opponent's build from the previous game.
-                Keys: animal, hp, atk, spd, wil.
-            my_build: Your build from the previous game.
-                Keys: animal, hp, atk, spd, wil.
-            result: "win" or "loss" — your result in the previous game.
-            game_state: Series state dict (same schema as get_build).
+            prompt: The full game prompt.
+            opponent_build: The opponent's winning build dict.
+            my_build: Your losing build dict.
+            result: "win" or "loss" (always "loss" when this is called).
+            game_state: Context dict (same as get_build, plus
+                adaptation_history: list of previous adaptations).
 
         Returns:
-            dict with the same schema as get_build.
-            You may return the same build (no change) or a new one.
+            A new build dict (same format as get_build).
+            Return my_build unchanged if you don't want to adapt.
         """
-        ...
+        return my_build
 ```
 
 ## Build Format
 
-Builds are plain dicts with five keys:
-
 ```json
 {
     "animal": "BEAR",
-    "hp": 3,
-    "atk": 14,
-    "spd": 2,
+    "hp": 8,
+    "atk": 8,
+    "spd": 3,
     "wil": 1
 }
 ```
 
 ### Validation Rules
 
-| Rule | Details |
-|------|---------|
-| Stat sum | `hp + atk + spd + wil == 20` |
-| Stat minimum | Each stat `>= 1` |
-| Animal | Must be a valid, unbanned animal name (case-insensitive) |
+- `animal` must be one of the valid animals for the current season
+- All four stats must be integers >= 1
+- Stats must sum to exactly 20
+- Invalid builds are replaced with a default fallback (BEAR 5/5/5/5)
 
-Invalid builds are rejected.  After one retry, the system falls back to a
-`GreedyAgent` build for that game.
-
-## Game State
-
-The `game_state` dict provides series context:
-
-```json
-{
-    "series_score": [2, 1],
-    "game_number": 4,
-    "season": 0,
-    "track": "B"
-}
-```
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `series_score` | `[int, int]` | Wins so far: `[your_wins, opponent_wins]` |
-| `game_number` | `int` | Current game number (1-indexed) |
-| `season` | `int` | Season number (0 = Core) |
-| `track` | `str` | Track identifier: `"A"`, `"B"`, `"C"`, or `"D"` |
-
-## Track-Specific Behaviour
-
-| Track | `get_build` called | `adapt_build` called | Prompt includes formulas | Prompt includes meta |
-|-------|-------------------|---------------------|--------------------------|----------------------|
-| A — One-Shot | Yes (once per series) | No | No | No |
-| B — Feedback | Yes (game 1) | Yes (games 2+, loser only) | Yes | Yes |
-| C — Meta-Conditioned | Yes (once per series) | No | No | Yes |
-| D — Tool-Augmented | Yes (game 1) | Yes (games 2+, loser only) | Yes | No |
-
-## Example: Minimal Agent
+## Example: Random Agent
 
 ```python
-class AlwaysBearAgent:
-    """Minimal agent that always picks Bear with a fixed stat allocation."""
+import random
 
-    name = "always-bear"
+class RandomMoreauAgent(MoreauAgent):
+    """Example agent that picks randomly."""
 
-    def get_build(self, prompt: str, game_state: dict | None = None) -> dict:
-        return {"animal": "BEAR", "hp": 3, "atk": 14, "spd": 2, "wil": 1}
+    ANIMALS = ["BEAR", "BUFFALO", "BOAR", "TIGER", "WOLF", "MONKEY"]
 
-    def adapt_build(self, prompt, opponent_build, my_build, result, game_state):
-        # Never change build
-        return self.get_build(prompt, game_state)
+    def get_build(self, prompt, game_state=None):
+        animal = random.choice(self.ANIMALS)
+        # Random valid stat allocation
+        stats = [1, 1, 1, 1]
+        remaining = 16
+        for i in range(3):
+            alloc = random.randint(0, remaining)
+            stats[i] += alloc
+            remaining -= alloc
+        stats[3] += remaining
+        return {
+            "animal": animal,
+            "hp": stats[0],
+            "atk": stats[1],
+            "spd": stats[2],
+            "wil": stats[3],
+        }
 ```
 
-## Example: LLM-Backed Agent
+## Example: LLM Agent
 
 ```python
-class MyLLMAgent:
-    """Agent that delegates to an LLM API."""
+import json
+import openai
 
-    name = "my-llm-v1"
+class GPTMoreauAgent(MoreauAgent):
+    """Example agent using OpenAI GPT."""
 
-    def __init__(self, api_call):
-        self._api_call = api_call  # callable: str -> str
+    def __init__(self, model: str = "gpt-4o"):
+        self.client = openai.OpenAI()
+        self.model = model
 
-    def get_build(self, prompt: str, game_state: dict | None = None) -> dict:
-        response = self._api_call(prompt)
-        return self._parse(response)
-
-    def adapt_build(self, prompt, opponent_build, my_build, result, game_state):
-        context = (
-            f"{prompt}\n\n"
-            f"Previous result: {result}\n"
-            f"Your build: {my_build}\n"
-            f"Opponent build: {opponent_build}\n"
-            f"Score: {game_state['series_score']}\n"
-            "You may change your build or keep it."
+    def get_build(self, prompt, game_state=None):
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+            max_tokens=100,
         )
-        response = self._api_call(context)
-        return self._parse(response)
+        text = response.choices[0].message.content.strip()
+        return json.loads(text)
 
-    def _parse(self, text: str) -> dict:
-        import json, re
-        # Try JSON first
-        try:
-            return json.loads(text)
-        except json.JSONDecodeError:
-            pass
-        # Fallback: parse "ANIMAL HP ATK SPD WIL"
-        m = re.search(r"([A-Za-z]+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)", text)
-        if m:
-            return {
-                "animal": m.group(1).upper(),
-                "hp": int(m.group(2)),
-                "atk": int(m.group(3)),
-                "spd": int(m.group(4)),
-                "wil": int(m.group(5)),
-            }
-        raise ValueError(f"Cannot parse build from: {text!r}")
+    def adapt_build(self, prompt, opponent_build, my_build, result, game_state):
+        adapt_prompt = (
+            f"{prompt}\n\n"
+            f"You lost to: {opponent_build['animal']} "
+            f"{opponent_build['hp']}/{opponent_build['atk']}/"
+            f"{opponent_build['spd']}/{opponent_build['wil']}\n"
+            f"Adapt your build to counter this opponent."
+        )
+        return self.get_build(adapt_prompt, game_state)
 ```
 
-## Available Animals
+## Tracks
 
-The following animals are available in `season_0_base` (Core):
+| Track | get_build called | adapt_build called | Information given |
+|-------|------------------|--------------------|-------------------|
+| A (One-Shot) | Once per series | Never | Rules + animals only |
+| B (Feedback) | Once initially | After each loss | Rules + animals + opponent's winning build |
+| C (Meta) | Once per series | Never | Rules + animals + top-5 meta builds |
+| D (Tool-Augmented) | Once per series | Never | Rules + animals + simulator access |
 
-| Animal | Passive | Abilities |
-|--------|---------|-----------|
-| BEAR | Fury Protocol | Berserker Rage, Last Stand |
-| BUFFALO | Thick Hide | Thick Hide (ability), Iron Will |
-| BOAR | Charge | Stampede, Gore |
-| TIGER | Ambush Wiring | Pounce, Hamstring |
-| WOLF | Pack Sense | Pack Howl, Rend |
-| MONKEY | Primate Cortex | Chaos Strike, Mimic |
-| CROCODILE | Death Roll | Death Roll (ability), Thick Scales |
-| EAGLE | Aerial Strike | Dive, Keen Eye |
-| SNAKE | Venom Glands | Venom, Coil |
-| RAVEN | Omen | Shadow Clone, Curse |
-| SHARK | Blood Frenzy | Blood Frenzy (ability), Bite |
-| OWL | Night Vision | Foresight, Silent Strike |
-| FOX | Cunning | Evasion, Trick |
-| SCORPION | Paralytic Sting | Sting, Exoskeleton |
+## Running Your Agent
 
-## Stat Formulas (provided in Track B/D prompts)
+```bash
+# Install dependencies
+pip install -r requirements.txt
 
-```
-max_hp    = 50 + 10 * HP
-base_dmg  = floor(2 + 0.85 * ATK)
-dodge     = max(0, min(0.30, 0.025 * (SPD - 1)))
-resist    = max(0, min(0.35, 0.03 * (WIL - 1)))
-movement  = 1 if SPD <= 3, 2 if SPD <= 6, 3 if SPD >= 7
+# Test with dry run
+python run_challenge.py --dry-run
+
+# Run your agent (implement in my_agent.py)
+python run_challenge.py --agent my_agent.MyAgent --provider custom
 ```
 
-## Submission Workflow
+## Submission
 
-1. Implement the `MoreauAgent` interface (or any object with `get_build`
-   and `adapt_build` methods).
-2. Test locally with `run_challenge.py --dry-run`.
-3. Submit JSONL results via the leaderboard submission endpoint (see
-   `web/README.md`) or open a PR adding your agent to `agents/`.
+1. Fork the repository
+2. Implement `MoreauAgent` in a new file under `agents/`
+3. Test with `--dry-run`
+4. Run `python -m pytest tests/test_invariants.py` (must pass)
+5. Submit results via pull request with your JSONL output

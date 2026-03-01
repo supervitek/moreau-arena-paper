@@ -1,203 +1,258 @@
+#!/usr/bin/env python3
 """Season patch generator for Moreau Arena.
 
-Reads tournament JSONL results, computes per-animal win-rate EMA (alpha=0.15),
-and proposes beta=0.03 proc-rate adjustments for the next season patch.
+Reads tournament results, computes per-animal win-rate EMA,
+and proposes proc_rate adjustments to rebalance outliers.
 
 Usage:
-    python -m seasons.patch_generator \
-        --results data/tournament_002/results.jsonl \
-        --base seasons/season_0_base.json \
-        --out seasons/season_1_patch.json
+    python seasons/patch_generator.py --input data/tournament_002/results.jsonl --dry-run
+    python seasons/patch_generator.py --input data/tournament_002/results.jsonl --output seasons/season_1_patch.json
 """
 
 from __future__ import annotations
 
 import argparse
-import copy
 import json
 import sys
 from collections import defaultdict
 from pathlib import Path
 
+# ---------- constants ----------
 
-DEFAULT_ALPHA = 0.15
-DEFAULT_BETA = 0.03
-TARGET_WR = 0.50
-PROC_FLOOR = 0.025
-PROC_CEILING = 0.055
+ALPHA = 0.15          # EMA smoothing factor
+BETA = 0.03           # max proc-rate change per season
+TARGET_WR = 0.50      # ideal win rate
+UPPER_BOUND = 0.55    # animals above this are nerfed
+LOWER_BOUND = 0.45    # animals below this are buffed
+PROC_FLOOR = 0.025    # minimum allowed proc rate
+PROC_CEILING = 0.055  # maximum allowed proc rate
+
+BASE_CONFIG_PATH = Path(__file__).resolve().parent / "season_0_base.json"
 
 
-def compute_win_rates(results_path: Path) -> dict[str, float]:
-    """Compute per-animal win rate from JSONL tournament results."""
-    wins: dict[str, int] = defaultdict(int)
-    games: dict[str, int] = defaultdict(int)
+# ---------- helpers ----------
 
+def load_base_config() -> dict:
+    """Load the frozen base config (season 0)."""
+    with open(BASE_CONFIG_PATH) as f:
+        return json.load(f)
+
+
+def parse_results(results_path: Path) -> list[dict]:
+    """Parse JSONL results into a list of series dicts."""
+    series_list: list[dict] = []
     with open(results_path) as f:
         for line in f:
             line = line.strip()
             if not line:
                 continue
-            series = json.loads(line)
-            for game in series.get("games", []):
-                animal_a = game["build_a"]["animal"].lower()
-                animal_b = game["build_b"]["animal"].lower()
-                winner = game["winner"]
+            series_list.append(json.loads(line))
+    return series_list
 
-                games[animal_a] += 1
-                games[animal_b] += 1
 
-                if winner == series["agent_a"]:
-                    wins[animal_a] += 1
-                elif winner == series["agent_b"]:
-                    wins[animal_b] += 1
+def compute_raw_win_rates(series_list: list[dict]) -> dict[str, float]:
+    """Compute raw per-animal win rate from game-level results.
+
+    Each game contributes one win and one loss to the relevant animals.
+    """
+    wins: dict[str, int] = defaultdict(int)
+    games: dict[str, int] = defaultdict(int)
+
+    for series in series_list:
+        agent_a = series["agent_a"]
+        agent_b = series["agent_b"]
+
+        for game in series.get("games", []):
+            animal_a = game["build_a"]["animal"].lower()
+            animal_b = game["build_b"]["animal"].lower()
+
+            games[animal_a] += 1
+            games[animal_b] += 1
+
+            winner = game["winner"]
+            if winner == agent_a:
+                wins[animal_a] += 1
+            elif winner == agent_b:
+                wins[animal_b] += 1
 
     rates: dict[str, float] = {}
-    for animal in games:
+    for animal in sorted(games):
         if games[animal] > 0:
             rates[animal] = wins[animal] / games[animal]
     return rates
 
 
-def ema_smooth(
+def apply_ema(
     raw_rates: dict[str, float],
-    prior: dict[str, float] | None = None,
-    alpha: float = DEFAULT_ALPHA,
+    alpha: float = ALPHA,
 ) -> dict[str, float]:
-    """Apply EMA smoothing to win rates.
+    """Apply EMA smoothing to raw win rates.
 
-    EMA_new = alpha * observed + (1 - alpha) * prior
-    If no prior exists, uses TARGET_WR (0.50) as initial value.
+    EMA = alpha * observed + (1 - alpha) * prior
+    Prior defaults to TARGET_WR (0.50) for the first observation.
     """
     smoothed: dict[str, float] = {}
     for animal, observed in raw_rates.items():
-        prev = prior.get(animal, TARGET_WR) if prior else TARGET_WR
-        smoothed[animal] = alpha * observed + (1.0 - alpha) * prev
+        prior = TARGET_WR
+        smoothed[animal] = alpha * observed + (1.0 - alpha) * prior
     return smoothed
 
 
-def propose_adjustments(
+def propose_proc_rate_adjustments(
     ema_rates: dict[str, float],
     base_config: dict,
-    beta: float = DEFAULT_BETA,
+    beta: float = BETA,
 ) -> dict[str, dict]:
-    """Propose proc-rate adjustments based on EMA win rates.
+    """Propose proc_rate adjustments for outlier animals.
 
-    Animals above TARGET_WR get proc rates reduced by beta.
-    Animals below TARGET_WR get proc rates increased by beta.
-    Adjustments are clamped to [PROC_FLOOR, PROC_CEILING].
+    - WR > 0.55: decrease proc rates by beta (not below PROC_FLOOR)
+    - WR < 0.45: increase proc rates by beta (not above PROC_CEILING)
+    - Animals within [0.45, 0.55] are untouched.
 
-    Returns dict of {animal: {ability_name: new_proc_rate, ...}}.
+    Returns a patch dict containing only modified proc rates:
+        {animal_name: {ability_name: new_proc_rate, ...}, ...}
     """
-    animals = base_config.get("animals", {})
-    adjustments: dict[str, dict] = {}
+    animals_cfg = base_config.get("animals", {})
+    patch: dict[str, dict] = {}
 
     for animal_name, ema_wr in ema_rates.items():
-        animal_cfg = animals.get(animal_name)
+        animal_cfg = animals_cfg.get(animal_name)
         if animal_cfg is None:
             continue
 
-        deviation = ema_wr - TARGET_WR
-        if abs(deviation) < 0.01:
+        if ema_wr > UPPER_BOUND:
+            delta = -beta
+        elif ema_wr < LOWER_BOUND:
+            delta = +beta
+        else:
             continue
-
-        direction = -1.0 if deviation > 0 else 1.0
-        delta = direction * beta
 
         ability_changes: dict[str, float] = {}
         for ability in animal_cfg.get("abilities", []):
             old_rate = ability["proc_chance"]
-            new_rate = max(PROC_FLOOR, min(PROC_CEILING, old_rate + delta))
+            new_rate = old_rate + delta
+            new_rate = max(PROC_FLOOR, min(PROC_CEILING, new_rate))
             if new_rate != old_rate:
                 ability_changes[ability["name"]] = round(new_rate, 4)
 
         if ability_changes:
-            adjustments[animal_name] = {
-                "ema_wr": round(ema_wr, 4),
-                "deviation": round(deviation, 4),
-                "ability_adjustments": ability_changes,
+            patch[animal_name] = {
+                "ema_win_rate": round(ema_wr, 4),
+                "proc_rate_changes": ability_changes,
             }
-
-    return adjustments
-
-
-def generate_patch(
-    base_config: dict,
-    adjustments: dict[str, dict],
-    season: int,
-) -> dict:
-    """Apply adjustments to base config, producing a season patch config."""
-    patch = copy.deepcopy(base_config)
-
-    patch["meta"]["version"] = f"MOREAU_SEASON_{season}"
-    patch["meta"]["description"] = (
-        f"Season {season} balance patch — proc-rate adjustments from EMA win rates"
-    )
-    patch["meta"]["base_version"] = "MOREAU_CORE_v1"
-    patch["meta"]["season"] = season
-
-    for animal_name, adj in adjustments.items():
-        animal_cfg = patch["animals"].get(animal_name)
-        if animal_cfg is None:
-            continue
-        for ability in animal_cfg["abilities"]:
-            new_rate = adj["ability_adjustments"].get(ability["name"])
-            if new_rate is not None:
-                ability["proc_chance"] = new_rate
-
-    # Recalculate hash for patched config
-    patch.pop("sha256", None)
 
     return patch
 
 
+def build_season_patch(
+    adjustments: dict[str, dict],
+    base_config: dict,
+) -> dict:
+    """Build a season patch JSON containing only the changed proc rates.
+
+    The patch is a minimal dict that can be overlaid onto the base config.
+    """
+    patch: dict = {
+        "meta": {
+            "description": "Season patch -- proc_rate adjustments only",
+            "base_version": base_config["meta"]["version"],
+            "parameters": {
+                "ema_alpha": ALPHA,
+                "adjustment_beta": BETA,
+                "upper_bound": UPPER_BOUND,
+                "lower_bound": LOWER_BOUND,
+                "proc_rate_floor": PROC_FLOOR,
+                "proc_rate_ceiling": PROC_CEILING,
+            },
+        },
+        "animals": {},
+    }
+
+    for animal_name, adj in sorted(adjustments.items()):
+        abilities: list[dict] = []
+        for ability_name, new_rate in adj["proc_rate_changes"].items():
+            abilities.append({
+                "name": ability_name,
+                "proc_chance": new_rate,
+            })
+        patch["animals"][animal_name] = {
+            "ema_win_rate": adj["ema_win_rate"],
+            "abilities": abilities,
+        }
+
+    return patch
+
+
+# ---------- main ----------
+
 def main(argv: list[str] | None = None) -> None:
-    parser = argparse.ArgumentParser(description="Generate season balance patch")
-    parser.add_argument(
-        "--results", required=True, type=Path, help="Path to JSONL results file"
+    parser = argparse.ArgumentParser(
+        description="Generate season balance patch from tournament results",
     )
     parser.add_argument(
-        "--base", required=True, type=Path, help="Path to base config (season_0_base.json)"
+        "--input",
+        required=True,
+        type=Path,
+        help="Path to JSONL results file",
     )
     parser.add_argument(
-        "--out", required=True, type=Path, help="Output path for patch config"
+        "--dry-run",
+        action="store_true",
+        help="Print proposed adjustments without writing a patch file",
     )
     parser.add_argument(
-        "--alpha", type=float, default=DEFAULT_ALPHA, help="EMA smoothing factor"
-    )
-    parser.add_argument(
-        "--beta", type=float, default=DEFAULT_BETA, help="Max proc-rate adjustment"
-    )
-    parser.add_argument(
-        "--season", type=int, default=1, help="Season number for the patch"
+        "--output",
+        type=Path,
+        default=None,
+        help="Output path for season patch JSON (required unless --dry-run)",
     )
     args = parser.parse_args(argv)
 
-    with open(args.base) as f:
-        base_config = json.load(f)
+    if not args.dry_run and args.output is None:
+        parser.error("--output is required when not using --dry-run")
 
-    raw_rates = compute_win_rates(args.results)
-    ema_rates = ema_smooth(raw_rates, alpha=args.alpha)
-    adjustments = propose_adjustments(ema_rates, base_config, beta=args.beta)
+    # Load base config
+    base_config = load_base_config()
 
-    print("=== Win Rate EMA ===")
+    # Parse results and compute win rates
+    series_list = parse_results(args.input)
+    raw_rates = compute_raw_win_rates(series_list)
+    ema_rates = apply_ema(raw_rates, alpha=ALPHA)
+
+    # Propose adjustments
+    adjustments = propose_proc_rate_adjustments(ema_rates, base_config, beta=BETA)
+
+    # Display results
+    print("=== Per-Animal Win Rates (EMA smoothed) ===")
     for animal, wr in sorted(ema_rates.items(), key=lambda x: -x[1]):
-        marker = "▲" if wr > TARGET_WR + 0.01 else ("▼" if wr < TARGET_WR - 0.01 else "=")
-        print(f"  {animal:12s}  {wr:.3f}  {marker}")
+        if wr > UPPER_BOUND:
+            marker = "NERF"
+        elif wr < LOWER_BOUND:
+            marker = "BUFF"
+        else:
+            marker = "OK"
+        print(f"  {animal:12s}  WR={wr:.4f}  [{marker}]")
 
-    print("\n=== Proposed Adjustments ===")
+    print()
+    print("=== Proposed Proc Rate Adjustments ===")
     if not adjustments:
-        print("  (none — all animals within tolerance)")
-    for animal, adj in sorted(adjustments.items()):
-        print(f"  {animal}: deviation={adj['deviation']:+.3f}")
-        for ability, new_rate in adj["ability_adjustments"].items():
-            print(f"    {ability}: -> {new_rate}")
+        print("  (no adjustments needed -- all animals within bounds)")
+    for animal_name, adj in sorted(adjustments.items()):
+        print(f"  {animal_name}  (EMA WR={adj['ema_win_rate']:.4f}):")
+        for ability_name, new_rate in adj["proc_rate_changes"].items():
+            print(f"    {ability_name}: -> {new_rate:.4f}")
 
-    patch = generate_patch(base_config, adjustments, args.season)
+    if args.dry_run:
+        print("\n[dry-run] No patch file written.")
+        return
 
-    args.out.parent.mkdir(parents=True, exist_ok=True)
-    with open(args.out, "w") as f:
+    # Write patch
+    patch = build_season_patch(adjustments, base_config)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    with open(args.output, "w") as f:
         json.dump(patch, f, indent=2)
-    print(f"\nPatch written to {args.out}")
+        f.write("\n")
+    print(f"\nPatch written to {args.output}")
 
 
 if __name__ == "__main__":

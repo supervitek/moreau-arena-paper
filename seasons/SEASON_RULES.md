@@ -1,89 +1,44 @@
-# Season Rules — Moreau Arena
+# Season Rules -- Moreau Arena
 
-## Overview
+## Core Principle
 
-Seasons provide a structured cadence for balance updates without invalidating
-historical data.  Each season freezes a config snapshot; changes happen only
-between seasons.
+The base configuration (`season_0_base.json`) is permanently frozen. All balance changes happen through seasonal patches applied on top of the base.
 
-## Principles
+## How Seasons Work
 
-1. **Within a season the config is FROZEN.**  No mid-season balance changes.
-2. **Between seasons** `patch_generator.py` proposes adjustments based on
-   observed win-rate EMA.  Changes are reviewed, approved, and saved as
-   `season_N_patch.json`.
-3. **Core suite always runs on `season_0_base.json`** — it never changes.
-   This ensures longitudinal comparability.
-4. **Season suite runs on `season_N_patch.json`** — results are tagged with the
-   season number and cannot be compared across seasons in the same leaderboard.
+1. **Within a season:** The config is FROZEN. No mid-season balance changes.
+2. **Between seasons:** The patch generator proposes adjustments based on accumulated win-rate data.
+3. **Patch review:** Proposed changes are reviewed and approved before being saved as `season_N_patch.json`.
+4. **Core suite:** Always runs on `season_0_base.json` (the frozen core). Core results are never affected by seasonal patches.
+5. **Seasonal suite:** Runs on the patched config for that season.
 
-## Directory Layout
+## Patch Generator Parameters
 
-```
-seasons/
-├── season_0_base.json      # Exact copy of the frozen Core config
-├── season_1_patch.json     # First balance patch (generated, reviewed)
-├── season_N_patch.json     # Subsequent patches
-├── patch_generator.py      # EMA-based balance proposer
-└── SEASON_RULES.md         # This file
-```
-
-## Patch Generation Process
-
-1. **Collect data.**  Run a full tournament on the current season config.
-2. **Compute EMA win rates.**  `patch_generator.py` reads the JSONL results
-   and applies exponential moving average smoothing (alpha = 0.15).
-3. **Propose adjustments.**  Animals whose EMA win rate deviates more than 1 pp
-   from 50 % receive proc-rate changes of ±beta (beta = 0.03).
-   - Over-performing animals → proc rates decreased
-   - Under-performing animals → proc rates increased
-   - Rates are clamped to [0.025, 0.055]
-4. **Review.**  A human reviews the proposed patch.  Adjustments may be
-   accepted, modified, or rejected.
-5. **Save.**  The approved patch is saved as `season_N_patch.json`.
-6. **Announce.**  The new season begins; the previous season's leaderboard is
-   archived.
-
-### Running the generator
-
-```bash
-python -m seasons.patch_generator \
-    --results data/tournament_002/results.jsonl \
-    --base seasons/season_0_base.json \
-    --out seasons/season_1_patch.json \
-    --alpha 0.15 \
-    --beta 0.03 \
-    --season 1
-```
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| EMA alpha | 0.15 | Smoothing factor for win-rate calculation |
+| Adjustment beta | 0.03 | Maximum proc-rate change per season |
+| Proc rate floor | 0.025 | Minimum allowed proc rate |
+| Proc rate ceiling | 0.055 | Maximum allowed proc rate |
+| Target win rate | 0.55 | Animals above this are nerfed |
+| Lower bound | 0.45 | Animals below this are buffed |
 
 ## What Can Change Between Seasons
 
-- Ability proc rates (within [0.025, 0.055])
-- Ability coefficient tuning (duration, damage multipliers)
+- Ability proc rates (within floor/ceiling bounds)
+- New animals may be added (existing animals are never removed)
 
 ## What NEVER Changes
 
-These parameters are locked to Core and are **not** subject to seasonal
-adjustment.  Changing any of them requires a new Core snapshot (v2.0):
-
-- Damage / HP / dodge formulas
-- Ring behaviour (tick, damage, size)
-- Turn order / initiative system
-- Grid size (8×8)
+- Stat formulas (HP, ATK, SPD, WIL calculations)
+- Combat mechanics (tick order, ring timing, damage formula)
+- Grid dimensions (8x8)
 - Stat budget (20 points)
 - Series format (best-of-7)
+- Base config hash
 
-## Leaderboard Isolation
+## Season History
 
-- Each season has its own leaderboard.
-- Rankings from Season N are never merged with Season M.
-- The Core leaderboard (season 0) persists across all seasons for
-  longitudinal comparison.
-
-## Versioning
-
-| Field | Example | Meaning |
-|-------|---------|---------|
-| `meta.version` | `MOREAU_SEASON_1` | Season identifier |
-| `meta.base_version` | `MOREAU_CORE_v1` | Core snapshot this season derives from |
-| `meta.season` | `1` | Integer season number |
+| Season | Config | Status | Notes |
+|--------|--------|--------|-------|
+| 0 | `season_0_base.json` | ACTIVE | Frozen core, identical to `config.json` |
