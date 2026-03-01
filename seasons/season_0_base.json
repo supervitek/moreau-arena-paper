@@ -1,0 +1,589 @@
+{
+  "meta": {
+    "version": "MOREAU_CORE_v1",
+    "format_version": 1,
+    "description": "Frozen configuration pinning all outcome-affecting parameters"
+  },
+  "arena": {
+    "grid_width": 8,
+    "grid_height": 8,
+    "max_ticks": 60,
+    "ring_start_tick": 30,
+    "ring_damage_pct": 0.02,
+    "ring_safe_zones": {
+      "offset_0_4": {
+        "min": 1,
+        "max": 6
+      },
+      "offset_5_9": {
+        "min": 2,
+        "max": 5
+      },
+      "offset_10_plus": {
+        "min": 2,
+        "max": 5
+      }
+    }
+  },
+  "stat_system": {
+    "total_points": 20,
+    "min_per_stat": 1,
+    "stat_names": [
+      "hp",
+      "atk",
+      "spd",
+      "wil"
+    ],
+    "formulas": {
+      "max_hp": "50 + 10 * hp",
+      "base_dmg": "floor(2 + 0.85 * atk)",
+      "movement": "1 if spd<=3, 2 if spd<=6, 3 if spd>=7",
+      "dodge": "max(0, min(0.30, 0.025 * (spd - 1)))",
+      "ability_range": "min(4, ceil(wil / 2))",
+      "resist": "max(0, min(0.35, 0.03 * (wil - 1)))",
+      "ability_power": "1.0 + 0.05 * wil"
+    },
+    "size_thresholds": {
+      "1x1": "hp+atk <= 10",
+      "2x1": "hp+atk <= 12",
+      "2x2": "hp+atk <= 17",
+      "3x2": "hp+atk > 17"
+    }
+  },
+  "combat": {
+    "damage_formula": {
+      "raw": "floor(base_dmg * ability_mod)",
+      "armor_cap": 0.5,
+      "eps_variance": [
+        -0.05,
+        0.05
+      ],
+      "min_damage": 1
+    },
+    "initiative": {
+      "formula": "spd + seeded_random(0.0, 0.49)",
+      "creature_offset": 7919
+    },
+    "retreat_hysteresis": {
+      "enter_threshold": 0.25,
+      "exit_threshold": 0.4
+    }
+  },
+  "seeding": {
+    "method": "SHA-256",
+    "tick_seed": "SHA256(match_seed:u64 || tick_index:u32) \u2192 first 4 bytes as u32",
+    "hit_seed": "SHA256(match_seed:u64 || tick_index:u32 || attack_index:u32) \u2192 first 4 bytes",
+    "proc_seed": "SHA256(match_seed:u64 || tick_index:u32 || creature_index:u8 || ability_index:u8) \u2192 first 4 bytes",
+    "random_value": "SHA256(seed:u32) first 8 bytes \u2192 u64 / 2^64 \u2192 [0, 1)"
+  },
+  "proc_rates": {
+    "strong_tier": 0.035,
+    "standard_tier": 0.045,
+    "strong_abilities": [
+      "berserker_rage",
+      "last_stand",
+      "gore",
+      "mimic",
+      "iron_will",
+      "dive",
+      "blood_frenzy_ability"
+    ],
+    "wil_proc_bonus_per_point": 0.0008,
+    "wil_resist_formula": "min(0.60, wil * 0.033)"
+  },
+  "ability_coefficients": {
+    "berserker_rage": {
+      "atk_mod": 0.6,
+      "duration": 3,
+      "dodge_penalty": 0.4
+    },
+    "last_stand": {
+      "atk_mod": 1.0,
+      "hp_threshold": 0.15
+    },
+    "pack_howl": {
+      "atk_mod": 0.3,
+      "duration": 4
+    },
+    "pounce": {
+      "atk_mod": 0.7,
+      "skip_opponent_attack": true
+    },
+    "stampede": {
+      "atk_mod": 0.5,
+      "skip_opponent_attack": true
+    },
+    "gore": {
+      "atk_mod": -0.4,
+      "ignore_dodge": true
+    },
+    "chaos_strike": {
+      "range": [
+        0.8,
+        2.2
+      ]
+    },
+    "mimic": {
+      "copy_strength": 0.75,
+      "blocked": [
+        "iron_will",
+        "last_stand",
+        "mimic"
+      ]
+    },
+    "iron_will": {
+      "heal_pct": 0.12
+    },
+    "thick_hide_ability": {
+      "blocks_all_damage": true,
+      "duration": 1
+    },
+    "hamstring": {
+      "spd_reduction": 0.55,
+      "dodge_flat_penalty": 0.1,
+      "duration": 4
+    },
+    "rend_ability": {
+      "dot_pct": 0.05,
+      "duration": 3
+    },
+    "dive": {
+      "atk_mod": 1.0,
+      "ignore_dodge": true
+    },
+    "keen_eye": {
+      "dodge_bonus": 0.2,
+      "duration": 3
+    },
+    "venom": {
+      "dot_pct": 0.03,
+      "duration": 3,
+      "max_stacks": 3
+    },
+    "coil": {
+      "guaranteed_dodge": true,
+      "duration": 1
+    },
+    "evasion": {
+      "dodge_bonus": 0.5,
+      "duration": 3
+    },
+    "trick": {
+      "negates_next_proc": true,
+      "duration": 1
+    },
+    "exoskeleton": {
+      "block_pct": 0.15,
+      "duration": 1
+    },
+    "sting": {
+      "skip_opponent_attack": true
+    }
+  },
+  "passives": {
+    "fury_protocol": {
+      "atk_mod": 0.5,
+      "hp_threshold": 0.5,
+      "duration": 3
+    },
+    "thick_hide": {
+      "first_hit_reduction": 0.5
+    },
+    "charge": {
+      "first_attack_mod": 0.5
+    },
+    "ambush_wiring": {
+      "first_attack_mod": 1.0,
+      "condition": "spd > opponent.spd"
+    }
+  },
+  "animals": {
+    "bear": {
+      "passive": "fury_protocol",
+      "abilities": [
+        {
+          "name": "Berserker Rage",
+          "type": "berserker_rage",
+          "proc_chance": 0.035,
+          "duration": 3,
+          "is_single_charge": false
+        },
+        {
+          "name": "Last Stand",
+          "type": "last_stand",
+          "proc_chance": 0.035,
+          "duration": 0,
+          "is_single_charge": true
+        }
+      ]
+    },
+    "buffalo": {
+      "passive": "thick_hide",
+      "abilities": [
+        {
+          "name": "Thick Hide",
+          "type": "thick_hide_ability",
+          "proc_chance": 0.045,
+          "duration": 1,
+          "is_single_charge": false
+        },
+        {
+          "name": "Iron Will",
+          "type": "iron_will",
+          "proc_chance": 0.035,
+          "duration": 0,
+          "is_single_charge": true
+        }
+      ]
+    },
+    "boar": {
+      "passive": "charge",
+      "abilities": [
+        {
+          "name": "Stampede",
+          "type": "stampede",
+          "proc_chance": 0.045,
+          "duration": 0,
+          "is_single_charge": false
+        },
+        {
+          "name": "Gore",
+          "type": "gore",
+          "proc_chance": 0.035,
+          "duration": 0,
+          "is_single_charge": false
+        }
+      ]
+    },
+    "tiger": {
+      "passive": "ambush_wiring",
+      "abilities": [
+        {
+          "name": "Pounce",
+          "type": "pounce",
+          "proc_chance": 0.045,
+          "duration": 0,
+          "is_single_charge": false
+        },
+        {
+          "name": "Hamstring",
+          "type": "hamstring",
+          "proc_chance": 0.045,
+          "duration": 4,
+          "is_single_charge": false
+        }
+      ]
+    },
+    "wolf": {
+      "passive": "pack_sense",
+      "abilities": [
+        {
+          "name": "Pack Howl",
+          "type": "pack_howl",
+          "proc_chance": 0.045,
+          "duration": 4,
+          "is_single_charge": false
+        },
+        {
+          "name": "Rend",
+          "type": "rend_ability",
+          "proc_chance": 0.045,
+          "duration": 3,
+          "is_single_charge": false
+        }
+      ]
+    },
+    "monkey": {
+      "passive": "primate_cortex",
+      "abilities": [
+        {
+          "name": "Chaos Strike",
+          "type": "chaos_strike",
+          "proc_chance": 0.045,
+          "duration": 0,
+          "is_single_charge": false
+        },
+        {
+          "name": "Mimic",
+          "type": "mimic",
+          "proc_chance": 0.035,
+          "duration": 0,
+          "is_single_charge": false
+        }
+      ]
+    },
+    "crocodile": {
+      "passive": "death_roll",
+      "abilities": [
+        {
+          "name": "Death Roll",
+          "type": "death_roll_ability",
+          "proc_chance": 0.045,
+          "duration": 0,
+          "is_single_charge": false
+        },
+        {
+          "name": "Thick Scales",
+          "type": "thick_scales",
+          "proc_chance": 0.045,
+          "duration": 2,
+          "is_single_charge": false
+        }
+      ]
+    },
+    "eagle": {
+      "passive": "aerial_strike",
+      "abilities": [
+        {
+          "name": "Dive",
+          "type": "dive",
+          "proc_chance": 0.035,
+          "duration": 0,
+          "is_single_charge": false
+        },
+        {
+          "name": "Keen Eye",
+          "type": "keen_eye",
+          "proc_chance": 0.045,
+          "duration": 3,
+          "is_single_charge": false
+        }
+      ]
+    },
+    "snake": {
+      "passive": "venom_glands",
+      "abilities": [
+        {
+          "name": "Venom",
+          "type": "venom",
+          "proc_chance": 0.045,
+          "duration": 3,
+          "is_single_charge": false
+        },
+        {
+          "name": "Coil",
+          "type": "coil",
+          "proc_chance": 0.045,
+          "duration": 0,
+          "is_single_charge": false
+        }
+      ]
+    },
+    "raven": {
+      "passive": "omen",
+      "abilities": [
+        {
+          "name": "Shadow Clone",
+          "type": "shadow_clone",
+          "proc_chance": 0.045,
+          "duration": 0,
+          "is_single_charge": true
+        },
+        {
+          "name": "Curse",
+          "type": "curse",
+          "proc_chance": 0.045,
+          "duration": 3,
+          "is_single_charge": false
+        }
+      ]
+    },
+    "shark": {
+      "passive": "blood_frenzy",
+      "abilities": [
+        {
+          "name": "Blood Frenzy",
+          "type": "blood_frenzy_ability",
+          "proc_chance": 0.035,
+          "duration": 0,
+          "is_single_charge": false
+        },
+        {
+          "name": "Bite",
+          "type": "bite",
+          "proc_chance": 0.045,
+          "duration": 2,
+          "is_single_charge": false
+        }
+      ]
+    },
+    "owl": {
+      "passive": "night_vision",
+      "abilities": [
+        {
+          "name": "Foresight",
+          "type": "foresight",
+          "proc_chance": 0.045,
+          "duration": 2,
+          "is_single_charge": false
+        },
+        {
+          "name": "Silent Strike",
+          "type": "silent_strike",
+          "proc_chance": 0.045,
+          "duration": 0,
+          "is_single_charge": false
+        }
+      ]
+    },
+    "fox": {
+      "passive": "cunning",
+      "abilities": [
+        {
+          "name": "Evasion",
+          "type": "evasion",
+          "proc_chance": 0.045,
+          "duration": 3,
+          "is_single_charge": false
+        },
+        {
+          "name": "Trick",
+          "type": "trick",
+          "proc_chance": 0.045,
+          "duration": 0,
+          "is_single_charge": false
+        }
+      ]
+    },
+    "scorpion": {
+      "passive": "paralytic_sting",
+      "abilities": [
+        {
+          "name": "Sting",
+          "type": "sting",
+          "proc_chance": 0.045,
+          "duration": 0,
+          "is_single_charge": false
+        },
+        {
+          "name": "Exoskeleton",
+          "type": "exoskeleton",
+          "proc_chance": 0.045,
+          "duration": 0,
+          "is_single_charge": false
+        }
+      ]
+    }
+  },
+  "draft": {
+    "bans_per_player": 3,
+    "picks_per_player": 1,
+    "phases": [
+      "ban",
+      "pick",
+      "build",
+      "reveal",
+      "ready"
+    ],
+    "stats_revealed": 2
+  },
+  "series": {
+    "default_best_of": 7,
+    "must_be_odd": true
+  },
+  "auto_balancer": {
+    "window": 500,
+    "cooldown": 700,
+    "target_wr": 0.55,
+    "max_adjustment": 0.05,
+    "damping_factor": 0.075,
+    "ema_alpha": 0.25,
+    "proc_rate_floor": 0.025,
+    "proc_rate_ceiling": 0.055,
+    "adjustment_band": 0.1
+  },
+  "mutations": {
+    "budget": 30,
+    "max_total": 6,
+    "max_ability_mutations": 3,
+    "tree": {
+      "A1a": {
+        "name": "Thick Skin",
+        "branch": "apex",
+        "tier": 1,
+        "cost": 3,
+        "success_rate": 0.9,
+        "effect": "max_hp +16"
+      },
+      "A1b": {
+        "name": "Regeneration",
+        "branch": "apex",
+        "tier": 1,
+        "cost": 3,
+        "success_rate": 0.9,
+        "effect": "heal 3 hp/tick"
+      },
+      "A2a": {
+        "name": "Bone Plating",
+        "branch": "apex",
+        "tier": 2,
+        "cost": 5,
+        "success_rate": 0.7,
+        "effect": "armor_flat +3"
+      },
+      "A2b": {
+        "name": "Second Wind",
+        "branch": "apex",
+        "tier": 2,
+        "cost": 5,
+        "success_rate": 0.7,
+        "effect": "heal 25% max_hp when HP < 30%, once"
+      },
+      "A3a": {
+        "name": "Fortress Body",
+        "branch": "apex",
+        "tier": 3,
+        "cost": 8,
+        "success_rate": 0.5,
+        "effect": "size +1, +32 max_hp, -2 SPD"
+      },
+      "F1a": {
+        "name": "Sharpened Claws",
+        "branch": "feral",
+        "tier": 1,
+        "cost": 3,
+        "success_rate": 0.9,
+        "effect": "base_dmg +4"
+      },
+      "F1b": {
+        "name": "Bloodlust",
+        "branch": "feral",
+        "tier": 1,
+        "cost": 3,
+        "success_rate": 0.9,
+        "effect": "on kill: +2 base_dmg"
+      },
+      "F2a": {
+        "name": "Critical Strike",
+        "branch": "feral",
+        "tier": 2,
+        "cost": 5,
+        "success_rate": 0.7,
+        "effect": "15% chance: damage x2"
+      },
+      "F2b": {
+        "name": "Rend",
+        "branch": "feral",
+        "tier": 2,
+        "cost": 5,
+        "success_rate": 0.7,
+        "effect": "bleed: 2 dmg/tick, 3 ticks"
+      },
+      "F3a": {
+        "name": "Execute",
+        "branch": "feral",
+        "tier": 3,
+        "cost": 8,
+        "success_rate": 0.5,
+        "effect": "damage x2 vs <25% HP"
+      }
+    },
+    "l3_requires_two_lower": true
+  },
+  "second_wind": {
+    "heal_pct": 0.25,
+    "hp_threshold": 0.3,
+    "once_per_match": true
+  },
+  "sha256": "b7ec588583135ad640eba438f29ce45c10307a88dc426decd31126371bb60534"
+}
