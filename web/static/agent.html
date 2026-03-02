@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Card - Moreau Arena</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        /* Agent card specific styles */
+        .agent-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .agent-header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+        .agent-type-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .agent-type-badge.llm { background: var(--blue); color: #fff; }
+        .agent-type-badge.baseline { background: var(--text-muted); color: #000; }
+
+        .rank-shift-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+        }
+        .rank-shift-badge.positive { background: rgba(78, 204, 163, 0.15); color: var(--green); }
+        .rank-shift-badge.negative { background: rgba(230, 57, 70, 0.15); color: var(--accent); }
+        .rank-shift-badge.neutral { background: rgba(168, 168, 184, 0.1); color: var(--text-muted); }
+
+        .track-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .track-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+        }
+
+        .track-card h3 {
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .track-card .rank-big {
+            font-size: 2.5rem;
+            font-weight: 800;
+            font-family: var(--font-mono);
+            color: var(--accent);
+            line-height: 1;
+        }
+
+        .bt-score-display {
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .bt-ci {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .record-line {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .record-line .wins { color: var(--green); }
+        .record-line .losses { color: var(--accent); }
+        .record-line .draws { color: var(--text-muted); }
+
+        /* Stat bar chart */
+        .stat-bars {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+
+        .stat-bar-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .stat-bar-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.04em;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-bar-outer {
+            width: 100%;
+            height: 60px;
+            background: rgba(42, 42, 58, 0.3);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .stat-bar-fill {
+            width: 100%;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.4s ease;
+        }
+
+        .stat-bar-fill.hp { background: var(--green); }
+        .stat-bar-fill.atk { background: var(--accent); }
+        .stat-bar-fill.spd { background: var(--blue); }
+        .stat-bar-fill.wil { background: var(--gold); }
+
+        .stat-bar-value {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 0.25rem;
+            color: var(--text);
+        }
+
+        /* Animal usage */
+        .animal-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .animal-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.6rem;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 0.78rem;
+            font-family: var(--font-mono);
+        }
+
+        .animal-chip.favorite {
+            border-color: var(--accent);
+            background: rgba(230, 57, 70, 0.1);
+        }
+
+        .animal-chip .count {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+        }
+
+        /* Pairwise mini table */
+        .pairwise-mini {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        .pairwise-mini th,
+        .pairwise-mini td {
+            padding: 0.4rem 0.5rem;
+            text-align: left;
+        }
+
+        .pairwise-mini th {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .pairwise-mini td.wr-cell {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .pairwise-mini .opp-name {
+            font-weight: 500;
+        }
+
+        .pairwise-mini .opp-name a {
+            color: var(--text);
+        }
+
+        .pairwise-mini .opp-name a:hover {
+            color: var(--accent);
+        }
+
+        /* Build history */
+        .build-history {
+            max-height: 320px;
+            overflow-y: auto;
+            font-size: 0.78rem;
+        }
+
+        .build-history table {
+            font-size: 0.78rem;
+        }
+
+        .build-history td {
+            padding: 0.3rem 0.4rem;
+        }
+
+        .build-result-win { color: var(--green); font-weight: 600; }
+        .build-result-loss { color: var(--accent); font-weight: 600; }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+
+        .back-link:hover { color: var(--accent); }
+
+        @media (max-width: 768px) {
+            .track-columns {
+                grid-template-columns: 1fr;
+            }
+            .agent-header h1 {
+                font-size: 1.5rem;
+            }
+            .stat-bars {
+                gap: 0.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/tournaments">Tournaments</a></li>
+                <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/match-log">Match Log</a></li>
+                <li><a href="/methodology">Methodology</a></li>
+                <li><a href="/compare">Compare</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <a href="/leaderboard" class="back-link">&larr; Back to Leaderboard</a>
+
+        <div id="agentLoading" class="loading">Loading agent data...</div>
+        <div id="agentError" class="error-msg" style="display:none"></div>
+        <div id="agentContent" style="display:none">
+
+            <!-- Header -->
+            <div class="agent-header">
+                <h1 id="agentName"></h1>
+                <span id="agentTypeBadge" class="agent-type-badge"></span>
+                <span id="rankShiftBadge" class="rank-shift-badge"></span>
+            </div>
+
+            <!-- Overall record -->
+            <div class="stat-row" style="margin-bottom:1.5rem;">
+                <div class="stat-box">
+                    <div class="stat-value" id="statTotalWins">-</div>
+                    <div class="stat-label">Series Wins</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="statTotalLosses">-</div>
+                    <div class="stat-label">Series Losses</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="statTotalDraws">-</div>
+                    <div class="stat-label">Draws</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="statWinRate">-</div>
+                    <div class="stat-label">Win Rate</div>
+                </div>
+            </div>
+
+            <!-- Track A vs Track B side by side -->
+            <div class="track-columns" id="trackColumns"></div>
+
+            <!-- Average Stat Distribution -->
+            <div class="card" style="margin-bottom:1.5rem;">
+                <h3 class="section-title">Average Stat Distribution</h3>
+                <div class="track-columns" id="statDistribution"></div>
+            </div>
+
+            <!-- Animal Usage -->
+            <div class="card" style="margin-bottom:1.5rem;">
+                <h3 class="section-title">Animal Usage</h3>
+                <div class="track-columns" id="animalUsage"></div>
+            </div>
+
+            <!-- Pairwise Win Rates -->
+            <div class="card" style="margin-bottom:1.5rem;">
+                <h3 class="section-title">Pairwise Win Rates (Series)</h3>
+                <div class="track-columns" id="pairwiseSection"></div>
+            </div>
+
+            <!-- Build History -->
+            <div class="card" style="margin-bottom:1.5rem;">
+                <h3 class="section-title">Recent Series History</h3>
+                <div class="track-columns" id="buildHistory"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-left">Moreau Arena &mdash; Contamination-resistant LLM benchmark</div>
+            <ul class="footer-links">
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script>
+        function escapeHtml(str) {
+            var d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        function getWrColor(wr) {
+            if (wr >= 0.65) return 'var(--green)';
+            if (wr >= 0.5) return 'var(--text)';
+            if (wr >= 0.35) return 'var(--text-dim)';
+            return 'var(--accent)';
+        }
+
+        function getAgentName() {
+            var path = window.location.pathname;
+            var parts = path.split('/');
+            // /agent/{name}
+            if (parts.length >= 3 && parts[1] === 'agent') {
+                return decodeURIComponent(parts[2]);
+            }
+            return null;
+        }
+
+        function loadAgentCard() {
+            var name = getAgentName();
+            if (!name) {
+                document.getElementById('agentLoading').style.display = 'none';
+                document.getElementById('agentError').textContent = 'No agent specified.';
+                document.getElementById('agentError').style.display = 'block';
+                return;
+            }
+
+            document.title = name + ' - Moreau Arena';
+
+            fetch('/api/v1/agent/' + encodeURIComponent(name))
+                .then(function(r) {
+                    if (!r.ok) throw new Error('Agent not found');
+                    return r.json();
+                })
+                .then(function(data) {
+                    document.getElementById('agentLoading').style.display = 'none';
+                    document.getElementById('agentContent').style.display = 'block';
+                    renderAgent(data);
+                })
+                .catch(function(err) {
+                    document.getElementById('agentLoading').style.display = 'none';
+                    document.getElementById('agentError').textContent = 'Error: ' + err.message;
+                    document.getElementById('agentError').style.display = 'block';
+                });
+        }
+
+        function renderAgent(data) {
+            // Header
+            document.getElementById('agentName').textContent = data.name;
+            var typeBadge = document.getElementById('agentTypeBadge');
+            typeBadge.textContent = data.type;
+            typeBadge.className = 'agent-type-badge ' + (data.type === 'LLM' ? 'llm' : 'baseline');
+
+            // Rank shift
+            var shiftBadge = document.getElementById('rankShiftBadge');
+            if (data.rank_shift && data.rank_shift !== 'N/A' && data.rank_shift !== '0') {
+                var shiftNum = parseInt(data.rank_shift);
+                shiftBadge.textContent = 'Rank shift: ' + data.rank_shift;
+                if (shiftNum > 0) {
+                    shiftBadge.className = 'rank-shift-badge positive';
+                } else if (shiftNum < 0) {
+                    shiftBadge.className = 'rank-shift-badge negative';
+                } else {
+                    shiftBadge.className = 'rank-shift-badge neutral';
+                }
+            } else {
+                shiftBadge.style.display = 'none';
+            }
+
+            // Overall record
+            var rec = data.total_record;
+            document.getElementById('statTotalWins').textContent = rec.wins;
+            document.getElementById('statTotalLosses').textContent = rec.losses;
+            document.getElementById('statTotalDraws').textContent = rec.draws;
+            var total = rec.wins + rec.losses + rec.draws;
+            var wr = total > 0 ? (rec.wins / total * 100).toFixed(1) + '%' : 'N/A';
+            document.getElementById('statWinRate').textContent = wr;
+
+            // Track columns
+            renderTrackCards(data);
+
+            // Stat distribution
+            renderStatDistribution(data);
+
+            // Animal usage
+            renderAnimalUsage(data);
+
+            // Pairwise
+            renderPairwise(data);
+
+            // Build history
+            renderBuildHistory(data);
+        }
+
+        function renderTrackCards(data) {
+            var container = document.getElementById('trackColumns');
+            var html = '';
+            var trackLabels = {'A': 'Track A (T001)', 'B': 'Track B (T002)'};
+
+            for (var tk in trackLabels) {
+                var td = data.tracks[tk];
+                if (!td) {
+                    html += '<div class="track-card"><h3>' + trackLabels[tk] + '</h3><p class="muted">Not participated</p></div>';
+                    continue;
+                }
+                var totalSeries = td.wins + td.losses + td.draws;
+                var seriesWR = totalSeries > 0 ? (td.wins / totalSeries * 100).toFixed(1) : '0.0';
+
+                html += '<div class="track-card">' +
+                    '<h3>' + trackLabels[tk] + '</h3>' +
+                    '<div style="display:flex;align-items:baseline;gap:1rem;margin-bottom:0.75rem;">' +
+                        '<div class="rank-big">#' + td.rank + '</div>' +
+                        '<div>' +
+                            '<div class="bt-score-display">BT: ' + td.bt_score.toFixed(4) + '</div>' +
+                            '<div class="bt-ci">95% CI [' + td.ci[0].toFixed(4) + ', ' + td.ci[1].toFixed(4) + ']</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="record-line">' +
+                        'Series: <span class="wins">' + td.wins + 'W</span> - ' +
+                        '<span class="losses">' + td.losses + 'L</span> - ' +
+                        '<span class="draws">' + td.draws + 'D</span>' +
+                        ' <span class="dim">(' + seriesWR + '%)</span>' +
+                    '</div>' +
+                    '<div class="record-line" style="font-size:0.8rem;color:var(--text-dim);">' +
+                        'Games: ' + td.game_wins + 'W - ' + td.game_losses + 'L' +
+                    '</div>' +
+                '</div>';
+            }
+            container.innerHTML = html;
+        }
+
+        function renderStatDistribution(data) {
+            var container = document.getElementById('statDistribution');
+            var html = '';
+            var trackLabels = {'A': 'Track A', 'B': 'Track B'};
+            var statKeys = ['hp', 'atk', 'spd', 'wil'];
+
+            for (var tk in trackLabels) {
+                var stats = data.avg_stats[tk];
+                if (!stats) {
+                    html += '<div><p class="muted small">' + trackLabels[tk] + ': No data</p></div>';
+                    continue;
+                }
+
+                html += '<div><p class="small dim" style="margin-bottom:0.5rem;">' + trackLabels[tk] + '</p>';
+                html += '<div class="stat-bars">';
+                for (var i = 0; i < statKeys.length; i++) {
+                    var key = statKeys[i];
+                    var val = stats[key] || 0;
+                    var pct = Math.min(100, (val / 17) * 100);
+                    html += '<div class="stat-bar-item">' +
+                        '<div class="stat-bar-label">' + key.toUpperCase() + '</div>' +
+                        '<div class="stat-bar-outer">' +
+                            '<div class="stat-bar-fill ' + key + '" style="height:' + pct + '%"></div>' +
+                        '</div>' +
+                        '<div class="stat-bar-value">' + val.toFixed(1) + '</div>' +
+                    '</div>';
+                }
+                html += '</div></div>';
+            }
+            container.innerHTML = html;
+        }
+
+        function renderAnimalUsage(data) {
+            var container = document.getElementById('animalUsage');
+            var html = '';
+            var trackLabels = {'A': 'Track A', 'B': 'Track B'};
+
+            for (var tk in trackLabels) {
+                var animals = data.animals_used[tk];
+                var fav = data.favorite_animal[tk];
+                if (!animals || Object.keys(animals).length === 0) {
+                    html += '<div><p class="muted small">' + trackLabels[tk] + ': No data</p></div>';
+                    continue;
+                }
+
+                html += '<div><p class="small dim" style="margin-bottom:0.5rem;">' + trackLabels[tk] +
+                    ' &mdash; Favorite: <strong style="color:var(--accent)">' + escapeHtml(fav) + '</strong></p>';
+                html += '<div class="animal-list">';
+
+                var animalNames = Object.keys(animals);
+                for (var i = 0; i < animalNames.length; i++) {
+                    var a = animalNames[i];
+                    var isFav = a === fav;
+                    html += '<span class="animal-chip' + (isFav ? ' favorite' : '') + '">' +
+                        escapeHtml(a) + ' <span class="count">x' + animals[a] + '</span></span>';
+                }
+                html += '</div></div>';
+            }
+            container.innerHTML = html;
+        }
+
+        function renderPairwise(data) {
+            var container = document.getElementById('pairwiseSection');
+            var html = '';
+            var trackLabels = {'A': 'Track A', 'B': 'Track B'};
+
+            for (var tk in trackLabels) {
+                var pw = data.pairwise[tk];
+                if (!pw) {
+                    html += '<div><p class="muted small">' + trackLabels[tk] + ': No data</p></div>';
+                    continue;
+                }
+
+                html += '<div><p class="small dim" style="margin-bottom:0.5rem;">' + trackLabels[tk] + '</p>';
+                html += '<table class="pairwise-mini"><thead><tr><th>Opponent</th><th style="text-align:right">Win Rate</th></tr></thead><tbody>';
+
+                // Sort opponents by win rate descending
+                var opps = Object.keys(pw).filter(function(k) { return pw[k] !== null; });
+                opps.sort(function(a, b) { return (pw[b] || 0) - (pw[a] || 0); });
+
+                for (var i = 0; i < opps.length; i++) {
+                    var opp = opps[i];
+                    var wr = pw[opp];
+                    var wrPct = (wr * 100).toFixed(1);
+                    var color = getWrColor(wr);
+                    html += '<tr>' +
+                        '<td class="opp-name"><a href="/agent/' + encodeURIComponent(opp) + '">' + escapeHtml(opp) + '</a></td>' +
+                        '<td class="wr-cell" style="color:' + color + '">' + wrPct + '%</td>' +
+                        '</tr>';
+                }
+
+                html += '</tbody></table></div>';
+            }
+            container.innerHTML = html;
+        }
+
+        function renderBuildHistory(data) {
+            var container = document.getElementById('buildHistory');
+            var html = '';
+            var trackLabels = {'A': 'Track A', 'B': 'Track B'};
+
+            for (var tk in trackLabels) {
+                var history = data.series_history[tk];
+                if (!history || history.length === 0) {
+                    html += '<div><p class="muted small">' + trackLabels[tk] + ': No data</p></div>';
+                    continue;
+                }
+
+                html += '<div><p class="small dim" style="margin-bottom:0.5rem;">' + trackLabels[tk] + '</p>';
+                html += '<div class="build-history"><table><thead><tr>' +
+                    '<th>Opponent</th><th>Result</th><th>Score</th><th>Builds</th>' +
+                    '</tr></thead><tbody>';
+
+                for (var i = 0; i < history.length; i++) {
+                    var s = history[i];
+                    var resClass = s.result === 'win' ? 'build-result-win' : (s.result === 'loss' ? 'build-result-loss' : '');
+
+                    // Summarize builds
+                    var buildSummary = '';
+                    if (s.builds && s.builds.length > 0) {
+                        var animals = {};
+                        for (var j = 0; j < s.builds.length; j++) {
+                            var a = s.builds[j].animal;
+                            animals[a] = (animals[a] || 0) + 1;
+                        }
+                        var parts = [];
+                        for (var a in animals) {
+                            parts.push(a + (animals[a] > 1 ? ' x' + animals[a] : ''));
+                        }
+                        buildSummary = parts.join(', ');
+                    }
+
+                    html += '<tr>' +
+                        '<td><a href="/agent/' + encodeURIComponent(s.opponent) + '" style="color:var(--text)">' + escapeHtml(s.opponent) + '</a></td>' +
+                        '<td class="' + resClass + '">' + s.result.toUpperCase() + '</td>' +
+                        '<td class="mono" style="font-size:0.78rem">' + escapeHtml(s.score) + '</td>' +
+                        '<td style="font-size:0.75rem;color:var(--text-dim)">' + escapeHtml(buildSummary) + '</td>' +
+                        '</tr>';
+                }
+
+                html += '</tbody></table></div></div>';
+            }
+            container.innerHTML = html;
+        }
+
+        // Initialize
+        loadAgentCard();
+    </script>
+</body>
+</html>

@@ -1,5 +1,74 @@
 # Progress Log
 
+## Sprint 6 — Website Credibility Sprint (2026-03-01)
+
+### Goal
+
+Make the Moreau Arena website convincing to an arXiv reviewer who clicks the link. All data computed from JSONL at startup, nothing hardcoded.
+
+### Test Results
+
+```
+python3 -m pytest tests/test_invariants.py — 89 passed in 5.00s
+```
+
+All invariants green. No immutable files modified.
+
+### Server Verification
+
+All 12 HTML pages return HTTP 200. All 5 new API endpoints return 200.
+
+### Teammates & Deliverables
+
+| Teammate | Task | Deliverables | Status |
+|----------|------|-------------|--------|
+| evidence | Match Log + Methodology pages | `/match-log`, `/methodology`, 4 API endpoints, heatmap deep-linking | DONE |
+| models | Agent Model Cards | `/agent/{name}` dynamic pages for all 13 agents, clickable leaderboard links | DONE |
+| credibility | Reproducibility + Compare + CI chart | Enhanced `/paper`, `/compare` page, Confidence tab on leaderboard | DONE |
+| interactive | Strategy Parser + Challenge CTA | Strategy Mode on `/play`, "Challenge the Leaderboard" on home page | DONE |
+
+### New Pages (6)
+
+- `web/static/agent.html` — Dynamic agent model cards (rank shift, BT scores, pairwise, stats, series history)
+- `web/static/match-log.html` — Browseable match log with track selector, 78 pairs per track, per-game builds
+- `web/static/methodology.html` — BT scoring explanation, variance decomposition, random baseline analysis, intransitive cycles
+- `web/static/compare.html` — Benchmark comparison (Moreau vs MMLU, HumanEval, ARC, GSM8K, Chatbot Arena)
+- Updated `play.html` — Strategy Mode tab with natural language input and per-opponent results
+- Updated `index.html` — "Challenge the Leaderboard" CTA section
+
+### New API Endpoints (7)
+
+- `GET /api/v1/agents` — All 13 agent summaries
+- `GET /api/v1/agent/{name}` — Full agent card data (pairwise, builds, history)
+- `GET /api/v1/match-log/pairs?track=A|B` — 78 pairwise match summaries
+- `GET /api/v1/match-log/{pair_key}?track=A|B` — Detailed per-game data
+- `GET /api/v1/methodology/variance` — Variance decomposition (strategy vs RNG)
+- `GET /api/v1/methodology/random-baseline` — RandomAgent validation stats
+- `POST /api/v1/strategy` — Natural language strategy parser
+
+### Key Computed Results (from JSONL, not hardcoded)
+
+- **Variance decomposition**: Track A 61.5% strategy / 38.5% RNG, Track B 35.3% strategy / 64.7% RNG
+- **Random baseline**: 0 wins out of 120 series in both tracks
+- **13 agents**: 8 LLM + 5 baseline, all with computed BT scores, CI, pairwise stats
+
+### Modified Files
+
+- `web/app.py` — Expanded from ~768 to 1615 lines with all new endpoints and cache functions
+- `web/static/leaderboard.html` — Confidence tab, clickable agent links, heatmap deep-links
+- `web/static/paper.html` — 5-step reproducibility guide
+- `web/static/play.html` — Strategy Mode tab
+- `web/static/index.html` — Challenge the Leaderboard CTA
+- Navigation updated on all 12 pages (9 links: Home, About, Tournaments, Leaderboard, Match Log, Methodology, Compare, Paper, API)
+
+### Immutable Files (verified unchanged)
+
+- `simulator/config.json` — Hash verified: b7ec588583135ad640eba438f29ce45c10307a88dc426decd31126371bb60534
+- `data/tournament_001/*` — SHA-256 hashes verified (9 tests pass)
+- `data/tournament_002/*` — SHA-256 hashes verified (9 tests pass)
+
+---
+
 ## Sprint 5 — Final Verification & Commit (2026-03-01)
 
 ### Test Results
