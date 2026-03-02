@@ -1,5 +1,41 @@
 # Progress Log
 
+## Sprint 5 — Final Verification & Commit (2026-03-01)
+
+### Test Results
+
+```
+python3 -m pytest tests/test_invariants.py — 89 passed in 4.98s
+```
+
+All invariants green. No immutable files modified.
+
+### Summary
+
+All 21 tasks across Phases 1–4 of ROADMAP_v2.md are complete. This sprint commits previously-untracked spec files from Phase 1 and the roadmap document.
+
+### Files Committed
+
+- `ROADMAP_v2.md` — Full development roadmap (Phases 1–4)
+- `docs/MEASUREMENT_SPEC.md` — Task 1.1: BT scores, CI, non-transitivity, PSI
+- `docs/MMR_SPEC.md` — Task 1.2: Match Record Format v1.1 schema
+- `docs/TRACKS.md` — Task 1.3: Track A/B/C/D definitions
+- `simulator/ability_grammar.py` — Task 1.7: Formal ability grammar for all 14 core animals
+- `NEXT_TASKS.md` — Updated task status (all done)
+- `.gitignore` — Added `.claude/` and `.venv/` exclusions
+
+### Immutable Files (verified unchanged)
+
+- `simulator/config.json` — Hash verified: b7ec588583135ad640eba438f29ce45c10307a88dc426decd31126371bb60534
+- `data/tournament_001/*` — SHA-256 hashes verified (9 tests pass)
+- `data/tournament_002/*` — SHA-256 hashes verified (9 tests pass)
+
+### Remaining Blocked Item
+
+**Real LLM Ablation Run** — blocked on missing `GEMINI_API_KEY`. All code is ready.
+
+---
+
 ## Sprint 4 — Phase 3 Completion & Phase 4 Start (2026-03-01)
 
 ### Test Results

@@ -30,3 +30,7 @@ venv/
 
 # Claude Code
 a.claudestartup_message.txt
+.claude/
+
+# Virtual environment
+.venv/
