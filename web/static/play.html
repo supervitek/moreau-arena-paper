@@ -173,6 +173,20 @@
         .wr-positive { color: var(--green); }
         .wr-negative { color: var(--accent); }
         .wr-neutral { color: var(--gold); }
+
+        .preset-btn {
+            padding: 0.35rem 0.7rem;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-dim);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .preset-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .preset-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
     </style>
 </head>
 <body>
@@ -215,6 +229,17 @@
                 <div class="muted small text-center" style="background:var(--bg-code);border-radius:var(--radius-sm);padding:0.6rem;margin-bottom:1.25rem;">
                     Opponent: Bear (5/5/5/5) &mdash; the balanced baseline
                 </div>
+
+                <label class="small dim" style="display:block;margin-bottom:0.3rem;font-weight:600;">Preset</label>
+                <div class="preset-bar" style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1rem;">
+                    <button class="preset-btn" onclick="applyPreset('glass')" title="bear 1/16/1/2">Glass Cannon</button>
+                    <button class="preset-btn" onclick="applyPreset('tank')" title="buffalo 16/1/1/2">Tank</button>
+                    <button class="preset-btn" onclick="applyPreset('speed')" title="tiger 1/1/16/2">Speedster</button>
+                    <button class="preset-btn" onclick="applyPreset('balanced')" title="wolf 5/5/5/5">Balanced</button>
+                    <button class="preset-btn" onclick="applyPreset('berserker')" title="boar 1/14/1/4">Berserker</button>
+                    <button class="preset-btn" onclick="applyPreset('random')">Random</button>
+                </div>
+                <div id="presetDesc" class="muted small" style="margin-bottom:1rem;font-family:var(--font-mono);display:none;"></div>
 
                 <label class="small dim" style="display:block;margin-bottom:0.3rem;font-weight:600;">Animal</label>
                 <select id="animal" class="animal-select">
@@ -565,6 +590,62 @@
             } finally {
                 btn.disabled = false; btn.textContent = 'Analyze Strategy';
             }
+        }
+
+        /* ===== Presets ===== */
+        var PRESETS = {
+            glass:     { animal: 'bear',    hp: 1,  atk: 16, spd: 1,  wil: 2,  label: 'Glass Cannon \u2014 Bear 1/16/1/2' },
+            tank:      { animal: 'buffalo', hp: 16, atk: 1,  spd: 1,  wil: 2,  label: 'Tank \u2014 Buffalo 16/1/1/2' },
+            speed:     { animal: 'tiger',   hp: 1,  atk: 1,  spd: 16, wil: 2,  label: 'Speedster \u2014 Tiger 1/1/16/2' },
+            balanced:  { animal: 'wolf',    hp: 5,  atk: 5,  spd: 5,  wil: 5,  label: 'Balanced \u2014 Wolf 5/5/5/5' },
+            berserker: { animal: 'boar',    hp: 1,  atk: 14, spd: 1,  wil: 4,  label: 'Berserker \u2014 Boar 1/14/1/4' }
+        };
+
+        function applyPreset(key) {
+            var desc = document.getElementById('presetDesc');
+            // Clear active state on all preset buttons
+            var btns = document.querySelectorAll('.preset-btn');
+            for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+
+            if (key === 'random') {
+                var animals = ['bear','buffalo','boar','tiger','wolf','monkey','crocodile','eagle','snake','raven','shark','owl','fox','scorpion'];
+                var a = animals[Math.floor(Math.random() * animals.length)];
+                // Generate random valid stats summing to 20, each >= 1
+                var pts = [1,1,1,1];
+                var rem = 16;
+                for (var i = 0; i < 3; i++) {
+                    var maxAdd = Math.min(rem - (3 - i), 16);
+                    var add = Math.floor(Math.random() * (maxAdd + 1));
+                    pts[i] += add;
+                    rem -= add;
+                }
+                pts[3] += rem;
+                document.getElementById('animal').value = a;
+                document.getElementById('hp').value = pts[0];
+                document.getElementById('atk').value = pts[1];
+                document.getElementById('spd').value = pts[2];
+                document.getElementById('wil').value = pts[3];
+                desc.textContent = 'Random \u2014 ' + a.charAt(0).toUpperCase() + a.slice(1) + ' ' + pts.join('/');
+                desc.style.display = 'block';
+                // Highlight the Random button (last one)
+                btns[btns.length - 1].classList.add('active');
+            } else {
+                var p = PRESETS[key];
+                document.getElementById('animal').value = p.animal;
+                document.getElementById('hp').value = p.hp;
+                document.getElementById('atk').value = p.atk;
+                document.getElementById('spd').value = p.spd;
+                document.getElementById('wil').value = p.wil;
+                desc.textContent = p.label;
+                desc.style.display = 'block';
+                // Find and highlight the clicked button
+                for (var i = 0; i < btns.length; i++) {
+                    if (btns[i].getAttribute('onclick').indexOf("'" + key + "'") !== -1) {
+                        btns[i].classList.add('active');
+                    }
+                }
+            }
+            updateStats();
         }
 
         /* ===== Init ===== */

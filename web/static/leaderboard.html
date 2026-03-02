@@ -6,6 +6,21 @@
     <title>Moreau Arena - Leaderboard</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        .type-filter-btn {
+            padding: 0.35rem 0.75rem;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-dim);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .type-filter-btn:hover { border-color: var(--accent); color: var(--text); }
+        .type-filter-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+    </style>
 </head>
 <body>
     <nav class="nav">
@@ -45,6 +60,14 @@
                     <option value="A">Track A (T001)</option>
                     <option value="B">Track B (T002)</option>
                 </select>
+            </div>
+            <div class="filter-group">
+                <label>Type</label>
+                <div class="type-filter-btns" style="display:flex;gap:0.3rem;">
+                    <button class="type-filter-btn active" data-filter="all" onclick="setTypeFilter('all',this)">All</button>
+                    <button class="type-filter-btn" data-filter="llm" onclick="setTypeFilter('llm',this)">LLMs Only</button>
+                    <button class="type-filter-btn" data-filter="baseline" onclick="setTypeFilter('baseline',this)">Baselines Only</button>
+                </div>
             </div>
         </div>
 
@@ -246,11 +269,12 @@
                         else if (i === 1) badge = '<span class="badge badge-silver">2nd</span>';
                         else if (i === 2) badge = '<span class="badge badge-bronze">3rd</span>';
 
-                        var typeBadge = isLLM(s.name)
+                        var agentIsLLM = isLLM(s.name);
+                        var typeBadge = agentIsLLM
                             ? '<span class="badge badge-llm">LLM</span>'
                             : '<span class="badge badge-baseline">BOT</span>';
 
-                        html += '<tr>' +
+                        html += '<tr data-agent-type="' + (agentIsLLM ? 'llm' : 'baseline') + '">' +
                             '<td class="col-rank">' + (i + 1) + '</td>' +
                             '<td class="col-name"><a href="/agent/' + encodeURIComponent(s.name) + '">' + escapeHtml(s.name) + '</a>' + badge + typeBadge + '</td>' +
                             '<td class="col-right">' + s.bt_score.toFixed(4) + '</td>' +
@@ -261,6 +285,7 @@
                     }
                     body.innerHTML = html;
                     table.style.display = 'block';
+                    applyTypeFilter();
                 })
                 .catch(function(err) {
                     loading.style.display = 'none';
@@ -547,6 +572,29 @@
                     error.textContent = 'Error: ' + err.message;
                     error.style.display = 'block';
                 });
+        }
+
+        // -- Type filter --
+        var currentTypeFilter = 'all';
+
+        function setTypeFilter(filter, btn) {
+            currentTypeFilter = filter;
+            var btns = document.querySelectorAll('.type-filter-btn');
+            for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+            btn.classList.add('active');
+            applyTypeFilter();
+        }
+
+        function applyTypeFilter() {
+            var rows = document.querySelectorAll('#rankingsBody tr[data-agent-type]');
+            for (var i = 0; i < rows.length; i++) {
+                var type = rows[i].getAttribute('data-agent-type');
+                if (currentTypeFilter === 'all' || type === currentTypeFilter) {
+                    rows[i].style.display = '';
+                } else {
+                    rows[i].style.display = 'none';
+                }
+            }
         }
 
         // -- Init --

@@ -6,6 +6,48 @@
     <title>Moreau Arena - About</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        .arch-dot {
+            display: inline-block;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            margin-right: 0.4rem;
+            vertical-align: middle;
+        }
+        .arch-dps     { background: #e63946; }
+        .arch-tank    { background: #4ecca3; }
+        .arch-utility { background: #457b9d; }
+        .arch-assassin{ background: #9b59b6; }
+        .arch-berserker{ background: #e67e22; }
+
+        .ability-cell {
+            position: relative;
+            cursor: help;
+        }
+        .ability-cell .tip {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a26;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.6rem 0.8rem;
+            font-size: 0.75rem;
+            line-height: 1.5;
+            color: var(--text-dim);
+            white-space: nowrap;
+            z-index: 50;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+        .ability-cell:hover .tip { display: block; }
+        .tip strong { color: var(--text); }
+        .tip .tip-rate { color: var(--accent); font-family: var(--font-mono); }
+        .tip .tip-fx { color: var(--green); }
+        .tip .tip-dur { color: var(--gold); }
+    </style>
 </head>
 <body>
     <nav class="nav">
@@ -76,31 +118,116 @@
         <div class="section">
             <h2>The Animals</h2>
             <p class="dim small" style="margin-bottom:1rem;">14 animals with unique abilities that create non-transitive dynamics.</p>
-            <div class="card">
-                <table>
+            <div class="card" style="overflow:visible;">
+                <table style="overflow:visible;">
                     <thead>
                         <tr>
                             <th>Animal</th>
                             <th>Passive</th>
-                            <th>Active</th>
+                            <th>Ability 1</th>
+                            <th>Ability 2</th>
                             <th>Archetype</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td class="col-name">Bear</td><td>Thick Fur (dmg reduction)</td><td>Maul (bonus dmg)</td><td class="dim">Tank/Bruiser</td></tr>
-                        <tr><td class="col-name">Tiger</td><td>Ambush (first-strike bonus)</td><td>Pounce (gap close + dmg)</td><td class="dim">Assassin</td></tr>
-                        <tr><td class="col-name">Wolf</td><td>Pack Tactics (scaling dmg)</td><td>Howl (ATK buff)</td><td class="dim">Scaling DPS</td></tr>
-                        <tr><td class="col-name">Buffalo</td><td>Endurance (HP regen)</td><td>Charge (knockback)</td><td class="dim">Sustain Tank</td></tr>
-                        <tr><td class="col-name">Boar</td><td>Frenzy (low-HP dmg boost)</td><td>Gore (bleed)</td><td class="dim">Berserker</td></tr>
-                        <tr><td class="col-name">Monkey</td><td>Evasion (dodge bonus)</td><td>Trick (stat steal)</td><td class="dim">Evasion</td></tr>
-                        <tr><td class="col-name">Crocodile</td><td>Armored Hide</td><td>Death Roll</td><td class="dim">Grappler</td></tr>
-                        <tr><td class="col-name">Eagle</td><td>Aerial Advantage</td><td>Dive Bomb</td><td class="dim">Burst</td></tr>
-                        <tr><td class="col-name">Snake</td><td>Venom</td><td>Constrict</td><td class="dim">DoT</td></tr>
-                        <tr><td class="col-name">Raven</td><td>Cunning</td><td>Distract</td><td class="dim">Utility</td></tr>
-                        <tr><td class="col-name">Shark</td><td>Blood Frenzy</td><td>Bite</td><td class="dim">Finisher</td></tr>
-                        <tr><td class="col-name">Owl</td><td>Night Vision</td><td>Silent Strike</td><td class="dim">Precision</td></tr>
-                        <tr><td class="col-name">Fox</td><td>Cunning Escape</td><td>Outfox</td><td class="dim">Trickster</td></tr>
-                        <tr><td class="col-name">Scorpion</td><td>Exoskeleton</td><td>Sting</td><td class="dim">Poison Tank</td></tr>
+                        <tr>
+                            <td class="col-name">Bear</td>
+                            <td class="ability-cell">Fury Protocol<span class="tip"><strong>Fury Protocol</strong><br><span class="tip-fx">+50% ATK when HP &lt; 50%</span><br><span class="tip-dur">Duration: 3 ticks</span></span></td>
+                            <td class="ability-cell">Berserker Rage<span class="tip"><strong>Berserker Rage</strong><br><span class="tip-rate">3.5% per tick</span><br><span class="tip-fx">+60% ATK, &minus;40% dodge</span><br><span class="tip-dur">Duration: 3 ticks</span></span></td>
+                            <td class="ability-cell">Last Stand<span class="tip"><strong>Last Stand</strong><br><span class="tip-rate">3.5% per tick</span><br><span class="tip-fx">+100% ATK when HP &lt; 15%</span><br><span class="tip-dur">One-time use</span></span></td>
+                            <td><span class="arch-dot arch-tank"></span><span class="dim">Tank/Bruiser</span></td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">Tiger</td>
+                            <td class="ability-cell">Ambush Wiring<span class="tip"><strong>Ambush Wiring</strong><br><span class="tip-fx">First attack +100% dmg</span><br><span class="tip-dur">Requires SPD &gt; opponent</span></span></td>
+                            <td class="ability-cell">Pounce<span class="tip"><strong>Pounce</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">+70% ATK, skip opponent attack</span></span></td>
+                            <td class="ability-cell">Hamstring<span class="tip"><strong>Hamstring</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">&minus;55% SPD, &minus;10% dodge</span><br><span class="tip-dur">Duration: 4 ticks</span></span></td>
+                            <td><span class="arch-dot arch-assassin"></span><span class="dim">Assassin</span></td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">Wolf</td>
+                            <td class="ability-cell">Pack Sense<span class="tip"><strong>Pack Sense</strong><br><span class="tip-fx">Passive scaling damage</span></span></td>
+                            <td class="ability-cell">Pack Howl<span class="tip"><strong>Pack Howl</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">+30% ATK</span><br><span class="tip-dur">Duration: 4 ticks</span></span></td>
+                            <td class="ability-cell">Rend<span class="tip"><strong>Rend</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">5% max HP DoT</span><br><span class="tip-dur">Duration: 3 ticks</span></span></td>
+                            <td><span class="arch-dot arch-dps"></span><span class="dim">Scaling DPS</span></td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">Buffalo</td>
+                            <td class="ability-cell">Thick Hide<span class="tip"><strong>Thick Hide</strong><br><span class="tip-fx">First hit &minus;50% damage</span></span></td>
+                            <td class="ability-cell">Thick Hide<span class="tip"><strong>Thick Hide (Active)</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">Blocks all damage</span><br><span class="tip-dur">Duration: 1 tick</span></span></td>
+                            <td class="ability-cell">Iron Will<span class="tip"><strong>Iron Will</strong><br><span class="tip-rate">3.5% per tick</span><br><span class="tip-fx">Heal 12% max HP</span><br><span class="tip-dur">One-time use</span></span></td>
+                            <td><span class="arch-dot arch-tank"></span><span class="dim">Sustain Tank</span></td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">Boar</td>
+                            <td class="ability-cell">Charge<span class="tip"><strong>Charge</strong><br><span class="tip-fx">First attack +50% damage</span></span></td>
+                            <td class="ability-cell">Stampede<span class="tip"><strong>Stampede</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">+50% ATK, skip opponent attack</span></span></td>
+                            <td class="ability-cell">Gore<span class="tip"><strong>Gore</strong><br><span class="tip-rate">3.5% per tick</span><br><span class="tip-fx">&minus;40% ATK, ignores dodge</span></span></td>
+                            <td><span class="arch-dot arch-berserker"></span><span class="dim">Berserker</span></td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">Monkey</td>
+                            <td class="ability-cell">Primate Cortex<span class="tip"><strong>Primate Cortex</strong><br><span class="tip-fx">Enhanced cognitive ability</span></span></td>
+                            <td class="ability-cell">Chaos Strike<span class="tip"><strong>Chaos Strike</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">0.8&times;&ndash;2.2&times; damage multiplier</span></span></td>
+                            <td class="ability-cell">Mimic<span class="tip"><strong>Mimic</strong><br><span class="tip-rate">3.5% per tick</span><br><span class="tip-fx">Copy 75% of opponent ability</span><br><span class="tip-dur">Cannot copy: Iron Will, Last Stand, Mimic</span></span></td>
+                            <td><span class="arch-dot arch-utility"></span><span class="dim">Trickster</span></td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">Crocodile</td>
+                            <td class="ability-cell">Death Roll<span class="tip"><strong>Death Roll (Passive)</strong><br><span class="tip-fx">Grapple damage bonus</span></span></td>
+                            <td class="ability-cell">Death Roll<span class="tip"><strong>Death Roll (Active)</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">Grapple attack</span></span></td>
+                            <td class="ability-cell">Thick Scales<span class="tip"><strong>Thick Scales</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">Damage reduction</span><br><span class="tip-dur">Duration: 2 ticks</span></span></td>
+                            <td><span class="arch-dot arch-tank"></span><span class="dim">Grappler</span></td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">Eagle</td>
+                            <td class="ability-cell">Aerial Strike<span class="tip"><strong>Aerial Strike</strong><br><span class="tip-fx">Aerial advantage in combat</span></span></td>
+                            <td class="ability-cell">Dive<span class="tip"><strong>Dive</strong><br><span class="tip-rate">3.5% per tick</span><br><span class="tip-fx">+100% ATK, ignores dodge</span></span></td>
+                            <td class="ability-cell">Keen Eye<span class="tip"><strong>Keen Eye</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">+20% dodge chance</span><br><span class="tip-dur">Duration: 3 ticks</span></span></td>
+                            <td><span class="arch-dot arch-dps"></span><span class="dim">Burst DPS</span></td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">Snake</td>
+                            <td class="ability-cell">Venom Glands<span class="tip"><strong>Venom Glands</strong><br><span class="tip-fx">Passive poison on attacks</span></span></td>
+                            <td class="ability-cell">Venom<span class="tip"><strong>Venom</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">3% max HP DoT, stacks &times;3</span><br><span class="tip-dur">Duration: 3 ticks per stack</span></span></td>
+                            <td class="ability-cell">Coil<span class="tip"><strong>Coil</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">Guaranteed dodge</span><br><span class="tip-dur">Duration: 1 tick</span></span></td>
+                            <td><span class="arch-dot arch-dps"></span><span class="dim">DoT</span></td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">Raven</td>
+                            <td class="ability-cell">Omen<span class="tip"><strong>Omen</strong><br><span class="tip-fx">Foresight passive</span></span></td>
+                            <td class="ability-cell">Shadow Clone<span class="tip"><strong>Shadow Clone</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">Creates a shadow clone</span><br><span class="tip-dur">One-time use</span></span></td>
+                            <td class="ability-cell">Curse<span class="tip"><strong>Curse</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">Debuff opponent</span><br><span class="tip-dur">Duration: 3 ticks</span></span></td>
+                            <td><span class="arch-dot arch-utility"></span><span class="dim">Utility</span></td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">Shark</td>
+                            <td class="ability-cell">Blood Frenzy<span class="tip"><strong>Blood Frenzy (Passive)</strong><br><span class="tip-fx">Bonus damage vs low-HP targets</span></span></td>
+                            <td class="ability-cell">Blood Frenzy<span class="tip"><strong>Blood Frenzy (Active)</strong><br><span class="tip-rate">3.5% per tick</span><br><span class="tip-fx">Enhanced finishing damage</span></span></td>
+                            <td class="ability-cell">Bite<span class="tip"><strong>Bite</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">Sustained damage</span><br><span class="tip-dur">Duration: 2 ticks</span></span></td>
+                            <td><span class="arch-dot arch-assassin"></span><span class="dim">Finisher</span></td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">Owl</td>
+                            <td class="ability-cell">Night Vision<span class="tip"><strong>Night Vision</strong><br><span class="tip-fx">Enhanced perception in combat</span></span></td>
+                            <td class="ability-cell">Foresight<span class="tip"><strong>Foresight</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">Predict opponent actions</span><br><span class="tip-dur">Duration: 2 ticks</span></span></td>
+                            <td class="ability-cell">Silent Strike<span class="tip"><strong>Silent Strike</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">Precision attack</span></span></td>
+                            <td><span class="arch-dot arch-utility"></span><span class="dim">Precision</span></td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">Fox</td>
+                            <td class="ability-cell">Cunning<span class="tip"><strong>Cunning</strong><br><span class="tip-fx">Passive evasion bonus</span></span></td>
+                            <td class="ability-cell">Evasion<span class="tip"><strong>Evasion</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">+50% dodge chance</span><br><span class="tip-dur">Duration: 3 ticks</span></span></td>
+                            <td class="ability-cell">Trick<span class="tip"><strong>Trick</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">Negates opponent's next proc</span><br><span class="tip-dur">Duration: 1 tick</span></span></td>
+                            <td><span class="arch-dot arch-utility"></span><span class="dim">Trickster</span></td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">Scorpion</td>
+                            <td class="ability-cell">Paralytic Sting<span class="tip"><strong>Paralytic Sting</strong><br><span class="tip-fx">Passive stun chance on attacks</span></span></td>
+                            <td class="ability-cell">Sting<span class="tip"><strong>Sting</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">Skip opponent attack</span></span></td>
+                            <td class="ability-cell">Exoskeleton<span class="tip"><strong>Exoskeleton</strong><br><span class="tip-rate">4.5% per tick</span><br><span class="tip-fx">Block 15% damage</span><br><span class="tip-dur">Duration: 1 tick</span></span></td>
+                            <td><span class="arch-dot arch-berserker"></span><span class="dim">Poison Tank</span></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
