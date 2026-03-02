@@ -831,14 +831,19 @@ _ENV_KEY_MAP: dict[str, str] = {
     "anthropic": "ANTHROPIC_API_KEY",
     "openai": "OPENAI_API_KEY",
     "google": "GOOGLE_API_KEY",
+    "gemini": "GEMINI_API_KEY",
     "xai": "XAI_API_KEY",
 }
 
 
 def _build_api_callable(provider: str, model: str, api_key: str):
     """Build a real API callable. Imports from run_challenge to avoid duplication."""
+    # Map 'gemini' provider to 'google' (same API, different env var name)
+    effective_provider = "google" if provider == "gemini" else provider
+    effective_model = model if model != "test" else "gemini-2.0-flash-lite"
+
     from run_challenge import _build_api_callable as _make_callable
-    real_call = _make_callable(provider, model, api_key)
+    real_call = _make_callable(effective_provider, effective_model, api_key)
 
     # Wrap to return string (T001 format) since ablation agents use text parsing
     def api_call(prompt: str) -> str:
@@ -946,7 +951,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "--provider",
         type=str,
         default="openai",
-        choices=["openai", "anthropic", "google", "xai"],
+        choices=["openai", "anthropic", "google", "gemini", "xai"],
         help="API provider (default: openai, only needed for real runs)",
     )
     parser.add_argument(

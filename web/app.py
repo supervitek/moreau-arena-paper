@@ -13,7 +13,10 @@ from itertools import combinations
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, FastAPI, HTTPException, Query
+import random
+import time
+
+from fastapi import APIRouter, FastAPI, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -29,7 +32,8 @@ from analysis.bt_ranking import (
     load_results_from_jsonl,
     update_ratings,
 )
-from simulator.__main__ import _parse_build, _run_games
+from simulator.__main__ import _create_creature, _parse_build, _run_games
+from simulator.engine import CombatEngine
 
 app = FastAPI(title="Moreau Arena", version="1.0.0")
 
@@ -44,7 +48,13 @@ app.add_middleware(
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 RESULTS_DIR = _project_root / "results"
+SUBMISSIONS_DIR = RESULTS_DIR / "submissions"
 DATA_DIR = _project_root / "data"
+
+VALID_ANIMALS = [
+    "bear", "buffalo", "boar", "tiger", "wolf", "monkey",
+    "crocodile", "eagle", "snake", "raven", "shark", "owl", "fox", "scorpion",
+]
 
 # Tournament track mapping
 TRACK_PATHS: dict[str, list[Path]] = {
@@ -112,6 +122,36 @@ class ChallengeResponse(BaseModel):
     build: str
     results: list[ChallengeResult]
     overall_win_rate: float
+
+
+class PlayRequest(BaseModel):
+    animal: str = Field(..., description="Animal type, e.g. 'bear'")
+    hp: int = Field(..., ge=1, le=17)
+    atk: int = Field(..., ge=1, le=17)
+    spd: int = Field(..., ge=1, le=17)
+    wil: int = Field(..., ge=1, le=17)
+
+    @field_validator("animal")
+    @classmethod
+    def validate_animal(cls, v: str) -> str:
+        v = v.strip().lower()
+        if v not in VALID_ANIMALS:
+            raise ValueError(
+                f"Invalid animal '{v}'. Valid: {', '.join(VALID_ANIMALS)}"
+            )
+        return v
+
+
+class PlayGameResult(BaseModel):
+    game: int
+    winner: str
+    ticks: int
+
+
+class PlayResponse(BaseModel):
+    player_wins: int
+    opponent_wins: int
+    games: list[PlayGameResult]
 
 
 class LeaderboardEntry(BaseModel):
@@ -454,6 +494,180 @@ def api_leaderboard_cycles(
         "cycles": cycles,
         "total_cycles": len(cycles),
     }
+
+
+@api_v1.post("/play", response_model=PlayResponse)
+def api_play(req: PlayRequest) -> PlayResponse:
+    """Run a best-of-7 series: player build vs balanced bear (5/5/5/5)."""
+    total = req.hp + req.atk + req.spd + req.wil
+    if total != 20:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Stats must sum to 20, got {total} ({req.hp}+{req.atk}+{req.spd}+{req.wil})",
+        )
+
+    try:
+        animal_p, hp_p, atk_p, spd_p, wil_p = _parse_build(
+            f"{req.animal} {req.hp} {req.atk} {req.spd} {req.wil}"
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    # Opponent: balanced bear 5/5/5/5
+    animal_o, hp_o, atk_o, spd_o, wil_o = _parse_build("bear 5 5 5 5")
+
+    engine = CombatEngine()
+    player_wins = 0
+    opponent_wins = 0
+    game_results: list[PlayGameResult] = []
+    base_seed = random.randint(0, 100000)
+
+    for g in range(7):
+        if player_wins >= 4 or opponent_wins >= 4:
+            break
+
+        match_seed = base_seed + g
+        creature_p = _create_creature(
+            animal_p, hp_p, atk_p, spd_p, wil_p, "a", match_seed
+        )
+        creature_o = _create_creature(
+            animal_o, hp_o, atk_o, spd_o, wil_o, "b", match_seed
+        )
+
+        result = engine.run_combat(creature_p, creature_o, match_seed)
+
+        if result.winner == "a":
+            player_wins += 1
+            winner_label = "player"
+        elif result.winner == "b":
+            opponent_wins += 1
+            winner_label = "opponent"
+        else:
+            winner_label = "draw"
+
+        game_results.append(PlayGameResult(
+            game=g + 1,
+            winner=winner_label,
+            ticks=result.ticks,
+        ))
+
+    return PlayResponse(
+        player_wins=player_wins,
+        opponent_wins=opponent_wins,
+        games=game_results,
+    )
+
+
+@api_v1.post("/submit")
+async def api_submit(file: UploadFile) -> dict[str, Any]:
+    """Accept a JSONL file upload, validate, and store it."""
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No file uploaded")
+
+    content = await file.read()
+    try:
+        text = content.decode("utf-8")
+    except UnicodeDecodeError:
+        raise HTTPException(status_code=400, detail="File must be UTF-8 encoded text")
+
+    lines = text.strip().split("\n")
+    if not lines or (len(lines) == 1 and not lines[0].strip()):
+        raise HTTPException(status_code=400, detail="File is empty")
+
+    errors: list[str] = []
+    record_count = 0
+
+    for i, line in enumerate(lines, 1):
+        line = line.strip()
+        if not line:
+            continue
+
+        # Validate JSON
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError as e:
+            errors.append(f"Line {i}: Invalid JSON: {e}")
+            continue
+
+        record_count += 1
+
+        # Validate required fields
+        for field in ("agent_a", "agent_b", "winner", "games"):
+            if field not in record:
+                errors.append(f"Line {i}: Missing required field '{field}'")
+
+        # Validate games array contains valid builds
+        games_data = record.get("games", [])
+        if not isinstance(games_data, list):
+            errors.append(f"Line {i}: 'games' must be an array")
+            continue
+
+        for gi, game in enumerate(games_data, 1):
+            if not isinstance(game, dict):
+                errors.append(f"Line {i}, game {gi}: must be an object")
+                continue
+            for build_key in ("build_a", "build_b"):
+                build = game.get(build_key)
+                if build is None:
+                    continue  # build keys are optional per game
+                if not isinstance(build, dict):
+                    errors.append(f"Line {i}, game {gi}: '{build_key}' must be an object")
+                    continue
+                animal = build.get("animal", "").lower()
+                if animal and animal not in VALID_ANIMALS:
+                    errors.append(
+                        f"Line {i}, game {gi}: '{build_key}' has invalid animal '{animal}'"
+                    )
+                stats = [
+                    build.get("hp", 0), build.get("atk", 0),
+                    build.get("spd", 0), build.get("wil", 0),
+                ]
+                if all(isinstance(s, (int, float)) for s in stats):
+                    total = sum(int(s) for s in stats)
+                    if total != 0 and total != 20:
+                        errors.append(
+                            f"Line {i}, game {gi}: '{build_key}' stats sum to {total}, expected 20"
+                        )
+
+    if errors:
+        raise HTTPException(status_code=400, detail={"errors": errors})
+
+    if record_count == 0:
+        raise HTTPException(status_code=400, detail="No valid records found in file")
+
+    # Store the file
+    SUBMISSIONS_DIR.mkdir(parents=True, exist_ok=True)
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    safe_name = "".join(
+        c if c.isalnum() or c in "-_." else "_"
+        for c in (file.filename or "upload")
+    )
+    dest_name = f"submission_{timestamp}_{safe_name}"
+    dest_path = SUBMISSIONS_DIR / dest_name
+
+    with open(dest_path, "w", encoding="utf-8") as f:
+        f.write(text)
+
+    return {
+        "filename": dest_name,
+        "records": record_count,
+        "status": "accepted",
+    }
+
+
+# -- Page routes for new sections -----------------------------------------------
+
+
+@app.get("/research")
+def research_page() -> FileResponse:
+    """Serve the research HTML page."""
+    return FileResponse(STATIC_DIR / "research.html")
+
+
+@app.get("/play")
+def play_page() -> FileResponse:
+    """Serve the play HTML page."""
+    return FileResponse(STATIC_DIR / "play.html")
 
 
 app.include_router(api_v1)

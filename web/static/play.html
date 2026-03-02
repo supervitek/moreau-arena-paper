@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moreau Arena - Play</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        h1 {
+            text-align: center;
+            color: #e94560;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        h2 {
+            color: #e94560;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #0f3460;
+            padding-bottom: 0.5rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+        .container {
+            max-width: 640px;
+            margin: 0 auto;
+        }
+        .card {
+            background: #16213e;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #0f3460;
+        }
+        .nav {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .nav a {
+            color: #e94560;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin: 0 0.5rem;
+        }
+        .nav a:hover { text-decoration: underline; }
+        label {
+            display: block;
+            margin-bottom: 0.3rem;
+            font-weight: 600;
+            color: #ccc;
+            font-size: 0.85rem;
+        }
+        select {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #0f3460;
+            border-radius: 4px;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+        }
+        select:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+        .stat-group {
+            margin-bottom: 1rem;
+        }
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.3rem;
+        }
+        .stat-header label {
+            margin-bottom: 0;
+        }
+        .stat-value {
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #4ecca3;
+            min-width: 2rem;
+            text-align: right;
+        }
+        input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: #0f3460;
+            border-radius: 3px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #e94560;
+            cursor: pointer;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #e94560;
+            cursor: pointer;
+            border: none;
+        }
+        .budget-bar {
+            background: #1a1a2e;
+            border: 1px solid #0f3460;
+            border-radius: 6px;
+            padding: 0.8rem 1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .budget-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 0.3rem;
+        }
+        .budget-value {
+            font-family: monospace;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .budget-ok { color: #4ecca3; }
+        .budget-over { color: #e94560; }
+        .budget-under { color: #f0a500; }
+        button {
+            width: 100%;
+            padding: 0.7rem;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover { background: #c73652; }
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        .error {
+            color: #e94560;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        .results {
+            margin-top: 1.5rem;
+            display: none;
+        }
+        .results.visible { display: block; }
+        .series-header {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .series-score {
+            font-family: monospace;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #e0e0e0;
+        }
+        .series-verdict {
+            font-size: 1rem;
+            margin-top: 0.3rem;
+            font-weight: 600;
+        }
+        .verdict-win { color: #4ecca3; }
+        .verdict-loss { color: #e94560; }
+        .verdict-tie { color: #f0a500; }
+        .game-list {
+            list-style: none;
+            padding: 0;
+        }
+        .game-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0.8rem;
+            border-bottom: 1px solid #0f3460;
+            font-size: 0.9rem;
+        }
+        .game-item:last-child { border-bottom: none; }
+        .game-num {
+            color: #888;
+            font-weight: 600;
+            min-width: 70px;
+        }
+        .game-winner {
+            font-weight: 600;
+            font-family: monospace;
+        }
+        .game-winner.player { color: #4ecca3; }
+        .game-winner.opponent { color: #e94560; }
+        .game-winner.draw { color: #f0a500; }
+        .game-ticks {
+            color: #888;
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+        .opponent-info {
+            text-align: center;
+            color: #888;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background: #1a1a2e;
+            border-radius: 4px;
+        }
+        .hint {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: -0.5rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Moreau Arena</h1>
+        <p class="subtitle">Create your fighter</p>
+
+        <div class="nav">
+            <a href="/">Fight Simulator</a> |
+            <a href="/play">Play</a> |
+            <a href="/leaderboard">Leaderboard</a> |
+            <a href="/research">Research</a>
+        </div>
+
+        <div class="card">
+            <h2>Build Your Creature</h2>
+
+            <div class="opponent-info">
+                Your opponent: Bear (5/5/5/5) -- the balanced baseline. Best of 7.
+            </div>
+
+            <label for="animal">Animal</label>
+            <select id="animal">
+                <option value="bear">Bear</option>
+                <option value="buffalo">Buffalo</option>
+                <option value="boar">Boar</option>
+                <option value="tiger">Tiger</option>
+                <option value="wolf">Wolf</option>
+                <option value="monkey">Monkey</option>
+                <option value="crocodile">Crocodile</option>
+                <option value="eagle">Eagle</option>
+                <option value="snake">Snake</option>
+                <option value="raven">Raven</option>
+                <option value="shark">Shark</option>
+                <option value="owl">Owl</option>
+                <option value="fox">Fox</option>
+                <option value="scorpion">Scorpion</option>
+            </select>
+
+            <div class="stat-group">
+                <div class="stat-header">
+                    <label for="hp">HP (Health)</label>
+                    <span class="stat-value" id="hpVal">5</span>
+                </div>
+                <input type="range" id="hp" min="1" max="17" value="5" oninput="updateStats()">
+            </div>
+
+            <div class="stat-group">
+                <div class="stat-header">
+                    <label for="atk">ATK (Attack)</label>
+                    <span class="stat-value" id="atkVal">5</span>
+                </div>
+                <input type="range" id="atk" min="1" max="17" value="5" oninput="updateStats()">
+            </div>
+
+            <div class="stat-group">
+                <div class="stat-header">
+                    <label for="spd">SPD (Speed)</label>
+                    <span class="stat-value" id="spdVal">5</span>
+                </div>
+                <input type="range" id="spd" min="1" max="17" value="5" oninput="updateStats()">
+            </div>
+
+            <div class="stat-group">
+                <div class="stat-header">
+                    <label for="wil">WIL (Will)</label>
+                    <span class="stat-value" id="wilVal">5</span>
+                </div>
+                <input type="range" id="wil" min="1" max="17" value="5" oninput="updateStats()">
+            </div>
+
+            <div class="budget-bar">
+                <div class="budget-label">Stat Budget</div>
+                <div class="budget-value" id="budgetDisplay">
+                    <span id="budgetUsed">20</span> / 20
+                </div>
+                <div class="hint" id="budgetHint">Stats must sum to exactly 20</div>
+            </div>
+
+            <button id="fightBtn" onclick="submitFight()">Fight!</button>
+
+            <div class="error" id="error"></div>
+
+            <div class="results" id="results">
+                <div class="series-header">
+                    <div class="series-score" id="seriesScore"></div>
+                    <div class="series-verdict" id="seriesVerdict"></div>
+                </div>
+                <ul class="game-list" id="gameList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var BUDGET = 20;
+        var stats = ['hp', 'atk', 'spd', 'wil'];
+        var lastChanged = null;
+
+        function getStatValues() {
+            var values = {};
+            for (var i = 0; i < stats.length; i++) {
+                values[stats[i]] = parseInt(document.getElementById(stats[i]).value, 10);
+            }
+            return values;
+        }
+
+        function updateStats() {
+            var values = getStatValues();
+            var total = 0;
+            for (var i = 0; i < stats.length; i++) {
+                total += values[stats[i]];
+                document.getElementById(stats[i] + 'Val').textContent = values[stats[i]];
+            }
+
+            var budgetUsed = document.getElementById('budgetUsed');
+            var budgetDisplay = document.getElementById('budgetDisplay');
+            var budgetHint = document.getElementById('budgetHint');
+            var fightBtn = document.getElementById('fightBtn');
+
+            budgetUsed.textContent = total;
+
+            if (total === BUDGET) {
+                budgetDisplay.className = 'budget-value budget-ok';
+                budgetHint.textContent = 'Budget balanced!';
+                budgetHint.style.color = '#4ecca3';
+                fightBtn.disabled = false;
+            } else if (total > BUDGET) {
+                budgetDisplay.className = 'budget-value budget-over';
+                budgetHint.textContent = 'Over budget by ' + (total - BUDGET) + ' points!';
+                budgetHint.style.color = '#e94560';
+                fightBtn.disabled = true;
+            } else {
+                budgetDisplay.className = 'budget-value budget-under';
+                budgetHint.textContent = (BUDGET - total) + ' points remaining';
+                budgetHint.style.color = '#f0a500';
+                fightBtn.disabled = true;
+            }
+        }
+
+        async function submitFight() {
+            var btn = document.getElementById('fightBtn');
+            var errorEl = document.getElementById('error');
+            var resultsEl = document.getElementById('results');
+
+            btn.disabled = true;
+            btn.textContent = 'Fighting...';
+            errorEl.textContent = '';
+            resultsEl.classList.remove('visible');
+
+            var values = getStatValues();
+            var body = {
+                animal: document.getElementById('animal').value,
+                hp: values.hp,
+                atk: values.atk,
+                spd: values.spd,
+                wil: values.wil
+            };
+
+            try {
+                var resp = await fetch('/api/v1/play', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                if (!resp.ok) {
+                    var err = await resp.json();
+                    throw new Error(err.detail || 'Request failed');
+                }
+
+                var data = await resp.json();
+
+                // Series score
+                document.getElementById('seriesScore').textContent =
+                    data.player_wins + ' - ' + data.opponent_wins;
+
+                var verdict = document.getElementById('seriesVerdict');
+                if (data.player_wins > data.opponent_wins) {
+                    verdict.textContent = 'You win the series!';
+                    verdict.className = 'series-verdict verdict-win';
+                } else if (data.opponent_wins > data.player_wins) {
+                    verdict.textContent = 'Bear wins the series.';
+                    verdict.className = 'series-verdict verdict-loss';
+                } else {
+                    verdict.textContent = 'Series tied!';
+                    verdict.className = 'series-verdict verdict-tie';
+                }
+
+                // Game list
+                var gameList = document.getElementById('gameList');
+                var html = '';
+                for (var i = 0; i < data.games.length; i++) {
+                    var g = data.games[i];
+                    var winnerClass = g.winner;
+                    var winnerText = g.winner === 'player' ? 'You' :
+                                     g.winner === 'opponent' ? 'Bear' : 'Draw';
+                    html += '<li class="game-item">' +
+                        '<span class="game-num">Game ' + g.game + '</span>' +
+                        '<span class="game-winner ' + winnerClass + '">' + winnerText + '</span>' +
+                        '<span class="game-ticks">' + g.ticks + ' ticks</span>' +
+                        '</li>';
+                }
+                gameList.innerHTML = html;
+                resultsEl.classList.add('visible');
+            } catch (e) {
+                errorEl.textContent = e.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Fight!';
+                updateStats(); // Re-check budget to set disabled state correctly
+            }
+        }
+
+        // Initialize
+        updateStats();
+    </script>
+</body>
+</html>

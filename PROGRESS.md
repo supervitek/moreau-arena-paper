@@ -1,5 +1,71 @@
 # Progress Log
 
+## Sprint 4 — Phase 3 Completion & Phase 4 Start (2026-03-01)
+
+### Test Results
+
+```
+python3 -m pytest tests/test_invariants.py — 89 passed in 5.07s
+```
+
+All invariants green. No immutable files modified.
+
+### Final Status Table
+
+| Teammate | Task | Description | Status | Notes |
+|----------|------|-------------|--------|-------|
+| ablation-runner | 1 | Real LLM Ablation Run | BLOCKED | GeminiFlashAgent created; live run blocked on missing GEMINI_API_KEY |
+| infra-builder | 2 | Moreau Script — Tier-2 DSL | DONE | Parser, interpreter, validator, 3 examples, ScriptAgent |
+| suite-designer | 3 | Rules-as-Data Generator | DONE | Sampling+rejection, analytical EV, --dry-run verified |
+| platform-builder | 4 | Tournament Challenge Platform | DONE | /play, /research, /api/v1/submit routes added |
+
+### Files Created/Modified
+
+#### New Files
+- `agents/gemini_agent.py` — GeminiFlashAgent (MoreauAgent interface) + GeminiAblationAgent (BaseAgent adapter)
+- `moreau_script/__init__.py` — DSL package init
+- `moreau_script/parser.py` — Safe DSL parser (IF/ELIF/ELSE + PREFER, max 50 rules)
+- `moreau_script/interpreter.py` — Sandboxed interpreter with iteration limit
+- `moreau_script/validator.py` — Validates scripts (no eval/import/exec)
+- `moreau_script/script_agent.py` — ScriptAgent implementing BaseAgent
+- `moreau_script/__main__.py` — CLI entry point
+- `moreau_script/examples/random_strategy.ms` — Random pick example
+- `moreau_script/examples/counter_pick.ms` — Counter-pick strategy
+- `moreau_script/examples/stat_optimizer.ms` — ATK maximizer strategy
+- `seasons/ability_generator.py` — Rules-as-Data generator (sampling+rejection, EV-based win rate estimation)
+- `web/static/play.html` — "Create your fighter" form with stat sliders + budget enforcement
+- `web/static/research.html` — Academic face with methodology summary + BT leaderboard
+
+#### Modified Files
+- `run_ablation.py` — Added `gemini` provider with `GEMINI_API_KEY` env var support
+- `web/app.py` — Added `/play`, `/research`, `/api/v1/play`, `/api/v1/submit` routes
+- `web/static/index.html` — Updated navigation bar
+- `web/static/leaderboard.html` — Updated navigation bar
+
+#### Immutable Files (verified unchanged)
+- `simulator/config.json` — Hash verified
+- `data/tournament_001/*` — SHA-256 hashes verified (9 tests pass)
+- `data/tournament_002/*` — SHA-256 hashes verified (9 tests pass)
+
+### Verification Commands
+
+```
+python3 -m moreau_script moreau_script/examples/counter_pick.ms   # DSL produces valid build
+python3 seasons/ability_generator.py --dry-run                     # Ability generator works
+python3 seasons/ability_generator.py --dry-run --ability-count 14 --seed 42  # Full PASS
+python3 -m pytest tests/test_invariants.py                         # 89 tests pass
+```
+
+### Blocked Tasks
+
+**Task 1 (Real LLM Ablation Run):** BLOCKED on missing `GEMINI_API_KEY` environment variable.
+- GeminiFlashAgent code is complete and ready to use
+- `run_ablation.py` supports `--provider gemini` which reads `GEMINI_API_KEY`
+- To unblock: `export GEMINI_API_KEY=your_key && python3 run_ablation.py --variant formulas-only --provider gemini --model gemini-2.0-flash-lite --series 5`
+- This will produce a JSONL file with `elapsed_s > 1.0` per series (proving real API calls)
+
+---
+
 ## Sprint 3 — Platform & Depth Suites (2026-03-01)
 
 ### Test Results
