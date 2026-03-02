@@ -23,7 +23,7 @@ import time
 
 from fastapi import APIRouter, FastAPI, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
@@ -1213,8 +1213,28 @@ def _challenge_logic(build: str, games: int) -> ChallengeResponse:
 
 
 @app.get("/")
-def index() -> FileResponse:
-    return FileResponse(STATIC_DIR / "index.html")
+def index() -> HTMLResponse:
+    html = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
+    # Server-side render top-5 leaderboard rankings to avoid "Loading..." flash
+    for track_key in ("A", "B"):
+        bt_data = _cache.get(track_key, {}).get("bt", {})
+        scores = bt_data.get("bt_scores", [])[:6]
+        if scores:
+            items = []
+            for i, s in enumerate(scores):
+                name = s["name"].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                items.append(
+                    f'<li><span class="rank-num">{i+1}.</span>'
+                    f'<span class="agent-name">{name}</span>'
+                    f'<span class="bt-score">{s["bt_score"]:.3f}</span></li>'
+                )
+            rendered = "\n                        ".join(items)
+        else:
+            rendered = '<li class="muted small">No data</li>'
+        placeholder = f'<ul class="mini-ranking" id="track{track_key}-ranking">\n                        <li class="loading">Loading...</li>\n                    </ul>'
+        replacement = f'<ul class="mini-ranking" id="track{track_key}-ranking">\n                        {rendered}\n                    </ul>'
+        html = html.replace(placeholder, replacement)
+    return HTMLResponse(html)
 
 
 @app.get("/about")
