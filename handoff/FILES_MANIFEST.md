@@ -197,7 +197,26 @@ Every file in the repository with path, size, purpose, last modified date, and f
 | Path | Size | Purpose | Modified | Status |
 |------|------|---------|----------|--------|
 | `scripts/benchmark.py` | 3.7 KB | Performance benchmarking | 2026-02-28 | Editable |
+| `scripts/generate_results_summary.py` | 14.4 KB | Generates RESULTS_SUMMARY.md from raw JSONL data | 2026-03-01 | Editable |
+| `scripts/verify_handoff_consistency.py` | 11.0 KB | Cross-checks handoff docs against raw data (21 checks) | 2026-03-01 | Editable |
 | `scripts/setup.sh` | 317 B | Environment setup | 2026-02-28 | Editable |
+
+## handoff/ — Handoff Package
+
+| Path | Size | Purpose | Modified | Status |
+|------|------|---------|----------|--------|
+| `handoff/README_START_HERE.md` | 4.1 KB | Entry point — reading order, what is frozen, next steps | 2026-03-01 | **Source of Truth** |
+| `handoff/PROJECT_OVERVIEW.md` | — | What the project is, what it measures | 2026-03-01 | Editable |
+| `handoff/CANONICAL_FORMULAS.md` | 6.0 KB | Exact formulas from config.json + prompts, discrepancies flagged | 2026-03-01 | **Source of Truth** |
+| `handoff/RESULTS_SUMMARY.md` | 9.0 KB | BT rankings, pairwise matrices, W-L records (auto-generated) | 2026-03-01 | **Generated** |
+| `handoff/ARCHITECTURE.md` | — | File structure, module relationships, data flow | 2026-03-01 | Editable |
+| `handoff/KEY_DECISIONS.md` | — | Design rationale | 2026-03-01 | Editable |
+| `handoff/HOW_TO_RUN.md` | — | Practical commands | 2026-03-01 | Editable |
+| `handoff/DEVELOPMENT_GUIDE.md` | — | How to add agents, experiments, features | 2026-03-01 | Editable |
+| `handoff/ROADMAP_STATUS.md` | — | What is done, what remains | 2026-03-01 | Editable |
+| `handoff/FILES_MANIFEST.md` | — | This file — complete file listing | 2026-03-01 | Editable |
+| `handoff/GLOSSARY.md` | — | Term definitions | 2026-03-01 | Editable |
+| `handoff/CURRENT_STATE.md` | — | Current project state snapshot | 2026-03-01 | Editable |
 
 ---
 
@@ -218,7 +237,9 @@ Every file in the repository with path, size, purpose, last modified date, and f
 | Tests | 5 | ~48 KB |
 | Paper | 5 | ~580 KB |
 | Results (generated) | ~20 | ~500 KB |
+| Handoff package | 12 | ~50 KB |
+| Scripts/utilities | 4 | ~30 KB |
 | Project management | 12 | ~57 KB |
 | Infrastructure | 5 | ~4 KB |
 
-**Total:** ~120 files, ~5 MB (excluding .git, .venv, __pycache__)
+**Total:** ~130+ files, ~5.1 MB (excluding .git, .venv, __pycache__)
