@@ -4,333 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Moreau Arena - Leaderboard</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #1a1a2e;
-            color: #e0e0e0;
-            min-height: 100vh;
-            padding: 2rem;
-        }
-        h1 {
-            text-align: center;
-            color: #e94560;
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-        h2 {
-            color: #e94560;
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid #0f3460;
-            padding-bottom: 0.5rem;
-        }
-        h3 {
-            color: #ccc;
-            font-size: 1.1rem;
-            margin-bottom: 0.8rem;
-        }
-        .subtitle {
-            text-align: center;
-            color: #888;
-            margin-bottom: 2rem;
-            font-size: 0.9rem;
-        }
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-        .card {
-            background: #16213e;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid #0f3460;
-        }
-        .filters {
-            display: flex;
-            gap: 1.5rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .filter-group label {
-            font-weight: 600;
-            color: #ccc;
-            font-size: 0.85rem;
-        }
-        select {
-            padding: 0.5rem 0.8rem;
-            border: 1px solid #0f3460;
-            border-radius: 4px;
-            background: #1a1a2e;
-            color: #e0e0e0;
-            font-size: 0.9rem;
-            cursor: pointer;
-        }
-        select:focus {
-            outline: none;
-            border-color: #e94560;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-        }
-        th {
-            background: #0f3460;
-            color: #e0e0e0;
-            padding: 0.7rem 0.5rem;
-            text-align: left;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-        }
-        td {
-            padding: 0.6rem 0.5rem;
-            border-bottom: 1px solid #0f3460;
-        }
-        tr:hover {
-            background: rgba(233, 69, 96, 0.08);
-        }
-        .rank-col { width: 50px; text-align: center; }
-        .name-col { font-weight: 600; }
-        .score-col { font-family: monospace; text-align: right; }
-        .ci-col { font-family: monospace; text-align: right; color: #888; font-size: 0.8rem; }
-        .elo-col { font-family: monospace; text-align: right; }
-        .sample-col { font-family: monospace; text-align: right; color: #888; }
-
-        .nav {
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-        .nav a {
-            color: #e94560;
-            text-decoration: none;
-            font-size: 0.9rem;
-            margin: 0 0.5rem;
-        }
-        .nav a:hover { text-decoration: underline; }
-
-        .loading {
-            text-align: center;
-            color: #888;
-            padding: 2rem;
-            font-style: italic;
-        }
-        .error {
-            color: #e94560;
-            padding: 1rem;
-            text-align: center;
-        }
-
-        /* Heatmap table */
-        .heatmap-wrapper {
-            overflow-x: auto;
-        }
-        .heatmap-table {
-            border-collapse: collapse;
-            font-size: 0.75rem;
-            min-width: 100%;
-        }
-        .heatmap-table th {
-            padding: 0.4rem 0.3rem;
-            font-size: 0.7rem;
-            writing-mode: vertical-lr;
-            text-orientation: mixed;
-            transform: rotate(180deg);
-            min-width: 38px;
-            max-width: 50px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            background: #0f3460;
-        }
-        .heatmap-table th.row-header {
-            writing-mode: horizontal-tb;
-            transform: none;
-            text-align: right;
-            padding-right: 0.5rem;
-            max-width: 120px;
-            min-width: 80px;
-        }
-        .heatmap-table td {
-            padding: 0.3rem;
-            text-align: center;
-            font-family: monospace;
-            font-size: 0.7rem;
-            border: 1px solid #0f3460;
-            min-width: 38px;
-        }
-        .heatmap-table td.diag {
-            background: #333;
-            color: #666;
-        }
-
-        /* Cycle display */
-        .cycle-item {
-            background: #1a1a2e;
-            border: 1px solid #0f3460;
-            border-radius: 6px;
-            padding: 0.8rem 1rem;
-            margin-bottom: 0.8rem;
-            font-family: monospace;
-            font-size: 0.85rem;
-            line-height: 1.5;
-        }
-        .cycle-arrow {
-            color: #e94560;
-            font-weight: bold;
-        }
-        .cycle-rate {
-            color: #4ecca3;
-            font-size: 0.8rem;
-        }
-
-        /* Submit section */
-        .submit-section code {
-            background: #1a1a2e;
-            padding: 0.15rem 0.4rem;
-            border-radius: 3px;
-            font-size: 0.85rem;
-            color: #4ecca3;
-        }
-        .submit-section ol {
-            padding-left: 1.5rem;
-            line-height: 1.8;
-        }
-        .submit-section li {
-            margin-bottom: 0.3rem;
-        }
-        .submit-section p {
-            margin-bottom: 0.8rem;
-            line-height: 1.6;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 0.15rem 0.5rem;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            margin-left: 0.3rem;
-        }
-        .badge-gold { background: #b8860b; color: #fff; }
-        .badge-silver { background: #708090; color: #fff; }
-        .badge-bronze { background: #8b4513; color: #fff; }
-
-        .stats-row {
-            display: flex;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-        .stat-box {
-            background: #1a1a2e;
-            border: 1px solid #0f3460;
-            border-radius: 6px;
-            padding: 0.8rem 1rem;
-            text-align: center;
-            flex: 1;
-            min-width: 120px;
-        }
-        .stat-box .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #e94560;
-            font-family: monospace;
-        }
-        .stat-box .stat-label {
-            font-size: 0.75rem;
-            color: #888;
-            margin-top: 0.2rem;
-        }
-
-        .no-data {
-            text-align: center;
-            color: #888;
-            padding: 2rem;
-            font-style: italic;
-        }
-
-        .tab-bar {
-            display: flex;
-            gap: 0;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid #0f3460;
-        }
-        .tab-btn {
-            background: none;
-            border: none;
-            color: #888;
-            padding: 0.7rem 1.2rem;
-            font-size: 0.9rem;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -2px;
-            transition: all 0.2s;
-            width: auto;
-        }
-        .tab-btn:hover {
-            color: #e0e0e0;
-            background: rgba(233, 69, 96, 0.05);
-        }
-        .tab-btn.active {
-            color: #e94560;
-            border-bottom-color: #e94560;
-            background: none;
-        }
-        .tab-btn:disabled {
-            background: none;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Moreau Arena Leaderboard</h1>
-        <p class="subtitle">Agent rankings from tournament data</p>
-
-        <div class="nav">
-            <a href="/">Fight Simulator</a> |
-            <a href="/play">Play</a> |
-            <a href="/leaderboard">Leaderboard</a> |
-            <a href="/research">Research</a> |
-            <a href="/api/v1/leaderboard">Raw JSON</a>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/tournaments">Tournaments</a></li>
+                <li><a href="/leaderboard" class="active">Leaderboard</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
         </div>
+    </nav>
+
+    <div class="container">
+        <h1 style="margin-bottom:0.5rem;">Leaderboard</h1>
+        <p class="dim" style="margin-bottom:1.5rem;">Agent rankings computed from tournament data using Bradley-Terry scoring.</p>
 
         <!-- Filters -->
-        <div class="card">
-            <div class="filters">
-                <div class="filter-group">
-                    <label for="trackFilter">Track:</label>
-                    <select id="trackFilter" onchange="loadAllData()">
-                        <option value="all">All Tracks</option>
-                        <option value="A">Track A (T001)</option>
-                        <option value="B">Track B (T002)</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="seasonFilter">Season:</label>
-                    <select id="seasonFilter">
-                        <option value="1" selected>Season 1</option>
-                    </select>
-                </div>
+        <div class="filters">
+            <div class="filter-group">
+                <label for="trackFilter">Track</label>
+                <select id="trackFilter" onchange="loadAllData()">
+                    <option value="all">All Tracks</option>
+                    <option value="A">Track A (T001)</option>
+                    <option value="B">Track B (T002)</option>
+                </select>
             </div>
         </div>
 
-        <!-- Summary Stats -->
-        <div id="statsRow" class="stats-row">
+        <!-- Summary stats -->
+        <div class="stat-row" style="margin-bottom:1.5rem;">
             <div class="stat-box">
                 <div class="stat-value" id="statAgents">-</div>
                 <div class="stat-label">Agents</div>
@@ -345,30 +54,29 @@
             </div>
         </div>
 
-        <!-- Tab Bar -->
+        <!-- Tabs -->
         <div class="tab-bar">
             <button class="tab-btn active" onclick="switchTab('rankings')">Rankings</button>
             <button class="tab-btn" onclick="switchTab('heatmap')">Heatmap</button>
             <button class="tab-btn" onclick="switchTab('cycles')">3-Cycles</button>
-            <button class="tab-btn" onclick="switchTab('submit')">Submit Results</button>
         </div>
 
         <!-- Rankings Tab -->
         <div id="tab-rankings" class="tab-content active">
             <div class="card">
-                <h2>BT Scores & Elo Ratings</h2>
+                <h2>BT Scores &amp; Elo Ratings</h2>
                 <div id="rankingsLoading" class="loading">Loading rankings...</div>
-                <div id="rankingsError" class="error" style="display:none"></div>
+                <div id="rankingsError" class="error-msg" style="display:none"></div>
                 <div id="rankingsTable" style="display:none">
                     <table>
                         <thead>
                             <tr>
-                                <th class="rank-col">#</th>
+                                <th class="col-rank">#</th>
                                 <th>Agent</th>
-                                <th class="score-col">BT Score</th>
-                                <th class="ci-col">95% CI</th>
-                                <th class="elo-col">Elo</th>
-                                <th class="sample-col">Games</th>
+                                <th class="col-right">BT Score</th>
+                                <th class="col-ci">95% CI</th>
+                                <th class="col-right">Elo</th>
+                                <th class="col-right">Games</th>
                             </tr>
                         </thead>
                         <tbody id="rankingsBody"></tbody>
@@ -381,11 +89,9 @@
         <div id="tab-heatmap" class="tab-content">
             <div class="card">
                 <h2>Pairwise Win-Rate Matrix</h2>
-                <p style="color: #888; font-size: 0.8rem; margin-bottom: 1rem;">
-                    Row agent's win rate vs column agent. Green = high, red = low.
-                </p>
+                <p class="muted small" style="margin-bottom:1rem;">Row agent's win rate vs column agent. Green = high, red = low.</p>
                 <div id="heatmapLoading" class="loading">Loading pairwise data...</div>
-                <div id="heatmapError" class="error" style="display:none"></div>
+                <div id="heatmapError" class="error-msg" style="display:none"></div>
                 <div id="heatmapContainer" class="heatmap-wrapper" style="display:none"></div>
             </div>
         </div>
@@ -394,96 +100,75 @@
         <div id="tab-cycles" class="tab-content">
             <div class="card">
                 <h2>Intransitive 3-Cycles</h2>
-                <p style="color: #888; font-size: 0.8rem; margin-bottom: 1rem;">
+                <p class="muted small" style="margin-bottom:1rem;">
                     A &gt; B &gt; C &gt; A cycles where each agent beats the next with &gt;50% win rate.
-                    These cycles reveal non-transitive dominance (rock-paper-scissors dynamics).
+                    These reveal non-transitive (rock-paper-scissors) dynamics.
                 </p>
                 <div id="cyclesLoading" class="loading">Loading cycle data...</div>
-                <div id="cyclesError" class="error" style="display:none"></div>
+                <div id="cyclesError" class="error-msg" style="display:none"></div>
                 <div id="cyclesContainer" style="display:none"></div>
-            </div>
-        </div>
-
-        <!-- Submit Tab -->
-        <div id="tab-submit" class="tab-content">
-            <div class="card submit-section">
-                <h2>Submit Your Results</h2>
-                <p>
-                    Want to add your agent to the Moreau Arena leaderboard? Follow these steps:
-                </p>
-                <ol>
-                    <li>
-                        Implement your agent by extending the base agent class in
-                        <code>agents/baselines.py</code>.
-                    </li>
-                    <li>
-                        Run a tournament against the existing agents using
-                        <code>run_challenge.py</code>:
-                        <br>
-                        <code>python run_challenge.py --agent YourAgent --track A</code>
-                    </li>
-                    <li>
-                        Your results will be saved as a JSONL file in the
-                        <code>results/</code> directory.
-                    </li>
-                    <li>
-                        Submit a pull request to the repository with your agent code and
-                        the generated JSONL results file.
-                    </li>
-                    <li>
-                        Once merged, your agent will appear on this leaderboard automatically.
-                    </li>
-                </ol>
-                <h3 style="margin-top: 1.5rem;">JSONL Format</h3>
-                <p>
-                    Each line in the results file is a JSON object with fields:
-                    <code>agent_a</code>, <code>agent_b</code>, <code>winner</code>,
-                    <code>score_a</code>, <code>score_b</code>, and <code>games_played</code>.
-                </p>
-                <h3 style="margin-top: 1rem;">Track Descriptions</h3>
-                <p>
-                    <strong>Track A (T001)</strong> -- Standard tournament format with fixed builds.
-                    <br>
-                    <strong>Track B (T002)</strong> -- Adaptive tournament with build adaptation between games.
-                </p>
             </div>
         </div>
     </div>
 
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-left">Moreau Arena &mdash; Contamination-resistant LLM benchmark</div>
+            <ul class="footer-links">
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </footer>
+
     <script>
-        // -- Tab switching --
+        // -- Helpers --
+        function escapeHtml(str) {
+            var d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        function truncate(str, maxLen) {
+            return str.length <= maxLen ? str : str.substring(0, maxLen - 1) + '\u2026';
+        }
+
+        function getHeatmapColor(winRate) {
+            var r, g, b;
+            if (winRate <= 0.5) {
+                var t = winRate / 0.5;
+                r = Math.round(180 * (1 - t) + 50 * t);
+                g = Math.round(30 * (1 - t) + 50 * t);
+                b = Math.round(30 * (1 - t) + 60 * t);
+            } else {
+                var t = (winRate - 0.5) / 0.5;
+                r = Math.round(50 * (1 - t) + 20 * t);
+                g = Math.round(50 * (1 - t) + 160 * t);
+                b = Math.round(60 * (1 - t) + 60 * t);
+            }
+            return 'rgb(' + r + ',' + g + ',' + b + ')';
+        }
+
+        function isLLM(name) {
+            var baselines = ['SmartAgent', 'HighVarianceAgent', 'ConservativeAgent', 'GreedyAgent', 'RandomAgent'];
+            return baselines.indexOf(name) === -1;
+        }
+
+        // -- Tabs --
         function switchTab(tabName) {
-            var tabs = document.querySelectorAll('.tab-content');
-            for (var i = 0; i < tabs.length; i++) {
-                tabs[i].classList.remove('active');
-            }
-            var btns = document.querySelectorAll('.tab-btn');
-            for (var i = 0; i < btns.length; i++) {
-                btns[i].classList.remove('active');
-            }
+            document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.remove('active'); });
+            document.querySelectorAll('.tab-btn').forEach(function(el) { el.classList.remove('active'); });
             document.getElementById('tab-' + tabName).classList.add('active');
-            // Find and activate the matching button
-            for (var i = 0; i < btns.length; i++) {
-                if (btns[i].textContent.toLowerCase().replace(/[\s-]/g, '').indexOf(tabName) !== -1 ||
-                    (tabName === 'rankings' && btns[i].textContent === 'Rankings') ||
-                    (tabName === 'heatmap' && btns[i].textContent === 'Heatmap') ||
-                    (tabName === 'cycles' && btns[i].textContent === '3-Cycles') ||
-                    (tabName === 'submit' && btns[i].textContent === 'Submit Results')) {
-                    btns[i].classList.add('active');
-                }
-            }
+            var labels = { rankings: 'Rankings', heatmap: 'Heatmap', cycles: '3-Cycles' };
+            document.querySelectorAll('.tab-btn').forEach(function(btn) {
+                if (btn.textContent === labels[tabName]) btn.classList.add('active');
+            });
         }
 
-        // -- Data loading --
-        function getTrack() {
-            return document.getElementById('trackFilter').value;
-        }
+        // -- Data --
+        function getTrack() { return document.getElementById('trackFilter').value; }
 
-        function loadAllData() {
-            loadBTScores();
-            loadPairwise();
-            loadCycles();
-        }
+        function loadAllData() { loadBTScores(); loadPairwise(); loadCycles(); }
 
         function loadBTScores() {
             var track = getTrack();
@@ -497,10 +182,7 @@
             table.style.display = 'none';
 
             fetch('/api/v1/leaderboard/bt?track=' + encodeURIComponent(track))
-                .then(function(resp) {
-                    if (!resp.ok) throw new Error('Failed to load BT scores');
-                    return resp.json();
-                })
+                .then(function(r) { if (!r.ok) throw new Error('Failed'); return r.json(); })
                 .then(function(data) {
                     loading.style.display = 'none';
                     var scores = data.bt_scores;
@@ -522,13 +204,17 @@
                         else if (i === 1) badge = '<span class="badge badge-silver">2nd</span>';
                         else if (i === 2) badge = '<span class="badge badge-bronze">3rd</span>';
 
+                        var typeBadge = isLLM(s.name)
+                            ? '<span class="badge badge-llm">LLM</span>'
+                            : '<span class="badge badge-baseline">BOT</span>';
+
                         html += '<tr>' +
-                            '<td class="rank-col">' + (i + 1) + '</td>' +
-                            '<td class="name-col">' + escapeHtml(s.name) + badge + '</td>' +
-                            '<td class="score-col">' + s.bt_score.toFixed(4) + '</td>' +
-                            '<td class="ci-col">[' + s.ci_lower.toFixed(4) + ', ' + s.ci_upper.toFixed(4) + ']</td>' +
-                            '<td class="elo-col">' + s.elo + '</td>' +
-                            '<td class="sample-col">' + s.sample_size + '</td>' +
+                            '<td class="col-rank">' + (i + 1) + '</td>' +
+                            '<td class="col-name">' + escapeHtml(s.name) + badge + typeBadge + '</td>' +
+                            '<td class="col-right">' + s.bt_score.toFixed(4) + '</td>' +
+                            '<td class="col-ci">[' + s.ci_lower.toFixed(4) + ', ' + s.ci_upper.toFixed(4) + ']</td>' +
+                            '<td class="col-right">' + s.elo + '</td>' +
+                            '<td class="col-right">' + s.sample_size + '</td>' +
                             '</tr>';
                     }
                     body.innerHTML = html;
@@ -552,10 +238,7 @@
             container.style.display = 'none';
 
             fetch('/api/v1/leaderboard/pairwise?track=' + encodeURIComponent(track))
-                .then(function(resp) {
-                    if (!resp.ok) throw new Error('Failed to load pairwise data');
-                    return resp.json();
-                })
+                .then(function(r) { if (!r.ok) throw new Error('Failed'); return r.json(); })
                 .then(function(data) {
                     loading.style.display = 'none';
                     var agents = data.agents;
@@ -567,22 +250,16 @@
                         return;
                     }
 
-                    var html = '<table class="heatmap-table">';
-
-                    // Header row
-                    html += '<thead><tr><th class="row-header"></th>';
+                    var html = '<table class="heatmap-table"><thead><tr><th class="row-header"></th>';
                     for (var j = 0; j < agents.length; j++) {
                         html += '<th title="' + escapeHtml(agents[j]) + '">' +
                             escapeHtml(truncate(agents[j], 12)) + '</th>';
                     }
                     html += '</tr></thead><tbody>';
 
-                    // Data rows
                     for (var i = 0; i < agents.length; i++) {
-                        html += '<tr>';
-                        html += '<th class="row-header" title="' + escapeHtml(agents[i]) + '">' +
+                        html += '<tr><th class="row-header" title="' + escapeHtml(agents[i]) + '">' +
                             escapeHtml(truncate(agents[i], 15)) + '</th>';
-
                         for (var j = 0; j < agents.length; j++) {
                             if (i === j) {
                                 html += '<td class="diag">--</td>';
@@ -590,15 +267,14 @@
                                 var wr = winRates[agents[i]][agents[j]];
                                 var pct = (wr * 100).toFixed(0);
                                 var color = getHeatmapColor(wr);
-                                var textColor = (wr > 0.3 && wr < 0.7) ? '#e0e0e0' : '#fff';
-                                html += '<td style="background:' + color + ';color:' + textColor + '"' +
+                                var tc = (wr > 0.3 && wr < 0.7) ? '#e0e0e0' : '#fff';
+                                html += '<td style="background:' + color + ';color:' + tc + '"' +
                                     ' title="' + escapeHtml(agents[i]) + ' vs ' + escapeHtml(agents[j]) +
                                     ': ' + pct + '%">' + pct + '%</td>';
                             }
                         }
                         html += '</tr>';
                     }
-
                     html += '</tbody></table>';
                     container.innerHTML = html;
                     container.style.display = 'block';
@@ -621,10 +297,7 @@
             container.style.display = 'none';
 
             fetch('/api/v1/leaderboard/cycles?track=' + encodeURIComponent(track))
-                .then(function(resp) {
-                    if (!resp.ok) throw new Error('Failed to load cycle data');
-                    return resp.json();
-                })
+                .then(function(r) { if (!r.ok) throw new Error('Failed'); return r.json(); })
                 .then(function(data) {
                     loading.style.display = 'none';
                     var cycles = data.cycles;
@@ -632,8 +305,7 @@
                     document.getElementById('statCycles').textContent = data.total_cycles || 0;
 
                     if (cycles.length === 0) {
-                        container.innerHTML = '<div class="no-data">No 3-cycles detected in this data. ' +
-                            'All dominance relations are transitive.</div>';
+                        container.innerHTML = '<div class="no-data">No 3-cycles detected. All dominance relations are transitive.</div>';
                         container.style.display = 'block';
                         return;
                     }
@@ -641,20 +313,20 @@
                     var html = '';
                     for (var i = 0; i < cycles.length; i++) {
                         var c = cycles[i];
-                        var agents = c.cycle;
-                        var rates = c.win_rates;
+                        var a = c.cycle;
+                        var r = c.win_rates;
                         html += '<div class="cycle-item">' +
                             '<strong>#' + (i + 1) + '</strong>&nbsp;&nbsp;' +
-                            escapeHtml(agents[0]) +
+                            escapeHtml(a[0]) +
                             ' <span class="cycle-arrow">&rarr;</span> ' +
-                            '<span class="cycle-rate">(' + (rates[0] * 100).toFixed(1) + '%)</span> ' +
-                            escapeHtml(agents[1]) +
+                            '<span class="cycle-rate">(' + (r[0] * 100).toFixed(1) + '%)</span> ' +
+                            escapeHtml(a[1]) +
                             ' <span class="cycle-arrow">&rarr;</span> ' +
-                            '<span class="cycle-rate">(' + (rates[1] * 100).toFixed(1) + '%)</span> ' +
-                            escapeHtml(agents[2]) +
+                            '<span class="cycle-rate">(' + (r[1] * 100).toFixed(1) + '%)</span> ' +
+                            escapeHtml(a[2]) +
                             ' <span class="cycle-arrow">&rarr;</span> ' +
-                            '<span class="cycle-rate">(' + (rates[2] * 100).toFixed(1) + '%)</span> ' +
-                            escapeHtml(agents[0]) +
+                            '<span class="cycle-rate">(' + (r[2] * 100).toFixed(1) + '%)</span> ' +
+                            escapeHtml(a[0]) +
                             '</div>';
                     }
                     container.innerHTML = html;
@@ -665,38 +337,6 @@
                     error.textContent = 'Error: ' + err.message;
                     error.style.display = 'block';
                 });
-        }
-
-        // -- Helpers --
-        function escapeHtml(str) {
-            var div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
-
-        function truncate(str, maxLen) {
-            if (str.length <= maxLen) return str;
-            return str.substring(0, maxLen - 1) + '\u2026';
-        }
-
-        function getHeatmapColor(winRate) {
-            // winRate: 0.0 to 1.0
-            // 0.0 = deep red, 0.5 = neutral dark, 1.0 = deep green
-            var r, g, b;
-            if (winRate <= 0.5) {
-                // red to neutral
-                var t = winRate / 0.5;
-                r = Math.round(180 * (1 - t) + 50 * t);
-                g = Math.round(30 * (1 - t) + 50 * t);
-                b = Math.round(30 * (1 - t) + 60 * t);
-            } else {
-                // neutral to green
-                var t = (winRate - 0.5) / 0.5;
-                r = Math.round(50 * (1 - t) + 20 * t);
-                g = Math.round(50 * (1 - t) + 160 * t);
-                b = Math.round(60 * (1 - t) + 60 * t);
-            }
-            return 'rgb(' + r + ',' + g + ',' + b + ')';
         }
 
         // -- Init --

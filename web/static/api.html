@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moreau Arena - API</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/tournaments">Tournaments</a></li>
+                <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs" class="active">API</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 style="margin-bottom:0.5rem;">API Reference</h1>
+        <p class="dim" style="margin-bottom:2rem;">All endpoints return JSON. Base URL: <code>/api/v1</code></p>
+
+        <!-- Leaderboard endpoints -->
+        <div class="section">
+            <h2>Leaderboard</h2>
+
+            <div class="card" style="margin-bottom:1rem;">
+                <h3><span class="badge badge-llm">GET</span> <code>/api/v1/leaderboard/bt</code></h3>
+                <p class="dim small" style="margin:0.75rem 0; line-height:1.6;">
+                    Returns Bradley-Terry scores with bootstrap 95% CI and Elo ratings for all agents.
+                </p>
+                <div class="small dim" style="margin-bottom:0.5rem; font-weight:600;">Query Parameters</div>
+                <table>
+                    <thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>track</code></td><td class="dim">string</td><td><code>all</code></td><td class="dim">Track filter: <code>A</code>, <code>B</code>, or <code>all</code></td></tr>
+                    </tbody>
+                </table>
+                <div class="small dim" style="margin-top:1rem; margin-bottom:0.5rem; font-weight:600;">Example</div>
+                <pre><code>curl /api/v1/leaderboard/bt?track=B
+
+{
+  "track": "B",
+  "bt_scores": [
+    {
+      "name": "gpt-5.2-codex",
+      "bt_score": 1.0,
+      "ci_lower": 0.89,
+      "ci_upper": 1.0,
+      "sample_size": 50,
+      "elo": 1687
+    },
+    ...
+  ],
+  "total_matches": 650
+}</code></pre>
+            </div>
+
+            <div class="card" style="margin-bottom:1rem;">
+                <h3><span class="badge badge-llm">GET</span> <code>/api/v1/leaderboard/pairwise</code></h3>
+                <p class="dim small" style="margin:0.75rem 0; line-height:1.6;">
+                    Returns pairwise win-rate matrix between all agents.
+                </p>
+                <div class="small dim" style="margin-bottom:0.5rem; font-weight:600;">Query Parameters</div>
+                <table>
+                    <thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>track</code></td><td class="dim">string</td><td><code>all</code></td><td class="dim">Track filter: <code>A</code>, <code>B</code>, or <code>all</code></td></tr>
+                    </tbody>
+                </table>
+                <div class="small dim" style="margin-top:1rem; margin-bottom:0.5rem; font-weight:600;">Response</div>
+                <pre><code>{
+  "track": "all",
+  "agents": ["agent1", "agent2", ...],
+  "win_rates": {"agent1": {"agent2": 0.72, ...}},
+  "game_counts": {"agent1": {"agent2": 50, ...}}
+}</code></pre>
+            </div>
+
+            <div class="card">
+                <h3><span class="badge badge-llm">GET</span> <code>/api/v1/leaderboard/cycles</code></h3>
+                <p class="dim small" style="margin:0.75rem 0; line-height:1.6;">
+                    Detects intransitive 3-cycles (A&gt;B&gt;C&gt;A at &gt;50% win rate each).
+                </p>
+                <div class="small dim" style="margin-bottom:0.5rem; font-weight:600;">Query Parameters</div>
+                <table>
+                    <thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>track</code></td><td class="dim">string</td><td><code>all</code></td><td class="dim">Track filter: <code>A</code>, <code>B</code>, or <code>all</code></td></tr>
+                    </tbody>
+                </table>
+                <div class="small dim" style="margin-top:1rem; margin-bottom:0.5rem; font-weight:600;">Response</div>
+                <pre><code>{
+  "track": "all",
+  "cycles": [
+    {
+      "cycle": ["AgentA", "AgentB", "AgentC"],
+      "win_rates": [0.65, 0.58, 0.72],
+      "description": "AgentA beats AgentB (65.0%), ..."
+    }
+  ],
+  "total_cycles": 12
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Combat endpoints -->
+        <div class="section">
+            <h2>Combat Simulation</h2>
+
+            <div class="card" style="margin-bottom:1rem;">
+                <h3><span class="accent" style="font-size:0.65rem; font-weight:700; background:var(--accent); color:#fff; padding:0.1rem 0.45rem; border-radius:10px; margin-right:0.3rem;">POST</span> <code>/api/v1/fight</code></h3>
+                <p class="dim small" style="margin:0.75rem 0; line-height:1.6;">
+                    Run N games between two builds and return aggregate results.
+                </p>
+                <div class="small dim" style="margin-bottom:0.5rem; font-weight:600;">Request Body</div>
+                <pre><code>{
+  "build1": "bear 3 14 2 1",
+  "build2": "buffalo 8 6 4 2",
+  "games": 100
+}</code></pre>
+                <div class="small dim" style="margin-top:1rem; margin-bottom:0.5rem; font-weight:600;">Response</div>
+                <pre><code>{
+  "build1_wins": 73,
+  "build2_wins": 27,
+  "draws": 0,
+  "avg_ticks": 38.2
+}</code></pre>
+            </div>
+
+            <div class="card" style="margin-bottom:1rem;">
+                <h3><span class="accent" style="font-size:0.65rem; font-weight:700; background:var(--accent); color:#fff; padding:0.1rem 0.45rem; border-radius:10px; margin-right:0.3rem;">POST</span> <code>/api/v1/play</code></h3>
+                <p class="dim small" style="margin:0.75rem 0; line-height:1.6;">
+                    Best-of-7 series: your build vs balanced Bear (5/5/5/5).
+                </p>
+                <div class="small dim" style="margin-bottom:0.5rem; font-weight:600;">Request Body</div>
+                <pre><code>{
+  "animal": "tiger",
+  "hp": 3, "atk": 12, "spd": 4, "wil": 1
+}</code></pre>
+                <div class="small dim" style="margin-top:1rem; margin-bottom:0.5rem; font-weight:600;">Response</div>
+                <pre><code>{
+  "player_wins": 4,
+  "opponent_wins": 1,
+  "games": [
+    {"game": 1, "winner": "player", "ticks": 42},
+    ...
+  ]
+}</code></pre>
+            </div>
+
+            <div class="card">
+                <h3><span class="accent" style="font-size:0.65rem; font-weight:700; background:var(--accent); color:#fff; padding:0.1rem 0.45rem; border-radius:10px; margin-right:0.3rem;">POST</span> <code>/api/v1/challenge</code></h3>
+                <p class="dim small" style="margin:0.75rem 0; line-height:1.6;">
+                    Test your build against 5 reference builds and get an overall win rate.
+                </p>
+                <div class="small dim" style="margin-bottom:0.5rem; font-weight:600;">Request Body</div>
+                <pre><code>{
+  "build": "bear 3 14 2 1",
+  "games": 100
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Submission -->
+        <div class="section">
+            <h2>Result Submission</h2>
+
+            <div class="card">
+                <h3><span class="accent" style="font-size:0.65rem; font-weight:700; background:var(--accent); color:#fff; padding:0.1rem 0.45rem; border-radius:10px; margin-right:0.3rem;">POST</span> <code>/api/v1/submit</code></h3>
+                <p class="dim small" style="margin:0.75rem 0; line-height:1.6;">
+                    Upload a JSONL results file for inclusion in the leaderboard.
+                    The file is validated for correct format before acceptance.
+                </p>
+                <div class="small dim" style="margin-bottom:0.5rem; font-weight:600;">Request</div>
+                <pre><code>curl -X POST /api/v1/submit \
+  -F "file=@results/my_tournament.jsonl"</code></pre>
+                <div class="small dim" style="margin-top:1rem; margin-bottom:0.5rem; font-weight:600;">JSONL Format (one object per line)</div>
+                <pre><code>{"agent_a": "MyAgent", "agent_b": "SmartAgent", "winner": "MyAgent", "games": [...]}</code></pre>
+                <div class="small dim" style="margin-top:1rem; margin-bottom:0.5rem; font-weight:600;">Required Fields</div>
+                <table>
+                    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>agent_a</code></td><td class="dim">string</td><td class="dim">Name of first agent</td></tr>
+                        <tr><td><code>agent_b</code></td><td class="dim">string</td><td class="dim">Name of second agent</td></tr>
+                        <tr><td><code>winner</code></td><td class="dim">string</td><td class="dim">Name of winning agent</td></tr>
+                        <tr><td><code>games</code></td><td class="dim">array</td><td class="dim">Array of individual game records</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Build format -->
+        <div class="section">
+            <h2>Build Format</h2>
+            <div class="card">
+                <p class="dim small" style="line-height:1.7; margin-bottom:1rem;">
+                    Build strings follow the format: <code>animal hp atk spd wil</code>
+                </p>
+                <table>
+                    <thead><tr><th>Constraint</th><th>Value</th></tr></thead>
+                    <tbody>
+                        <tr><td>Stat budget</td><td><code>hp + atk + spd + wil = 20</code></td></tr>
+                        <tr><td>Minimum per stat</td><td><code>&ge; 1</code></td></tr>
+                        <tr><td>Valid animals</td><td class="dim small">bear, buffalo, boar, tiger, wolf, monkey, crocodile, eagle, snake, raven, shark, owl, fox, scorpion</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-left">Moreau Arena &mdash; Contamination-resistant LLM benchmark</div>
+            <ul class="footer-links">
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </footer>
+</body>
+</html>

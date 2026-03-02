@@ -1,14 +1,17 @@
 """Moreau Arena — FastAPI Web UI.
 
-Provides a simple web interface for running fights between creature builds
-and viewing leaderboard data from tournament results.
+Provides a web interface for running fights between creature builds,
+viewing leaderboard data from tournament results, and exploring
+the benchmark methodology.
 """
 
 from __future__ import annotations
 
 import json
+import logging
 import sys
 from collections import defaultdict
+from contextlib import asynccontextmanager
 from itertools import combinations
 from pathlib import Path
 from typing import Any
@@ -35,16 +38,11 @@ from analysis.bt_ranking import (
 from simulator.__main__ import _create_creature, _parse_build, _run_games
 from simulator.engine import CombatEngine
 
-app = FastAPI(title="Moreau Arena", version="1.0.0")
+logger = logging.getLogger("moreau-arena")
 
-# CORS middleware — allow all origins
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# -- Startup cache for BT scores / pairwise / cycles -------------------------
+
+_cache: dict[str, dict[str, Any]] = {}
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 RESULTS_DIR = _project_root / "results"
@@ -74,6 +72,75 @@ REFERENCE_BUILDS = [
     "wolf 4 6 7 3",
     "scorpion 5 5 5 5",
 ]
+
+
+def _precompute_cache() -> None:
+    """Precompute BT scores, pairwise matrices, and 3-cycles for all tracks."""
+    for track_key in ("A", "B", "all"):
+        results = _load_track_results(track_key)
+        if not results:
+            _cache[track_key] = {
+                "bt": {"track": track_key, "bt_scores": [], "total_matches": 0},
+                "pairwise": {"track": track_key, "agents": [], "win_rates": {}, "game_counts": {}},
+                "cycles": {"track": track_key, "cycles": [], "total_cycles": 0},
+            }
+            continue
+
+        # BT scores + Elo
+        bt_scores = compute_bt_scores(results, n_bootstrap=1000, bootstrap_seed=42)
+        elo_ratings = _compute_elo_ratings(results)
+        bt_list = [
+            {
+                "name": r.name,
+                "bt_score": r.score,
+                "ci_lower": r.ci_lower,
+                "ci_upper": r.ci_upper,
+                "sample_size": r.sample_size,
+                "elo": round(elo_ratings.get(r.name, 1500.0)),
+            }
+            for r in bt_scores
+        ]
+
+        # Pairwise
+        pairwise = _compute_pairwise_from_results(results)
+
+        # 3-cycles
+        cycles = _detect_3_cycles(pairwise["agents"], pairwise["win_rates"])
+
+        _cache[track_key] = {
+            "bt": {
+                "track": track_key,
+                "bt_scores": bt_list,
+                "total_matches": len(results),
+            },
+            "pairwise": {"track": track_key, **pairwise},
+            "cycles": {
+                "track": track_key,
+                "cycles": cycles,
+                "total_cycles": len(cycles),
+            },
+        }
+
+    logger.info("Cache precomputed for tracks: %s", list(_cache.keys()))
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Precompute leaderboard data at startup."""
+    _precompute_cache()
+    yield
+
+
+app = FastAPI(title="Moreau Arena", version="2.0.0", lifespan=lifespan)
+
+# CORS middleware — allow all origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class FightRequest(BaseModel):
@@ -392,7 +459,7 @@ def _challenge_logic(build: str, games: int) -> ChallengeResponse:
     )
 
 
-# -- Original routes (kept working) ---------------------------------------------
+# -- Page routes ----------------------------------------------------------------
 
 
 @app.get("/")
@@ -400,15 +467,45 @@ def index() -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
 
 
-@app.post("/fight", response_model=FightResponse)
-def fight(req: FightRequest) -> FightResponse:
-    return _fight_logic(req.build1, req.build2, req.games)
+@app.get("/about")
+def about_page() -> FileResponse:
+    return FileResponse(STATIC_DIR / "about.html")
+
+
+@app.get("/tournaments")
+def tournaments_page() -> FileResponse:
+    return FileResponse(STATIC_DIR / "tournaments.html")
 
 
 @app.get("/leaderboard")
 def leaderboard_page() -> FileResponse:
-    """Serve the leaderboard HTML page."""
     return FileResponse(STATIC_DIR / "leaderboard.html")
+
+
+@app.get("/paper")
+def paper_page() -> FileResponse:
+    return FileResponse(STATIC_DIR / "paper.html")
+
+
+@app.get("/api-docs")
+def api_docs_page() -> FileResponse:
+    return FileResponse(STATIC_DIR / "api.html")
+
+
+@app.get("/play")
+def play_page() -> FileResponse:
+    return FileResponse(STATIC_DIR / "play.html")
+
+
+@app.get("/research")
+def research_page() -> FileResponse:
+    """Legacy route — redirect to paper page."""
+    return FileResponse(STATIC_DIR / "paper.html")
+
+
+@app.post("/fight", response_model=FightResponse)
+def fight(req: FightRequest) -> FightResponse:
+    return _fight_logic(req.build1, req.build2, req.games)
 
 
 # -- API v1 router ---------------------------------------------------------------
@@ -435,10 +532,15 @@ def api_challenge(req: ChallengeRequest) -> ChallengeResponse:
 def api_leaderboard_bt(
     track: str = Query(default="all", pattern="^(A|B|all)$"),
 ) -> dict[str, Any]:
-    """Return BT scores + Elo ratings for the given track."""
+    """Return cached BT scores + Elo ratings for the given track."""
+    key = track.upper() if track.upper() in ("A", "B") else "all"
+    if key in _cache:
+        return _cache[key]["bt"]
+
+    # Fallback: compute on the fly if cache miss
     results = _load_track_results(track)
     if not results:
-        return {"track": track, "bt_scores": [], "elo_ratings": []}
+        return {"track": track, "bt_scores": [], "total_matches": 0}
 
     bt_scores = compute_bt_scores(results, n_bootstrap=1000, bootstrap_seed=42)
     elo_ratings = _compute_elo_ratings(results)
@@ -466,23 +568,28 @@ def api_leaderboard_bt(
 def api_leaderboard_pairwise(
     track: str = Query(default="all", pattern="^(A|B|all)$"),
 ) -> dict[str, Any]:
-    """Return pairwise win-rate matrix for the given track."""
+    """Return cached pairwise win-rate matrix for the given track."""
+    key = track.upper() if track.upper() in ("A", "B") else "all"
+    if key in _cache:
+        return _cache[key]["pairwise"]
+
     results = _load_track_results(track)
     if not results:
         return {"track": track, "agents": [], "win_rates": {}, "game_counts": {}}
 
     pairwise = _compute_pairwise_from_results(results)
-    return {
-        "track": track,
-        **pairwise,
-    }
+    return {"track": track, **pairwise}
 
 
 @api_v1.get("/leaderboard/cycles")
 def api_leaderboard_cycles(
     track: str = Query(default="all", pattern="^(A|B|all)$"),
 ) -> dict[str, Any]:
-    """Return detected 3-cycles for the given track."""
+    """Return cached 3-cycles for the given track."""
+    key = track.upper() if track.upper() in ("A", "B") else "all"
+    if key in _cache:
+        return _cache[key]["cycles"]
+
     results = _load_track_results(track)
     if not results:
         return {"track": track, "cycles": []}
@@ -653,21 +760,6 @@ async def api_submit(file: UploadFile) -> dict[str, Any]:
         "records": record_count,
         "status": "accepted",
     }
-
-
-# -- Page routes for new sections -----------------------------------------------
-
-
-@app.get("/research")
-def research_page() -> FileResponse:
-    """Serve the research HTML page."""
-    return FileResponse(STATIC_DIR / "research.html")
-
-
-@app.get("/play")
-def play_page() -> FileResponse:
-    """Serve the play HTML page."""
-    return FileResponse(STATIC_DIR / "play.html")
 
 
 app.include_router(api_v1)

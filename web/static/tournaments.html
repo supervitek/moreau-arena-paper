@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moreau Arena - Tournaments</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/tournaments" class="active">Tournaments</a></li>
+                <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 style="margin-bottom:0.5rem;">Tournament Protocols</h1>
+        <p class="dim" style="margin-bottom:2rem;">Two completed tracks, two planned &mdash; each isolating a different LLM capability.</p>
+
+        <!-- Track overview -->
+        <div class="section">
+            <div class="stat-row">
+                <div class="stat-box">
+                    <div class="stat-value">4</div>
+                    <div class="stat-label">Defined Tracks</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">2</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">LLMs Tested</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">Baselines</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- T001 -->
+        <div class="section">
+            <div class="compare-grid">
+                <div class="card">
+                    <div class="compare-header">
+                        <div class="label">Track A</div>
+                        <div class="title">T001 &mdash; Minimal Prompt</div>
+                    </div>
+                    <hr class="separator" style="margin:1rem 0;">
+                    <h3>Protocol</h3>
+                    <p class="dim small" style="line-height:1.7; margin-bottom:1rem;">
+                        Each agent receives the game rules and must produce a single fixed build.
+                        The prompt provides basic mechanics but no formulas, no meta-information,
+                        and no structured output format.
+                    </p>
+                    <h3>What It Tests</h3>
+                    <p class="dim small" style="line-height:1.7; margin-bottom:1rem;">
+                        Raw strategic reasoning from minimal information. Can the LLM infer
+                        good stat allocations from qualitative descriptions alone?
+                    </p>
+                    <h3>Key Result</h3>
+                    <p class="small" style="line-height:1.7;">
+                        LLM average win rate: <strong class="accent">37.5%</strong><br>
+                        <span class="dim">Baselines outperform most LLMs. SmartAgent (#1) dominates.</span>
+                    </p>
+                </div>
+
+                <div class="compare-divider">vs</div>
+
+                <div class="card">
+                    <div class="compare-header">
+                        <div class="label">Track B</div>
+                        <div class="title">T002 &mdash; Engineered Prompt</div>
+                    </div>
+                    <hr class="separator" style="margin:1rem 0;">
+                    <h3>Protocol</h3>
+                    <p class="dim small" style="line-height:1.7; margin-bottom:1rem;">
+                        Same game, same simulator, but the prompt includes: exact damage/HP formulas,
+                        meta-information about matchup archetypes, structured JSON output format,
+                        and adaptation between games in a series.
+                    </p>
+                    <h3>What It Tests</h3>
+                    <p class="dim small" style="line-height:1.7; margin-bottom:1rem;">
+                        Whether LLMs can leverage explicit formulas and structured guidance
+                        to make near-optimal decisions.
+                    </p>
+                    <h3>Key Result</h3>
+                    <p class="small" style="line-height:1.7;">
+                        LLM average win rate: <strong style="color:var(--green);">89.75%</strong><br>
+                        <span class="dim">LLMs dominate baselines. gpt-5.2-codex (#1) at BT 1.0.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- What changed between T001 and T002 -->
+        <div class="section">
+            <h2>What Changed Between T001 and T002</h2>
+            <div class="card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>T001</th>
+                            <th>T002</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="col-name">Damage Formulas</td>
+                            <td class="dim">"Higher ATK deals more damage"</td>
+                            <td><code>base_dmg = atk - 1</code></td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">HP Formula</td>
+                            <td class="dim">"More HP means more health"</td>
+                            <td><code>max_hp = 50 + hp * 10</code></td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">Meta Information</td>
+                            <td class="dim">None</td>
+                            <td>Archetype descriptions, matchup tips</td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">Output Format</td>
+                            <td class="dim">Free text</td>
+                            <td>Structured JSON</td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">Adaptation</td>
+                            <td class="dim">None (fixed build)</td>
+                            <td>Can adapt between games</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Future tracks -->
+        <div class="section">
+            <h2>Planned Tracks</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Track C &mdash; Meta-Conditioned</h3>
+                    <p class="dim small" style="line-height:1.7;">
+                        Agents receive information about the current meta (popular builds, dominant strategies)
+                        and must adapt. Tests whether LLMs can reason about population-level dynamics
+                        and find counter-strategies.
+                    </p>
+                    <span class="badge badge-baseline">PLANNED</span>
+                </div>
+                <div class="card">
+                    <h3>Track D &mdash; Tool-Augmented</h3>
+                    <p class="dim small" style="line-height:1.7;">
+                        Agents can call the simulator as a tool to test builds before committing.
+                        Tests whether LLMs can effectively use computational tools for
+                        hypothesis-driven optimization.
+                    </p>
+                    <span class="badge badge-baseline">PLANNED</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ablation -->
+        <div class="section">
+            <h2>Ablation Study</h2>
+            <p class="dim small" style="margin-bottom:1rem;">Which T002 components matter most? Five variants isolate individual contributions.</p>
+            <div class="card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Variant</th>
+                            <th>Description</th>
+                            <th>Components Included</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="col-name">formulas-only</td>
+                            <td class="dim">Add exact formulas to T001</td>
+                            <td><code>+formulas</code></td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">meta-only</td>
+                            <td class="dim">Add meta-info to T001</td>
+                            <td><code>+meta</code></td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">adaptation-only</td>
+                            <td class="dim">Add between-game adaptation</td>
+                            <td><code>+adapt</code></td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">structured-output-only</td>
+                            <td class="dim">Add JSON output format</td>
+                            <td><code>+json</code></td>
+                        </tr>
+                        <tr>
+                            <td class="col-name">formulas-no-meta</td>
+                            <td class="dim">T002 minus meta-info</td>
+                            <td><code>+formulas +json +adapt</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-left">Moreau Arena &mdash; Contamination-resistant LLM benchmark</div>
+            <ul class="footer-links">
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </footer>
+</body>
+</html>

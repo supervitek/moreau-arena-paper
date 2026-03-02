@@ -4,228 +4,222 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Moreau Arena</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #1a1a2e;
-            color: #e0e0e0;
-            min-height: 100vh;
-            padding: 2rem;
-        }
-        h1 {
-            text-align: center;
-            color: #e94560;
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-        .subtitle {
-            text-align: center;
-            color: #888;
-            margin-bottom: 2rem;
-            font-size: 0.9rem;
-        }
-        .container {
-            max-width: 640px;
-            margin: 0 auto;
-        }
-        .card {
-            background: #16213e;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid #0f3460;
-        }
-        label {
-            display: block;
-            margin-bottom: 0.3rem;
-            font-weight: 600;
-            color: #ccc;
-            font-size: 0.85rem;
-        }
-        input[type="text"], input[type="number"] {
-            width: 100%;
-            padding: 0.6rem 0.8rem;
-            border: 1px solid #0f3460;
-            border-radius: 4px;
-            background: #1a1a2e;
-            color: #e0e0e0;
-            font-size: 0.95rem;
-            margin-bottom: 1rem;
-            font-family: monospace;
-        }
-        input:focus {
-            outline: none;
-            border-color: #e94560;
-        }
-        .hint {
-            font-size: 0.75rem;
-            color: #666;
-            margin-top: -0.8rem;
-            margin-bottom: 1rem;
-        }
-        button {
-            width: 100%;
-            padding: 0.7rem;
-            background: #e94560;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        button:hover { background: #c73652; }
-        button:disabled {
-            background: #555;
-            cursor: not-allowed;
-        }
-        .results {
-            margin-top: 1rem;
-            display: none;
-        }
-        .results.visible { display: block; }
-        .result-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #0f3460;
-        }
-        .result-row:last-child { border-bottom: none; }
-        .result-label { color: #888; }
-        .result-value { font-weight: 600; font-family: monospace; }
-        .winner { color: #4ecca3; }
-        .error {
-            color: #e94560;
-            margin-top: 1rem;
-            font-size: 0.9rem;
-        }
-        .nav {
-            text-align: center;
-            margin-top: 1rem;
-        }
-        .nav a {
-            color: #e94560;
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-        .nav a:hover { text-decoration: underline; }
-        .animals {
-            font-size: 0.75rem;
-            color: #555;
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/" class="active">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/tournaments">Tournaments</a></li>
+                <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <h1>Moreau <span class="accent">Arena</span></h1>
+        <p class="tagline">A contamination-resistant benchmark for evaluating LLM strategic reasoning through creature combat simulation.</p>
+        <div class="hero-actions">
+            <a href="/leaderboard" class="btn btn-primary">View Leaderboard</a>
+            <a href="/play" class="btn btn-outline">Try the Simulator</a>
+            <a href="/paper" class="btn btn-outline">Read the Paper</a>
+        </div>
+    </div>
+
     <div class="container">
-        <h1>Moreau Arena</h1>
-        <p class="subtitle">Creature combat simulator</p>
-        <p class="animals">Animals: bear, buffalo, boar, tiger, wolf, monkey, crocodile, eagle, snake, raven, shark, owl, fox, scorpion</p>
+        <!-- Key stats -->
+        <div class="stat-row section">
+            <div class="stat-box">
+                <div class="stat-value" id="statAgents">13</div>
+                <div class="stat-label">Agents Tested</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">14</div>
+                <div class="stat-label">Animal Types</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">89</div>
+                <div class="stat-label">Invariant Tests</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">&lt;25%</div>
+                <div class="stat-label">RNG Variance</div>
+            </div>
+        </div>
 
-        <div class="card">
-            <label for="build1">Build 1</label>
-            <input type="text" id="build1" placeholder="bear 8 10 1 1" value="bear 8 10 1 1">
-            <div class="hint">Format: animal hp atk spd wil (stats must sum to 20, each >= 1)</div>
+        <!-- The 180-degree flip -->
+        <div class="section">
+            <h2 class="text-center">The Prompt Engineering Effect</h2>
+            <p class="dim small text-center" style="margin-bottom:1.5rem; max-width:650px; margin-left:auto; margin-right:auto;">
+                The same LLMs, the same simulator, the same opponents &mdash; but a redesigned prompt flips the leaderboard.
+            </p>
 
-            <label for="build2">Build 2</label>
-            <input type="text" id="build2" placeholder="buffalo 8 6 4 2" value="buffalo 8 6 4 2">
-            <div class="hint">Format: animal hp atk spd wil (stats must sum to 20, each >= 1)</div>
-
-            <label for="games">Games</label>
-            <input type="number" id="games" value="100" min="1" max="10000">
-
-            <button id="fightBtn" onclick="runFight()">Fight!</button>
-
-            <div class="error" id="error"></div>
-
-            <div class="results" id="results">
-                <div class="result-row">
-                    <span class="result-label">Build 1 wins</span>
-                    <span class="result-value" id="b1wins"></span>
+            <div class="compare-grid">
+                <div class="card">
+                    <div class="compare-header">
+                        <div class="label">Track A &middot; T001</div>
+                        <div class="title">Minimal Prompt</div>
+                        <div class="winrate wr-low">37.5%</div>
+                        <div class="small muted">LLM avg win rate</div>
+                    </div>
+                    <ul class="mini-ranking" id="trackA-ranking">
+                        <li class="loading">Loading...</li>
+                    </ul>
                 </div>
-                <div class="result-row">
-                    <span class="result-label">Build 2 wins</span>
-                    <span class="result-value" id="b2wins"></span>
-                </div>
-                <div class="result-row">
-                    <span class="result-label">Draws</span>
-                    <span class="result-value" id="draws"></span>
-                </div>
-                <div class="result-row">
-                    <span class="result-label">Avg ticks</span>
-                    <span class="result-value" id="avgTicks"></span>
-                </div>
-                <div class="result-row">
-                    <span class="result-label">Verdict</span>
-                    <span class="result-value winner" id="verdict"></span>
+
+                <div class="compare-divider">&rarr;</div>
+
+                <div class="card">
+                    <div class="compare-header">
+                        <div class="label">Track B &middot; T002</div>
+                        <div class="title">Engineered Prompt</div>
+                        <div class="winrate wr-high">89.75%</div>
+                        <div class="small muted">LLM avg win rate</div>
+                    </div>
+                    <ul class="mini-ranking" id="trackB-ranking">
+                        <li class="loading">Loading...</li>
+                    </ul>
                 </div>
             </div>
         </div>
 
-        <div class="nav">
-            <a href="/">Fight Simulator</a> |
-            <a href="/play">Play</a> |
-            <a href="/leaderboard">Leaderboard</a> |
-            <a href="/research">Research</a>
+        <!-- What makes it different -->
+        <div class="section">
+            <h2>Why Moreau Arena?</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <h3>Contamination Resistant</h3>
+                    <p class="dim small">Novel game mechanics that don't exist in any training corpus. LLMs can't memorize solutions &mdash; they must reason from the rules provided.</p>
+                </div>
+                <div class="card">
+                    <h3>Non-Transitive Dynamics</h3>
+                    <p class="dim small">Rock-paper-scissors dominance structures emerge naturally. Bradley-Terry scoring handles intransitivity that Elo cannot.</p>
+                </div>
+                <div class="card">
+                    <h3>Fully Deterministic</h3>
+                    <p class="dim small">Given the same seed, the same combat plays out identically. RNG contributes &lt;25% of outcome variance &mdash; strategy dominates.</p>
+                </div>
+                <div class="card">
+                    <h3>Multi-Track Evaluation</h3>
+                    <p class="dim small">Track A tests fixed strategy. Track B tests adaptation. Track C tests meta-conditioning. Track D tests tool use. Each isolates a different capability.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick fight simulator -->
+        <div class="section">
+            <h2>Quick Fight</h2>
+            <div class="card" style="max-width:600px;">
+                <div class="grid-2" style="margin-bottom:1rem;">
+                    <div>
+                        <label class="small dim" style="display:block; margin-bottom:0.3rem; font-weight:600;">Build 1</label>
+                        <input type="text" id="build1" value="bear 3 14 2 1" style="width:100%;padding:0.5rem 0.7rem;background:var(--bg-code);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-mono);font-size:0.85rem;">
+                    </div>
+                    <div>
+                        <label class="small dim" style="display:block; margin-bottom:0.3rem; font-weight:600;">Build 2</label>
+                        <input type="text" id="build2" value="buffalo 8 6 4 2" style="width:100%;padding:0.5rem 0.7rem;background:var(--bg-code);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-mono);font-size:0.85rem;">
+                    </div>
+                </div>
+                <p class="muted small" style="margin-bottom:0.75rem;">Format: animal hp atk spd wil &mdash; stats sum to 20, each &ge; 1</p>
+                <button class="btn btn-primary" id="fightBtn" onclick="runFight()" style="width:100%;">Fight (100 games)</button>
+                <div id="fightError" class="error-msg" style="display:none;"></div>
+                <div id="fightResults" style="display:none; margin-top:1rem;">
+                    <div class="stat-row">
+                        <div class="stat-box">
+                            <div class="stat-value" id="r-b1">-</div>
+                            <div class="stat-label">Build 1 Wins</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="r-b2">-</div>
+                            <div class="stat-label">Build 2 Wins</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="r-ticks">-</div>
+                            <div class="stat-label">Avg Ticks</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-left">Moreau Arena &mdash; Contamination-resistant LLM benchmark</div>
+            <ul class="footer-links">
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </footer>
+
     <script>
+        function escapeHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+        function loadMiniRankings() {
+            ['A', 'B'].forEach(function(track) {
+                fetch('/api/v1/leaderboard/bt?track=' + track)
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        var el = document.getElementById('track' + track + '-ranking');
+                        var scores = data.bt_scores || [];
+                        if (scores.length === 0) { el.innerHTML = '<li class="muted small">No data</li>'; return; }
+                        var html = '';
+                        var limit = Math.min(scores.length, 6);
+                        for (var i = 0; i < limit; i++) {
+                            var s = scores[i];
+                            html += '<li>' +
+                                '<span class="rank-num">' + (i + 1) + '.</span>' +
+                                '<span class="agent-name">' + escapeHtml(s.name) + '</span>' +
+                                '<span class="bt-score">' + s.bt_score.toFixed(3) + '</span>' +
+                                '</li>';
+                        }
+                        el.innerHTML = html;
+                    })
+                    .catch(function() {
+                        document.getElementById('track' + track + '-ranking').innerHTML =
+                            '<li class="muted small">Failed to load</li>';
+                    });
+            });
+        }
+
         async function runFight() {
-            var btn = document.getElementById("fightBtn");
-            var errorEl = document.getElementById("error");
-            var resultsEl = document.getElementById("results");
-
-            btn.disabled = true;
-            btn.textContent = "Simulating...";
-            errorEl.textContent = "";
-            resultsEl.classList.remove("visible");
-
-            var body = {
-                build1: document.getElementById("build1").value,
-                build2: document.getElementById("build2").value,
-                games: parseInt(document.getElementById("games").value, 10) || 100
-            };
+            var btn = document.getElementById('fightBtn');
+            var errEl = document.getElementById('fightError');
+            var resEl = document.getElementById('fightResults');
+            btn.disabled = true; btn.textContent = 'Simulating...';
+            errEl.style.display = 'none'; resEl.style.display = 'none';
 
             try {
-                var resp = await fetch("/fight", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(body)
+                var resp = await fetch('/fight', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        build1: document.getElementById('build1').value,
+                        build2: document.getElementById('build2').value,
+                        games: 100
+                    })
                 });
-
-                if (!resp.ok) {
-                    var err = await resp.json();
-                    throw new Error(err.detail || "Request failed");
-                }
-
-                var data = await resp.json();
-
-                document.getElementById("b1wins").textContent = data.build1_wins;
-                document.getElementById("b2wins").textContent = data.build2_wins;
-                document.getElementById("draws").textContent = data.draws;
-                document.getElementById("avgTicks").textContent = data.avg_ticks;
-
-                var verdict;
-                if (data.build1_wins > data.build2_wins) {
-                    verdict = "Build 1 wins (" + Math.round(data.build1_wins / body.games * 100) + "%)";
-                } else if (data.build2_wins > data.build1_wins) {
-                    verdict = "Build 2 wins (" + Math.round(data.build2_wins / body.games * 100) + "%)";
-                } else {
-                    verdict = "Tie!";
-                }
-                document.getElementById("verdict").textContent = verdict;
-                resultsEl.classList.add("visible");
+                if (!resp.ok) { var e = await resp.json(); throw new Error(e.detail || 'Failed'); }
+                var d = await resp.json();
+                document.getElementById('r-b1').textContent = d.build1_wins;
+                document.getElementById('r-b2').textContent = d.build2_wins;
+                document.getElementById('r-ticks').textContent = d.avg_ticks;
+                resEl.style.display = 'block';
             } catch (e) {
-                errorEl.textContent = e.message;
+                errEl.textContent = e.message; errEl.style.display = 'block';
             } finally {
-                btn.disabled = false;
-                btn.textContent = "Fight!";
+                btn.disabled = false; btn.textContent = 'Fight (100 games)';
             }
         }
+
+        loadMiniRankings();
     </script>
 </body>
 </html>

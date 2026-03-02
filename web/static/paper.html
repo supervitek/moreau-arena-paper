@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moreau Arena - Paper</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/tournaments">Tournaments</a></li>
+                <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/paper" class="active">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container-narrow">
+        <h1 style="margin-bottom:0.5rem;">Research Paper</h1>
+        <p class="dim" style="margin-bottom:2rem;">Academic publication and citation information.</p>
+
+        <!-- Download -->
+        <div class="section">
+            <div class="card text-center" style="padding:2.5rem;">
+                <h2 style="margin-bottom:0.5rem;">Moreau Arena</h2>
+                <p class="dim" style="margin-bottom:1.5rem; max-width:500px; margin-left:auto; margin-right:auto; line-height:1.6;">
+                    A Non-Transitive Benchmark for Evaluating Strategic Decision-Making in Large Language Models
+                </p>
+                <a href="/static/paper.pdf" class="btn btn-primary" style="font-size:1rem; padding:0.75rem 2rem;">Download PDF</a>
+            </div>
+        </div>
+
+        <!-- Abstract -->
+        <div class="section">
+            <h2>Abstract</h2>
+            <div class="card">
+                <p class="dim small" style="line-height:1.8;">
+                    We introduce <strong style="color:var(--text);">Moreau Arena</strong>, a contamination-resistant benchmark
+                    for evaluating strategic reasoning in large language models. The benchmark centers on a creature combat
+                    simulator with 14 animal types and a 4-stat allocation system that produces non-transitive dominance
+                    structures. Because the game mechanics are novel and do not appear in any training corpus, LLMs cannot
+                    rely on memorized solutions and must reason from first principles.
+                </p>
+                <p class="dim small" style="line-height:1.8; margin-top:1rem;">
+                    We evaluate 8 LLMs across two tournament protocols: T001 (minimal prompt, fixed builds) and T002
+                    (engineered prompt with formulas, meta-information, structured output, and adaptation). Results show a
+                    dramatic performance shift: LLM average win rate rises from 37.5% in T001 to 89.75% in T002, with the
+                    leaderboard inverting completely. This demonstrates that prompt engineering &mdash; not model capability
+                    &mdash; is the primary determinant of strategic performance in novel domains.
+                </p>
+                <p class="dim small" style="line-height:1.8; margin-top:1rem;">
+                    We provide ablation studies isolating the contribution of each T002 component, a Prompt Sensitivity
+                    Index (PSI) measuring ranking stability under paraphrase, and characterize 3-cycle intransitive dynamics
+                    in the agent population. The full simulator, tournament data, and 89 invariant tests are released to
+                    enable reproducible evaluation of future models.
+                </p>
+            </div>
+        </div>
+
+        <!-- Key findings -->
+        <div class="section">
+            <h2>Key Findings</h2>
+            <div class="card-grid" style="grid-template-columns:1fr;">
+                <div class="card">
+                    <h3>1. The 180-Degree Leaderboard Flip</h3>
+                    <p class="dim small" style="line-height:1.7;">
+                        The same models tested in T001 (minimal prompt) and T002 (engineered prompt) produce completely
+                        inverted rankings. In T001, the algorithmic SmartAgent dominates all LLMs. In T002, LLMs
+                        dominate all baselines. The rank-order correlation between T001 and T002 is strongly negative.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>2. Prompt Engineering > Model Scale</h3>
+                    <p class="dim small" style="line-height:1.7;">
+                        The T001&rarr;T002 performance jump is larger than any difference between models within the same
+                        track. This suggests that for novel strategic domains, how you ask matters more than which model you ask.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>3. Non-Transitive Dynamics Are Real</h3>
+                    <p class="dim small" style="line-height:1.7;">
+                        Multiple 3-cycles are detected in the agent population: A beats B, B beats C, C beats A.
+                        This validates the use of Bradley-Terry scoring over Elo and demonstrates that the benchmark
+                        captures the rock-paper-scissors dynamics it was designed to test.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>4. Contamination Resistance Confirmed</h3>
+                    <p class="dim small" style="line-height:1.7;">
+                        The variance budget analysis shows RNG contributes &lt;25% of outcome variance. The remaining
+                        &gt;75% is attributable to strategic choices. Combined with novel mechanics, this confirms the
+                        benchmark measures reasoning, not memorization.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Citation -->
+        <div class="section">
+            <h2>Citation</h2>
+            <div class="card">
+                <pre><code>@article{moreau-arena-2026,
+  title   = {Moreau Arena: A Non-Transitive Benchmark for
+             Evaluating Strategic Decision-Making in LLMs},
+  year    = {2026},
+  note    = {Config hash: b7ec5885, 89 invariant tests,
+             13 agents across 2 tournament protocols}
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Reproducibility -->
+        <div class="section">
+            <h2>Reproducibility</h2>
+            <div class="card">
+                <p class="dim small" style="line-height:1.7; margin-bottom:1rem;">
+                    All results can be reproduced from the frozen tournament data. The core simulator config
+                    is hash-verified (<code>b7ec5885</code>) and protected by 89 invariant tests.
+                </p>
+                <pre><code># Verify integrity
+python -m pytest tests/test_invariants.py -v
+# Expected: 89 passed
+
+# Recompute BT rankings from raw data
+python -m analysis.bt_ranking data/tournament_002/results.jsonl
+
+# Run the simulator directly
+python -m simulator --build1 "bear 3 14 2 1" --build2 "buffalo 8 6 4 2" --games 1000</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-left">Moreau Arena &mdash; Contamination-resistant LLM benchmark</div>
+            <ul class="footer-links">
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </footer>
+</body>
+</html>
