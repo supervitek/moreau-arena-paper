@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moreau Arena - Methodology</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .method-section {
+            margin-bottom: 3rem;
+        }
+        .method-section h2 {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+        .method-section h3 {
+            color: var(--accent);
+            margin-top: 1.5rem;
+        }
+        .method-section p {
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+        .formula-block {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin: 1rem 0;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            overflow-x: auto;
+        }
+        .pipeline-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(42, 42, 58, 0.3);
+        }
+        .pipeline-step:last-child { border-bottom: none; }
+        .step-num {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+        .step-content h4 { font-size: 0.95rem; margin-bottom: 0.25rem; }
+        .step-content p { font-size: 0.85rem; margin-bottom: 0; }
+
+        .variance-bar-container {
+            margin: 1.5rem 0;
+        }
+        .variance-bar {
+            display: flex;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        .variance-bar .rng-portion {
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .variance-bar .strategy-portion {
+            background: var(--green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .variance-legend {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+        .variance-legend span { display: flex; align-items: center; gap: 0.4rem; }
+        .legend-dot {
+            width: 10px; height: 10px; border-radius: 2px; display: inline-block;
+        }
+        .legend-dot.rng { background: var(--accent); }
+        .legend-dot.strat { background: var(--green); }
+
+        .random-table td, .random-table th { padding: 0.5rem 0.75rem; }
+        .random-table .zero-wins { color: var(--accent); font-weight: 700; }
+
+        .toc {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.25rem;
+            margin-bottom: 2rem;
+        }
+        .toc h3 { margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .toc ol { padding-left: 1.25rem; }
+        .toc li {
+            margin: 0.35rem 0;
+            font-size: 0.9rem;
+        }
+        .toc a { color: var(--text-dim); }
+        .toc a:hover { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/tournaments">Tournaments</a></li>
+                <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/methodology" class="active">Methodology</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container-narrow">
+        <h1 style="margin-bottom:0.5rem;">Scoring Methodology</h1>
+        <p class="dim" style="margin-bottom:2rem;">
+            How Moreau Arena ranks agents. Designed for reproducibility, statistical rigor, and resistance to intransitive dynamics.
+        </p>
+
+        <div class="toc">
+            <h3>Contents</h3>
+            <ol>
+                <li><a href="#bt">Why Bradley-Terry?</a></li>
+                <li><a href="#variance">Variance Decomposition</a></li>
+                <li><a href="#pipeline">Scoring Pipeline</a></li>
+                <li><a href="#random">Random Baseline Analysis</a></li>
+                <li><a href="#cycles">Intransitive Cycles</a></li>
+            </ol>
+        </div>
+
+        <!-- Section 1: Why Bradley-Terry? -->
+        <div class="method-section" id="bt">
+            <h2>1. Why Bradley-Terry?</h2>
+
+            <p>
+                In round-robin tournaments, simple win-rate rankings can be misleading when
+                <strong>intransitive cycles</strong> exist (A beats B, B beats C, C beats A).
+                Elo ratings, while popular, are path-dependent: the order in which games are processed
+                affects the final ratings. The <strong>Bradley-Terry (BT) model</strong> solves both problems.
+            </p>
+
+            <h3>The BT Model</h3>
+            <p>
+                Bradley-Terry assigns each agent <em>i</em> a positive strength parameter
+                <em>p<sub>i</sub></em>. The probability that agent <em>i</em> beats agent <em>j</em> is modeled as:
+            </p>
+            <div class="formula-block">
+                P(i beats j) = p_i / (p_i + p_j)
+            </div>
+            <p>
+                Parameters are estimated via <strong>Maximum Likelihood Estimation (MLE)</strong> using
+                an iterative algorithm with Laplace smoothing (0.5) to handle zero win counts. Convergence
+                tolerance is set to 10<sup>-8</sup> with a maximum of 200 iterations.
+            </p>
+
+            <h3>Why not Elo?</h3>
+            <p>
+                Elo ratings are <em>also</em> computed for reference (they are shown on the leaderboard),
+                but BT is the primary ranking method because:
+            </p>
+            <ul style="color:var(--text-dim);margin-bottom:1rem;padding-left:1.5rem;">
+                <li>BT is <strong>order-independent</strong> &mdash; it uses the full pairwise win matrix, not sequential updates</li>
+                <li>BT naturally handles <strong>intransitive cycles</strong> by finding a globally optimal fit</li>
+                <li>BT scores have a <strong>probabilistic interpretation</strong> &mdash; the ratio p_i/p_j directly gives the predicted head-to-head win probability</li>
+            </ul>
+
+            <h3>Bootstrap Confidence Intervals</h3>
+            <p>
+                To quantify uncertainty, we use <strong>non-parametric bootstrap</strong>
+                (N=1,000 resamples, seed=42 for reproducibility). For each resample, we draw
+                <em>n</em> match results with replacement from the original <em>n</em> results,
+                re-fit BT parameters, and record each agent's score. The 95% CI is taken from the
+                2.5th and 97.5th percentiles of the bootstrap distribution.
+            </p>
+        </div>
+
+        <!-- Section 2: Variance Decomposition -->
+        <div class="method-section" id="variance">
+            <h2>2. Variance Decomposition</h2>
+
+            <p>
+                A credible benchmark must show that outcomes are driven by <strong>agent strategy</strong>,
+                not random number generation. We decompose total outcome variance into two components:
+            </p>
+
+            <h3>Method</h3>
+            <p>
+                Each series consists of multiple games between the same two agents (with the same builds in Track A,
+                potentially adapted builds in Track B), played with different random seeds.
+            </p>
+            <ul style="color:var(--text-dim);margin-bottom:1rem;padding-left:1.5rem;">
+                <li><strong>Within-series variance</strong> &mdash; outcome variation across different seeds for the same matchup. This is the RNG component.</li>
+                <li><strong>Total variance</strong> &mdash; outcome variation across all games in the tournament, combining both strategy and RNG.</li>
+                <li><strong>RNG fraction</strong> = within-series variance / total variance</li>
+            </ul>
+
+            <div id="varianceLoading" class="loading">Computing variance decomposition from tournament data...</div>
+            <div id="varianceError" class="error-msg" style="display:none"></div>
+            <div id="varianceContent" style="display:none"></div>
+        </div>
+
+        <!-- Section 3: Scoring Pipeline -->
+        <div class="method-section" id="pipeline">
+            <h2>3. Scoring Pipeline</h2>
+
+            <p>The full pipeline from raw data to final rankings is deterministic and reproducible:</p>
+
+            <div class="card" style="padding:1rem 1.25rem;">
+                <div class="pipeline-step">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
+                        <h4>JSONL Ingest</h4>
+                        <p>Load tournament results from <code>data/tournament_00X/results.jsonl</code>. Each line is one best-of-7 series with per-game outcomes, builds, seeds, and tick counts.</p>
+                    </div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
+                        <h4>Pairwise Win Matrix</h4>
+                        <p>Extract (winner, loser) pairs from each series. Build an N&times;N pairwise win-count matrix for all agents.</p>
+                    </div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <h4>Bradley-Terry MLE</h4>
+                        <p>Fit BT parameters using iterative MLE with Laplace smoothing (&alpha;=0.5). Normalize so the top agent has score 1.0.</p>
+                    </div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-num">4</div>
+                    <div class="step-content">
+                        <h4>Bootstrap CI</h4>
+                        <p>Run 1,000 bootstrap resamples (seed=42). For each resample, re-fit BT. Extract 2.5th/97.5th percentiles as the 95% confidence interval.</p>
+                    </div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-num">5</div>
+                    <div class="step-content">
+                        <h4>Elo (supplementary)</h4>
+                        <p>Compute Elo ratings (K=32, initial=1500) for display purposes. Not used for final rankings.</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Reproducibility</h3>
+            <p>
+                All random processes use fixed seeds. The simulator engine is fully deterministic &mdash;
+                the same match seed produces identical combat logs. Tournament data files are
+                SHA-256 verified at test time. The config file hash is frozen:
+            </p>
+            <div class="formula-block">
+config.json SHA-256: b7ec588583135ad640eba438f29ce45c10307a88dc426decd31126371bb60534
+Bootstrap seed: 42
+Bootstrap N: 1,000
+BT smoothing: 0.5
+BT tolerance: 1e-8
+BT max iterations: 200
+            </div>
+        </div>
+
+        <!-- Section 4: Random Baseline Analysis -->
+        <div class="method-section" id="random">
+            <h2>4. Random Baseline Analysis</h2>
+
+            <p>
+                To demonstrate that model rankings reflect genuine strategic ability rather than
+                noise, we include a <strong>RandomAgent</strong> baseline that selects builds and
+                makes decisions uniformly at random. If the benchmark is meaningful, a random
+                strategy should perform worst.
+            </p>
+
+            <div id="randomLoading" class="loading">Loading random baseline data...</div>
+            <div id="randomError" class="error-msg" style="display:none"></div>
+            <div id="randomContent" style="display:none"></div>
+        </div>
+
+        <!-- Section 5: Intransitive Cycles -->
+        <div class="method-section" id="cycles">
+            <h2>5. Intransitive Cycles</h2>
+
+            <p>
+                An <strong>intransitive 3-cycle</strong> occurs when agent A beats B, B beats C,
+                and C beats A (each with >50% win rate). These rock-paper-scissors dynamics are
+                a hallmark of strategically rich environments and a key reason why simple win-rate
+                rankings are insufficient.
+            </p>
+
+            <h3>Why cycles matter</h3>
+            <ul style="color:var(--text-dim);margin-bottom:1rem;padding-left:1.5rem;">
+                <li>They prove the game has <strong>non-trivial strategic depth</strong> &mdash; no single dominant strategy exists</li>
+                <li>They invalidate <strong>transitive ranking assumptions</strong> (e.g., "if A > B and B > C, then A > C")</li>
+                <li>They justify using <strong>Bradley-Terry</strong> over simpler ranking methods</li>
+                <li>They indicate the benchmark is <strong>resistant to monoculture</strong> &mdash; diverse strategies are rewarded</li>
+            </ul>
+
+            <h3>Cycle Detection</h3>
+            <p>
+                We enumerate all <span style="font-family:var(--font-mono);">(N choose 3)</span> agent triples
+                and check all 6 orderings for the cycle property. Only triples where all three
+                pairwise win rates exceed 50% are reported.
+            </p>
+
+            <div id="cyclesLoading" class="loading">Loading cycle data...</div>
+            <div id="cyclesError" class="error-msg" style="display:none"></div>
+            <div id="cyclesContent" style="display:none"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-left">Moreau Arena &mdash; Contamination-resistant LLM benchmark</div>
+            <ul class="footer-links">
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script>
+        function escapeHtml(str) {
+            var d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        // -- Variance Decomposition --
+        function loadVariance() {
+            var loading = document.getElementById('varianceLoading');
+            var error = document.getElementById('varianceError');
+            var content = document.getElementById('varianceContent');
+
+            fetch('/api/v1/methodology/variance')
+                .then(function(r) { if (!r.ok) throw new Error('Failed'); return r.json(); })
+                .then(function(data) {
+                    loading.style.display = 'none';
+                    content.style.display = 'block';
+
+                    var html = '';
+                    var tracks = [
+                        { key: 'A', label: 'Track A (T001) -- Fixed Builds' },
+                        { key: 'B', label: 'Track B (T002) -- Adaptive Builds' },
+                    ];
+
+                    for (var t = 0; t < tracks.length; t++) {
+                        var tk = tracks[t].key;
+                        var d = data[tk];
+                        if (!d) continue;
+
+                        var rngPct = (d.rng_fraction * 100).toFixed(1);
+                        var stratPct = (d.strategy_fraction * 100).toFixed(1);
+
+                        html += '<h3>' + tracks[t].label + '</h3>';
+                        html += '<div class="stat-row" style="margin-bottom:1rem;">';
+                        html += '<div class="stat-box"><div class="stat-value">' + d.n_series + '</div><div class="stat-label">Series</div></div>';
+                        html += '<div class="stat-box"><div class="stat-value">' + d.n_games + '</div><div class="stat-label">Games</div></div>';
+                        html += '<div class="stat-box"><div class="stat-value">' + d.rng_variance.toFixed(4) + '</div><div class="stat-label">RNG Var</div></div>';
+                        html += '<div class="stat-box"><div class="stat-value">' + d.total_variance.toFixed(4) + '</div><div class="stat-label">Total Var</div></div>';
+                        html += '</div>';
+
+                        html += '<div class="variance-bar-container">';
+                        html += '<div class="variance-bar">';
+                        html += '<div class="rng-portion" style="width:' + rngPct + '%">' + rngPct + '% RNG</div>';
+                        html += '<div class="strategy-portion" style="width:' + stratPct + '%">' + stratPct + '% Strategy</div>';
+                        html += '</div>';
+                        html += '<div class="variance-legend">';
+                        html += '<span><span class="legend-dot rng"></span>Within-series (RNG)</span>';
+                        html += '<span><span class="legend-dot strat"></span>Between-agent (Strategy)</span>';
+                        html += '</div>';
+                        html += '</div>';
+                    }
+
+                    html += '<h3>Interpretation</h3>';
+                    html += '<p style="color:var(--text-dim);">';
+                    html += 'In <strong>Track A</strong> (fixed builds), agents use the same build across all games in a series. ';
+                    html += 'Within-series variance captures pure RNG (combat seed variation). ';
+                    html += 'The majority of outcome variance is explained by which agent pair is playing &mdash; ';
+                    html += 'strategy dominates over luck.</p>';
+                    html += '<p style="color:var(--text-dim);">';
+                    html += 'In <strong>Track B</strong> (adaptive builds), agents can change builds between games. ';
+                    html += 'The higher within-series variance reflects both RNG and adaptation dynamics ';
+                    html += '(build changes introduce additional within-series variation). ';
+                    html += 'This is expected: adaptation is itself a strategic signal.</p>';
+
+                    content.innerHTML = html;
+                })
+                .catch(function(err) {
+                    loading.style.display = 'none';
+                    error.textContent = 'Error: ' + err.message;
+                    error.style.display = 'block';
+                });
+        }
+
+        // -- Random Baseline --
+        function loadRandomBaseline() {
+            var loading = document.getElementById('randomLoading');
+            var error = document.getElementById('randomError');
+            var content = document.getElementById('randomContent');
+
+            fetch('/api/v1/methodology/random-baseline')
+                .then(function(r) { if (!r.ok) throw new Error('Failed'); return r.json(); })
+                .then(function(data) {
+                    loading.style.display = 'none';
+                    content.style.display = 'block';
+
+                    var html = '';
+                    var tracks = [
+                        { key: 'A', label: 'Track A (T001)' },
+                        { key: 'B', label: 'Track B (T002)' },
+                    ];
+
+                    html += '<div class="stat-row" style="margin-bottom:1.5rem;">';
+                    for (var t = 0; t < tracks.length; t++) {
+                        var tk = tracks[t].key;
+                        var d = data[tk];
+                        if (!d) continue;
+                        html += '<div class="stat-box">';
+                        html += '<div class="stat-value" style="color:var(--accent)">' + d.wins + ' / ' + d.total_series + '</div>';
+                        html += '<div class="stat-label">' + tracks[t].label + ' Series Wins</div>';
+                        html += '</div>';
+                    }
+                    html += '</div>';
+
+                    html += '<p style="color:var(--text-dim);margin-bottom:1rem;">';
+                    html += '<strong>RandomAgent wins 0 out of 120 series in both tournaments.</strong> ';
+                    html += 'This confirms that tournament outcomes are not artifacts of noise &mdash; even the weakest ';
+                    html += 'deliberate strategies (GreedyAgent, ConservativeAgent) consistently defeat random play.</p>';
+
+                    // Per-opponent table
+                    for (var t = 0; t < tracks.length; t++) {
+                        var tk = tracks[t].key;
+                        var d = data[tk];
+                        if (!d || !d.opponents) continue;
+
+                        html += '<h3>RandomAgent vs. All Opponents &mdash; ' + tracks[t].label + '</h3>';
+                        html += '<div style="overflow-x:auto;"><table class="random-table">';
+                        html += '<thead><tr><th>Opponent</th><th class="col-right">Series Won</th><th class="col-right">Series Lost</th><th class="col-right">Win Rate</th></tr></thead>';
+                        html += '<tbody>';
+                        var opps = Object.keys(d.opponents).sort();
+                        for (var i = 0; i < opps.length; i++) {
+                            var opp = opps[i];
+                            var o = d.opponents[opp];
+                            var total = o.wins + o.losses;
+                            var wr = total > 0 ? (o.wins / total * 100).toFixed(0) : '0';
+                            html += '<tr>';
+                            html += '<td>' + escapeHtml(opp) + '</td>';
+                            html += '<td class="col-right zero-wins">' + o.wins + '</td>';
+                            html += '<td class="col-right">' + o.losses + '</td>';
+                            html += '<td class="col-right">' + wr + '%</td>';
+                            html += '</tr>';
+                        }
+                        html += '</tbody></table></div>';
+                    }
+
+                    content.innerHTML = html;
+                })
+                .catch(function(err) {
+                    loading.style.display = 'none';
+                    error.textContent = 'Error: ' + err.message;
+                    error.style.display = 'block';
+                });
+        }
+
+        // -- Cycles --
+        function loadCycles() {
+            var loading = document.getElementById('cyclesLoading');
+            var error = document.getElementById('cyclesError');
+            var content = document.getElementById('cyclesContent');
+
+            // Load cycles for both tracks
+            var tracks = [
+                { key: 'A', label: 'Track A (T001)' },
+                { key: 'B', label: 'Track B (T002)' },
+            ];
+            var results = {};
+            var done = 0;
+
+            for (var t = 0; t < tracks.length; t++) {
+                (function(tk, label) {
+                    fetch('/api/v1/leaderboard/cycles?track=' + tk)
+                        .then(function(r) { if (!r.ok) throw new Error('Failed'); return r.json(); })
+                        .then(function(data) {
+                            results[tk] = { data: data, label: label };
+                            done++;
+                            if (done === tracks.length) renderCycles(results);
+                        })
+                        .catch(function(err) {
+                            done++;
+                            results[tk] = { error: err.message, label: label };
+                            if (done === tracks.length) renderCycles(results);
+                        });
+                })(tracks[t].key, tracks[t].label);
+            }
+
+            function renderCycles(results) {
+                loading.style.display = 'none';
+                content.style.display = 'block';
+
+                var html = '';
+                var trackOrder = ['A', 'B'];
+                for (var t = 0; t < trackOrder.length; t++) {
+                    var tk = trackOrder[t];
+                    var r = results[tk];
+                    if (!r) continue;
+
+                    html += '<h3>' + r.label + '</h3>';
+
+                    if (r.error) {
+                        html += '<p class="error-msg">Error loading: ' + escapeHtml(r.error) + '</p>';
+                        continue;
+                    }
+
+                    var cycles = r.data.cycles || [];
+                    html += '<p class="dim small" style="margin-bottom:0.75rem;">' + cycles.length + ' intransitive 3-cycles detected</p>';
+
+                    if (cycles.length === 0) {
+                        html += '<p class="muted">No 3-cycles found. All dominance relations are transitive.</p>';
+                        continue;
+                    }
+
+                    // Show first 10 cycles
+                    var show = Math.min(cycles.length, 10);
+                    for (var i = 0; i < show; i++) {
+                        var c = cycles[i];
+                        html += '<div class="cycle-item">';
+                        html += '<strong>#' + (i + 1) + '</strong>&nbsp;&nbsp;';
+                        html += escapeHtml(c.cycle[0]);
+                        html += ' <span class="cycle-arrow">&rarr;</span> ';
+                        html += '<span class="cycle-rate">(' + (c.win_rates[0] * 100).toFixed(1) + '%)</span> ';
+                        html += escapeHtml(c.cycle[1]);
+                        html += ' <span class="cycle-arrow">&rarr;</span> ';
+                        html += '<span class="cycle-rate">(' + (c.win_rates[1] * 100).toFixed(1) + '%)</span> ';
+                        html += escapeHtml(c.cycle[2]);
+                        html += ' <span class="cycle-arrow">&rarr;</span> ';
+                        html += '<span class="cycle-rate">(' + (c.win_rates[2] * 100).toFixed(1) + '%)</span> ';
+                        html += escapeHtml(c.cycle[0]);
+                        html += '</div>';
+                    }
+
+                    if (cycles.length > show) {
+                        html += '<p class="muted small">... and ' + (cycles.length - show) + ' more cycles. ';
+                        html += '<a href="/leaderboard">View full cycle list on the leaderboard.</a></p>';
+                    }
+                }
+
+                content.innerHTML = html;
+            }
+        }
+
+        // -- Init --
+        loadVariance();
+        loadRandomBaseline();
+        loadCycles();
+    </script>
+</body>
+</html>

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moreau Arena - Match Log</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .pair-list { list-style: none; }
+        .pair-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.6rem 0.75rem;
+            border-bottom: 1px solid rgba(42, 42, 58, 0.5);
+            cursor: pointer;
+            transition: background 0.15s;
+            border-radius: var(--radius-sm);
+        }
+        .pair-item:hover { background: var(--accent-glow); }
+        .pair-item.selected { background: var(--accent-glow); border-left: 3px solid var(--accent); }
+        .pair-agents { font-weight: 600; font-size: 0.9rem; }
+        .pair-record { font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-dim); }
+        .pair-record .win { color: var(--green); }
+        .pair-record .loss { color: var(--accent); }
+
+        .match-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .match-detail-header h2 { margin-bottom: 0; }
+        .match-summary-stat {
+            display: flex;
+            gap: 1.5rem;
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+        }
+
+        .series-card {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        .series-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .series-header .series-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .series-header .series-score {
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            font-weight: 700;
+        }
+        .series-winner { color: var(--green); }
+        .series-loser { color: var(--accent); }
+
+        .game-row {
+            display: grid;
+            grid-template-columns: 40px 1fr 1fr 80px 60px;
+            gap: 0.5rem;
+            padding: 0.35rem 0;
+            border-bottom: 1px solid rgba(42, 42, 58, 0.3);
+            font-size: 0.8rem;
+            align-items: center;
+        }
+        .game-row:last-child { border-bottom: none; }
+        .game-row-header {
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .game-num { text-align: center; font-family: var(--font-mono); color: var(--text-muted); }
+        .game-build {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+        .game-winner { font-weight: 600; }
+        .game-ticks { font-family: var(--font-mono); color: var(--text-muted); text-align: right; }
+        .adapted-badge {
+            display: inline-block;
+            padding: 0.05rem 0.3rem;
+            border-radius: 8px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            background: var(--blue);
+            color: #fff;
+            margin-left: 0.3rem;
+            vertical-align: middle;
+        }
+
+        .layout-split {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+        .pair-sidebar {
+            max-height: 75vh;
+            overflow-y: auto;
+            position: sticky;
+            top: 72px;
+        }
+        .search-box {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-code);
+            color: var(--text);
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            margin-bottom: 0.75rem;
+        }
+        .search-box::placeholder { color: var(--text-muted); }
+        .search-box:focus { outline: none; border-color: var(--accent); }
+
+        @media (max-width: 768px) {
+            .layout-split {
+                grid-template-columns: 1fr;
+            }
+            .pair-sidebar {
+                max-height: 40vh;
+                position: static;
+            }
+            .game-row {
+                grid-template-columns: 30px 1fr 1fr 60px 50px;
+                font-size: 0.72rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/tournaments">Tournaments</a></li>
+                <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/match-log" class="active">Match Log</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 style="margin-bottom:0.5rem;">Match Log</h1>
+        <p class="dim" style="margin-bottom:1.5rem;">Browse raw tournament data &mdash; every series, every game, every build.</p>
+
+        <div class="filters" style="margin-bottom:1.5rem;">
+            <div class="filter-group">
+                <label for="trackSelect">Track</label>
+                <select id="trackSelect" onchange="loadPairs()">
+                    <option value="A">Track A (T001) &mdash; Fixed Builds</option>
+                    <option value="B">Track B (T002) &mdash; Adaptive Builds</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="layout-split">
+            <div class="pair-sidebar card">
+                <h3 style="margin-bottom:0.5rem;">Agent Pairs</h3>
+                <input type="text" class="search-box" id="pairSearch" placeholder="Filter agents..." oninput="filterPairs()">
+                <div id="pairsLoading" class="loading">Loading pairs...</div>
+                <div id="pairsError" class="error-msg" style="display:none"></div>
+                <ul class="pair-list" id="pairList" style="display:none"></ul>
+            </div>
+
+            <div id="detailPanel">
+                <div class="card" id="detailPlaceholder">
+                    <p class="muted" style="text-align:center;padding:3rem 1rem;">
+                        Select an agent pair from the sidebar to view match details.
+                    </p>
+                </div>
+                <div id="detailContent" style="display:none"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-left">Moreau Arena &mdash; Contamination-resistant LLM benchmark</div>
+            <ul class="footer-links">
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script>
+        var allPairs = [];
+        var baselines = ['SmartAgent', 'HighVarianceAgent', 'ConservativeAgent', 'GreedyAgent', 'RandomAgent'];
+
+        function escapeHtml(str) {
+            var d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        function isLLM(name) { return baselines.indexOf(name) === -1; }
+
+        function getTrack() { return document.getElementById('trackSelect').value; }
+
+        function formatBuild(b) {
+            if (!b) return '?';
+            return b.animal + ' ' + b.hp + '/' + b.atk + '/' + b.spd + '/' + b.wil;
+        }
+
+        function loadPairs() {
+            var track = getTrack();
+            var loading = document.getElementById('pairsLoading');
+            var error = document.getElementById('pairsError');
+            var list = document.getElementById('pairList');
+
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            list.style.display = 'none';
+
+            // Reset detail panel
+            document.getElementById('detailPlaceholder').style.display = 'block';
+            document.getElementById('detailContent').style.display = 'none';
+
+            fetch('/api/v1/match-log/pairs?track=' + encodeURIComponent(track))
+                .then(function(r) { if (!r.ok) throw new Error('Failed'); return r.json(); })
+                .then(function(data) {
+                    loading.style.display = 'none';
+                    allPairs = data.pairs || [];
+                    renderPairs(allPairs);
+                    list.style.display = 'block';
+
+                    // Check URL params for deep link
+                    checkDeepLink();
+                })
+                .catch(function(err) {
+                    loading.style.display = 'none';
+                    error.textContent = 'Error: ' + err.message;
+                    error.style.display = 'block';
+                });
+        }
+
+        function renderPairs(pairs) {
+            var list = document.getElementById('pairList');
+            var html = '';
+            for (var i = 0; i < pairs.length; i++) {
+                var p = pairs[i];
+                var badgeA = isLLM(p.agent_a) ? '<span class="badge badge-llm">LLM</span>' : '<span class="badge badge-baseline">BOT</span>';
+                var badgeB = isLLM(p.agent_b) ? '<span class="badge badge-llm">LLM</span>' : '<span class="badge badge-baseline">BOT</span>';
+                html += '<li class="pair-item" data-a="' + escapeHtml(p.agent_a) + '" data-b="' + escapeHtml(p.agent_b) + '" onclick="selectPair(this, \'' + escapeHtml(p.agent_a) + '\', \'' + escapeHtml(p.agent_b) + '\')">' +
+                    '<span class="pair-agents">' + escapeHtml(p.agent_a) + ' vs ' + escapeHtml(p.agent_b) + '</span>' +
+                    '<span class="pair-record"><span class="win">' + p.wins_a + '</span>-<span class="loss">' + p.wins_b + '</span></span>' +
+                    '</li>';
+            }
+            list.innerHTML = html;
+        }
+
+        function filterPairs() {
+            var q = document.getElementById('pairSearch').value.toLowerCase();
+            var filtered = allPairs.filter(function(p) {
+                return p.agent_a.toLowerCase().indexOf(q) !== -1 || p.agent_b.toLowerCase().indexOf(q) !== -1;
+            });
+            renderPairs(filtered);
+        }
+
+        function selectPair(el, agentA, agentB) {
+            // Highlight selected
+            document.querySelectorAll('.pair-item').forEach(function(item) { item.classList.remove('selected'); });
+            if (el) el.classList.add('selected');
+
+            // Update URL
+            var track = getTrack();
+            var url = new URL(window.location);
+            url.searchParams.set('track', track);
+            url.searchParams.set('a', agentA);
+            url.searchParams.set('b', agentB);
+            history.replaceState(null, '', url);
+
+            loadDetail(agentA, agentB);
+        }
+
+        function loadDetail(agentA, agentB) {
+            var track = getTrack();
+            var placeholder = document.getElementById('detailPlaceholder');
+            var content = document.getElementById('detailContent');
+
+            placeholder.style.display = 'block';
+            placeholder.innerHTML = '<p class="loading">Loading match details...</p>';
+            content.style.display = 'none';
+
+            fetch('/api/v1/match-log?track=' + encodeURIComponent(track) + '&agent_a=' + encodeURIComponent(agentA) + '&agent_b=' + encodeURIComponent(agentB))
+                .then(function(r) { if (!r.ok) throw new Error('Failed'); return r.json(); })
+                .then(function(data) {
+                    placeholder.style.display = 'none';
+                    content.style.display = 'block';
+                    renderDetail(data);
+                })
+                .catch(function(err) {
+                    placeholder.innerHTML = '<p class="error-msg">Error: ' + escapeHtml(err.message) + '</p>';
+                });
+        }
+
+        function renderDetail(data) {
+            var content = document.getElementById('detailContent');
+            var isTrackB = getTrack() === 'B';
+            var badgeA = isLLM(data.agent_a) ? '<span class="badge badge-llm">LLM</span>' : '<span class="badge badge-baseline">BOT</span>';
+            var badgeB = isLLM(data.agent_b) ? '<span class="badge badge-llm">LLM</span>' : '<span class="badge badge-baseline">BOT</span>';
+
+            var html = '<div class="card">';
+            html += '<div class="match-detail-header">';
+            html += '<div><h2>' + escapeHtml(data.agent_a) + badgeA + ' vs ' + escapeHtml(data.agent_b) + badgeB + '</h2>';
+            html += '<p class="dim small">Track ' + escapeHtml(data.track) + ' &mdash; ' + data.total_series + ' series</p></div>';
+            html += '<div class="match-summary-stat">';
+            html += '<span class="win">' + data.wins_a + 'W</span>';
+            html += '<span class="muted">&ndash;</span>';
+            html += '<span class="loss">' + data.wins_b + 'W</span>';
+            html += '</div>';
+            html += '</div>';
+
+            var series = data.series || [];
+            for (var i = 0; i < series.length; i++) {
+                var s = series[i];
+                var isWinnerA = s.winner === data.agent_a;
+                var scoreClass = isWinnerA ? 'series-winner' : 'series-loser';
+
+                html += '<div class="series-card">';
+                html += '<div class="series-header">';
+                html += '<span class="series-label">Series ' + (i + 1) + '</span>';
+                html += '<span class="series-score ' + scoreClass + '">' + s.score_a + '&ndash;' + s.score_b + ' ';
+                html += escapeHtml(s.winner) + ' wins</span>';
+                html += '</div>';
+
+                // Game rows header
+                html += '<div class="game-row game-row-header">';
+                html += '<span>#</span>';
+                html += '<span>' + escapeHtml(data.agent_a) + ' Build</span>';
+                html += '<span>' + escapeHtml(data.agent_b) + ' Build</span>';
+                html += '<span>Winner</span>';
+                html += '<span style="text-align:right">Ticks</span>';
+                html += '</div>';
+
+                var games = s.games || [];
+                for (var j = 0; j < games.length; j++) {
+                    var g = games[j];
+                    var winnerLabel = '';
+                    if (g.winner === data.agent_a) {
+                        winnerLabel = '<span style="color:var(--green)">A</span>';
+                    } else if (g.winner === data.agent_b) {
+                        winnerLabel = '<span style="color:var(--accent)">B</span>';
+                    } else {
+                        winnerLabel = '<span class="muted">Draw</span>';
+                    }
+
+                    var buildAStr = formatBuild(g.build_a);
+                    var buildBStr = formatBuild(g.build_b);
+                    var adaptedBadge = '';
+                    if (isTrackB && g.adapted) {
+                        adaptedBadge = '<span class="adapted-badge">ADAPTED</span>';
+                    }
+
+                    html += '<div class="game-row">';
+                    html += '<span class="game-num">' + g.game_number + '</span>';
+                    html += '<span class="game-build">' + escapeHtml(buildAStr) + (isTrackB && g.adapted && j > 0 ? adaptedBadge : '') + '</span>';
+                    html += '<span class="game-build">' + escapeHtml(buildBStr) + '</span>';
+                    html += '<span class="game-winner">' + winnerLabel + '</span>';
+                    html += '<span class="game-ticks">' + g.ticks + 't</span>';
+                    html += '</div>';
+                }
+
+                html += '</div>';
+            }
+
+            html += '</div>';
+            content.innerHTML = html;
+        }
+
+        function checkDeepLink() {
+            var params = new URLSearchParams(window.location.search);
+            var track = params.get('track');
+            var a = params.get('a');
+            var b = params.get('b');
+
+            if (track) {
+                var sel = document.getElementById('trackSelect');
+                if (track.toUpperCase() === 'A' || track.toUpperCase() === 'B') {
+                    sel.value = track.toUpperCase();
+                    // If pairs already loaded for wrong track, reload
+                    if (getTrack() !== track.toUpperCase()) {
+                        loadPairs();
+                        return;
+                    }
+                }
+            }
+
+            if (a && b) {
+                // Find and highlight the pair in sidebar
+                var items = document.querySelectorAll('.pair-item');
+                for (var i = 0; i < items.length; i++) {
+                    var itemA = items[i].getAttribute('data-a');
+                    var itemB = items[i].getAttribute('data-b');
+                    if ((itemA === a && itemB === b) || (itemA === b && itemB === a)) {
+                        selectPair(items[i], a, b);
+                        items[i].scrollIntoView({ block: 'center' });
+                        return;
+                    }
+                }
+                // Pair not found in sidebar (maybe different name ordering), still load
+                loadDetail(a, b);
+            }
+        }
+
+        // Init
+        (function() {
+            // Set track from URL if present
+            var params = new URLSearchParams(window.location.search);
+            var track = params.get('track');
+            if (track && (track.toUpperCase() === 'A' || track.toUpperCase() === 'B')) {
+                document.getElementById('trackSelect').value = track.toUpperCase();
+            }
+            loadPairs();
+        })();
+    </script>
+</body>
+</html>

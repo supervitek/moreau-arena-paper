@@ -464,9 +464,13 @@
                                 var pct = (wr * 100).toFixed(0);
                                 var color = getHeatmapColor(wr);
                                 var tc = (wr > 0.3 && wr < 0.7) ? '#e0e0e0' : '#fff';
-                                html += '<td style="background:' + color + ';color:' + tc + '"' +
+                                var matchLogUrl = '/match-log?track=' + encodeURIComponent(track) +
+                                    '&a=' + encodeURIComponent(agents[i]) +
+                                    '&b=' + encodeURIComponent(agents[j]);
+                                html += '<td style="background:' + color + ';color:' + tc + ';cursor:pointer"' +
                                     ' title="' + escapeHtml(agents[i]) + ' vs ' + escapeHtml(agents[j]) +
-                                    ': ' + pct + '%">' + pct + '%</td>';
+                                    ': ' + pct + '% (click for details)"' +
+                                    ' onclick="window.location.href=\'' + matchLogUrl + '\'">' + pct + '%</td>';
                             }
                         }
                         html += '</tr>';
