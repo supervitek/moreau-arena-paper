@@ -9,14 +9,16 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from contextlib import asynccontextmanager
 from itertools import combinations
 from pathlib import Path
 from typing import Any
 
 import random
+import re
 import time
 
 from fastapi import APIRouter, FastAPI, HTTPException, Query, UploadFile
@@ -74,8 +76,706 @@ REFERENCE_BUILDS = [
 ]
 
 
+BASELINES = {"SmartAgent", "GreedyAgent", "ConservativeAgent", "HighVarianceAgent", "RandomAgent"}
+
+
+def _compute_agent_cards() -> dict[str, dict[str, Any]]:
+    """Parse JSONL tournament data and compute per-agent card data."""
+    # Structures: per track, per agent
+    # track_key -> agent_name -> list of (animal, hp, atk, spd, wil, won_game:bool)
+    agent_builds: dict[str, dict[str, list[dict[str, Any]]]] = {"A": defaultdict(list), "B": defaultdict(list)}
+    # track_key -> agent_name -> {opponent -> {"wins": int, "losses": int}}
+    agent_pairwise: dict[str, dict[str, dict[str, dict[str, int]]]] = {
+        "A": defaultdict(lambda: defaultdict(lambda: {"wins": 0, "losses": 0})),
+        "B": defaultdict(lambda: defaultdict(lambda: {"wins": 0, "losses": 0})),
+    }
+    # track_key -> agent_name -> {"series_wins": int, "series_losses": int, "series_draws": int}
+    agent_records: dict[str, dict[str, dict[str, int]]] = {
+        "A": defaultdict(lambda: {"series_wins": 0, "series_losses": 0, "series_draws": 0}),
+        "B": defaultdict(lambda: {"series_wins": 0, "series_losses": 0, "series_draws": 0}),
+    }
+    # track_key -> agent_name -> list of series build history dicts
+    agent_series_history: dict[str, dict[str, list[dict[str, Any]]]] = {"A": defaultdict(list), "B": defaultdict(list)}
+
+    track_map = {"A": DATA_DIR / "tournament_001" / "results.jsonl", "B": DATA_DIR / "tournament_002" / "results.jsonl"}
+
+    for track_key, jsonl_path in track_map.items():
+        if not jsonl_path.exists():
+            continue
+        with open(jsonl_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    record = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+
+                agent_a = record.get("agent_a", "unknown")
+                agent_b = record.get("agent_b", "unknown")
+                winner = record.get("winner")
+                games = record.get("games", [])
+
+                # Series record
+                if winner == agent_a:
+                    agent_records[track_key][agent_a]["series_wins"] += 1
+                    agent_records[track_key][agent_b]["series_losses"] += 1
+                elif winner == agent_b:
+                    agent_records[track_key][agent_b]["series_wins"] += 1
+                    agent_records[track_key][agent_a]["series_losses"] += 1
+                else:
+                    agent_records[track_key][agent_a]["series_draws"] += 1
+                    agent_records[track_key][agent_b]["series_draws"] += 1
+
+                # Pairwise series wins
+                if winner == agent_a:
+                    agent_pairwise[track_key][agent_a][agent_b]["wins"] += 1
+                    agent_pairwise[track_key][agent_b][agent_a]["losses"] += 1
+                elif winner == agent_b:
+                    agent_pairwise[track_key][agent_b][agent_a]["wins"] += 1
+                    agent_pairwise[track_key][agent_a][agent_b]["losses"] += 1
+
+                # Extract builds per game
+                # T001: builds at top level
+                # T002: builds inside each game object
+                top_build_a = record.get("build_a")
+                top_build_b = record.get("build_b")
+
+                series_builds_a: list[dict[str, Any]] = []
+                series_builds_b: list[dict[str, Any]] = []
+
+                for game in games:
+                    game_winner = game.get("winner")
+                    # Determine build for this game
+                    if track_key == "A":
+                        ba = top_build_a
+                        bb = top_build_b
+                    else:
+                        ba = game.get("build_a") or top_build_a
+                        bb = game.get("build_b") or top_build_b
+
+                    if ba:
+                        agent_builds[track_key][agent_a].append({
+                            "animal": ba.get("animal", "unknown"),
+                            "hp": ba.get("hp", 0),
+                            "atk": ba.get("atk", 0),
+                            "spd": ba.get("spd", 0),
+                            "wil": ba.get("wil", 0),
+                            "won": game_winner == agent_a,
+                        })
+                        series_builds_a.append({
+                            "game": game.get("game_number", 0),
+                            "animal": ba.get("animal", "unknown"),
+                            "hp": ba.get("hp", 0),
+                            "atk": ba.get("atk", 0),
+                            "spd": ba.get("spd", 0),
+                            "wil": ba.get("wil", 0),
+                            "won": game_winner == agent_a,
+                        })
+
+                    if bb:
+                        agent_builds[track_key][agent_b].append({
+                            "animal": bb.get("animal", "unknown"),
+                            "hp": bb.get("hp", 0),
+                            "atk": bb.get("atk", 0),
+                            "spd": bb.get("spd", 0),
+                            "wil": bb.get("wil", 0),
+                            "won": game_winner == agent_b,
+                        })
+                        series_builds_b.append({
+                            "game": game.get("game_number", 0),
+                            "animal": bb.get("animal", "unknown"),
+                            "hp": bb.get("hp", 0),
+                            "atk": bb.get("atk", 0),
+                            "spd": bb.get("spd", 0),
+                            "wil": bb.get("wil", 0),
+                            "won": game_winner == agent_b,
+                        })
+
+                # Store series history
+                series_info_a = {
+                    "opponent": agent_b,
+                    "series_id": record.get("series_id", ""),
+                    "result": "win" if winner == agent_a else ("loss" if winner == agent_b else "draw"),
+                    "score": f"{record.get('score_a', 0)}-{record.get('score_b', 0)}",
+                    "builds": series_builds_a,
+                }
+                series_info_b = {
+                    "opponent": agent_a,
+                    "series_id": record.get("series_id", ""),
+                    "result": "win" if winner == agent_b else ("loss" if winner == agent_a else "draw"),
+                    "score": f"{record.get('score_b', 0)}-{record.get('score_a', 0)}",
+                    "builds": series_builds_b,
+                }
+                agent_series_history[track_key][agent_a].append(series_info_a)
+                agent_series_history[track_key][agent_b].append(series_info_b)
+
+    # Gather all agent names
+    all_agents: set[str] = set()
+    for track_key in ("A", "B"):
+        all_agents.update(agent_records[track_key].keys())
+
+    # Build BT score lookup from cache
+    bt_lookup: dict[str, dict[str, dict[str, Any]]] = {"A": {}, "B": {}}
+    for track_key in ("A", "B"):
+        if track_key in _cache and "bt" in _cache[track_key]:
+            for i, entry in enumerate(_cache[track_key]["bt"]["bt_scores"]):
+                bt_lookup[track_key][entry["name"]] = {
+                    "rank": i + 1,
+                    "bt_score": entry["bt_score"],
+                    "ci_lower": entry["ci_lower"],
+                    "ci_upper": entry["ci_upper"],
+                }
+
+    # Assemble per-agent cards
+    cards: dict[str, dict[str, Any]] = {}
+    for agent_name in sorted(all_agents):
+        agent_type = "Baseline" if agent_name in BASELINES else "LLM"
+
+        tracks_data: dict[str, dict[str, Any]] = {}
+        animals_used: dict[str, dict[str, int]] = {}
+        favorite_animal: dict[str, str] = {}
+        avg_stats: dict[str, dict[str, float]] = {}
+        pairwise_rates: dict[str, dict[str, float | None]] = {}
+
+        for track_key in ("A", "B"):
+            rec = agent_records[track_key].get(agent_name)
+            if not rec:
+                continue
+
+            bt_info = bt_lookup[track_key].get(agent_name, {})
+            total_games_won = 0
+            total_games_lost = 0
+            # Count game-level wins/losses from builds
+            builds = agent_builds[track_key].get(agent_name, [])
+            total_games_won = sum(1 for b in builds if b["won"])
+            total_games_lost = len(builds) - total_games_won
+
+            tracks_data[track_key] = {
+                "rank": bt_info.get("rank", 0),
+                "bt_score": round(bt_info.get("bt_score", 0.0), 4),
+                "ci": [round(bt_info.get("ci_lower", 0.0), 4), round(bt_info.get("ci_upper", 0.0), 4)],
+                "wins": rec["series_wins"],
+                "losses": rec["series_losses"],
+                "draws": rec["series_draws"],
+                "game_wins": total_games_won,
+                "game_losses": total_games_lost,
+            }
+
+            # Animal usage
+            animal_counts: dict[str, int] = defaultdict(int)
+            for b in builds:
+                animal_counts[b["animal"]] += 1
+            animals_used[track_key] = dict(sorted(animal_counts.items(), key=lambda x: -x[1]))
+            if animal_counts:
+                favorite_animal[track_key] = max(animal_counts, key=animal_counts.get)  # type: ignore[arg-type]
+            else:
+                favorite_animal[track_key] = "N/A"
+
+            # Average stats
+            if builds:
+                n = len(builds)
+                avg_stats[track_key] = {
+                    "hp": round(sum(b["hp"] for b in builds) / n, 2),
+                    "atk": round(sum(b["atk"] for b in builds) / n, 2),
+                    "spd": round(sum(b["spd"] for b in builds) / n, 2),
+                    "wil": round(sum(b["wil"] for b in builds) / n, 2),
+                }
+            else:
+                avg_stats[track_key] = {"hp": 0, "atk": 0, "spd": 0, "wil": 0}
+
+            # Pairwise win rates (series-level)
+            pw: dict[str, float | None] = {}
+            for opp in sorted(all_agents):
+                if opp == agent_name:
+                    pw[opp] = None
+                    continue
+                opp_data = agent_pairwise[track_key][agent_name].get(opp, {"wins": 0, "losses": 0})
+                total = opp_data["wins"] + opp_data["losses"]
+                if total > 0:
+                    pw[opp] = round(opp_data["wins"] / total, 4)
+                else:
+                    pw[opp] = None
+            pairwise_rates[track_key] = pw
+
+        # Rank shift
+        rank_a = tracks_data.get("A", {}).get("rank", 0)
+        rank_b = tracks_data.get("B", {}).get("rank", 0)
+        if rank_a and rank_b:
+            shift = rank_a - rank_b  # positive means improved in B
+            rank_shift = f"+{shift}" if shift > 0 else str(shift)
+        else:
+            rank_shift = "N/A"
+
+        # Total record across both tracks
+        total_w = sum(t.get("wins", 0) for t in tracks_data.values())
+        total_l = sum(t.get("losses", 0) for t in tracks_data.values())
+        total_d = sum(t.get("draws", 0) for t in tracks_data.values())
+
+        # Limit series history to avoid massive payloads - keep last 20 per track
+        history: dict[str, list[dict[str, Any]]] = {}
+        for track_key in ("A", "B"):
+            h = agent_series_history[track_key].get(agent_name, [])
+            history[track_key] = h[-20:] if len(h) > 20 else h
+
+        cards[agent_name] = {
+            "name": agent_name,
+            "type": agent_type,
+            "tracks": tracks_data,
+            "rank_shift": rank_shift,
+            "animals_used": animals_used,
+            "favorite_animal": favorite_animal,
+            "avg_stats": avg_stats,
+            "pairwise": pairwise_rates,
+            "total_record": {"wins": total_w, "losses": total_l, "draws": total_d},
+            "series_history": history,
+        }
+
+    return cards
+
+
+def _compute_agent_builds() -> dict[str, dict[str, Any]]:
+    """Extract the most common build per agent from JSONL tournament data.
+
+    For T001, builds are at the series level (record["build_a"], record["build_b"]).
+    For T002, builds are per game (record["games"][i]["build_a"], record["games"][i]["build_b"]).
+
+    Returns a dict mapping agent_name -> {"animal": str, "hp": int, "atk": int, "spd": int, "wil": int}.
+    """
+    agent_build_counts: dict[str, Counter] = defaultdict(Counter)
+
+    track_map = {
+        "A": DATA_DIR / "tournament_001" / "results.jsonl",
+        "B": DATA_DIR / "tournament_002" / "results.jsonl",
+    }
+
+    for track_key, jsonl_path in track_map.items():
+        if not jsonl_path.exists():
+            continue
+        with open(jsonl_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    record = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+
+                agent_a = record.get("agent_a", "unknown")
+                agent_b = record.get("agent_b", "unknown")
+                games = record.get("games", [])
+                top_build_a = record.get("build_a")
+                top_build_b = record.get("build_b")
+
+                for game in games:
+                    if track_key == "A":
+                        ba = top_build_a
+                        bb = top_build_b
+                    else:
+                        ba = game.get("build_a") or top_build_a
+                        bb = game.get("build_b") or top_build_b
+
+                    if ba:
+                        key_a = (ba["animal"], ba["hp"], ba["atk"], ba["spd"], ba["wil"])
+                        agent_build_counts[agent_a][key_a] += 1
+                    if bb:
+                        key_b = (bb["animal"], bb["hp"], bb["atk"], bb["spd"], bb["wil"])
+                        agent_build_counts[agent_b][key_b] += 1
+
+    result: dict[str, dict[str, Any]] = {}
+    for agent, counter in agent_build_counts.items():
+        if not counter:
+            continue
+        top_build = counter.most_common(1)[0][0]
+        result[agent] = {
+            "animal": top_build[0],
+            "hp": top_build[1],
+            "atk": top_build[2],
+            "spd": top_build[3],
+            "wil": top_build[4],
+        }
+
+    return result
+
+
+# -- Strategy parsing -----------------------------------------------------------
+
+# Maps keyword patterns to builds
+_STRATEGY_RULES: list[tuple[list[str], dict[str, Any]]] = [
+    (
+        ["fastest", "speed", "quick"],
+        {"animal": "wolf", "hp": 1, "atk": 5, "spd": 13, "wil": 1},
+    ),
+    (
+        ["tankiest", "tank", "survive"],
+        {"animal": "buffalo", "hp": 14, "atk": 3, "spd": 2, "wil": 1},
+    ),
+    (
+        ["glass cannon", "damage", "attack", "dps"],
+        {"animal": "tiger", "hp": 1, "atk": 16, "spd": 2, "wil": 1},
+    ),
+    (
+        ["willpower", "magic", "abilities", "proc"],
+        {"animal": "monkey", "hp": 1, "atk": 2, "spd": 1, "wil": 16},
+    ),
+    (
+        ["balanced", "all-around"],
+        {"animal": "bear", "hp": 5, "atk": 5, "spd": 5, "wil": 5},
+    ),
+]
+
+# "hp" keyword handled specially — matches "hp" as a word but not inside other words
+_HP_PATTERN = re.compile(r"\bhp\b", re.IGNORECASE)
+
+_DEFAULT_BUILD: dict[str, Any] = {"animal": "bear", "hp": 5, "atk": 5, "spd": 5, "wil": 5}
+
+
+def _parse_strategy(text: str) -> tuple[dict[str, Any], str]:
+    """Parse a natural language strategy into a build dict.
+
+    Returns (build_dict, strategy_label).
+    """
+    lower = text.lower().strip()
+
+    # Check for "meta" / "optimal" / "best" / "win" first
+    meta_keywords = ["meta", "optimal", "best", "win"]
+    for kw in meta_keywords:
+        if kw in lower:
+            # Use the top T002 winning build from cached agent_builds
+            agent_builds = _cache.get("agent_builds", {})
+            if agent_builds:
+                # Find the overall most common winning build across all agents
+                # The top build from T002 data analysis is bear 8/10/1/1
+                # But we derive it dynamically from the cached builds
+                build_counter: Counter = Counter()
+                for agent, build in agent_builds.items():
+                    key = (build["animal"], build["hp"], build["atk"], build["spd"], build["wil"])
+                    build_counter[key] += 1
+                top = build_counter.most_common(1)[0][0]
+                return {
+                    "animal": top[0], "hp": top[1], "atk": top[2],
+                    "spd": top[3], "wil": top[4],
+                }, "meta (most popular tournament build)"
+            # Fallback if no cached data
+            return {"animal": "bear", "hp": 8, "atk": 10, "spd": 1, "wil": 1}, "meta"
+
+    # Check for "hp" keyword specifically (tank variant)
+    if _HP_PATTERN.search(lower):
+        return {"animal": "buffalo", "hp": 14, "atk": 3, "spd": 2, "wil": 1}, "maximize HP"
+
+    # Check other rules
+    for keywords, build in _STRATEGY_RULES:
+        for kw in keywords:
+            if kw in lower:
+                label = kw if len(kw) > 3 else keywords[0]
+                return dict(build), label
+
+    return dict(_DEFAULT_BUILD), "balanced (default)"
+
+
+def _strategy_logic(strategy_text: str, games_per_opponent: int) -> dict[str, Any]:
+    """Parse strategy text, run against all tournament agents, return results."""
+    build, label = _parse_strategy(strategy_text)
+    build_str = f"{build['animal']} {build['hp']} {build['atk']} {build['spd']} {build['wil']}"
+
+    agent_builds = _cache.get("agent_builds", {})
+    if not agent_builds:
+        raise HTTPException(
+            status_code=503,
+            detail="Tournament data not yet loaded. Try again shortly.",
+        )
+
+    try:
+        animal_p, hp_p, atk_p, spd_p, wil_p = _parse_build(build_str)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid parsed build: {e}")
+
+    per_opponent: list[dict[str, Any]] = []
+    total_wins = 0
+    total_games = 0
+
+    for agent_name in sorted(agent_builds.keys()):
+        ab = agent_builds[agent_name]
+        opp_str = f"{ab['animal']} {ab['hp']} {ab['atk']} {ab['spd']} {ab['wil']}"
+        try:
+            animal_o, hp_o, atk_o, spd_o, wil_o = _parse_build(opp_str)
+        except ValueError:
+            continue
+
+        res = _run_games(
+            animal_p, hp_p, atk_p, spd_p, wil_p,
+            animal_o, hp_o, atk_o, spd_o, wil_o,
+            games_per_opponent, base_seed=42,
+        )
+
+        wins = res["wins_a"]
+        losses = res["wins_b"]
+        draws = res["draws"]
+        wr = wins / games_per_opponent if games_per_opponent > 0 else 0.0
+        total_wins += wins
+        total_games += games_per_opponent
+
+        per_opponent.append({
+            "agent": agent_name,
+            "agent_build": opp_str,
+            "wins": wins,
+            "losses": losses,
+            "draws": draws,
+            "win_rate": round(wr, 4),
+        })
+
+    overall_wr = total_wins / total_games if total_games > 0 else 0.0
+
+    # Compute rank: count how many agents the user beats (win_rate > 0.5)
+    agents_beaten = sum(1 for r in per_opponent if r["win_rate"] > 0.5)
+    rank = len(per_opponent) + 1 - agents_beaten  # rank 1 = beat all, rank 14 = beat none
+
+    return {
+        "strategy": strategy_text,
+        "strategy_label": label,
+        "build": build,
+        "build_string": build_str,
+        "results": per_opponent,
+        "overall_win_rate": round(overall_wr, 4),
+        "agents_beaten": agents_beaten,
+        "rank": rank,
+        "total_agents": len(per_opponent),
+    }
+
+
+def _load_raw_records(track: str) -> list[dict[str, Any]]:
+    """Load raw JSONL records for a given track."""
+    paths = _resolve_track(track)
+    records: list[dict[str, Any]] = []
+    for path in paths:
+        if not path.exists():
+            continue
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    records.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
+    return records
+
+
+def _compute_match_log_pairs(track: str) -> dict[str, Any]:
+    """Compute per-pair W-L summaries from raw JSONL records."""
+    records = _load_raw_records(track)
+    pair_map: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+
+    for rec in records:
+        agent_a = rec.get("agent_a", "")
+        agent_b = rec.get("agent_b", "")
+        key = (min(agent_a, agent_b), max(agent_a, agent_b))
+        pair_map[key].append(rec)
+
+    pairs: list[dict[str, Any]] = []
+    for (a, b), recs in sorted(pair_map.items()):
+        wins_a = sum(1 for r in recs if r.get("winner") == a)
+        wins_b = sum(1 for r in recs if r.get("winner") == b)
+        draws = len(recs) - wins_a - wins_b
+        pairs.append({
+            "agent_a": a,
+            "agent_b": b,
+            "wins_a": wins_a,
+            "wins_b": wins_b,
+            "draws": draws,
+            "total_series": len(recs),
+        })
+    return {"track": track, "pairs": pairs}
+
+
+def _compute_match_log_detail(
+    track: str, agent_a: str, agent_b: str,
+) -> dict[str, Any]:
+    """Return all series between two agents with per-game details."""
+    records = _load_raw_records(track)
+    series_list: list[dict[str, Any]] = []
+
+    for rec in records:
+        ra = rec.get("agent_a", "")
+        rb = rec.get("agent_b", "")
+        if not ({ra, rb} == {agent_a, agent_b}):
+            continue
+        flipped = (ra != agent_a)
+        if flipped:
+            sa, sb = rec.get("score_b", 0), rec.get("score_a", 0)
+        else:
+            sa, sb = rec.get("score_a", 0), rec.get("score_b", 0)
+        winner = rec.get("winner")
+
+        games_raw = rec.get("games", [])
+        games_out: list[dict[str, Any]] = []
+        has_per_game_builds = len(games_raw) > 0 and "build_a" in games_raw[0]
+
+        for g in games_raw:
+            game_entry: dict[str, Any] = {
+                "game_number": g.get("game_number"),
+                "winner": g.get("winner"),
+                "seed": g.get("seed"),
+                "ticks": g.get("ticks"),
+            }
+            if has_per_game_builds:
+                if flipped:
+                    game_entry["build_a"] = g.get("build_b")
+                    game_entry["build_b"] = g.get("build_a")
+                else:
+                    game_entry["build_a"] = g.get("build_a")
+                    game_entry["build_b"] = g.get("build_b")
+                game_entry["adapted"] = g.get("adapted", False)
+            else:
+                if flipped:
+                    game_entry["build_a"] = rec.get("build_b")
+                    game_entry["build_b"] = rec.get("build_a")
+                else:
+                    game_entry["build_a"] = rec.get("build_a")
+                    game_entry["build_b"] = rec.get("build_b")
+
+            games_out.append(game_entry)
+
+        series_entry: dict[str, Any] = {
+            "series_id": rec.get("series_id", ""),
+            "agent_a": agent_a,
+            "agent_b": agent_b,
+            "score_a": sa,
+            "score_b": sb,
+            "winner": winner,
+            "games": games_out,
+        }
+        if not has_per_game_builds:
+            if flipped:
+                series_entry["build_a"] = rec.get("build_b")
+                series_entry["build_b"] = rec.get("build_a")
+            else:
+                series_entry["build_a"] = rec.get("build_a")
+                series_entry["build_b"] = rec.get("build_b")
+
+        series_list.append(series_entry)
+
+    wins_a = sum(1 for s in series_list if s["winner"] == agent_a)
+    wins_b = sum(1 for s in series_list if s["winner"] == agent_b)
+    return {
+        "track": track,
+        "agent_a": agent_a,
+        "agent_b": agent_b,
+        "total_series": len(series_list),
+        "wins_a": wins_a,
+        "wins_b": wins_b,
+        "series": series_list,
+    }
+
+
+def _compute_variance_decomposition() -> dict[str, Any]:
+    """Compute variance decomposition: RNG vs strategy."""
+    result: dict[str, Any] = {}
+    for track_key in ("A", "B"):
+        records = _load_raw_records(track_key)
+        all_outcomes: list[float] = []
+        series_variances: list[float] = []
+        series_sizes: list[int] = []
+
+        for rec in records:
+            agent_a = rec.get("agent_a", "")
+            games = rec.get("games", [])
+            if len(games) < 2:
+                continue
+            outcomes: list[float] = []
+            for g in games:
+                w = g.get("winner")
+                outcomes.append(1.0 if w == agent_a else 0.0)
+            all_outcomes.extend(outcomes)
+            n = len(outcomes)
+            mean = sum(outcomes) / n
+            var = sum((x - mean) ** 2 for x in outcomes) / n
+            series_variances.append(var)
+            series_sizes.append(n)
+
+        if not all_outcomes or not series_variances:
+            result[track_key] = {
+                "rng_variance": 0, "total_variance": 0,
+                "rng_fraction": 0, "strategy_fraction": 1,
+                "n_series": 0, "n_games": 0,
+            }
+            continue
+
+        total_weight = sum(series_sizes)
+        within_var = sum(
+            v * n for v, n in zip(series_variances, series_sizes)
+        ) / total_weight
+
+        grand_mean = sum(all_outcomes) / len(all_outcomes)
+        total_var = sum(
+            (x - grand_mean) ** 2 for x in all_outcomes
+        ) / len(all_outcomes)
+
+        rng_fraction = within_var / total_var if total_var > 0 else 0.0
+        strategy_fraction = 1.0 - rng_fraction
+
+        result[track_key] = {
+            "rng_variance": round(within_var, 6),
+            "total_variance": round(total_var, 6),
+            "rng_fraction": round(rng_fraction, 4),
+            "strategy_fraction": round(strategy_fraction, 4),
+            "n_series": len(series_variances),
+            "n_games": len(all_outcomes),
+        }
+
+    return result
+
+
+def _compute_random_baseline() -> dict[str, Any]:
+    """Compute RandomAgent statistics from actual tournament data."""
+    result: dict[str, Any] = {}
+    for track_key in ("A", "B"):
+        records = _load_raw_records(track_key)
+        random_series = 0
+        random_wins = 0
+        random_losses = 0
+        opponents: dict[str, dict[str, int]] = {}
+
+        for rec in records:
+            agent_a = rec.get("agent_a", "")
+            agent_b = rec.get("agent_b", "")
+            winner = rec.get("winner")
+
+            if agent_a == "RandomAgent":
+                opponent = agent_b
+            elif agent_b == "RandomAgent":
+                opponent = agent_a
+            else:
+                continue
+
+            random_series += 1
+            if winner == "RandomAgent":
+                random_wins += 1
+            else:
+                random_losses += 1
+            if opponent not in opponents:
+                opponents[opponent] = {"wins": 0, "losses": 0}
+            if winner == "RandomAgent":
+                opponents[opponent]["wins"] += 1
+            else:
+                opponents[opponent]["losses"] += 1
+
+        result[track_key] = {
+            "total_series": random_series,
+            "wins": random_wins,
+            "losses": random_losses,
+            "win_rate": round(random_wins / random_series, 4) if random_series > 0 else 0.0,
+            "opponents": dict(sorted(opponents.items())),
+        }
+
+    return result
+
+
 def _precompute_cache() -> None:
-    """Precompute BT scores, pairwise matrices, and 3-cycles for all tracks."""
+    """Precompute BT scores, pairwise matrices, 3-cycles, match logs, and methodology data."""
     for track_key in ("A", "B", "all"):
         results = _load_track_results(track_key)
         if not results:
@@ -120,6 +820,20 @@ def _precompute_cache() -> None:
                 "total_cycles": len(cycles),
             },
         }
+
+    # Agent builds (most common build per agent from JSONL data)
+    _cache["agent_builds"] = _compute_agent_builds()
+
+    # Agent cards
+    _cache["agents"] = _compute_agent_cards()
+
+    # Match log pair summaries
+    for track_key in ("A", "B"):
+        _cache[f"match_log_pairs_{track_key}"] = _compute_match_log_pairs(track_key)
+
+    # Methodology data
+    _cache["variance_decomposition"] = _compute_variance_decomposition()
+    _cache["random_baseline"] = _compute_random_baseline()
 
     logger.info("Cache precomputed for tracks: %s", list(_cache.keys()))
 
@@ -227,6 +941,42 @@ class LeaderboardEntry(BaseModel):
     series_losses: int
     series_draws: int
     win_rate: float
+
+
+class StrategyRequest(BaseModel):
+    strategy: str = Field(..., description='Natural language strategy, e.g. "fastest" or "glass cannon"')
+    games: int = Field(default=100, ge=1, le=1000)
+
+    @field_validator("strategy")
+    @classmethod
+    def validate_strategy(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("Strategy text cannot be empty")
+        if len(v) > 500:
+            raise ValueError("Strategy text too long (max 500 characters)")
+        return v
+
+
+class StrategyOpponentResult(BaseModel):
+    agent: str
+    agent_build: str
+    wins: int
+    losses: int
+    draws: int
+    win_rate: float
+
+
+class StrategyResponse(BaseModel):
+    strategy: str
+    strategy_label: str
+    build: dict[str, Any]
+    build_string: str
+    results: list[StrategyOpponentResult]
+    overall_win_rate: float
+    agents_beaten: int
+    rank: int
+    total_agents: int
 
 
 # -- Shared logic ----------------------------------------------------------------
@@ -503,6 +1253,21 @@ def research_page() -> FileResponse:
     return FileResponse(STATIC_DIR / "paper.html")
 
 
+@app.get("/match-log")
+def match_log_page() -> FileResponse:
+    return FileResponse(STATIC_DIR / "match-log.html")
+
+
+@app.get("/methodology")
+def methodology_page() -> FileResponse:
+    return FileResponse(STATIC_DIR / "methodology.html")
+
+
+@app.get("/compare")
+def compare_page() -> FileResponse:
+    return FileResponse(STATIC_DIR / "compare.html")
+
+
 @app.post("/fight", response_model=FightResponse)
 def fight(req: FightRequest) -> FightResponse:
     return _fight_logic(req.build1, req.build2, req.games)
@@ -665,6 +1430,13 @@ def api_play(req: PlayRequest) -> PlayResponse:
     )
 
 
+@api_v1.post("/strategy", response_model=StrategyResponse)
+def api_strategy(req: StrategyRequest) -> StrategyResponse:
+    """Parse natural language strategy, run against tournament agents, return rank estimate."""
+    result = _strategy_logic(req.strategy, req.games)
+    return StrategyResponse(**result)
+
+
 @api_v1.post("/submit")
 async def api_submit(file: UploadFile) -> dict[str, Any]:
     """Accept a JSONL file upload, validate, and store it."""
@@ -762,6 +1534,82 @@ async def api_submit(file: UploadFile) -> dict[str, Any]:
     }
 
 
+@api_v1.get("/agents")
+def api_agents_list() -> list[dict[str, Any]]:
+    """Return summary list of all agents."""
+    agents_data = _cache.get("agents", {})
+    summary = []
+    for name, card in sorted(agents_data.items()):
+        summary.append({
+            "name": card["name"],
+            "type": card["type"],
+            "rank_shift": card["rank_shift"],
+            "total_record": card["total_record"],
+            "tracks": {
+                tk: {"rank": tv["rank"], "bt_score": tv["bt_score"]}
+                for tk, tv in card["tracks"].items()
+            },
+        })
+    return summary
+
+
+@api_v1.get("/agent/{name}")
+def api_agent_card(name: str) -> dict[str, Any]:
+    """Return full agent card data."""
+    agents_data = _cache.get("agents", {})
+    if name not in agents_data:
+        raise HTTPException(status_code=404, detail=f"Agent '{name}' not found")
+    return agents_data[name]
+
+
+@api_v1.get("/match-log/pairs")
+def api_match_log_pairs(
+    track: str = Query(default="A", pattern="^(A|B)$"),
+) -> dict[str, Any]:
+    """Return all agent pairs with W-L summary for a track."""
+    cache_key = f"match_log_pairs_{track.upper()}"
+    if cache_key in _cache:
+        return _cache[cache_key]
+    return _compute_match_log_pairs(track.upper())
+
+
+@api_v1.get("/match-log")
+def api_match_log(
+    track: str = Query(default="A", pattern="^(A|B)$"),
+    agent_a: str = Query(...),
+    agent_b: str = Query(...),
+) -> dict[str, Any]:
+    """Return all series between two agents with per-game details."""
+    return _compute_match_log_detail(track.upper(), agent_a, agent_b)
+
+
+@api_v1.get("/methodology/variance")
+def api_methodology_variance() -> dict[str, Any]:
+    """Return variance decomposition stats computed from data."""
+    if "variance_decomposition" in _cache:
+        return _cache["variance_decomposition"]
+    return _compute_variance_decomposition()
+
+
+@api_v1.get("/methodology/random-baseline")
+def api_methodology_random_baseline() -> dict[str, Any]:
+    """Return random agent stats."""
+    if "random_baseline" in _cache:
+        return _cache["random_baseline"]
+    return _compute_random_baseline()
+
+
 app.include_router(api_v1)
+
+
+# Agent card page route — must come AFTER api_v1 router is included
+@app.get("/agent/{name}")
+def agent_page(name: str) -> FileResponse:
+    """Serve the agent card template page."""
+    agents_data = _cache.get("agents", {})
+    if name not in agents_data:
+        raise HTTPException(status_code=404, detail=f"Agent '{name}' not found")
+    return FileResponse(STATIC_DIR / "agent.html")
+
 
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")

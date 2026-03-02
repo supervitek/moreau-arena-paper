@@ -56,6 +56,122 @@
         .game-ticks { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.8rem; }
         .results { display: none; margin-top: 1.5rem; }
         .results.visible { display: block; }
+
+        /* Strategy mode styles */
+        .strategy-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            transition: border-color 0.15s;
+        }
+        .strategy-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .strategy-input::placeholder {
+            color: var(--text-muted);
+        }
+        .strategy-examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.25rem;
+        }
+        .strategy-chip {
+            padding: 0.3rem 0.7rem;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .strategy-chip:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .strat-build-card {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+        .strat-build-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+        .strat-build-value {
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--green);
+            margin-bottom: 0.25rem;
+        }
+        .strat-build-desc {
+            font-size: 0.82rem;
+            color: var(--text-dim);
+        }
+        .strat-rank-display {
+            text-align: center;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .strat-rank-number {
+            font-family: var(--font-mono);
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent);
+            line-height: 1;
+        }
+        .strat-rank-label {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-top: 0.25rem;
+        }
+        .strat-overall-wr {
+            font-family: var(--font-mono);
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+        }
+        .strat-results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+        }
+        .strat-results-table th {
+            text-align: left;
+            padding: 0.6rem 0.5rem;
+            font-weight: 600;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+        .strat-results-table td {
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(42, 42, 58, 0.5);
+        }
+        .strat-results-table tr:hover td { background: rgba(230, 57, 70, 0.04); }
+        .strat-results-table .col-wr { text-align: right; font-family: var(--font-mono); font-weight: 600; }
+        .strat-results-table .col-build { font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-dim); }
+        .strat-results-table .col-record { font-family: var(--font-mono); font-size: 0.8rem; text-align: right; }
+        .wr-positive { color: var(--green); }
+        .wr-negative { color: var(--accent); }
+        .wr-neutral { color: var(--gold); }
     </style>
 </head>
 <body>
@@ -68,6 +184,9 @@
                 <li><a href="/about">About</a></li>
                 <li><a href="/tournaments">Tournaments</a></li>
                 <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/match-log">Match Log</a></li>
+                <li><a href="/methodology">Methodology</a></li>
+                <li><a href="/compare">Compare</a></li>
                 <li><a href="/paper">Paper</a></li>
                 <li><a href="/api-docs">API</a></li>
             </ul>
@@ -76,75 +195,138 @@
 
     <div class="container-narrow">
         <h1 style="margin-bottom:0.5rem;">Create Your Fighter</h1>
-        <p class="dim" style="margin-bottom:2rem;">Build a creature and fight a best-of-7 series against Bear (5/5/5/5).</p>
+        <p class="dim" style="margin-bottom:1.5rem;">Build a creature manually or describe your strategy in plain English.</p>
 
-        <div class="card">
-            <div class="muted small text-center" style="background:var(--bg-code);border-radius:var(--radius-sm);padding:0.6rem;margin-bottom:1.25rem;">
-                Opponent: Bear (5/5/5/5) &mdash; the balanced baseline
-            </div>
+        <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('build')">Build Mode</button>
+            <button class="tab-btn" onclick="switchTab('strategy')">Strategy Mode</button>
+        </div>
 
-            <label class="small dim" style="display:block;margin-bottom:0.3rem;font-weight:600;">Animal</label>
-            <select id="animal" class="animal-select">
-                <option value="bear">Bear</option>
-                <option value="buffalo">Buffalo</option>
-                <option value="boar">Boar</option>
-                <option value="tiger">Tiger</option>
-                <option value="wolf">Wolf</option>
-                <option value="monkey">Monkey</option>
-                <option value="crocodile">Crocodile</option>
-                <option value="eagle">Eagle</option>
-                <option value="snake">Snake</option>
-                <option value="raven">Raven</option>
-                <option value="shark">Shark</option>
-                <option value="owl">Owl</option>
-                <option value="fox">Fox</option>
-                <option value="scorpion">Scorpion</option>
-            </select>
-
-            <div class="stat-group">
-                <div class="stat-header">
-                    <label>HP (Health)</label>
-                    <span class="slider-value" id="hpVal">5</span>
+        <!-- ===== BUILD MODE (original) ===== -->
+        <div class="tab-content active" id="tab-build">
+            <div class="card">
+                <div class="muted small text-center" style="background:var(--bg-code);border-radius:var(--radius-sm);padding:0.6rem;margin-bottom:1.25rem;">
+                    Opponent: Bear (5/5/5/5) &mdash; the balanced baseline
                 </div>
-                <input type="range" id="hp" min="1" max="17" value="5" oninput="updateStats()">
-            </div>
-            <div class="stat-group">
-                <div class="stat-header">
-                    <label>ATK (Attack)</label>
-                    <span class="slider-value" id="atkVal">5</span>
-                </div>
-                <input type="range" id="atk" min="1" max="17" value="5" oninput="updateStats()">
-            </div>
-            <div class="stat-group">
-                <div class="stat-header">
-                    <label>SPD (Speed)</label>
-                    <span class="slider-value" id="spdVal">5</span>
-                </div>
-                <input type="range" id="spd" min="1" max="17" value="5" oninput="updateStats()">
-            </div>
-            <div class="stat-group">
-                <div class="stat-header">
-                    <label>WIL (Will)</label>
-                    <span class="slider-value" id="wilVal">5</span>
-                </div>
-                <input type="range" id="wil" min="1" max="17" value="5" oninput="updateStats()">
-            </div>
 
-            <div class="budget-bar">
-                <div class="budget-label">Stat Budget</div>
-                <div class="budget-value" id="budgetDisplay"><span id="budgetUsed">20</span> / 20</div>
-                <div class="budget-hint" id="budgetHint" style="color:var(--green);">Budget balanced!</div>
-            </div>
+                <label class="small dim" style="display:block;margin-bottom:0.3rem;font-weight:600;">Animal</label>
+                <select id="animal" class="animal-select">
+                    <option value="bear">Bear</option>
+                    <option value="buffalo">Buffalo</option>
+                    <option value="boar">Boar</option>
+                    <option value="tiger">Tiger</option>
+                    <option value="wolf">Wolf</option>
+                    <option value="monkey">Monkey</option>
+                    <option value="crocodile">Crocodile</option>
+                    <option value="eagle">Eagle</option>
+                    <option value="snake">Snake</option>
+                    <option value="raven">Raven</option>
+                    <option value="shark">Shark</option>
+                    <option value="owl">Owl</option>
+                    <option value="fox">Fox</option>
+                    <option value="scorpion">Scorpion</option>
+                </select>
 
-            <button class="btn btn-primary" id="fightBtn" onclick="submitFight()" style="width:100%;">Fight!</button>
-            <div class="error-msg" id="error" style="display:none; margin-top:0.75rem;"></div>
-
-            <div class="results" id="results">
-                <div class="series-header">
-                    <div class="series-score" id="seriesScore"></div>
-                    <div class="series-verdict" id="seriesVerdict"></div>
+                <div class="stat-group">
+                    <div class="stat-header">
+                        <label>HP (Health)</label>
+                        <span class="slider-value" id="hpVal">5</span>
+                    </div>
+                    <input type="range" id="hp" min="1" max="17" value="5" oninput="updateStats()">
                 </div>
-                <ul class="game-list" id="gameList"></ul>
+                <div class="stat-group">
+                    <div class="stat-header">
+                        <label>ATK (Attack)</label>
+                        <span class="slider-value" id="atkVal">5</span>
+                    </div>
+                    <input type="range" id="atk" min="1" max="17" value="5" oninput="updateStats()">
+                </div>
+                <div class="stat-group">
+                    <div class="stat-header">
+                        <label>SPD (Speed)</label>
+                        <span class="slider-value" id="spdVal">5</span>
+                    </div>
+                    <input type="range" id="spd" min="1" max="17" value="5" oninput="updateStats()">
+                </div>
+                <div class="stat-group">
+                    <div class="stat-header">
+                        <label>WIL (Will)</label>
+                        <span class="slider-value" id="wilVal">5</span>
+                    </div>
+                    <input type="range" id="wil" min="1" max="17" value="5" oninput="updateStats()">
+                </div>
+
+                <div class="budget-bar">
+                    <div class="budget-label">Stat Budget</div>
+                    <div class="budget-value" id="budgetDisplay"><span id="budgetUsed">20</span> / 20</div>
+                    <div class="budget-hint" id="budgetHint" style="color:var(--green);">Budget balanced!</div>
+                </div>
+
+                <button class="btn btn-primary" id="fightBtn" onclick="submitFight()" style="width:100%;">Fight!</button>
+                <div class="error-msg" id="error" style="display:none; margin-top:0.75rem;"></div>
+
+                <div class="results" id="results">
+                    <div class="series-header">
+                        <div class="series-score" id="seriesScore"></div>
+                        <div class="series-verdict" id="seriesVerdict"></div>
+                    </div>
+                    <ul class="game-list" id="gameList"></ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== STRATEGY MODE ===== -->
+        <div class="tab-content" id="tab-strategy">
+            <div class="card">
+                <div class="muted small text-center" style="background:var(--bg-code);border-radius:var(--radius-sm);padding:0.6rem;margin-bottom:1.25rem;">
+                    Describe your strategy &mdash; we'll build the fighter and rank it against all 13 tournament agents
+                </div>
+
+                <label class="small dim" style="display:block;margin-bottom:0.5rem;font-weight:600;">Your Strategy</label>
+                <input type="text" id="strategyInput" class="strategy-input"
+                       placeholder="e.g. &quot;glass cannon&quot;, &quot;fastest possible&quot;, &quot;tank and survive&quot;, &quot;meta build&quot;..."
+                       onkeydown="if(event.key==='Enter')submitStrategy()">
+
+                <div class="strategy-examples">
+                    <span class="strategy-chip" onclick="setStrategy('fastest')">fastest</span>
+                    <span class="strategy-chip" onclick="setStrategy('glass cannon')">glass cannon</span>
+                    <span class="strategy-chip" onclick="setStrategy('tankiest')">tankiest</span>
+                    <span class="strategy-chip" onclick="setStrategy('willpower build')">willpower</span>
+                    <span class="strategy-chip" onclick="setStrategy('balanced')">balanced</span>
+                    <span class="strategy-chip" onclick="setStrategy('meta optimal')">meta</span>
+                </div>
+
+                <button class="btn btn-primary" id="stratBtn" onclick="submitStrategy()" style="width:100%;">Analyze Strategy</button>
+                <div class="error-msg" id="stratError" style="display:none; margin-top:0.75rem;"></div>
+
+                <div class="results" id="stratResults">
+                    <!-- Build card -->
+                    <div class="strat-build-card">
+                        <div class="strat-build-label">Generated Build</div>
+                        <div class="strat-build-value" id="stratBuildValue"></div>
+                        <div class="strat-build-desc" id="stratBuildDesc"></div>
+                    </div>
+
+                    <!-- Rank display -->
+                    <div class="strat-rank-display">
+                        <div class="strat-rank-number" id="stratRankNumber"></div>
+                        <div class="strat-rank-label" id="stratRankLabel"></div>
+                        <div class="strat-overall-wr" id="stratOverallWr"></div>
+                    </div>
+
+                    <!-- Per-opponent results -->
+                    <table class="strat-results-table">
+                        <thead>
+                            <tr>
+                                <th>Opponent</th>
+                                <th class="col-build">Their Build</th>
+                                <th class="col-record">W-L-D</th>
+                                <th class="col-wr">Win Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stratResultsBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -160,6 +342,32 @@
     </footer>
 
     <script>
+        /* ===== Tab switching ===== */
+        function switchTab(name) {
+            var tabs = document.querySelectorAll('.tab-btn');
+            var contents = document.querySelectorAll('.tab-content');
+            for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+            for (var i = 0; i < contents.length; i++) contents[i].classList.remove('active');
+            document.getElementById('tab-' + name).classList.add('active');
+            var btns = document.querySelectorAll('.tab-btn');
+            for (var i = 0; i < btns.length; i++) {
+                if (btns[i].textContent.toLowerCase().indexOf(name) !== -1 ||
+                    (name === 'build' && btns[i].textContent.indexOf('Build') !== -1) ||
+                    (name === 'strategy' && btns[i].textContent.indexOf('Strategy') !== -1)) {
+                    btns[i].classList.add('active');
+                }
+            }
+        }
+
+        /* Handle URL hash for direct linking */
+        function checkHash() {
+            if (window.location.hash === '#strategy') {
+                switchTab('strategy');
+            }
+        }
+        window.addEventListener('hashchange', checkHash);
+
+        /* ===== Build Mode (original) ===== */
         var BUDGET = 20;
         var stats = ['hp', 'atk', 'spd', 'wil'];
 
@@ -250,7 +458,108 @@
             }
         }
 
+        /* ===== Strategy Mode ===== */
+        function setStrategy(text) {
+            document.getElementById('strategyInput').value = text;
+        }
+
+        function escapeHtml(s) {
+            var d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        async function submitStrategy() {
+            var btn = document.getElementById('stratBtn');
+            var errorEl = document.getElementById('stratError');
+            var resultsEl = document.getElementById('stratResults');
+            var input = document.getElementById('strategyInput').value.trim();
+
+            if (!input) {
+                errorEl.textContent = 'Please enter a strategy description.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true; btn.textContent = 'Analyzing...';
+            errorEl.style.display = 'none'; errorEl.textContent = '';
+            resultsEl.classList.remove('visible');
+
+            try {
+                var resp = await fetch('/api/v1/strategy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ strategy: input, games: 100 })
+                });
+                if (!resp.ok) {
+                    var e = await resp.json();
+                    throw new Error(e.detail || 'Failed');
+                }
+                var data = await resp.json();
+
+                // Show build
+                var b = data.build;
+                document.getElementById('stratBuildValue').textContent =
+                    b.animal.charAt(0).toUpperCase() + b.animal.slice(1) +
+                    ' (' + b.hp + '/' + b.atk + '/' + b.spd + '/' + b.wil + ')';
+                document.getElementById('stratBuildDesc').textContent =
+                    'Strategy: "' + data.strategy + '" \u2192 ' + data.strategy_label;
+
+                // Show rank
+                document.getElementById('stratRankNumber').textContent = '#' + data.rank;
+                document.getElementById('stratRankLabel').textContent =
+                    'out of ' + (data.total_agents + 1) + ' contestants (you + ' + data.total_agents + ' agents)';
+                var wrEl = document.getElementById('stratOverallWr');
+                var wrPct = (data.overall_win_rate * 100).toFixed(1) + '% overall win rate';
+                wrEl.textContent = wrPct;
+                if (data.overall_win_rate >= 0.55) {
+                    wrEl.className = 'strat-overall-wr wr-positive';
+                } else if (data.overall_win_rate <= 0.45) {
+                    wrEl.className = 'strat-overall-wr wr-negative';
+                } else {
+                    wrEl.className = 'strat-overall-wr wr-neutral';
+                }
+
+                // Rank color
+                var rankEl = document.getElementById('stratRankNumber');
+                if (data.rank <= 3) {
+                    rankEl.style.color = 'var(--green)';
+                } else if (data.rank <= 7) {
+                    rankEl.style.color = 'var(--gold)';
+                } else {
+                    rankEl.style.color = 'var(--accent)';
+                }
+
+                // Per-opponent table
+                var tbody = document.getElementById('stratResultsBody');
+                var html = '';
+                var sortedResults = data.results.slice().sort(function(a, b) {
+                    return b.win_rate - a.win_rate;
+                });
+                for (var i = 0; i < sortedResults.length; i++) {
+                    var r = sortedResults[i];
+                    var wrClass = r.win_rate > 0.5 ? 'wr-positive' :
+                                  r.win_rate < 0.5 ? 'wr-negative' : 'wr-neutral';
+                    var wrText = (r.win_rate * 100).toFixed(1) + '%';
+                    html += '<tr>' +
+                        '<td>' + escapeHtml(r.agent) + '</td>' +
+                        '<td class="col-build">' + escapeHtml(r.agent_build) + '</td>' +
+                        '<td class="col-record">' + r.wins + '-' + r.losses + '-' + r.draws + '</td>' +
+                        '<td class="col-wr ' + wrClass + '">' + wrText + '</td>' +
+                        '</tr>';
+                }
+                tbody.innerHTML = html;
+                resultsEl.classList.add('visible');
+            } catch (e) {
+                errorEl.textContent = e.message; errorEl.style.display = 'block';
+            } finally {
+                btn.disabled = false; btn.textContent = 'Analyze Strategy';
+            }
+        }
+
+        /* ===== Init ===== */
         updateStats();
+        checkHash();
     </script>
 </body>
 </html>
