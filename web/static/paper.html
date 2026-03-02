@@ -16,6 +16,9 @@
                 <li><a href="/about">About</a></li>
                 <li><a href="/tournaments">Tournaments</a></li>
                 <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/match-log">Match Log</a></li>
+                <li><a href="/methodology">Methodology</a></li>
+                <li><a href="/compare">Compare</a></li>
                 <li><a href="/paper" class="active">Paper</a></li>
                 <li><a href="/api-docs">API</a></li>
             </ul>
@@ -119,17 +122,66 @@
         <!-- Reproducibility -->
         <div class="section">
             <h2>Reproducibility</h2>
-            <div class="card">
+            <div class="card" style="margin-bottom:1.5rem;">
+                <h3>1. Clone &amp; Install</h3>
                 <p class="dim small" style="line-height:1.7; margin-bottom:1rem;">
-                    All results can be reproduced from the frozen tournament data. The core simulator config
-                    is hash-verified (<code>b7ec5885</code>) and protected by 89 invariant tests.
+                    The full benchmark, including simulator, tournament data, and all 89 invariant tests,
+                    is available from the repository. No GPU required.
                 </p>
-                <pre><code># Verify integrity
-python -m pytest tests/test_invariants.py -v
-# Expected: 89 passed
+                <pre><code>git clone https://github.com/moreau-arena/moreau-arena.git
+cd moreau-arena
+pip install -r requirements.txt</code></pre>
+            </div>
 
-# Recompute BT rankings from raw data
+            <div class="card" style="margin-bottom:1.5rem;">
+                <h3>2. Verify Config Integrity</h3>
+                <p class="dim small" style="line-height:1.7; margin-bottom:1rem;">
+                    The core simulator config is frozen and hash-verified. Any modification will cause
+                    invariant tests to fail. Verify the config hash matches the value embedded in the paper:
+                </p>
+                <pre><code># Verify config hash (must match paper)
+python -c "import hashlib, pathlib; print(hashlib.sha256(pathlib.Path('simulator/config.json').read_bytes()).hexdigest())"
+
+# Expected output:
+# b7ec588583135ad640eba438f29ce45c10307a88dc426decd31126371bb60534</code></pre>
+            </div>
+
+            <div class="card" style="margin-bottom:1.5rem;">
+                <h3>3. Run Invariant Tests</h3>
+                <p class="dim small" style="line-height:1.7; margin-bottom:1rem;">
+                    89 tests verify determinism, stat constraints, combat mechanics, scoring, and
+                    data integrity. All must pass for valid reproduction.
+                </p>
+                <pre><code>python -m pytest tests/test_invariants.py -v
+
+# Expected: 89 passed</code></pre>
+            </div>
+
+            <div class="card" style="margin-bottom:1.5rem;">
+                <h3>4. Recompute Rankings from Raw Data</h3>
+                <p class="dim small" style="line-height:1.7; margin-bottom:1rem;">
+                    Bradley-Terry scores and Elo ratings can be recomputed directly from the frozen
+                    JSONL tournament data. Results should match the paper exactly.
+                </p>
+                <pre><code># Recompute BT rankings for Track A (T001)
+python -m analysis.bt_ranking data/tournament_001/results.jsonl
+
+# Recompute BT rankings for Track B (T002)
 python -m analysis.bt_ranking data/tournament_002/results.jsonl
+
+# Regenerate full results summary across both tracks
+python -m analysis.bt_ranking data/tournament_001/results.jsonl data/tournament_002/results.jsonl</code></pre>
+            </div>
+
+            <div class="card">
+                <h3>5. Handoff Package</h3>
+                <p class="dim small" style="line-height:1.7; margin-bottom:1rem;">
+                    A self-contained verification script is included in the handoff package.
+                    It runs all integrity checks in sequence: config hash verification, invariant
+                    test suite, BT score recomputation, and cross-track consistency checks.
+                </p>
+                <pre><code># Run the full verification pipeline
+python scripts/verify_handoff.py
 
 # Run the simulator directly
 python -m simulator --build1 "bear 3 14 2 1" --build2 "buffalo 8 6 4 2" --games 1000</code></pre>

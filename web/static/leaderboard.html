@@ -16,6 +16,9 @@
                 <li><a href="/about">About</a></li>
                 <li><a href="/tournaments">Tournaments</a></li>
                 <li><a href="/leaderboard" class="active">Leaderboard</a></li>
+                <li><a href="/match-log">Match Log</a></li>
+                <li><a href="/methodology">Methodology</a></li>
+                <li><a href="/compare">Compare</a></li>
                 <li><a href="/paper">Paper</a></li>
                 <li><a href="/api-docs">API</a></li>
             </ul>
@@ -57,6 +60,7 @@
         <!-- Tabs -->
         <div class="tab-bar">
             <button class="tab-btn active" onclick="switchTab('rankings')">Rankings</button>
+            <button class="tab-btn" onclick="switchTab('confidence')">Confidence</button>
             <button class="tab-btn" onclick="switchTab('heatmap')">Heatmap</button>
             <button class="tab-btn" onclick="switchTab('cycles')">3-Cycles</button>
         </div>
@@ -81,6 +85,34 @@
                         </thead>
                         <tbody id="rankingsBody"></tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confidence Tab -->
+        <div id="tab-confidence" class="tab-content">
+            <div class="card">
+                <h2>BT Scores with 95% Confidence Intervals</h2>
+                <p class="muted small" style="margin-bottom:1rem;">
+                    Horizontal bars show BT scores. Whiskers show 95% bootstrap CI.
+                    Where intervals overlap, differences are not statistically significant.
+                </p>
+                <div id="confidenceLoading" class="loading">Loading confidence data...</div>
+                <div id="confidenceError" class="error-msg" style="display:none"></div>
+                <div id="confidenceChart" style="display:none; width:100%;"></div>
+                <div style="margin-top:1rem; display:flex; gap:1.5rem; flex-wrap:wrap;">
+                    <span class="small" style="display:flex; align-items:center; gap:0.4rem;">
+                        <span style="display:inline-block;width:14px;height:14px;background:#457b9d;border-radius:2px;"></span>
+                        <span class="dim">LLM Agent</span>
+                    </span>
+                    <span class="small" style="display:flex; align-items:center; gap:0.4rem;">
+                        <span style="display:inline-block;width:14px;height:14px;background:#6a6a7a;border-radius:2px;"></span>
+                        <span class="dim">Baseline Agent</span>
+                    </span>
+                    <span class="small" style="display:flex; align-items:center; gap:0.4rem;">
+                        <span style="display:inline-block;width:14px;height:2px;background:var(--text-dim);"></span>
+                        <span class="dim">95% CI whisker</span>
+                    </span>
                 </div>
             </div>
         </div>
@@ -159,7 +191,7 @@
             document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.remove('active'); });
             document.querySelectorAll('.tab-btn').forEach(function(el) { el.classList.remove('active'); });
             document.getElementById('tab-' + tabName).classList.add('active');
-            var labels = { rankings: 'Rankings', heatmap: 'Heatmap', cycles: '3-Cycles' };
+            var labels = { rankings: 'Rankings', confidence: 'Confidence', heatmap: 'Heatmap', cycles: '3-Cycles' };
             document.querySelectorAll('.tab-btn').forEach(function(btn) {
                 if (btn.textContent === labels[tabName]) btn.classList.add('active');
             });
@@ -168,7 +200,7 @@
         // -- Data --
         function getTrack() { return document.getElementById('trackFilter').value; }
 
-        function loadAllData() { loadBTScores(); loadPairwise(); loadCycles(); }
+        function loadAllData() { loadBTScores(); loadConfidence(); loadPairwise(); loadCycles(); }
 
         function loadBTScores() {
             var track = getTrack();
@@ -210,7 +242,7 @@
 
                         html += '<tr>' +
                             '<td class="col-rank">' + (i + 1) + '</td>' +
-                            '<td class="col-name">' + escapeHtml(s.name) + badge + typeBadge + '</td>' +
+                            '<td class="col-name"><a href="/agent/' + encodeURIComponent(s.name) + '">' + escapeHtml(s.name) + '</a>' + badge + typeBadge + '</td>' +
                             '<td class="col-right">' + s.bt_score.toFixed(4) + '</td>' +
                             '<td class="col-ci">[' + s.ci_lower.toFixed(4) + ', ' + s.ci_upper.toFixed(4) + ']</td>' +
                             '<td class="col-right">' + s.elo + '</td>' +
@@ -225,6 +257,170 @@
                     error.textContent = 'Error: ' + err.message;
                     error.style.display = 'block';
                 });
+        }
+
+        function loadConfidence() {
+            var track = getTrack();
+            var loading = document.getElementById('confidenceLoading');
+            var error = document.getElementById('confidenceError');
+            var chart = document.getElementById('confidenceChart');
+
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            chart.style.display = 'none';
+
+            fetch('/api/v1/leaderboard/bt?track=' + encodeURIComponent(track))
+                .then(function(r) { if (!r.ok) throw new Error('Failed'); return r.json(); })
+                .then(function(data) {
+                    loading.style.display = 'none';
+                    var scores = data.bt_scores;
+
+                    if (scores.length === 0) {
+                        error.textContent = 'No data available for this track.';
+                        error.style.display = 'block';
+                        return;
+                    }
+
+                    renderConfidenceChart(scores);
+                    chart.style.display = 'block';
+                })
+                .catch(function(err) {
+                    loading.style.display = 'none';
+                    error.textContent = 'Error: ' + err.message;
+                    error.style.display = 'block';
+                });
+        }
+
+        function renderConfidenceChart(scores) {
+            var baselines = ['SmartAgent', 'HighVarianceAgent', 'ConservativeAgent', 'GreedyAgent', 'RandomAgent'];
+
+            // Find max value for scaling
+            var maxVal = 0;
+            for (var i = 0; i < scores.length; i++) {
+                if (scores[i].ci_upper > maxVal) maxVal = scores[i].ci_upper;
+            }
+            if (maxVal === 0) maxVal = 1;
+            // Add 10% padding
+            maxVal = maxVal * 1.1;
+
+            var rowHeight = 36;
+            var labelWidth = 160;
+            var chartPadLeft = labelWidth + 10;
+            var chartRight = 50;
+            var topPad = 30;
+            var bottomPad = 40;
+            var svgWidth = 800;
+            var chartWidth = svgWidth - chartPadLeft - chartRight;
+            var svgHeight = topPad + scores.length * rowHeight + bottomPad;
+
+            var llmColor = '#457b9d';
+            var baselineColor = '#6a6a7a';
+            var whiskerColor = '#a8a8b8';
+
+            var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + svgWidth + ' ' + svgHeight + '" ' +
+                'style="width:100%;height:auto;max-width:' + svgWidth + 'px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;">';
+
+            // Background
+            svg += '<rect width="' + svgWidth + '" height="' + svgHeight + '" fill="transparent"/>';
+
+            // Grid lines and labels
+            var gridSteps = 5;
+            for (var g = 0; g <= gridSteps; g++) {
+                var gVal = (maxVal / gridSteps) * g;
+                var gX = chartPadLeft + (gVal / maxVal) * chartWidth;
+                svg += '<line x1="' + gX + '" y1="' + topPad + '" x2="' + gX + '" y2="' + (topPad + scores.length * rowHeight) + '" ' +
+                    'stroke="rgba(42,42,58,0.6)" stroke-width="1" stroke-dasharray="3,3"/>';
+                svg += '<text x="' + gX + '" y="' + (topPad + scores.length * rowHeight + 20) + '" ' +
+                    'fill="#6a6a7a" font-size="11" text-anchor="middle" font-family="SF Mono,Fira Code,monospace">' +
+                    gVal.toFixed(2) + '</text>';
+            }
+
+            // Axis line
+            svg += '<line x1="' + chartPadLeft + '" y1="' + (topPad + scores.length * rowHeight) + '" ' +
+                'x2="' + (chartPadLeft + chartWidth) + '" y2="' + (topPad + scores.length * rowHeight) + '" ' +
+                'stroke="rgba(42,42,58,0.8)" stroke-width="1"/>';
+
+            // Draw each agent row
+            for (var i = 0; i < scores.length; i++) {
+                var s = scores[i];
+                var isBase = baselines.indexOf(s.name) !== -1;
+                var barColor = isBase ? baselineColor : llmColor;
+                var y = topPad + i * rowHeight;
+                var barY = y + 8;
+                var barH = rowHeight - 18;
+                var centerY = barY + barH / 2;
+
+                // Agent name label
+                var displayName = s.name.length > 20 ? s.name.substring(0, 19) + '\u2026' : s.name;
+                svg += '<text x="' + (chartPadLeft - 8) + '" y="' + (centerY + 4) + '" ' +
+                    'fill="' + (isBase ? '#a8a8b8' : '#f1faee') + '" font-size="12" text-anchor="end" font-weight="' +
+                    (isBase ? '400' : '600') + '">' + escapeHtml(displayName) + '</text>';
+
+                // Alternating row background for readability
+                if (i % 2 === 0) {
+                    svg += '<rect x="' + chartPadLeft + '" y="' + y + '" width="' + chartWidth + '" height="' + rowHeight + '" ' +
+                        'fill="rgba(42,42,58,0.12)"/>';
+                }
+
+                // Main bar (0 to bt_score)
+                var barWidth = (s.bt_score / maxVal) * chartWidth;
+                if (barWidth < 1) barWidth = 1;
+                svg += '<rect x="' + chartPadLeft + '" y="' + barY + '" width="' + barWidth + '" height="' + barH + '" ' +
+                    'fill="' + barColor + '" rx="3" ry="3" opacity="0.85"/>';
+
+                // CI whiskers
+                var ciLeftX = chartPadLeft + (s.ci_lower / maxVal) * chartWidth;
+                var ciRightX = chartPadLeft + (s.ci_upper / maxVal) * chartWidth;
+
+                // Horizontal whisker line
+                svg += '<line x1="' + ciLeftX + '" y1="' + centerY + '" x2="' + ciRightX + '" y2="' + centerY + '" ' +
+                    'stroke="' + whiskerColor + '" stroke-width="2"/>';
+
+                // Left cap
+                svg += '<line x1="' + ciLeftX + '" y1="' + (centerY - 5) + '" x2="' + ciLeftX + '" y2="' + (centerY + 5) + '" ' +
+                    'stroke="' + whiskerColor + '" stroke-width="2"/>';
+
+                // Right cap
+                svg += '<line x1="' + ciRightX + '" y1="' + (centerY - 5) + '" x2="' + ciRightX + '" y2="' + (centerY + 5) + '" ' +
+                    'stroke="' + whiskerColor + '" stroke-width="2"/>';
+
+                // BT score text
+                svg += '<text x="' + (chartPadLeft + barWidth + 6) + '" y="' + (centerY + 4) + '" ' +
+                    'fill="#a8a8b8" font-size="10" font-family="SF Mono,Fira Code,monospace">' +
+                    s.bt_score.toFixed(3) + '</text>';
+            }
+
+            // Overlap annotation: find pairs where CIs overlap
+            var overlapPairs = [];
+            for (var a = 0; a < scores.length - 1; a++) {
+                for (var b = a + 1; b < scores.length; b++) {
+                    if (scores[a].ci_lower <= scores[b].ci_upper && scores[b].ci_lower <= scores[a].ci_upper) {
+                        overlapPairs.push([a, b]);
+                    }
+                }
+            }
+
+            // Draw overlap brackets for adjacent ranks
+            for (var p = 0; p < overlapPairs.length; p++) {
+                var pair = overlapPairs[p];
+                if (pair[1] - pair[0] === 1) {
+                    var y1c = topPad + pair[0] * rowHeight + rowHeight / 2;
+                    var y2c = topPad + pair[1] * rowHeight + rowHeight / 2;
+                    var bracketX = svgWidth - chartRight + 12;
+                    svg += '<line x1="' + bracketX + '" y1="' + y1c + '" x2="' + bracketX + '" y2="' + y2c + '" ' +
+                        'stroke="rgba(230,57,70,0.4)" stroke-width="2"/>';
+                    svg += '<line x1="' + (bracketX - 4) + '" y1="' + y1c + '" x2="' + bracketX + '" y2="' + y1c + '" ' +
+                        'stroke="rgba(230,57,70,0.4)" stroke-width="2"/>';
+                    svg += '<line x1="' + (bracketX - 4) + '" y1="' + y2c + '" x2="' + bracketX + '" y2="' + y2c + '" ' +
+                        'stroke="rgba(230,57,70,0.4)" stroke-width="2"/>';
+                    var midY = (y1c + y2c) / 2;
+                    svg += '<text x="' + (bracketX + 5) + '" y="' + (midY + 3) + '" fill="rgba(230,57,70,0.6)" ' +
+                        'font-size="8" transform="rotate(90,' + (bracketX + 5) + ',' + (midY + 3) + ')">overlap</text>';
+                }
+            }
+
+            svg += '</svg>';
+            document.getElementById('confidenceChart').innerHTML = svg;
         }
 
         function loadPairwise() {

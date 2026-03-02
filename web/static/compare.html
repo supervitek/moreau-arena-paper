@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moreau Arena - Benchmark Comparison</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .compare-table-wrap { overflow-x: auto; }
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .compare-table th {
+            padding: 0.75rem 0.6rem;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+            text-align: left;
+        }
+        .compare-table td {
+            padding: 0.7rem 0.6rem;
+            border-bottom: 1px solid rgba(42, 42, 58, 0.5);
+            vertical-align: middle;
+        }
+        .compare-table tr:hover td { background: rgba(230, 57, 70, 0.04); }
+        .compare-table tr.highlight td {
+            background: rgba(78, 204, 163, 0.06);
+            border-bottom: 2px solid var(--green);
+            border-top: 2px solid var(--green);
+        }
+        .compare-table tr.highlight td:first-child {
+            font-weight: 700;
+            color: var(--green);
+        }
+        .benchmark-name { font-weight: 600; white-space: nowrap; }
+        .check { color: var(--green); font-weight: 700; font-size: 1rem; }
+        .cross { color: var(--accent); font-weight: 700; font-size: 1rem; }
+        .partial { color: var(--gold); font-weight: 700; font-size: 1rem; }
+        .risk-vlow { color: var(--green); font-weight: 600; }
+        .risk-low { color: #8ecae6; font-weight: 600; }
+        .risk-mod { color: var(--gold); font-weight: 600; }
+        .risk-high { color: var(--accent); font-weight: 600; }
+        .gap-card {
+            background: linear-gradient(135deg, rgba(78, 204, 163, 0.08), rgba(69, 123, 157, 0.08));
+            border: 1px solid var(--green);
+        }
+        .gap-card h3 { color: var(--green); }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/tournaments">Tournaments</a></li>
+                <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/match-log">Match Log</a></li>
+                <li><a href="/methodology">Methodology</a></li>
+                <li><a href="/compare" class="active">Compare</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 style="margin-bottom:0.5rem;">Benchmark Comparison</h1>
+        <p class="dim" style="margin-bottom:2rem;">How Moreau Arena compares to established LLM evaluation benchmarks.</p>
+
+        <!-- Headline stat -->
+        <div class="stat-row section">
+            <div class="stat-box">
+                <div class="stat-value" style="color:var(--green);">Novel</div>
+                <div class="stat-label">Game Mechanics</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" style="color:var(--green);">Very Low</div>
+                <div class="stat-label">Contamination Risk</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" style="color:var(--green);">Dynamic</div>
+                <div class="stat-label">Evaluation Type</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" style="color:var(--green);">Multi-Agent</div>
+                <div class="stat-label">Adversarial</div>
+            </div>
+        </div>
+
+        <!-- Comparison table -->
+        <div class="section">
+            <h2>Feature Comparison</h2>
+            <div class="card">
+                <div class="compare-table-wrap">
+                    <table class="compare-table">
+                        <thead>
+                            <tr>
+                                <th>Benchmark</th>
+                                <th>What It Measures</th>
+                                <th>Contamination Risk</th>
+                                <th>Dynamic / Static</th>
+                                <th>Strategic Reasoning</th>
+                                <th>Multi-Agent</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="benchmark-name">MMLU</td>
+                                <td class="dim">Knowledge recall</td>
+                                <td><span class="risk-high">HIGH</span><br><span class="dim small">Widely leaked</span></td>
+                                <td class="dim">Static</td>
+                                <td><span class="cross">&#10007;</span> No</td>
+                                <td><span class="cross">&#10007;</span> No</td>
+                            </tr>
+                            <tr>
+                                <td class="benchmark-name">HumanEval</td>
+                                <td class="dim">Code generation</td>
+                                <td><span class="risk-high">HIGH</span><br><span class="dim small">In training data</span></td>
+                                <td class="dim">Static</td>
+                                <td><span class="cross">&#10007;</span> No</td>
+                                <td><span class="cross">&#10007;</span> No</td>
+                            </tr>
+                            <tr>
+                                <td class="benchmark-name">ARC</td>
+                                <td class="dim">Scientific reasoning</td>
+                                <td><span class="risk-mod">MODERATE</span></td>
+                                <td class="dim">Static</td>
+                                <td><span class="partial">~</span> Minimal</td>
+                                <td><span class="cross">&#10007;</span> No</td>
+                            </tr>
+                            <tr>
+                                <td class="benchmark-name">GSM8K</td>
+                                <td class="dim">Math reasoning</td>
+                                <td><span class="risk-high">HIGH</span><br><span class="dim small">In training data</span></td>
+                                <td class="dim">Static</td>
+                                <td><span class="cross">&#10007;</span> No</td>
+                                <td><span class="cross">&#10007;</span> No</td>
+                            </tr>
+                            <tr>
+                                <td class="benchmark-name">Chatbot Arena</td>
+                                <td class="dim">General preference</td>
+                                <td><span class="risk-low">LOW</span><br><span class="dim small">Human-in-loop</span></td>
+                                <td>Dynamic</td>
+                                <td><span class="partial">~</span> Indirect</td>
+                                <td><span class="cross">&#10007;</span> No</td>
+                            </tr>
+                            <tr class="highlight">
+                                <td class="benchmark-name">Moreau Arena</td>
+                                <td><strong style="color:var(--text);">Strategic reasoning</strong></td>
+                                <td><span class="risk-vlow">VERY LOW</span><br><span class="dim small">Novel mechanics</span></td>
+                                <td><strong style="color:var(--text);">Dynamic</strong> (seasonal)</td>
+                                <td><span class="check">&#10003;</span> <strong>Primary focus</strong></td>
+                                <td><span class="check">&#10003;</span> <strong>Adversarial</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- The unique gap -->
+        <div class="section">
+            <h2>The Gap Moreau Arena Fills</h2>
+            <div class="card-grid">
+                <div class="card gap-card">
+                    <h3>Contamination Resistance</h3>
+                    <p class="dim small" style="line-height:1.7;">
+                        MMLU, HumanEval, and GSM8K questions appear verbatim in training corpora.
+                        Moreau Arena uses novel game mechanics that do not exist in any training data.
+                        LLMs cannot memorize solutions &mdash; they must reason from the rules provided in the prompt.
+                    </p>
+                </div>
+                <div class="card gap-card">
+                    <h3>Strategic Reasoning</h3>
+                    <p class="dim small" style="line-height:1.7;">
+                        Existing benchmarks measure knowledge recall, code generation, or math.
+                        None directly test multi-step strategic reasoning under uncertainty with
+                        adversarial opponents. Moreau Arena makes this the primary measurement axis.
+                    </p>
+                </div>
+                <div class="card gap-card">
+                    <h3>Multi-Agent Adversarial</h3>
+                    <p class="dim small" style="line-height:1.7;">
+                        Most benchmarks evaluate models in isolation. Moreau Arena pits agents against
+                        each other in round-robin tournaments, revealing non-transitive dominance
+                        structures (A beats B, B beats C, C beats A) that single-agent tests cannot detect.
+                    </p>
+                </div>
+                <div class="card gap-card">
+                    <h3>Dynamic Evaluation</h3>
+                    <p class="dim small" style="line-height:1.7;">
+                        Static benchmarks become stale as models train on leaked answers. Moreau Arena
+                        supports seasonal rotation of game mechanics and new tournament protocols,
+                        ensuring the benchmark remains informative over time.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed breakdown -->
+        <div class="section">
+            <h2>Detailed Breakdown</h2>
+            <div class="card-grid" style="grid-template-columns:1fr;">
+                <div class="card">
+                    <h3>What Each Benchmark Actually Tests</h3>
+                    <table class="compare-table">
+                        <thead>
+                            <tr>
+                                <th>Benchmark</th>
+                                <th>Primary Capability</th>
+                                <th>Failure Mode</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="benchmark-name">MMLU</td>
+                                <td class="dim">Factual recall across 57 domains</td>
+                                <td class="dim">Memorization inflates scores; questions leaked to training data</td>
+                            </tr>
+                            <tr>
+                                <td class="benchmark-name">HumanEval</td>
+                                <td class="dim">Function-level code synthesis</td>
+                                <td class="dim">Solutions widely available on GitHub; tests pattern matching not reasoning</td>
+                            </tr>
+                            <tr>
+                                <td class="benchmark-name">ARC</td>
+                                <td class="dim">Grade-school science questions</td>
+                                <td class="dim">Requires world knowledge more than reasoning; moderate data leakage</td>
+                            </tr>
+                            <tr>
+                                <td class="benchmark-name">GSM8K</td>
+                                <td class="dim">Multi-step arithmetic word problems</td>
+                                <td class="dim">Problems and solutions in training data; tests template following</td>
+                            </tr>
+                            <tr>
+                                <td class="benchmark-name">Chatbot Arena</td>
+                                <td class="dim">Human preference across open-ended tasks</td>
+                                <td class="dim">Expensive; measures style preference not capability; no strategic depth</td>
+                            </tr>
+                            <tr class="highlight">
+                                <td class="benchmark-name">Moreau Arena</td>
+                                <td><strong style="color:var(--text);">Multi-step strategic optimization under novel constraints</strong></td>
+                                <td style="color:var(--text-dim);">Requires new mechanics each season to maintain contamination resistance</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-left">Moreau Arena &mdash; Contamination-resistant LLM benchmark</div>
+            <ul class="footer-links">
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </footer>
+</body>
+</html>
