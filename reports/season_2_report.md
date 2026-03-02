@@ -105,21 +105,3 @@
 | GreedyAgent | 1 | 517 | 20% (61/306) |
 | HighVarianceAgent | 1 | 478 | 24% (71/294) |
 | RandomAgent | 1 | 360 | 0% (0/360) |
-
-## Season Comparison (S1 vs S2)
-
-| Agent | S1 BT | S2 BT | Delta |
-|-------|----------|----------|-------|
-| ConservativeAgent | 0.6426 | 0.0614 | -0.5811 |
-| GreedyAgent | 0.2388 | 0.0426 | -0.1962 |
-| HighVarianceAgent | 0.9541 | 0.0698 | -0.8844 |
-| RandomAgent | 0.0054 | 0.0066 | +0.0011 |
-| SmartAgent | 1.0000 | 0.0926 | -0.9074 |
-| claude-haiku-4-5-20251001 | 0.0564 | 0.2258 | +0.1695 |
-| claude-opus-4-6 | 0.0173 | 0.2520 | +0.2348 |
-| claude-sonnet-4-6 | 0.0656 | 0.2520 | +0.1864 |
-| gemini-3-flash-preview | 0.5028 | 0.6793 | +0.1765 |
-| gemini-3.1-pro-preview | 0.4553 | 0.1882 | -0.2671 |
-| gpt-5.2 | 0.2296 | 0.2520 | +0.0224 |
-| gpt-5.2-codex | 0.1193 | 1.0000 | +0.8807 |
-| grok-4-1-fast-reasoning | 0.4373 | 0.6496 | +0.2123 |

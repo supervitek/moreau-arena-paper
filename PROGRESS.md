@@ -1,5 +1,56 @@
 # Progress Log
 
+## Sprint 3 — Platform & Depth Suites (2026-03-01)
+
+### Test Results
+
+```
+python3 -m pytest tests/test_invariants.py — 89 passed in 5.05s
+```
+
+All invariants green. No immutable files modified.
+
+### Final Status Table
+
+| Teammate | Task | Description | Status | Notes |
+|----------|------|-------------|--------|-------|
+| platform-builder | 2.2 | Public Leaderboard Upgrade | DONE | HTML leaderboard with BT/Elo scores, heatmap, track filters, 3-cycle detection |
+| report-writer | 2.4 | Seasonal Meta Report Generator | DONE | Auto-generates Markdown + PNG from JSONL data with BT/Elo, heatmap, cycles, signature builds |
+| suite-designer | 3.2 | Partial Observability Suite | DONE | fog=0.0/0.5/1.0 levels, prompt-only modification, dry-run verified |
+| suite-designer | 3.3 | Ban/Pick Planning Suite | DONE | Draft phase with ban/pick, reroll, arena selection, 2 baseline draft agents |
+
+### Files Created/Modified
+
+#### New Files
+- `web/static/leaderboard.html` — Full leaderboard page with BT/Elo tables, pairwise heatmap, 3-cycle display, track filters
+- `analysis/seasonal_report.py` — Auto-report generator (BT+Elo, heatmap, cycles, signature builds, balance check)
+- `run_po.py` — Partial observability suite with fog levels 0.0/0.5/1.0
+- `run_planning.py` — Ban/pick planning suite with draft phase
+- `reports/season_1_report.md` — Auto-generated Season 1 report
+- `reports/season_2_report.md` — Auto-generated Season 2 report
+
+#### Modified Files
+- `web/app.py` — Added /leaderboard HTML page, /api/v1/leaderboard/bt, /api/v1/leaderboard/pairwise, /api/v1/leaderboard/cycles endpoints
+- `web/static/index.html` — Updated leaderboard nav link
+
+#### Immutable Files (verified unchanged)
+- `simulator/config.json` — Hash verified
+- `data/tournament_001/*` — SHA-256 hashes verified (9 tests pass)
+- `data/tournament_002/*` — SHA-256 hashes verified (9 tests pass)
+
+### Verification Commands
+
+```
+python3 run_po.py --fog 0.5 --series 3 --dry-run      # PO suite works at all fog levels
+python3 run_planning.py --dry-run --series 3            # Planning suite works
+python3 -m analysis.seasonal_report --data data/tournament_002/results.jsonl --season 2  # Report generator works
+```
+
+### Blocked Tasks
+None — all 4 tasks completed successfully.
+
+---
+
 ## Sprint 2 — Parallel Teammates (2026-03-01)
 
 ### Test Results
