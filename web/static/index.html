@@ -136,14 +136,14 @@
                 <div class="grid-2" style="margin-bottom:1rem;">
                     <div>
                         <label class="small dim" style="display:block; margin-bottom:0.3rem; font-weight:600;">Build 1</label>
-                        <input type="text" id="build1" value="bear 3 14 2 1" style="width:100%;padding:0.5rem 0.7rem;background:var(--bg-code);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-mono);font-size:0.85rem;">
+                        <input type="text" id="build1" placeholder="bear 8 6 4 2" style="width:100%;padding:0.5rem 0.7rem;background:var(--bg-code);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-mono);font-size:0.85rem;">
                     </div>
                     <div>
                         <label class="small dim" style="display:block; margin-bottom:0.3rem; font-weight:600;">Build 2</label>
-                        <input type="text" id="build2" value="buffalo 8 6 4 2" style="width:100%;padding:0.5rem 0.7rem;background:var(--bg-code);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-mono);font-size:0.85rem;">
+                        <input type="text" id="build2" placeholder="wolf 5 5 5 5" style="width:100%;padding:0.5rem 0.7rem;background:var(--bg-code);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-mono);font-size:0.85rem;">
                     </div>
                 </div>
-                <p class="muted small" style="margin-bottom:0.75rem;">Format: animal hp atk spd wil &mdash; stats sum to 20, each &ge; 1</p>
+                <p class="muted small" style="margin-bottom:0.75rem;">Enter: <code style="font-size:0.8rem;">name hp atk spd wil</code> (stats must sum to 20)</p>
                 <button class="btn btn-primary" id="fightBtn" onclick="runFight()" style="width:100%;">Fight (100 games)</button>
                 <div id="fightError" class="error-msg" style="display:none;"></div>
                 <div id="fightResults" style="display:none; margin-top:1rem;">
