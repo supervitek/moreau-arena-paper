@@ -86,10 +86,10 @@ Track B — Feedback + Counter-Pick (T002 protocol)
   Exact formulas, meta-context (top-5 builds), structured JSON output.
   Loser sees winner's build and may re-pick per game.
 
-Track C — Meta-Conditioned (NEW, not yet run)
-  Meta-context (top-5 builds) provided.
-  No exact formulas. No adaptation.
-  Isolates: "are examples enough to break priors?"
+Track C — Exact-Only Cleanroom / T003 (SPEC COMPLETE, not yet run)
+  Exact formulas + JSON + adaptation, but NO meta-context.
+  Isolates: "was comprehension or meta-context the T002 driver?"
+  See: docs/T003_SPEC.md, prompts/t003_prompt.txt
 
 Track D — Tool-Augmented (NEW, not yet run)
   Agent has access to limited simulator (N calls per series).
