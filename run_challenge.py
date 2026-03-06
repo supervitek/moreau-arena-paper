@@ -336,10 +336,38 @@ def _api_call_xai(
     model: str,
     prompt: str,
 ) -> dict | str:
-    """Call xAI API (OpenAI-compatible format)."""
-    return _api_call_openai(
-        api_key, model, prompt, base_url="https://api.x.ai/v1"
-    )
+    """Call xAI API (OpenAI-compatible format).
+
+    Note: xAI reasoning models reject ``max_completion_tokens``, so we
+    omit it and let the server pick a default.
+    """
+    url = "https://api.x.ai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+    }
+    body: dict[str, Any] = {
+        "model": model,
+        "temperature": 0.7,
+        "messages": [{"role": "user", "content": prompt}],
+        "response_format": {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "moreau_build",
+                "strict": True,
+                "schema": BUILD_JSON_SCHEMA,
+            },
+        },
+    }
+
+    resp = _make_request(url, headers, body)
+    choices = resp.get("choices", [])
+    if choices:
+        content = choices[0].get("message", {}).get("content", "")
+        try:
+            return json.loads(content)
+        except (json.JSONDecodeError, TypeError):
+            return content
+    return ""
 
 
 _OPENAI_RESPONSES_MODELS = {"gpt-5.2-codex", "gpt-5.3-codex"}

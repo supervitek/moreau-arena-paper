@@ -67,7 +67,7 @@ This block gives LLMs three advantages that T003 removes:
 | 5 | GPT-5.2-Codex | OpenAI | `gpt-5.2-codex` | Responses | PASS |
 | 6 | Gemini Flash | Google | `gemini-3-flash-preview` | GenerativeAI | PASS |
 | 7 | Gemini Pro | Google | `gemini-3.1-pro-preview` | GenerativeAI | PASS |
-| 8 | Grok-4.1 Fast | xAI | `grok-4-1-fast-reasoning` | OpenAI-compat | BLOCKED (401) |
+| 8 | Grok-4.1 Fast | xAI | `grok-4-1-fast-reasoning` | OpenAI-compat | PASS |
 
 ### New Challengers
 
@@ -80,7 +80,7 @@ This block gives LLMs three advantages that T003 removes:
 
 - **OpenAI Chat Completions**: Uses `max_completion_tokens` (not `max_tokens`) for gpt-5.x models
 - **OpenAI Responses API**: Codex models (gpt-5.2-codex, gpt-5.3-codex) do not support Chat Completions; use `/v1/responses` endpoint instead
-- **xAI**: API key returns 401 (bad credentials) as of 2026-03-06. Grok-4.1 Fast participation contingent on key renewal.
+- **xAI**: Reasoning models reject `max_completion_tokens` / `max_tokens` — omit token limit and let server default.
 - **gpt-5.4-mini**: Does NOT exist in OpenAI model list (404). Removed from roster.
 
 ## Success Criteria
