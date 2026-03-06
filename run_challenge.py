@@ -236,7 +236,7 @@ def _api_call_openai(
     }
     body: dict[str, Any] = {
         "model": model,
-        "max_tokens": 256,
+        "max_completion_tokens": 256,
         "temperature": 0.7,
         "messages": [{"role": "user", "content": prompt}],
         "response_format": {
@@ -257,6 +257,43 @@ def _api_call_openai(
             return json.loads(content)
         except (json.JSONDecodeError, TypeError):
             return content
+    return ""
+
+
+def _api_call_openai_responses(
+    api_key: str,
+    model: str,
+    prompt: str,
+) -> dict | str:
+    """Call OpenAI Responses API for codex models that don't support Chat Completions."""
+    url = "https://api.openai.com/v1/responses"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+    }
+    body: dict[str, Any] = {
+        "model": model,
+        "input": prompt,
+        "text": {
+            "format": {
+                "type": "json_schema",
+                "name": "moreau_build",
+                "strict": True,
+                "schema": BUILD_JSON_SCHEMA,
+            },
+        },
+    }
+
+    resp = _make_request(url, headers, body)
+    # Responses API returns output array
+    for item in resp.get("output", []):
+        if item.get("type") == "message":
+            for content in item.get("content", []):
+                if content.get("type") == "output_text":
+                    text = content.get("text", "")
+                    try:
+                        return json.loads(text)
+                    except (json.JSONDecodeError, TypeError):
+                        return text
     return ""
 
 
@@ -305,12 +342,21 @@ def _api_call_xai(
     )
 
 
+_OPENAI_RESPONSES_MODELS = {"gpt-5.2-codex", "gpt-5.3-codex"}
+
+
 def _build_api_callable(
     provider: str,
     model: str,
     api_key: str,
 ) -> callable:
     """Return an api_call(prompt) -> dict|str callable for the given provider."""
+    # Codex models use the Responses API instead of Chat Completions
+    if provider == "openai" and model in _OPENAI_RESPONSES_MODELS:
+        def api_call(prompt: str) -> dict | str:
+            return _api_call_openai_responses(api_key, model, prompt)
+        return api_call
+
     dispatch = {
         "anthropic": _api_call_anthropic,
         "openai": _api_call_openai,

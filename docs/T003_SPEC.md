@@ -49,10 +49,39 @@ This block gives LLMs three advantages that T003 removes:
 | **Prompt file** | `prompts/t003_prompt.txt` |
 | **Prompt SHA-256** | `a599ca7dacb21a59ebeda1ed434463c6ddcf3fdcba280e4ff2e9afc5335e524b` |
 | **Baselines** | SmartAgent, ConservativeAgent, GreedyAgent, HighVarianceAgent, RandomAgent (5) |
-| **LLMs** | Same 8 as T001/T002 |
+| **LLMs** | 10 (see roster below) |
 | **Seeds** | Same seed schedule as T001/T002 |
-| **Series per pair** | 10 (same as T001/T002: 13 agents × C(13,2) = 78 pairs × 10 = 780 series) |
+| **Series per pair** | 10 (15 agents × C(15,2) = 105 pairs × 10 = 1050 series) |
 | **Adaptation** | Loser re-picks build after seeing opponent's build (same as T002) |
+
+## Agent Roster
+
+### Core (T001/T002 veterans)
+
+| # | Display Name | Provider | Model ID | API | Status |
+|---|-------------|----------|----------|-----|--------|
+| 1 | Cl. Opus 4.6 | Anthropic | `claude-opus-4-6` | Messages | PASS |
+| 2 | Cl. Sonnet 4.6 | Anthropic | `claude-sonnet-4-6` | Messages | PASS |
+| 3 | Cl. Haiku 4.5 | Anthropic | `claude-haiku-4-5-20251001` | Messages | PASS |
+| 4 | GPT-5.2 | OpenAI | `gpt-5.2` | Chat Completions | PASS |
+| 5 | GPT-5.2-Codex | OpenAI | `gpt-5.2-codex` | Responses | PASS |
+| 6 | Gemini Flash | Google | `gemini-3-flash-preview` | GenerativeAI | PASS |
+| 7 | Gemini Pro | Google | `gemini-3.1-pro-preview` | GenerativeAI | PASS |
+| 8 | Grok-4.1 Fast | xAI | `grok-4-1-fast-reasoning` | OpenAI-compat | BLOCKED (401) |
+
+### New Challengers
+
+| # | Display Name | Provider | Model ID | API | Status |
+|---|-------------|----------|----------|-----|--------|
+| 9 | GPT-5.4 | OpenAI | `gpt-5.4` | Chat Completions | PASS |
+| 10 | GPT-5.3-Codex | OpenAI | `gpt-5.3-codex` | Responses | PASS |
+
+### API Notes
+
+- **OpenAI Chat Completions**: Uses `max_completion_tokens` (not `max_tokens`) for gpt-5.x models
+- **OpenAI Responses API**: Codex models (gpt-5.2-codex, gpt-5.3-codex) do not support Chat Completions; use `/v1/responses` endpoint instead
+- **xAI**: API key returns 401 (bad credentials) as of 2026-03-06. Grok-4.1 Fast participation contingent on key renewal.
+- **gpt-5.4-mini**: Does NOT exist in OpenAI model list (404). Removed from roster.
 
 ## Success Criteria
 
