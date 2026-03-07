@@ -1,0 +1,10 @@
+{
+  "model": "kimi-k2-thinking:cloud",
+  "provider": "ollama",
+  "text": "**Highest-priority improvement:** Implement a **strategic complexity validation suite** that establishes a performance floor with non-LLM baselines (heuristic agents, lightweight MCTS, random search) and a ceiling via exhaustive solvers. Publish this alongside the leaderboard. This matters because without proven \"strategic depth,\" the benchmark could be measuring pattern-matching on a trivially solvable game rather than genuine reasoning. If a simple algorithm matches top LLM performance, the entire premise collapses. Actionable: Run a parallel tournament with these baselines before Season 1 launch; any LLM that doesn't significantly outperform heuristics fails the validity threshold and is marked \"unverified.\"\n\n**Biggest risk: ** ** Deterministic overfitting via combat simulation reverse-engineering. ** The reproducibility invariant (seed + config = deterministic outcome) is a double-edged sword: it enables verification but also allows models to learn the combat engine implicitly. With only 6 animals and ~18k builds, a model could approximate the simulation function and \"reason\" by internally rolling out fights rather than strategizing. If even one frontier model exhibits this—shown by perfect predictive accuracy on unseen build matchups or by sudden performance jumps when given extra inference time—the benchmark's credibility dies. The risk is catastrophic: it transforms a reasoning test into a memorization test of a compact function. Mitigation requires black-box validation matches where combat logic is genuinely hidden, but failing that, the Season 1 report must include a \"simulation detection\" analysis measuring outcome predictability.",
+  "elapsed_s": 37.426842212677,
+  "input_tokens": 1003,
+  "output_tokens": 2781,
+  "cost_usd": 0.0,
+  "error": null
+}

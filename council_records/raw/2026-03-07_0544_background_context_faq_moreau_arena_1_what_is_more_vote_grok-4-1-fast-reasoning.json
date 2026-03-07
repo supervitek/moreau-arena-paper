@@ -1,0 +1,10 @@
+{
+  "model": "grok-4-1-fast-reasoning",
+  "provider": "xai",
+  "votes": [],
+  "elapsed_s": 0.07154202461242676,
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "cost_usd": 0.0,
+  "error": "API 403: error code: 1010"
+}

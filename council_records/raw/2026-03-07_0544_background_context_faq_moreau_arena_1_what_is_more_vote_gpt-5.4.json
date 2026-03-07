@@ -1,0 +1,26 @@
+{
+  "model": "gpt-5.4",
+  "provider": "openai",
+  "votes": [
+    {
+      "point": "Proposition 1",
+      "vote": "AGREE",
+      "reason": "Open-sourcing the deterministic combat engine and full artifacts is the necessary foundation for reproducibility, auditing, and trust in every downstream claim."
+    },
+    {
+      "point": "Proposition 2",
+      "vote": "AGREE",
+      "reason": "Exhaustive evaluation of the ~18,000-build space and publication of equilibrium/exploitability diagnostics are the clearest way to test whether the benchmark is strategically non-degenerate."
+    },
+    {
+      "point": "Proposition 3",
+      "vote": "AGREE",
+      "reason": "Non-LLM algorithmic baselines must be embedded in the leaderboard because otherwise relative LLM rankings are not interpretable as evidence of genuine strategic competence."
+    }
+  ],
+  "elapsed_s": 3.192020893096924,
+  "input_tokens": 1917,
+  "output_tokens": 151,
+  "cost_usd": 0.0063025,
+  "error": null
+}

@@ -9,11 +9,13 @@ Runs 4 phases:
 
 from __future__ import annotations
 
+import json
 import random
 import string
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
 from typing import IO
 
 from .models import (
@@ -23,6 +25,7 @@ from .models import (
     Synthesis,
     Vote,
 )
+from .output import save_session, session_filename
 from .prompts import (
     critique_prompt,
     response_prompt,
@@ -115,6 +118,7 @@ class Council:
         skip_critique: bool = False,
         skip_vote: bool = False,
         max_workers: int = 4,
+        output_dir: str | Path = "council_records",
     ):
         self.question = question
         self.panelists = panelists
@@ -123,6 +127,7 @@ class Council:
         self.skip_critique = skip_critique
         self.skip_vote = skip_vote
         self.max_workers = max_workers
+        self.output_dir = Path(output_dir)
 
         # Validate
         for m in panelists:
@@ -137,19 +142,48 @@ class Council:
             panelists=panelists,
         )
 
+        # Raw backup directory
+        self._raw_dir = self.output_dir / "raw"
+        self._raw_dir.mkdir(parents=True, exist_ok=True)
+        self._stem: str | None = None
+
+    def _get_stem(self) -> str:
+        """Get or create the filename stem for this session."""
+        if not self._stem:
+            self._stem = session_filename(self.session)
+        return self._stem
+
+    def _save_raw(self, phase: str, model: str, data: dict) -> None:
+        """Save a single raw API response to raw/ backup directory."""
+        safe_model = model.replace(":", "_").replace("/", "_")
+        path = self._raw_dir / f"{self._get_stem()}_{phase}_{safe_model}.json"
+        path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    def _save_incremental(self) -> None:
+        """Save current session state (even if incomplete)."""
+        self.session.compute_totals()
+        save_session(self.session, self.output_dir)
+
     def run(self) -> CouncilSession:
         """Execute all phases and return the completed session."""
         t0 = time.time()
 
         self._phase_responses()
+        self._save_incremental()  # save after responses — even if critique crashes
+
         if not self.skip_critique:
             self._phase_critiques()
+            self._save_incremental()  # save after critiques — even if synthesis crashes
+
         self._phase_synthesis()
+        self._save_incremental()  # save after synthesis — even if voting crashes
+
         if not self.skip_vote:
             self._phase_votes()
 
         self.session.total_elapsed_s = time.time() - t0
         self.session.compute_totals()
+        self._save_incremental()  # final save with everything
         return self.session
 
     # ------------------------------------------------------------------
@@ -192,6 +226,12 @@ class Council:
             for future in as_completed(futures):
                 resp = future.result()
                 self.session.responses.append(resp)
+                self._save_raw("response", resp.model, {
+                    "model": resp.model, "provider": resp.provider,
+                    "text": resp.text, "elapsed_s": resp.elapsed_s,
+                    "input_tokens": resp.input_tokens, "output_tokens": resp.output_tokens,
+                    "cost_usd": resp.cost_usd, "error": resp.error,
+                })
                 done += 1
                 _progress(f"Phase 1/4: Collecting responses... {done}/{n}")
 
@@ -242,6 +282,12 @@ class Council:
             for future in as_completed(futures):
                 crit = future.result()
                 self.session.critiques.append(crit)
+                self._save_raw("critique", crit.model, {
+                    "model": crit.model, "provider": crit.provider,
+                    "text": crit.text, "elapsed_s": crit.elapsed_s,
+                    "input_tokens": crit.input_tokens, "output_tokens": crit.output_tokens,
+                    "cost_usd": crit.cost_usd, "error": crit.error,
+                })
                 done += 1
                 _progress(f"Phase 2/4: Critique round... {done}/{n}")
 
@@ -286,6 +332,16 @@ class Council:
                 text=f"[SYNTHESIS ERROR: {e}]",
                 elapsed_s=time.time() - t0,
             )
+
+        if self.session.synthesis:
+            self._save_raw("synthesis", self.session.synthesis.model, {
+                "model": self.session.synthesis.model,
+                "text": self.session.synthesis.text,
+                "elapsed_s": self.session.synthesis.elapsed_s,
+                "input_tokens": self.session.synthesis.input_tokens,
+                "output_tokens": self.session.synthesis.output_tokens,
+                "cost_usd": self.session.synthesis.cost_usd,
+            })
 
         _progress("Phase 3/4: Synthesizing... done\n")
 
@@ -337,6 +393,12 @@ class Council:
             for future in as_completed(futures):
                 vote = future.result()
                 self.session.votes.append(vote)
+                self._save_raw("vote", vote.model, {
+                    "model": vote.model, "provider": vote.provider,
+                    "votes": vote.votes, "elapsed_s": vote.elapsed_s,
+                    "input_tokens": vote.input_tokens, "output_tokens": vote.output_tokens,
+                    "cost_usd": vote.cost_usd, "error": vote.error,
+                })
                 done += 1
                 _progress(f"Phase 4/4: Voting... {done}/{n}")
 

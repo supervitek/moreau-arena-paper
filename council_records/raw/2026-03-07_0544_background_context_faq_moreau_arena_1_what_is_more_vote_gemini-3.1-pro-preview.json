@@ -1,0 +1,26 @@
+{
+  "model": "gemini-3.1-pro-preview",
+  "provider": "google",
+  "votes": [
+    {
+      "point": "Proposition 1",
+      "vote": "AGREE",
+      "reason": "Open-sourcing the combat engine is the absolute prerequisite for verifiability, ensuring the community can independently reproduce our results and trust the resolution mechanics."
+    },
+    {
+      "point": "Proposition 2",
+      "vote": "AGREE",
+      "reason": "Since exhaustive evaluation of the ~18,000 build space is computationally trivial, calculating the exact Nash equilibrium is the most rigorous way to guarantee the metagame is not strategically degenerate before launch."
+    },
+    {
+      "point": "Proposition 3",
+      "vote": "AGREE",
+      "reason": "Embedding non-LLM algorithmic baselines directly into the leaderboard is essential to prove whether models are actually exhibiting strategic reasoning or merely performing as the \"least bad\" random selectors."
+    }
+  ],
+  "elapsed_s": 11.075921058654785,
+  "input_tokens": 1974,
+  "output_tokens": 174,
+  "cost_usd": 0.0033375,
+  "error": null
+}

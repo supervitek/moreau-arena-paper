@@ -151,7 +151,7 @@ def main() -> None:
     print("=" * 60)
     print()
 
-    # Run council
+    # Run council (saves incrementally + raw backups during execution)
     council = Council(
         question=question,
         panelists=panelists,
@@ -159,12 +159,17 @@ def main() -> None:
         dry_run=args.dry_run,
         skip_critique=args.no_critique,
         skip_vote=args.no_vote,
+        output_dir=args.output,
     )
 
     session = council.run()
 
-    # Save outputs
-    md_path, json_path = save_session(session, args.output)
+    # Final save already done by council.run(); get paths for display
+    from roundtable.output import session_filename
+    stem = session_filename(session)
+    out = Path(args.output)
+    md_path = out / f"{stem}.md"
+    json_path = out / f"{stem}.json"
 
     # Print summary
     print()
