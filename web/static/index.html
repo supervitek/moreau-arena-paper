@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Moreau Arena</title>
     <meta property="og:title" content="Moreau Arena — LLM Strategic Reasoning Benchmark">
-    <meta property="og:description" content="A contamination-resistant benchmark evaluating LLM strategic reasoning through creature combat simulation. 13 agents, 2 tournament tracks, fully reproducible.">
+    <meta property="og:description" content="A contamination-resistant benchmark evaluating LLM strategic reasoning through creature combat simulation. 15 agents, 3 tournament tracks, fully reproducible.">
     <meta property="og:image" content="/static/favicon.svg">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary">
@@ -53,12 +53,12 @@
         <!-- Key stats -->
         <div class="stat-row section">
             <div class="stat-box">
-                <div class="stat-value" id="statAgents">13</div>
+                <div class="stat-value" id="statAgents">15</div>
                 <div class="stat-label">Agents Tested</div>
             </div>
             <div class="stat-box">
-                <div class="stat-value">14</div>
-                <div class="stat-label">Animal Types</div>
+                <div class="stat-value">3</div>
+                <div class="stat-label">Tournaments</div>
             </div>
             <div class="stat-box">
                 <div class="stat-value">89</div>
@@ -70,14 +70,14 @@
             </div>
         </div>
 
-        <!-- The 180-degree flip -->
+        <!-- The three-tournament comparison -->
         <div class="section">
             <h2 class="text-center">The Prompt Engineering Effect</h2>
-            <p class="dim small text-center" style="margin-bottom:1.5rem; max-width:650px; margin-left:auto; margin-right:auto;">
-                The same LLMs, the same simulator, the same opponents &mdash; but a redesigned prompt flips the leaderboard.
+            <p class="dim small text-center" style="margin-bottom:1.5rem; max-width:700px; margin-left:auto; margin-right:auto;">
+                The same LLMs, the same simulator, the same opponents &mdash; three prompt designs reveal what actually drives LLM performance.
             </p>
 
-            <div class="compare-grid">
+            <div class="compare-grid" style="grid-template-columns:1fr auto 1fr auto 1fr;">
                 <div class="card">
                     <div class="compare-header">
                         <div class="label">Track A &middot; T001</div>
@@ -95,7 +95,7 @@
                 <div class="card">
                     <div class="compare-header">
                         <div class="label">Track B &middot; T002</div>
-                        <div class="title">Engineered Prompt</div>
+                        <div class="title">Full Prompt + Meta</div>
                         <div class="winrate wr-high">89.75%</div>
                         <div class="small muted">LLM avg win rate</div>
                     </div>
@@ -103,6 +103,38 @@
                         <li class="loading">Loading...</li>
                     </ul>
                 </div>
+
+                <div class="compare-divider">&rarr;</div>
+
+                <div class="card">
+                    <div class="compare-header">
+                        <div class="label">Track C &middot; T003</div>
+                        <div class="title">Full Prompt, No Meta</div>
+                        <div class="winrate" style="color:var(--accent);">53.1%</div>
+                        <div class="small muted">LLM avg win rate</div>
+                    </div>
+                    <ul class="mini-ranking" id="trackC-ranking">
+                        <li class="loading">Loading...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key T003 finding -->
+        <div class="section">
+            <h2 class="text-center">The Frozen Model Effect</h2>
+            <div class="card" style="max-width:700px; margin:0 auto;">
+                <p class="dim small" style="line-height:1.8; margin-bottom:1rem;">
+                    Without meta-context hints, three models from three different providers &mdash;
+                    <strong>Gemini Flash</strong>, <strong>Gemini Pro</strong>, and <strong>Grok</strong> &mdash;
+                    independently converge on the <em>exact same build</em> (Boar 8/8/3/1) for every single game
+                    out of 2,358 total. Zero adaptation despite the loser-adapts mechanic.
+                </p>
+                <p class="dim small" style="line-height:1.8;">
+                    Meanwhile, <strong>Codex-5.2</strong> stays #1 and <strong>Opus</strong> jumps from #12 to #3 &mdash;
+                    proving that some models can derive strategy from formulas alone, while others
+                    need explicit examples to compete.
+                </p>
             </div>
         </div>
 
@@ -172,7 +204,7 @@
             <div class="card" style="max-width:600px; text-align:center;">
                 <p class="dim" style="margin-bottom:1.25rem; line-height:1.6;">
                     Think you can build a better fighter? Describe your strategy and see where
-                    you'd rank against all 13 tournament agents.
+                    you'd rank against all 15 tournament agents.
                 </p>
                 <a href="/play#strategy" class="btn btn-primary" style="font-size:1rem; padding:0.75rem 2rem;">
                     Challenge the Leaderboard
@@ -198,7 +230,7 @@
         function escapeHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
         function loadMiniRankings() {
-            ['A', 'B'].forEach(function(track) {
+            ['A', 'B', 'C'].forEach(function(track) {
                 fetch('/api/v1/leaderboard/bt?track=' + track)
                     .then(function(r) { return r.json(); })
                     .then(function(data) {

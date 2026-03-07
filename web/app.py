@@ -60,9 +60,11 @@ VALID_ANIMALS = [
 TRACK_PATHS: dict[str, list[Path]] = {
     "A": [DATA_DIR / "tournament_001" / "results.jsonl"],
     "B": [DATA_DIR / "tournament_002" / "results.jsonl"],
+    "C": [DATA_DIR / "tournament_003" / "results.jsonl"],
     "all": [
         DATA_DIR / "tournament_001" / "results.jsonl",
         DATA_DIR / "tournament_002" / "results.jsonl",
+        DATA_DIR / "tournament_003" / "results.jsonl",
     ],
 }
 
@@ -83,21 +85,24 @@ def _compute_agent_cards() -> dict[str, dict[str, Any]]:
     """Parse JSONL tournament data and compute per-agent card data."""
     # Structures: per track, per agent
     # track_key -> agent_name -> list of (animal, hp, atk, spd, wil, won_game:bool)
-    agent_builds: dict[str, dict[str, list[dict[str, Any]]]] = {"A": defaultdict(list), "B": defaultdict(list)}
+    _tracks = ["A", "B", "C"]
+    agent_builds: dict[str, dict[str, list[dict[str, Any]]]] = {t: defaultdict(list) for t in _tracks}
     # track_key -> agent_name -> {opponent -> {"wins": int, "losses": int}}
     agent_pairwise: dict[str, dict[str, dict[str, dict[str, int]]]] = {
-        "A": defaultdict(lambda: defaultdict(lambda: {"wins": 0, "losses": 0})),
-        "B": defaultdict(lambda: defaultdict(lambda: {"wins": 0, "losses": 0})),
+        t: defaultdict(lambda: defaultdict(lambda: {"wins": 0, "losses": 0})) for t in _tracks
     }
     # track_key -> agent_name -> {"series_wins": int, "series_losses": int, "series_draws": int}
     agent_records: dict[str, dict[str, dict[str, int]]] = {
-        "A": defaultdict(lambda: {"series_wins": 0, "series_losses": 0, "series_draws": 0}),
-        "B": defaultdict(lambda: {"series_wins": 0, "series_losses": 0, "series_draws": 0}),
+        t: defaultdict(lambda: {"series_wins": 0, "series_losses": 0, "series_draws": 0}) for t in _tracks
     }
     # track_key -> agent_name -> list of series build history dicts
-    agent_series_history: dict[str, dict[str, list[dict[str, Any]]]] = {"A": defaultdict(list), "B": defaultdict(list)}
+    agent_series_history: dict[str, dict[str, list[dict[str, Any]]]] = {t: defaultdict(list) for t in _tracks}
 
-    track_map = {"A": DATA_DIR / "tournament_001" / "results.jsonl", "B": DATA_DIR / "tournament_002" / "results.jsonl"}
+    track_map = {
+        "A": DATA_DIR / "tournament_001" / "results.jsonl",
+        "B": DATA_DIR / "tournament_002" / "results.jsonl",
+        "C": DATA_DIR / "tournament_003" / "results.jsonl",
+    }
 
     for track_key, jsonl_path in track_map.items():
         if not jsonl_path.exists():
@@ -213,12 +218,12 @@ def _compute_agent_cards() -> dict[str, dict[str, Any]]:
 
     # Gather all agent names
     all_agents: set[str] = set()
-    for track_key in ("A", "B"):
+    for track_key in ("A", "B", "C"):
         all_agents.update(agent_records[track_key].keys())
 
     # Build BT score lookup from cache
-    bt_lookup: dict[str, dict[str, dict[str, Any]]] = {"A": {}, "B": {}}
-    for track_key in ("A", "B"):
+    bt_lookup: dict[str, dict[str, dict[str, Any]]] = {"A": {}, "B": {}, "C": {}}
+    for track_key in ("A", "B", "C"):
         if track_key in _cache and "bt" in _cache[track_key]:
             for i, entry in enumerate(_cache[track_key]["bt"]["bt_scores"]):
                 bt_lookup[track_key][entry["name"]] = {
@@ -239,7 +244,7 @@ def _compute_agent_cards() -> dict[str, dict[str, Any]]:
         avg_stats: dict[str, dict[str, float]] = {}
         pairwise_rates: dict[str, dict[str, float | None]] = {}
 
-        for track_key in ("A", "B"):
+        for track_key in ("A", "B", "C"):
             rec = agent_records[track_key].get(agent_name)
             if not rec:
                 continue
@@ -315,7 +320,7 @@ def _compute_agent_cards() -> dict[str, dict[str, Any]]:
 
         # Limit series history to avoid massive payloads - keep last 20 per track
         history: dict[str, list[dict[str, Any]]] = {}
-        for track_key in ("A", "B"):
+        for track_key in ("A", "B", "C"):
             h = agent_series_history[track_key].get(agent_name, [])
             history[track_key] = h[-20:] if len(h) > 20 else h
 
@@ -348,6 +353,7 @@ def _compute_agent_builds() -> dict[str, dict[str, Any]]:
     track_map = {
         "A": DATA_DIR / "tournament_001" / "results.jsonl",
         "B": DATA_DIR / "tournament_002" / "results.jsonl",
+        "C": DATA_DIR / "tournament_003" / "results.jsonl",
     }
 
     for track_key, jsonl_path in track_map.items():
@@ -674,7 +680,7 @@ def _compute_match_log_detail(
 def _compute_variance_decomposition() -> dict[str, Any]:
     """Compute variance decomposition: RNG vs strategy."""
     result: dict[str, Any] = {}
-    for track_key in ("A", "B"):
+    for track_key in ("A", "B", "C"):
         records = _load_raw_records(track_key)
         all_outcomes: list[float] = []
         series_variances: list[float] = []
@@ -732,7 +738,7 @@ def _compute_variance_decomposition() -> dict[str, Any]:
 def _compute_random_baseline() -> dict[str, Any]:
     """Compute RandomAgent statistics from actual tournament data."""
     result: dict[str, Any] = {}
-    for track_key in ("A", "B"):
+    for track_key in ("A", "B", "C"):
         records = _load_raw_records(track_key)
         random_series = 0
         random_wins = 0
@@ -776,7 +782,7 @@ def _compute_random_baseline() -> dict[str, Any]:
 
 def _precompute_cache() -> None:
     """Precompute BT scores, pairwise matrices, 3-cycles, match logs, and methodology data."""
-    for track_key in ("A", "B", "all"):
+    for track_key in ("A", "B", "C", "all"):
         results = _load_track_results(track_key)
         if not results:
             _cache[track_key] = {
@@ -828,7 +834,7 @@ def _precompute_cache() -> None:
     _cache["agents"] = _compute_agent_cards()
 
     # Match log pair summaries
-    for track_key in ("A", "B"):
+    for track_key in ("A", "B", "C"):
         _cache[f"match_log_pairs_{track_key}"] = _compute_match_log_pairs(track_key)
 
     # Methodology data
@@ -1068,7 +1074,7 @@ def _load_leaderboard() -> list[dict[str, Any]]:
 
 def _resolve_track(track: str) -> list[Path]:
     """Resolve track parameter to list of JSONL file paths."""
-    key = track.upper() if track.upper() in ("A", "B") else "all"
+    key = track.upper() if track.upper() in ("A", "B", "C") else "all"
     return TRACK_PATHS.get(key, TRACK_PATHS["all"])
 
 
@@ -1216,7 +1222,7 @@ def _challenge_logic(build: str, games: int) -> ChallengeResponse:
 def index() -> HTMLResponse:
     html = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
     # Server-side render top-5 leaderboard rankings to avoid "Loading..." flash
-    for track_key in ("A", "B"):
+    for track_key in ("A", "B", "C"):
         bt_data = _cache.get(track_key, {}).get("bt", {})
         scores = bt_data.get("bt_scores", [])[:6]
         if scores:
@@ -1318,7 +1324,7 @@ def api_leaderboard_bt(
     track: str = Query(default="all", pattern="^(A|B|all)$"),
 ) -> dict[str, Any]:
     """Return cached BT scores + Elo ratings for the given track."""
-    key = track.upper() if track.upper() in ("A", "B") else "all"
+    key = track.upper() if track.upper() in ("A", "B", "C") else "all"
     if key in _cache:
         return _cache[key]["bt"]
 
@@ -1354,7 +1360,7 @@ def api_leaderboard_pairwise(
     track: str = Query(default="all", pattern="^(A|B|all)$"),
 ) -> dict[str, Any]:
     """Return cached pairwise win-rate matrix for the given track."""
-    key = track.upper() if track.upper() in ("A", "B") else "all"
+    key = track.upper() if track.upper() in ("A", "B", "C") else "all"
     if key in _cache:
         return _cache[key]["pairwise"]
 
@@ -1371,7 +1377,7 @@ def api_leaderboard_cycles(
     track: str = Query(default="all", pattern="^(A|B|all)$"),
 ) -> dict[str, Any]:
     """Return cached 3-cycles for the given track."""
-    key = track.upper() if track.upper() in ("A", "B") else "all"
+    key = track.upper() if track.upper() in ("A", "B", "C") else "all"
     if key in _cache:
         return _cache[key]["cycles"]
 
