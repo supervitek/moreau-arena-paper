@@ -52,6 +52,8 @@ DEFAULT_PANELISTS = [
     "gpt-5.4",
     "gemini-3.1-pro-preview",
     "grok-4-1-fast-reasoning",
+    "deepseek-r1:latest",
+    "kimi-k2-thinking:cloud",
 ]
 DEFAULT_MODERATOR = "claude-opus-4-6"
 DEFAULT_OUTPUT = "council_records"

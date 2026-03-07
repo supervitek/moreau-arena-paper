@@ -33,6 +33,9 @@ PRICING: dict[str, dict[str, float]] = {
     "gemini-3.1-pro-preview":      {"input": 1.25, "output": 5.0},
     # xAI
     "grok-4-1-fast-reasoning":     {"input": 3.0,  "output": 15.0},
+    # Ollama (local/cloud — free)
+    "deepseek-r1:latest":          {"input": 0.0,  "output": 0.0},
+    "kimi-k2-thinking:cloud":      {"input": 0.0,  "output": 0.0},
 }
 
 # Provider -> env var name
@@ -55,6 +58,8 @@ MODEL_PROVIDERS: dict[str, str] = {
     "gemini-3-flash-preview": "google",
     "gemini-3.1-pro-preview": "google",
     "grok-4-1-fast-reasoning": "xai",
+    "deepseek-r1:latest": "ollama",
+    "kimi-k2-thinking:cloud": "ollama",
 }
 
 
@@ -194,6 +199,42 @@ def call_xai(api_key: str, model: str, prompt: str) -> tuple[str, int, int]:
 
 
 # ---------------------------------------------------------------------------
+# Ollama (local or cloud via localhost:11434, OpenAI-compatible API)
+# ---------------------------------------------------------------------------
+
+OLLAMA_BASE_URL = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+
+
+def call_ollama(_api_key: str, model: str, prompt: str) -> tuple[str, int, int]:
+    """Call Ollama via OpenAI-compatible API. Returns (text, input_tokens, output_tokens).
+
+    Ollama serves on localhost:11434/v1/chat/completions.
+    Cloud models (tag :cloud) run on Ollama's infra; local models run on-device.
+    """
+    url = f"{OLLAMA_BASE_URL}/v1/chat/completions"
+    body: dict[str, Any] = {
+        "model": model,
+        "temperature": 0.7,
+        "messages": [{"role": "user", "content": prompt}],
+    }
+    # Ollama doesn't use SSL on localhost
+    data = json.dumps(body).encode("utf-8")
+    req = urllib.request.Request(url, data=data, method="POST")
+    req.add_header("Content-Type", "application/json")
+    try:
+        with urllib.request.urlopen(req, timeout=300) as resp:
+            result = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        error_body = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"Ollama {exc.code}: {error_body}") from exc
+
+    choices = result.get("choices", [])
+    text = choices[0]["message"]["content"] if choices else ""
+    usage = result.get("usage", {})
+    return text, usage.get("prompt_tokens", 0), usage.get("completion_tokens", 0)
+
+
+# ---------------------------------------------------------------------------
 # Dispatcher
 # ---------------------------------------------------------------------------
 
@@ -202,6 +243,7 @@ PROVIDER_CALLERS = {
     "openai": call_openai,
     "google": call_google,
     "xai": call_xai,
+    "ollama": call_ollama,
 }
 
 
@@ -210,6 +252,7 @@ def call_model(model: str, prompt: str) -> tuple[str, int, int]:
     provider = MODEL_PROVIDERS.get(model)
     if not provider:
         raise ValueError(f"Unknown model: {model}. Known: {list(MODEL_PROVIDERS)}")
-    api_key = get_api_key(provider)
+    # Ollama doesn't need an API key
+    api_key = "" if provider == "ollama" else get_api_key(provider)
     caller = PROVIDER_CALLERS[provider]
     return caller(api_key, model, prompt)
