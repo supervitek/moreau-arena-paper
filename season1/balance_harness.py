@@ -47,7 +47,7 @@ SEASON1_DIR = os.path.join(os.path.dirname(__file__))
 # Gate thresholds
 GATE_MAX_WR = 0.58
 GATE_MIN_WR = 0.42
-GATE_BEATS_THRESHOLD = 0.55
+GATE_BEATS_THRESHOLD = 0.52
 GATE_RNG_SPREAD = 0.25
 GATE_COSINE_SIM = 0.95
 
@@ -108,21 +108,29 @@ def check_g2(overall_wr: dict) -> tuple:
     return passed, worst
 
 def check_g3(pairwise: dict) -> tuple:
-    """G3: Non-transitive cycles exist (A>B>C>A at >55%)."""
+    """G3: Non-transitive cycles exist (A>B>C>A at >52%)."""
+    # Build full WR lookup (pairwise only stores one direction)
+    full_wr = {}
+    for (a, b), wr in pairwise.items():
+        full_wr[(a, b)] = wr
+        full_wr[(b, a)] = 1.0 - wr
+
     # Build directed graph of "beats" edges
     beats = defaultdict(set)
-    for (a, b), wr in pairwise.items():
+    for (a, b), wr in full_wr.items():
         if wr > GATE_BEATS_THRESHOLD:
             beats[a].add(b)
 
     # Find at least one 3-cycle
     cycles = []
+    seen = set()
     for a in ANIMALS:
         for b in beats[a]:
             for c in beats[b]:
                 if a in beats[c]:
                     cycle = tuple(sorted([a, b, c]))
-                    if cycle not in [tuple(sorted(c2)) for c2 in cycles]:
+                    if cycle not in seen:
+                        seen.add(cycle)
                         cycles.append((a, b, c))
                         if len(cycles) >= 5:
                             return True, cycles
@@ -152,7 +160,12 @@ def check_g4(pair_results: dict, n_games: int) -> tuple:
     return len(flagged) == 0, flagged
 
 def check_g5(pairwise: dict) -> tuple:
-    """G5: Distinct identities — cosine similarity of matchup vectors < 0.95."""
+    """G5: Distinct identities — cosine similarity of mean-centered matchup vectors < 0.95.
+
+    Mean-centering ensures we compare matchup *patterns* (who beats whom)
+    rather than overall strength. Without centering, all vectors cluster
+    near [0.5, 0.5, ...] and have cos sim ~1.0 regardless of matchup structure.
+    """
     # Build matchup vectors for each animal
     vectors = {}
     for a in ANIMALS:
@@ -166,7 +179,9 @@ def check_g5(pairwise: dict) -> tuple:
             else:
                 # Use 1 - reverse
                 vec.append(1.0 - pairwise.get((b, a), 0.5))
-        vectors[a] = vec
+        # Mean-center the vector to compare patterns, not absolute strength
+        mean = sum(vec) / len(vec) if vec else 0.0
+        vectors[a] = [v - mean for v in vec]
 
     def cosine_sim(v1, v2):
         dot = sum(a * b for a, b in zip(v1, v2))

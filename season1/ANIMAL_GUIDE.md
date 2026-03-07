@@ -14,7 +14,7 @@ All 14 animals available in Moreau Arena Season 1. Each animal has a **passive**
 
 *When backed into a corner, the Bear doesn't retreat -- it rampages.*
 
-**Passive -- Fury Protocol:** When your HP drops below 50%, gain +50% ATK for 3 ticks.
+**Passive -- Fury Protocol:** When your HP drops below 55%, gain +50% ATK for 4 ticks.
 
 **Ability 1 -- Berserker Rage** (Strong, 3.5%): Gain +60% ATK for 3 ticks, but lose 40% dodge for the duration.
 
@@ -46,11 +46,11 @@ All 14 animals available in Moreau Arena Season 1. Each animal has a **passive**
 
 *Lowers its head and doesn't stop.*
 
-**Passive -- Charge:** Your first attack deals +50% damage.
+**Passive -- Charge:** Your first attack deals +85% damage and ignores dodge.
 
-**Ability 1 -- Stampede** (Standard, 4.5%): Gain +50% ATK and your opponent skips their next attack.
+**Ability 1 -- Stampede** (Standard, 4.5%): Gain +60% ATK and your opponent skips their next attack.
 
-**Ability 2 -- Gore** (Strong, 3.5%): Deal an attack at -40% ATK, but it ignores dodge entirely.
+**Ability 2 -- Gore** (Strong, 3.5%): Deal an attack at -30% ATK, but it ignores dodge entirely.
 
 **Strategy:** Lead with Charge for a devastating burst opener. Gore punishes dodge-heavy enemies like Fox and Eagle who rely on evasion. Invest in ATK to make your opener and Stampede hits count -- you want fights decided quickly.
 
@@ -62,7 +62,7 @@ All 14 animals available in Moreau Arena Season 1. Each animal has a **passive**
 
 *Patience. Precision. One perfect strike.*
 
-**Passive -- Ambush Wiring:** If your SPD is greater than your opponent's SPD, your first attack deals 2x damage.
+**Passive -- Ambush Wiring:** If your SPD is at least equal to your opponent's SPD, your first attack deals 2x damage. When opponent has Hamstring debuff, gain +15% ATK.
 
 **Ability 1 -- Pounce** (Standard, 4.5%): Gain +70% ATK and your opponent skips their next attack.
 
@@ -82,7 +82,7 @@ All 14 animals available in Moreau Arena Season 1. Each animal has a **passive**
 
 **Ability 1 -- Pack Howl** (Standard, 4.5%): Gain +30% ATK for 4 ticks.
 
-**Ability 2 -- Rend** (Standard, 4.5%): Apply 5% max HP bleed damage per tick for 3 ticks.
+**Ability 2 -- Rend** (Standard, 4.5%): Apply 3% max HP bleed damage per tick for 3 ticks.
 
 **Strategy:** WIL investment amplifies both your proc rates and regen, making Wolf the sustained damage king. With Pack Sense boosting all your procs to 6%, you trigger abilities more often than anyone. Play the long game and grind opponents down.
 
@@ -94,9 +94,9 @@ All 14 animals available in Moreau Arena Season 1. Each animal has a **passive**
 
 *Chaos is a ladder -- and Monkey climbs fast.*
 
-**Passive -- Primate Cortex:** Copy a random ability from your opponent.
+**Passive -- Primate Cortex:** Copy a random ability from your opponent at fight start. All proc rates gain +2.5%.
 
-**Ability 1 -- Chaos Strike** (Standard, 4.5%): Deal an attack with a random damage multiplier between 0.8x and 2.2x.
+**Ability 1 -- Chaos Strike** (Standard, 4.5%): Deal an attack with a random damage multiplier between 1.2x and 2.8x.
 
 **Ability 2 -- Mimic** (Strong, 3.5%): Copy your opponent's passive at 75% strength.
 
@@ -110,9 +110,9 @@ All 14 animals available in Moreau Arena Season 1. Each animal has a **passive**
 
 *Hit me. I dare you.*
 
-**Passive -- Quill Armor:** Reflect 25% of melee damage back to the attacker.
+**Passive -- Quill Armor:** 50% chance per hit to reflect 15% of melee damage back to attacker.
 
-**Ability 1 -- Spike Shield** (Standard, 4.5%): Gain +50% reflect damage for 3 ticks (total 75% reflect).
+**Ability 1 -- Spike Shield** (Standard, 4.5%): Gain +15% reflect damage for 3 ticks (total 30% reflect).
 
 **Ability 2 -- Curl Up** (Strong, 3.5%): Block the next hit entirely, but you are immobile for 2 ticks.
 
@@ -126,9 +126,9 @@ All 14 animals available in Moreau Arena Season 1. Each animal has a **passive**
 
 *No recovery. No mercy. Just venom.*
 
-**Passive -- Venom Gland:** Your attacks reduce the target's healing and regen by 50% for 3 ticks.
+**Passive -- Venom Gland:** 25% chance on hit to reduce target's healing and regen by 50% for 2 ticks.
 
-**Ability 1 -- Envenom** (Standard, 4.5%): Apply 3% max HP poison DOT for 3 ticks. Refreshes on reapplication, never stacks.
+**Ability 1 -- Envenom** (Standard, 4.5%): Apply 1.5% max HP poison DOT for 3 ticks. Refreshes on reapplication, never stacks.
 
 **Ability 2 -- Tail Strike** (Strong, 3.5%): Deal +80% ATK damage, ignoring 50% of the target's damage reduction.
 
@@ -142,11 +142,11 @@ All 14 animals available in Moreau Arena Season 1. Each animal has a **passive**
 
 *Patient. Circling. Waiting for weakness.*
 
-**Passive -- Carrion Feeder:** Gain +1% ATK for every 10% HP your opponent is missing.
+**Passive -- Carrion Feeder:** Gain +3.5% ATK for every 10% HP your opponent is missing.
 
-**Ability 1 -- Death Spiral** (Standard, 4.5%): Gain +40% ATK for 2 ticks if opponent is below 40% HP.
+**Ability 1 -- Death Spiral** (Standard, 4.5%): Gain +40% ATK for 2 ticks if opponent is below 50% HP.
 
-**Ability 2 -- Feast** (Strong, 3.5%): Heal 20% of damage dealt this tick.
+**Ability 2 -- Feast** (Strong, 3.5%): Heal 30% of damage dealt this tick.
 
 **Strategy:** You get stronger as fights progress -- a nearly dead opponent gives you up to +10% ATK from Carrion Feeder alone, plus Death Spiral on top. Pair with WIL for sustain to outlast opponents, then finish with massive scaling damage. Avoid burst fighters who kill you before you ramp up.
 
@@ -158,7 +158,7 @@ All 14 animals available in Moreau Arena Season 1. Each animal has a **passive**
 
 *You can hit hard. But you can't hit hard enough.*
 
-**Passive -- Bulwark Frame:** Any single hit exceeding 18% of your max HP is reduced by 35%.
+**Passive -- Bulwark Frame:** When HP drops below 60%, gain 28% damage reduction for 4 ticks (one-time trigger).
 
 **Ability 1 -- Horn Charge** (Standard, 4.5%): Deal +60% ATK damage.
 
@@ -174,9 +174,9 @@ All 14 animals available in Moreau Arena Season 1. Each animal has a **passive**
 
 *A slow death is still a death.*
 
-**Passive -- Hemotoxin:** Your attacks apply 2% max HP DOT for 3 ticks. Refreshes on reapplication, never stacks -- just resets the timer.
+**Passive -- Hemotoxin:** 12% chance per hit to apply 1% max HP DOT for 2 ticks. Refreshes on reapplication, never stacks.
 
-**Ability 1 -- Toxic Bite** (Standard, 4.5%): Refresh DOT and extend duration to 5 ticks.
+**Ability 1 -- Toxic Bite** (Standard, 4.5%): Apply 1.5% max HP DOT for 4 ticks (refresh only).
 
 **Ability 2 -- Shed Skin** (Strong, 3.5%): Remove all your debuffs and heal 8% max HP.
 
@@ -190,9 +190,9 @@ All 14 animals available in Moreau Arena Season 1. Each animal has a **passive**
 
 *You can't hit what you can't predict.*
 
-**Passive -- Cunning:** Your opponent's proc rates are reduced by 30%.
+**Passive -- Cunning:** Your opponent's proc rates are reduced by 50%.
 
-**Ability 1 -- Outfox** (Standard, 4.5%): Dodge the next 2 attacks entirely.
+**Ability 1 -- Outfox** (Standard, 4.5%): Dodge the next 3 attacks entirely.
 
 **Ability 2 -- Trick** (Strong, 3.5%): Steal your opponent's next proc -- you get the effect instead of them.
 
@@ -222,9 +222,9 @@ All 14 animals available in Moreau Arena Season 1. Each animal has a **passive**
 
 *Three strikes from the shadows. Then vanish.*
 
-**Passive -- Shadow Stalk:** Your first 3 attacks deal +30% damage while undetected (you haven't taken damage yet).
+**Passive -- Shadow Stalk:** Your first 3 attacks deal +35% damage while undetected. Taking damage does not break stealth.
 
-**Ability 1 -- Lunge** (Standard, 4.5%): Deal +50% ATK damage and move 2 tiles.
+**Ability 1 -- Lunge** (Standard, 4.5%): Deal +70% ATK damage.
 
 **Ability 2 -- Fade** (Strong, 3.5%): Become "undetected" again for 3 ticks, resetting Shadow Stalk bonus.
 

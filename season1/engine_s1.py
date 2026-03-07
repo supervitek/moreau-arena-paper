@@ -266,7 +266,7 @@ def calculate_physical_damage(
 # ===========================================================================
 
 def get_chaos_strike_mod(seed: int) -> float:
-    return seeded_random(seed, 0.8, 2.2)
+    return seeded_random(seed, 1.2, 2.8)
 
 
 # ===========================================================================
@@ -285,7 +285,10 @@ def roll_ability_procs(
     last_procced: S1AbilityType | None = None
 
     # Wolf Pack Sense: +1.5% to all proc rates
+    # Monkey Primate Cortex: +2.0% to all proc rates
     pack_sense_bonus = 0.015 if creature.passive == S1Passive.PACK_SENSE else 0.0
+    if creature.passive == S1Passive.PRIMATE_CORTEX:
+        pack_sense_bonus = 0.025
 
     # Fox Cunning: opponent proc rates reduced by 30% — applied when opponent rolls
     # (handled in the opponent's roll, not here)
@@ -305,9 +308,9 @@ def roll_ability_procs(
         proc_seed = derive_proc_seed(match_seed, tick, creature_index, ability_index)
         eff_proc = ability.proc_chance + creature.stats.wil * 0.0008 + pack_sense_bonus
 
-        # Fox Cunning: if opponent has Cunning passive, reduce this creature's proc rates by 30%
+        # Fox Cunning: if opponent has Cunning passive, reduce this creature's proc rates by 50%
         if opponent.passive == S1Passive.CUNNING:
-            eff_proc *= 0.70
+            eff_proc *= 0.50
 
         if not seeded_bool(proc_seed, eff_proc):
             continue
@@ -430,7 +433,7 @@ def _apply_ability_proc(
         )
 
     elif atype == S1AbilityType.REND:
-        dot_dmg = max(1, math.floor(opponent.max_hp * 0.05))
+        dot_dmg = max(1, math.floor(opponent.max_hp * 0.03))
         bleed = ActiveEffect(name="ability_rend", remaining_ticks=3, damage_per_tick=dot_dmg)
         opponent = dataclasses.replace(
             opponent, active_effects=[*opponent.active_effects, bleed],
@@ -462,7 +465,7 @@ def _apply_ability_proc(
     elif atype == S1AbilityType.ENVENOM:
         # Refresh-only DOT: remove existing envenom, replace with fresh
         new_effects = [e for e in opponent.active_effects if e.name != "envenom"]
-        dot_dmg = max(1, math.floor(opponent.max_hp * 0.03))
+        dot_dmg = max(1, math.floor(opponent.max_hp * 0.015))
         venom = ActiveEffect(name="envenom", remaining_ticks=3, damage_per_tick=dot_dmg)
         new_effects.append(venom)
         opponent = dataclasses.replace(opponent, active_effects=new_effects)
@@ -475,7 +478,7 @@ def _apply_ability_proc(
 
     # ---- VULTURE ----
     elif atype == S1AbilityType.DEATH_SPIRAL:
-        if opponent.current_hp < opponent.max_hp * 0.40:
+        if opponent.current_hp < opponent.max_hp * 0.50:
             buff = AbilityBuff(atype, ability.duration, side)
             creature = dataclasses.replace(
                 creature, active_buffs=[*creature.active_buffs, buff],
@@ -504,8 +507,8 @@ def _apply_ability_proc(
     elif atype == S1AbilityType.TOXIC_BITE:
         # Refresh + extend hemotoxin DOT to 5 ticks
         new_effects = [e for e in opponent.active_effects if e.name != "hemotoxin"]
-        dot_dmg = max(1, math.floor(opponent.max_hp * 0.02))
-        toxin = ActiveEffect(name="hemotoxin", remaining_ticks=5, damage_per_tick=dot_dmg)
+        dot_dmg = max(1, math.floor(opponent.max_hp * 0.015))
+        toxin = ActiveEffect(name="hemotoxin", remaining_ticks=4, damage_per_tick=dot_dmg)
         new_effects.append(toxin)
         opponent = dataclasses.replace(opponent, active_effects=new_effects)
 
@@ -525,7 +528,7 @@ def _apply_ability_proc(
 
     # ---- FOX ----
     elif atype == S1AbilityType.OUTFOX:
-        creature = dataclasses.replace(creature, outfox_charges=2)
+        creature = dataclasses.replace(creature, outfox_charges=3)
 
     elif atype == S1AbilityType.TRICK:
         buff = AbilityBuff(atype, 1, side)
@@ -622,14 +625,14 @@ def apply_ability_attack_mods(
             atk_mod *= 1.0 + 0.70 * mimic_scale
 
         elif buff.ability_type == S1AbilityType.STAMPEDE:
-            atk_mod *= 1.0 + 0.50 * mimic_scale
+            atk_mod *= 1.0 + 0.60 * mimic_scale
 
         elif buff.ability_type == S1AbilityType.LAST_STAND:
             if attacker.current_hp < attacker.max_hp * 0.15:
                 atk_mod *= 1.0 + 1.0 * mimic_scale
 
         elif buff.ability_type == S1AbilityType.GORE:
-            atk_mod *= 0.60  # -40% ATK but ignores dodge
+            atk_mod *= 0.70  # -30% ATK but ignores dodge
 
         elif buff.ability_type == S1AbilityType.CHAOS_STRIKE:
             chaos_mod = get_chaos_strike_mod(hit_seed + 777)
@@ -651,7 +654,7 @@ def apply_ability_attack_mods(
             atk_mod *= 1.0 + 1.0 * mimic_scale
 
         elif buff.ability_type == S1AbilityType.LUNGE:
-            atk_mod *= 1.0 + 0.50 * mimic_scale
+            atk_mod *= 1.0 + 0.70 * mimic_scale
 
     return attacker, atk_mod
 
@@ -730,12 +733,13 @@ def check_fury_trigger(creature: Creature) -> Creature:
         return creature
     if creature.fury_triggered:
         return creature
-    if creature.current_hp >= creature.max_hp * 0.5:
+    if creature.current_hp >= creature.max_hp * 0.55:
         return creature
-    return dataclasses.replace(creature, fury_triggered=True, fury_active_ticks=3)
+    return dataclasses.replace(creature, fury_triggered=True, fury_active_ticks=4)
 
 
 def tick_fury(creature: Creature) -> Creature:
+    """Tick down fury_active_ticks for Bear (Fury Protocol) and Rhino (Bulwark Frame)."""
     if creature.fury_active_ticks <= 0:
         return creature
     return dataclasses.replace(creature, fury_active_ticks=creature.fury_active_ticks - 1)
@@ -781,6 +785,9 @@ class S1CombatEngine:
     ) -> dict:
         log: list[dict[str, Any]] = []
         attack_index = 0
+
+        # Primate Cortex: copy a random ability from opponent at fight start
+        a, b = self._apply_primate_cortex(a, b, match_seed)
 
         for tick in range(1, self.max_ticks + 1):
             tick_seed = derive_tick_seed(match_seed, tick)
@@ -869,6 +876,16 @@ class S1CombatEngine:
 
                     # Dodge calculation
                     ignore_dodge = has_ignore_dodge_buff(attacker)
+                    # Boar Charge: first attack ignores dodge
+                    # charge_used is set to True during _apply_attack_passives on the first attack
+                    # first_hit_taken is still False at this point for the first attack
+                    if attacker.passive == S1Passive.CHARGE and not attacker.first_hit_taken:
+                        ignore_dodge = True
+                        attacker = dataclasses.replace(attacker, first_hit_taken=True)
+                        if side == "a":
+                            a = attacker
+                        else:
+                            b = attacker
                     eff_dodge = get_effective_dodge(defender)
 
                     # Curl Up: block next hit entirely
@@ -899,35 +916,39 @@ class S1CombatEngine:
                     # Tail Strike: ignores 50% damage reduction on defender
                     # (already computed as higher ATK mod — the ignore is baked in)
 
-                    # Porcupine Quill Armor: reflect 25% melee damage
+                    # Porcupine Quill Armor: reflect 15% melee damage on hit
                     reflect_dmg = 0
                     if dmg > 0 and defender.passive == S1Passive.QUILL_ARMOR:
-                        reflect_pct = 0.25
-                        # Spike Shield: +50% reflect
-                        for buff in defender.active_buffs:
-                            if buff.ability_type == S1AbilityType.SPIKE_SHIELD:
-                                reflect_pct += 0.50
-                                break
-                        reflect_dmg = max(1, math.floor(dmg * reflect_pct))
+                        # 50% chance to reflect per hit
+                        if seeded_bool(hit_seed + 5555, 0.50):
+                            reflect_pct = 0.15
+                            # Spike Shield: +15% reflect
+                            for buff in defender.active_buffs:
+                                if buff.ability_type == S1AbilityType.SPIKE_SHIELD:
+                                    reflect_pct += 0.15
+                                    break
+                            reflect_dmg = max(1, math.floor(dmg * reflect_pct))
 
-                    # Scorpion Venom Gland: attacks apply anti-heal
+                    # Scorpion Venom Gland: 35% chance on hit to apply anti-heal for 2 ticks
                     if dmg > 0 and attacker.passive == S1Passive.VENOM_GLAND:
-                        defender = dataclasses.replace(defender, anti_heal_ticks=3)
+                        if seeded_bool(hit_seed + 8888, 0.25):
+                            defender = dataclasses.replace(defender, anti_heal_ticks=2)
 
-                    # Viper Hemotoxin: apply 2% max HP DOT for 3 ticks (refresh only)
+                    # Viper Hemotoxin: 15% chance per hit to apply 1% max HP DOT for 2 ticks (refresh only)
                     if dmg > 0 and attacker.passive == S1Passive.HEMOTOXIN:
-                        new_effects = [e for e in defender.active_effects if e.name != "hemotoxin"]
-                        toxin_dmg = max(1, math.floor(defender.max_hp * 0.02))
-                        toxin = ActiveEffect(name="hemotoxin", remaining_ticks=3, damage_per_tick=toxin_dmg)
-                        new_effects.append(toxin)
-                        defender = dataclasses.replace(defender, active_effects=new_effects)
+                        if seeded_bool(hit_seed + 9999, 0.12):
+                            new_effects = [e for e in defender.active_effects if e.name != "hemotoxin"]
+                            toxin_dmg = max(1, math.floor(defender.max_hp * 0.01))
+                            toxin = ActiveEffect(name="hemotoxin", remaining_ticks=2, damage_per_tick=toxin_dmg)
+                            new_effects.append(toxin)
+                            defender = dataclasses.replace(defender, active_effects=new_effects)
 
                     # Vulture Feast: heal 20% of damage dealt
                     feast_heal = 0
                     if dmg > 0:
                         for buff in attacker.active_buffs:
                             if buff.ability_type == S1AbilityType.FEAST:
-                                feast_heal = math.floor(dmg * 0.20)
+                                feast_heal = math.floor(dmg * 0.30)
                                 break
 
                     # Apply damage to defender
@@ -936,9 +957,8 @@ class S1CombatEngine:
                         current_hp=defender.current_hp - dmg,
                         has_taken_damage=True if dmg > 0 else defender.has_taken_damage,
                     )
-                    # Panther: if takes damage, lose undetected
-                    if dmg > 0 and defender.is_undetected:
-                        defender = dataclasses.replace(defender, is_undetected=False)
+                    # Panther: undetected only breaks after shadow_stalk_hits exhausted
+                    # (no break on taking damage)
 
                     # Apply reflect damage to attacker
                     if reflect_dmg > 0:
@@ -1040,6 +1060,34 @@ class S1CombatEngine:
 
     # -- Helpers ---------------------------------------------------------------
 
+    def _apply_primate_cortex(
+        self, a: Creature, b: Creature, match_seed: int,
+    ) -> tuple[Creature, Creature]:
+        """At fight start, Monkey copies a random ability from opponent."""
+        for creature, opponent, idx in [(a, b, 0), (b, a, 1)]:
+            if creature.passive != S1Passive.PRIMATE_CORTEX:
+                continue
+            # Pick one of opponent's abilities (seeded)
+            pick_seed = derive_proc_seed(match_seed, 0, idx, 99)
+            pick = int(seeded_random(pick_seed, 0.0, len(opponent.abilities) - 0.001))
+            pick = max(0, min(pick, len(opponent.abilities) - 1))
+            copied = opponent.abilities[pick]
+            # Don't copy blocked abilities
+            if copied.ability_type in MIMIC_BLOCKED:
+                pick = (pick + 1) % len(opponent.abilities)
+                copied = opponent.abilities[pick]
+                if copied.ability_type in MIMIC_BLOCKED:
+                    continue
+            # Add copied ability to creature's abilities
+            creature = dataclasses.replace(
+                creature, abilities=(*creature.abilities, copied),
+            )
+            if idx == 0:
+                a = creature
+            else:
+                b = creature
+        return a, b
+
     def _is_adjacent(self, a: Creature, b: Creature) -> bool:
         for dr_a in range(a.size.rows):
             for dc_a in range(a.size.cols):
@@ -1070,21 +1118,29 @@ class S1CombatEngine:
         if fury_or_rage_mod > 1.0:
             atk_mod *= fury_or_rage_mod
 
-        # Boar Charge: first attack +50%
-        if attacker.passive == S1Passive.CHARGE and not attacker.charge_used:
-            atk_mod *= 1.5
-            attacker = dataclasses.replace(attacker, charge_used=True)
+        # Tiger Ambush Wiring: +15% ATK when opponent has Hamstring debuff
+        if attacker.passive == S1Passive.AMBUSH_WIRING:
+            for buff in defender.active_buffs:
+                if buff.ability_type == S1AbilityType.HAMSTRING:
+                    atk_mod *= 1.15
+                    break
 
-        # Tiger Ambush Wiring: first attack 2x if faster
+        # Boar Charge: first attack +85% and ignores dodge
+        if attacker.passive == S1Passive.CHARGE and not attacker.charge_used:
+            atk_mod *= 1.85
+            attacker = dataclasses.replace(attacker, charge_used=True)
+            # Note: dodge ignore handled in attack phase via charge_used check
+
+        # Tiger Ambush Wiring: first attack 2x if at least as fast
         if attacker.passive == S1Passive.AMBUSH_WIRING and not attacker.charge_used:
-            if attacker.stats.spd > defender.stats.spd:
+            if attacker.stats.spd >= defender.stats.spd:
                 atk_mod *= 2.0
                 attacker = dataclasses.replace(attacker, charge_used=True)
 
-        # Panther Shadow Stalk: +30% damage while undetected (first 3 attacks)
+        # Panther Shadow Stalk: +35% damage while undetected (first 3 attacks)
         if attacker.passive == S1Passive.SHADOW_STALK and attacker.is_undetected:
             if attacker.shadow_stalk_hits < 3:
-                atk_mod *= 1.30
+                atk_mod *= 1.35
                 attacker = dataclasses.replace(
                     attacker, shadow_stalk_hits=attacker.shadow_stalk_hits + 1,
                 )
@@ -1092,10 +1148,10 @@ class S1CombatEngine:
                 if attacker.shadow_stalk_hits >= 3:
                     attacker = dataclasses.replace(attacker, is_undetected=False)
 
-        # Vulture Carrion Feeder: +1% ATK per 10% HP opponent is missing
+        # Vulture Carrion Feeder: +3.5% ATK per 10% HP opponent is missing
         if attacker.passive == S1Passive.CARRION_FEEDER:
             missing_pct = (defender.max_hp - defender.current_hp) / defender.max_hp
-            bonus_pct = math.floor(missing_pct * 10) * 0.01
+            bonus_pct = math.floor(missing_pct * 10) * 0.035
             atk_mod *= (1.0 + bonus_pct)
 
         return attacker, atk_mod
@@ -1108,11 +1164,15 @@ class S1CombatEngine:
             dmg = max(1, math.floor(dmg * 0.5))
             defender = dataclasses.replace(defender, first_hit_taken=True)
 
-        # Rhino Bulwark Frame: any single hit > 18% max HP reduced by 35%
+        # Rhino Bulwark Frame: when HP < 60% (one-time trigger), +30% DR for 5 ticks
+        # Uses fury_triggered/fury_active_ticks fields (Rhino can't be Bear)
         if defender.passive == S1Passive.BULWARK_FRAME:
-            threshold = defender.max_hp * 0.18
-            if dmg > threshold:
-                dmg = max(1, math.floor(dmg * 0.65))
+            if not defender.fury_triggered and defender.current_hp < defender.max_hp * 0.60:
+                defender = dataclasses.replace(
+                    defender, fury_triggered=True, fury_active_ticks=4,
+                )
+            if defender.fury_active_ticks > 0:
+                dmg = max(1, math.floor(dmg * 0.72))
 
         return defender, dmg
 
