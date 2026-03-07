@@ -1,0 +1,36 @@
+{
+  "model": "gpt-5.4",
+  "provider": "openai",
+  "votes": [
+    {
+      "point": "Proposition 1",
+      "vote": "AGREE",
+      "reason": "Without a frictionless public replication package, every controversial result—especially the GPT-5.4 ranking and hint-removal split—will be dismissed before the benchmark can establish credibility."
+    },
+    {
+      "point": "Proposition 2",
+      "vote": "AGREE",
+      "reason": "The next priority should be a structured validation of the hint-removal effect via broader prompt ablations and a standard hint-free diagnostic, because this is the benchmark’s main scientific claim and main credibility risk."
+    },
+    {
+      "point": "Proposition 3",
+      "vote": "AGREE",
+      "reason": "Hint-free results should be reported alongside hinted results as a standard diagnostic rather than replacing the hinted track outright, since this preserves continuity while directly measuring scaffolding sensitivity."
+    },
+    {
+      "point": "Proposition 4",
+      "vote": "AGREE",
+      "reason": "The biggest current risk is that prompt fragility enables the narrative that Moreau Arena measures prompt compliance rather than strategic reasoning, which would undermine the benchmark’s core value proposition."
+    },
+    {
+      "point": "Proposition 5",
+      "vote": "AGREE",
+      "reason": "Track B/Lab Mode is strategically promising but should remain secondary until Track A has a defensible replication story and validated measurement basis."
+    }
+  ],
+  "elapsed_s": 6.35943078994751,
+  "input_tokens": 1970,
+  "output_tokens": 253,
+  "cost_usd": 0.007455,
+  "error": null
+}
