@@ -18,6 +18,9 @@ Usage:
     # Load question from file
     python roundtable.py --file question.md
 
+    # File as background context + question argument
+    python roundtable.py --file context.md "Your question about the context"
+
     # Save to specific directory
     python roundtable.py --output my_records/ "Question"
 
@@ -46,7 +49,7 @@ from roundtable.providers import MODEL_PROVIDERS
 
 DEFAULT_PANELISTS = [
     "claude-opus-4-6",
-    "gpt-5.2",
+    "gpt-5.4",
     "gemini-3.1-pro-preview",
     "grok-4-1-fast-reasoning",
 ]
@@ -66,7 +69,8 @@ def main() -> None:
     )
     parser.add_argument(
         "--file", "-f", type=str, default=None,
-        help="Load question from a text file",
+        help="Load context/question from a file. If a question argument is also "
+             "given, the file content is prepended as background reading.",
     )
     parser.add_argument(
         "--models", "-m", type=str, default=None,
@@ -104,11 +108,21 @@ def main() -> None:
             print(f"  {model:<35s} ({provider})")
         return
 
-    # Get question
-    question: str | None = args.question
+    # Get question (--file can provide context or the full question)
+    file_content = ""
     if args.file:
-        question = Path(args.file).read_text(encoding="utf-8").strip()
-    if not question:
+        file_content = Path(args.file).read_text(encoding="utf-8").strip()
+    if args.question and file_content:
+        # File is background context, argument is the question
+        question = (
+            f"BACKGROUND CONTEXT:\n{file_content}\n\n"
+            f"QUESTION:\n{args.question}"
+        )
+    elif file_content:
+        question = file_content
+    elif args.question:
+        question = args.question
+    else:
         parser.error("Provide a question as argument or via --file")
 
     # Get panelists
