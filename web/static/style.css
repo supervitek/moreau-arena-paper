@@ -290,6 +290,7 @@ tr:hover td { background: rgba(230, 57, 70, 0.04); }
 .badge-bronze { background: var(--bronze); color: #fff; }
 .badge-llm { background: var(--blue); color: #fff; font-size: 0.6rem; }
 .badge-baseline { background: var(--text-muted); color: #000; font-size: 0.6rem; }
+.badge-preview { background: #4a3800; color: var(--gold); border: 1px solid var(--gold); font-size: 0.6rem; }
 
 /* ── Tabs ────────────────────────────────────────────────────────────── */
 
