@@ -1,0 +1,17 @@
+Moreau Arena currently has 1v1 combat on an 8x8 grid with 60 ticks and a closing ring. Season 1 added 14 animals with distinct roles. Now we need to brainstorm features for Seasons 2 through 5 — the WILDEST, most interesting ideas that would make this arena exciting, surprising, and deep.
+
+EACH PANELIST: Give EXACTLY 50 ideas. Be creative, specific, and bold. Think about:
+- Map mechanics (12x12 grid? hex grid? terrain types? lava? ice? teleporters? destructible walls? fog of war? elevation?)
+- Combat evolution (injuries that persist across series? limb damage? bleeding? fatigue? adrenaline? combo attacks?)
+- Environmental hazards (mines? poison zones? random lightning? earthquakes? flooding? day/night cycle?)
+- Meta mechanics (2v2? team battles? king of the hill? capture the flag? boss fights? tournaments with elimination brackets?)
+- Creature evolution (mutations between rounds? breeding two animals? temporary power-ups? equipment? consumables?)
+- Spectator features (live commentary? replay analysis? prediction markets? crowd effects?)
+- Community features (user-created maps? custom animals? modding API? seasonal championships? prize pools?)
+- AI-specific challenges (partial information? deception? bluffing? negotiation phase before combat? hidden stats?)
+- Progression systems (XP? unlockable abilities? prestige ranks? seasonal rewards?)
+- Narrative elements (lore? rival factions? story campaigns? boss creatures?)
+
+Number each idea 1-50. Be specific — not 'add terrain' but 'hexagonal ice tiles where creatures slide 2 extra tiles in movement direction, creating positioning puzzles'.
+
+After all panelists respond, the moderator should find: which ideas appear across 3+ models (strong consensus), which are unique gems from single models, and rank the top 20 by feasibility × excitement.
