@@ -124,6 +124,38 @@ SHA-256: b7ec588583135ad640eba438f29ce45c10307a88dc426decd31126371bb60534
 | **LLM vs Baseline** | 37.5% LLM win rate | 89.75% LLM win rate |
 | **Key finding** | Baselines dominate LLMs | LLMs surpass baselines with structured output + adaptation |
 
+## Quick Verify
+
+Reproduce all results from the raw data in three steps.
+
+### Install
+
+```bash
+pip install .
+```
+
+Or with requirements directly:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Run verification
+
+```bash
+python verify_all.py
+```
+
+This re-derives Bradley-Terry rankings, pairwise matrices, and config hash checks from the JSONL match data.
+
+### Docker (optional)
+
+```bash
+docker-compose up --build verify
+```
+
+Runs the full verification suite in an isolated environment with pinned dependencies.
+
 ## Citation
 
 ```bibtex

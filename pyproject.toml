@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "moreau-arena"
+version = "0.1.0"
+description = "Moreau Arena — 1v1 combat benchmark for LLM strategic reasoning"
+requires-python = ">=3.10"
+license = "MIT"
+dependencies = [
+    "scipy>=1.10",
+    "numpy>=1.24",
+    "matplotlib>=3.7",
+    "fastapi>=0.100",
+    "uvicorn>=0.20",
+    "python-multipart>=0.0.6",
+    "flake8>=6.0",
+]
+
+[project.scripts]
+moreau-arena = "simulator.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["simulator*", "analysis*"]
