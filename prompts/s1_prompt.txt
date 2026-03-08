@@ -1,0 +1,95 @@
+You are building a fighter for Moreau Arena Season 1 — a one-on-one battle simulation.
+
+SETUP:
+- Distribute exactly 20 points among HP, ATK, SPD, WIL (minimum 1 each)
+- Select one animal from the 14 below
+
+STAT FORMULAS:
+  max_hp             = 50 + 10 * HP
+  base_dmg           = floor(2 + 0.85 * ATK)
+  dodge              = max(0%, min(30%, 2.5% * (SPD - 1)))
+  ability_resist     = min(60%, WIL * 3.3%)   — blocks opponent proc activations
+  ability_proc_bonus = WIL * 0.08%            — added to YOUR proc rates
+  wil_regen          = WIL * 0.0025 * max_hp  — HP healed per tick (NEW S1)
+
+BATTLE SYSTEM:
+- Tick-based, up to 60 ticks
+- Shrinking ring activates at tick 30 (escalating edge damage)
+- Abilities proc each tick: Standard = 4.5% base, Strong = 3.5% base (both modified by WIL)
+- Tick order: Attack → Buff ticks → Ability procs → DoTs → Ring → Regen
+
+ANIMAL ROSTER:
+
+BEAR
+  Passive — Fury Protocol: below 55% HP → +50% ATK for 4 ticks (triggers once per threshold cross)
+  Berserker Rage [Strong 3.5%]: +60% ATK for 3 ticks; -40% dodge during
+  Last Stand [Strong 3.5%] (one-time): survive killing blow at 1 HP, next attack +100% ATK
+
+BUFFALO
+  Passive — Thick Hide: first hit taken deals 50% reduced damage
+  Thick Hide Block [Standard 4.5%]: block 1 hit entirely
+  Iron Will [Strong 3.5%] (one-time): heal 12% max HP
+
+BOAR
+  Passive — Charge: first attack +85% dmg, ignores dodge
+  Stampede [Standard 4.5%]: +60% ATK; opponent skips next attack
+  Gore [Strong 3.5%]: -30% ATK but ignores dodge entirely
+
+TIGER
+  Passive — Ambush Wiring: SPD >= opponent SPD → first attack 2x dmg; if opponent Hamstrung → +15% ATK
+  Pounce [Standard 4.5%]: +70% ATK; opponent skips next attack
+  Hamstring [Standard 4.5%]: opponent -55% SPD, -10% dodge for 4 ticks
+
+WOLF
+  Passive — Pack Sense: +1.5% to all proc rates
+  Pack Howl [Standard 4.5%]: +30% ATK for 4 ticks
+  Rend [Standard 4.5%]: 3% max HP bleed/tick for 3 ticks
+
+MONKEY
+  Passive — Primate Cortex: copy one random opponent ability at fight start; +2.5% all proc rates
+  Chaos Strike [Standard 4.5%]: random dmg multiplier 1.2x–2.8x this attack
+  Mimic [Strong 3.5%]: copy opponent's passive at 75% strength
+
+PORCUPINE
+  Passive — Quill Armor: 50% chance/hit to reflect 15% melee dmg back to attacker
+  Spike Shield [Standard 4.5%]: +15% reflect for 3 ticks (total 30%)
+  Curl Up [Strong 3.5%]: block next hit entirely; immobile for 2 ticks
+
+SCORPION
+  Passive — Venom Gland: 25% chance/hit → opponent -50% healing/regen for 2 ticks
+  Envenom [Standard 4.5%]: 1.5% max HP poison DOT for 3 ticks (refresh only, no stack)
+  Tail Strike [Strong 3.5%]: +80% ATK, ignores 50% of opponent's damage reduction
+
+VULTURE
+  Passive — Carrion Feeder: +3.5% ATK per 10% HP opponent is missing
+  Death Spiral [Standard 4.5%]: +40% ATK for 2 ticks (only if opponent below 50% HP)
+  Feast [Strong 3.5%]: heal 30% of damage dealt this tick
+
+RHINO
+  Passive — Bulwark Frame (one-time): below 60% HP → +28% damage reduction for 4 ticks
+  Horn Charge [Standard 4.5%]: +60% ATK this attack
+  Fortify [Strong 3.5%]: +30% damage reduction for 4 ticks
+
+VIPER
+  Passive — Hemotoxin: 12% chance/hit → 1% max HP DOT for 2 ticks (refresh only, no stack)
+  Toxic Bite [Standard 4.5%]: 1.5% max HP DOT for 5 ticks (refresh only)
+  Shed Skin [Strong 3.5%]: remove all debuffs + heal 8% max HP
+
+FOX
+  Passive — Cunning: opponent's proc rates -50%
+  Outfox [Standard 4.5%]: dodge next 3 attacks (3 charges)
+  Trick [Strong 3.5%]: steal opponent's next proc (you gain the effect instead)
+
+EAGLE
+  Passive — Aerial Advantage: above 60% HP → +15% dodge, +1 movement range
+  Dive [Strong 3.5%]: +100% ATK; lose Aerial Advantage for 5 ticks
+  Tailwind [Standard 4.5%]: +10% dodge for 3 ticks
+
+PANTHER
+  Passive — Shadow Stalk: first 3 attacks +35% dmg while undetected (taking damage does NOT break stealth)
+  Lunge [Standard 4.5%]: +70% ATK this attack
+  Fade [Strong 3.5%]: re-enter undetected state for 3 ticks, resets Shadow Stalk counter
+
+Return a JSON object and nothing else:
+{"animal": "name", "hp": N, "atk": N, "spd": N, "wil": N}
+Animal name must be lowercase (bear, buffalo, boar, tiger, wolf, monkey, porcupine, scorpion, vulture, rhino, viper, fox, eagle, panther). Stats must sum to 20, each min 1.
