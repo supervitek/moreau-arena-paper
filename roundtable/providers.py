@@ -36,6 +36,10 @@ PRICING: dict[str, dict[str, float]] = {
     # Ollama (local/cloud — free)
     "deepseek-r1:latest":          {"input": 0.0,  "output": 0.0},
     "kimi-k2-thinking:cloud":      {"input": 0.0,  "output": 0.0},
+    "deepseek-v3.2:cloud":         {"input": 0.0,  "output": 0.0},
+    "kimi-k2.5:cloud":             {"input": 0.0,  "output": 0.0},
+    "qwen3-next:80b-cloud":        {"input": 0.0,  "output": 0.0},
+    "cogito-2.1:671b-cloud":       {"input": 0.0,  "output": 0.0},
 }
 
 # Provider -> env var name
@@ -60,6 +64,10 @@ MODEL_PROVIDERS: dict[str, str] = {
     "grok-4-1-fast-reasoning": "xai",
     "deepseek-r1:latest": "ollama",
     "kimi-k2-thinking:cloud": "ollama",
+    "deepseek-v3.2:cloud": "ollama",
+    "kimi-k2.5:cloud": "ollama",
+    "qwen3-next:80b-cloud": "ollama",
+    "cogito-2.1:671b-cloud": "ollama",
 }
 
 
