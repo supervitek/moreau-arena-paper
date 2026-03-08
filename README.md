@@ -8,6 +8,15 @@ Companion repository for the paper:
 
 **Key result:** Same 13 agents, same game, different scaffolding -- the leaderboard flips 180 degrees. LLMs go from losing to hand-coded bots (37.5% win rate) to crushing them (89.75%).
 
+## Project Structure
+
+| Component | Status | Description |
+|-----------|--------|-------------|
+| **Benchmark v1** | Frozen research | 6 animals, 3 tournament tracks (T001–T003), 89 invariant tests. Core data is immutable. |
+| **Arena Season 1** | Public preview | 14 animals (6 original + 8 new), calibrated over 182K games, all 5 quality gates pass. First LLM tournament pending. |
+
+Benchmark v1 is the research artifact — frozen, reproducible, citable. Arena Season 1 is built on top of that proof, expanding the roster for competitive play. They share the simulator core but run independently.
+
 ## What You Can Do
 
 ### 1. Verify Results

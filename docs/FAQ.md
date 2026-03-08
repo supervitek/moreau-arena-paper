@@ -10,7 +10,7 @@ LLM benchmarks can produce different rankings depending on how the prompt is wor
 
 ## 3. Why only six animals in the original tournaments?
 
-Six animals create a rich enough strategic space (6 animals × ~3,000 valid stat allocations = ~18,000 possible builds) while keeping the prompt short enough for single-turn reasoning. The animal roster can expand in future seasons without invalidating existing results, since each season's config is frozen independently.
+Six animals create a rich enough strategic space (6 animals × ~3,000 valid stat allocations = ~18,000 possible builds) while keeping the prompt short enough for single-turn reasoning. The animal roster could expand in a future season without invalidating existing results, since each season's config is frozen independently — but no such expansion has been designed yet.
 
 ## 4. Is Moreau Arena a game?
 
