@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matchup Explorer — Moreau Arena Season 1</title>
+    <meta property="og:title" content="Matchup Explorer — Moreau Arena Season 1">
+    <meta property="og:description" content="14x14 matchup chart for all Season 1 animals. Explore favorable, even, and unfavorable matchups.">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        .matchup-table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 2rem;
+        }
+        .matchup-table {
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            min-width: 100%;
+        }
+        .matchup-table th {
+            padding: 0.5rem 0.35rem;
+            font-size: 0.7rem;
+            text-transform: none;
+            letter-spacing: 0;
+            color: var(--text-dim);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            white-space: nowrap;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s;
+        }
+        .matchup-table th:hover { background: var(--bg-card-hover); }
+        .matchup-table th.row-header {
+            text-align: right;
+            padding-right: 0.6rem;
+            min-width: 80px;
+            font-weight: 600;
+        }
+        .matchup-table th.col-header {
+            writing-mode: vertical-lr;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            min-width: 38px;
+            max-width: 48px;
+            padding: 0.6rem 0.25rem;
+            font-weight: 600;
+        }
+        .matchup-table th.corner { cursor: default; }
+        .matchup-table th.corner:hover { background: var(--bg-card); }
+
+        .matchup-table td {
+            padding: 0.4rem 0.35rem;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid rgba(42, 42, 58, 0.5);
+            min-width: 38px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .matchup-table td.cell-W { background: rgba(78, 204, 163, 0.15); color: var(--green); }
+        .matchup-table td.cell-E { background: rgba(212, 160, 23, 0.08); color: var(--gold); }
+        .matchup-table td.cell-L { background: rgba(230, 57, 70, 0.15); color: var(--accent); }
+        .matchup-table td.cell-diag { background: #1a1a24; color: var(--text-muted); }
+
+        .matchup-table tr.highlight-row td { opacity: 1; }
+        .matchup-table td.highlight-col { opacity: 1; }
+        .matchup-table.has-highlight td:not(.highlight-col):not(.cell-diag) { opacity: 0.25; }
+        .matchup-table.has-highlight tr:not(.highlight-row) td { opacity: 0.25; }
+        .matchup-table.has-highlight tr.highlight-row td { opacity: 1; }
+        .matchup-table.has-highlight td.highlight-col { opacity: 1; }
+
+        .matchup-table th.highlight-active {
+            background: var(--accent-glow);
+            color: var(--accent);
+        }
+
+        .legend {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.82rem;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .legend-swatch {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            border: 1px solid var(--border);
+        }
+        .legend-swatch.swatch-W { background: rgba(78, 204, 163, 0.3); }
+        .legend-swatch.swatch-E { background: rgba(212, 160, 23, 0.15); }
+        .legend-swatch.swatch-L { background: rgba(230, 57, 70, 0.3); }
+
+        .explanation-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        .explanation-card h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .explanation-card p {
+            font-size: 0.83rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .triangle-card {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        .triangle-card h3 {
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+        .triangle-card p {
+            font-size: 0.83rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+        .triangle-cycle {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        .triangle-cycle .arrow { color: var(--accent); font-weight: 700; }
+        .triangle-cycle .animal { color: var(--text); font-weight: 600; }
+
+        .meta-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+        .meta-card p {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .click-hint {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/tournaments">Tournaments</a></li>
+                <li><a href="/leaderboard">Leaderboard</a></li>
+                <li class="nav-dropdown">
+                    <a href="/methodology">Evidence</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/match-log">Match Log</a></li>
+                        <li><a href="/methodology">Methodology</a></li>
+                        <li><a href="/compare">Compare</a></li>
+                    </ul>
+                </li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="section">
+            <h1 style="margin-bottom:0.5rem;">Matchup <span class="accent">Explorer</span></h1>
+            <p class="dim" style="margin-bottom:1.5rem; max-width:650px;">
+                How each animal fares against the rest of the roster. Use this to plan your picks and anticipate threats.
+            </p>
+
+            <div class="legend">
+                <div class="legend-item"><div class="legend-swatch swatch-W"></div> <span>W = Favorable (&gt;55% WR)</span></div>
+                <div class="legend-item"><div class="legend-swatch swatch-E"></div> <span>E = Even (45-55%)</span></div>
+                <div class="legend-item"><div class="legend-swatch swatch-L"></div> <span>L = Unfavorable (&lt;45%)</span></div>
+            </div>
+
+            <p class="click-hint">Click any animal name to highlight its matchups. Click again to clear.</p>
+
+            <div class="matchup-table-wrapper">
+                <table class="matchup-table" id="matchupTable">
+                    <thead>
+                        <tr>
+                            <th class="corner"></th>
+                            <th class="col-header" data-animal="Bear">Bear</th>
+                            <th class="col-header" data-animal="Buffalo">Buffalo</th>
+                            <th class="col-header" data-animal="Boar">Boar</th>
+                            <th class="col-header" data-animal="Tiger">Tiger</th>
+                            <th class="col-header" data-animal="Wolf">Wolf</th>
+                            <th class="col-header" data-animal="Monkey">Monkey</th>
+                            <th class="col-header" data-animal="Porcupine">Porcupine</th>
+                            <th class="col-header" data-animal="Scorpion">Scorpion</th>
+                            <th class="col-header" data-animal="Vulture">Vulture</th>
+                            <th class="col-header" data-animal="Rhino">Rhino</th>
+                            <th class="col-header" data-animal="Viper">Viper</th>
+                            <th class="col-header" data-animal="Fox">Fox</th>
+                            <th class="col-header" data-animal="Eagle">Eagle</th>
+                            <th class="col-header" data-animal="Panther">Panther</th>
+                        </tr>
+                    </thead>
+                    <tbody id="matchupBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Key Matchup Explanations</h2>
+
+            <div class="explanation-card">
+                <h3>Porcupine counters Bear and Boar</h3>
+                <p>Bear and Boar stack ATK and hit hard -- exactly what Porcupine wants. Quill Armor reflects 25% of every hit back, and Spike Shield pushes that to 75%. The harder they hit, the faster they kill themselves. Porcupine just needs to survive, which HP investment handles.</p>
+            </div>
+
+            <div class="explanation-card">
+                <h3>Scorpion counters Buffalo and Viper</h3>
+                <p>Buffalo relies on Iron Will's heal and WIL regen to outlast opponents. Venom Gland halves all that healing, and Tail Strike ignores 50% of Buffalo's damage reduction. Against Viper, Scorpion's anti-heal cripples Hemotoxin's sustain value and Shed Skin's healing.</p>
+            </div>
+
+            <div class="explanation-card">
+                <h3>Vulture counters Buffalo and Rhino</h3>
+                <p>Tanks with high HP pools and low damage are Vulture's ideal prey. Carrion Feeder scales as the fight drags on, and tanks can't burst Vulture down. Buffalo and Rhino slowly lose the attrition war as Vulture's damage ramps up and Feast keeps it healthy.</p>
+            </div>
+
+            <div class="explanation-card">
+                <h3>Rhino counters Bear, Tiger, and Panther</h3>
+                <p>Bulwark Frame reduces any big hit by 35%, directly neutralizing burst strategies. Bear's Fury Protocol hits, Tiger's Ambush Wiring opener, and Panther's Shadow Stalk damage all get shaved down. Fortify stacks even more damage reduction on top.</p>
+            </div>
+
+            <div class="explanation-card">
+                <h3>Viper counters Rhino and Buffalo</h3>
+                <p>Hemotoxin deals small per-tick DOT damage that slips under Rhino's Bulwark Frame threshold. Against Buffalo, the constant DOT pressure bypasses Thick Hide (which only helps on the first hit) and slowly drains the HP pool that tanks rely on.</p>
+            </div>
+
+            <div class="explanation-card">
+                <h3>Fox counters Wolf and Monkey</h3>
+                <p>Cunning reduces opponent proc rates by 30%, gutting Wolf's entire kit (Pack Sense can't compensate) and making Monkey's copied abilities almost never fire. Trick adds insult to injury by stealing procs when they do happen.</p>
+            </div>
+
+            <div class="explanation-card">
+                <h3>Eagle counters Buffalo and slow tanks</h3>
+                <p>Aerial Advantage grants +15% dodge and +1 movement range, letting Eagle kite slow tanks indefinitely. Buffalo and other low-SPD builds simply cannot close the gap. Eagle whittles them down with safe attacks and saves Dive for the finish.</p>
+            </div>
+
+            <div class="explanation-card">
+                <h3>Tiger counters Scorpion and Eagle</h3>
+                <p>Tiger's raw burst via Ambush Wiring (2x first hit) kills Scorpion before its debuffs accumulate. Against Eagle, Tiger's superior SPD means Ambush Wiring triggers reliably, and Hamstring strips Eagle's dodge and speed -- grounding it.</p>
+            </div>
+
+            <div class="explanation-card">
+                <h3>Porcupine and Panther lose to DOT and anti-heal</h3>
+                <p>Porcupine's reflect does nothing against Viper's DOT or Scorpion's poison -- those bypass melee damage entirely. Panther's burst opener gets reflected back by Porcupine's quills, and Fox's Trick steals Panther's procs.</p>
+            </div>
+
+            <div class="explanation-card">
+                <h3>Bear and Boar beat Fox</h3>
+                <p>Raw ATK fighters don't rely on procs to deal damage. Cunning barely affects them since their power comes from stat-based passives (Fury Protocol, Charge) and pure attack values, not proc frequency.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Key Triangles</h2>
+            <p class="dim small" style="margin-bottom:1.25rem;">Rock-paper-scissors cycles that ensure no single animal dominates the meta.</p>
+
+            <div class="triangle-card">
+                <div class="triangle-cycle">
+                    <span class="animal">Bear</span> <span class="arrow">&gt;</span>
+                    <span class="animal">Vulture</span> <span class="arrow">&gt;</span>
+                    <span class="animal">Rhino</span> <span class="arrow">&gt;</span>
+                    <span class="animal">Bear</span>
+                </div>
+                <p>Bear bursts Vulture down before it can scale. Vulture outlasts Rhino in attrition. Rhino's Bulwark Frame absorbs Bear's burst.</p>
+            </div>
+
+            <div class="triangle-card">
+                <div class="triangle-cycle">
+                    <span class="animal">Scorpion</span> <span class="arrow">&gt;</span>
+                    <span class="animal">Viper</span> <span class="arrow">&gt;</span>
+                    <span class="animal">Rhino</span> <span class="arrow">&gt;</span>
+                    <span class="animal">Scorpion</span>
+                </div>
+                <p>Scorpion's anti-heal shuts down Viper's sustain. Viper's DOT slips under Rhino's burst reduction. Rhino tanks Scorpion's damage and hits back harder.</p>
+            </div>
+
+            <div class="triangle-card">
+                <div class="triangle-cycle">
+                    <span class="animal">Fox</span> <span class="arrow">&gt;</span>
+                    <span class="animal">Wolf</span> <span class="arrow">&gt;</span>
+                    <span class="animal">Viper</span> <span class="arrow">&gt;</span>
+                    <span class="animal">Fox</span>
+                </div>
+                <p>Fox's Cunning cripples Wolf's proc-heavy kit. Wolf's Rend bleed and sustained pressure wears Viper down. Viper's DOT bypasses Fox's evasion (can't dodge poison ticking on you).</p>
+            </div>
+
+            <div class="triangle-card">
+                <div class="triangle-cycle">
+                    <span class="animal">Porcupine</span> <span class="arrow">&gt;</span>
+                    <span class="animal">Bear</span> <span class="arrow">&gt;</span>
+                    <span class="animal">Eagle</span> <span class="arrow">&gt;</span>
+                    <span class="animal">Porcupine</span>
+                </div>
+                <p>Porcupine reflects Bear's heavy hits right back. Bear's raw damage and Fury Protocol overwhelm Eagle before kiting matters. Eagle's mobility and dodge let it avoid Porcupine's reflect entirely (no need to hit hard into quills).</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Meta Implications</h2>
+
+            <div class="meta-card">
+                <p><strong>No animal is unbeatable.</strong> Every fighter has at least 2 unfavorable matchups.</p>
+            </div>
+            <div class="meta-card">
+                <p><strong>Burst vs. Sustain vs. Tank</strong> forms the core triangle, but anti-mechanics (anti-heal, anti-proc, anti-burst, reflect) create deeper layers.</p>
+            </div>
+            <div class="meta-card">
+                <p><strong>Animal selection matters as much as stat allocation.</strong> Picking the right animal into your opponent's choice can swing a fight more than raw stats.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-left">Created by Victor Stasiuc &mdash; Independent AI Safety Researcher</div>
+            <ul class="footer-links">
+                <li><a href="https://github.com/supervitek/moreau-arena-paper">GitHub</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+                <li><a href="mailto:moreau-arena@proton.me">Contact</a></li>
+            </ul>
+            <div class="footer-cite">Stasiuc, V. (2026). Moreau Arena: A Contamination-Resistant Benchmark for LLM Strategic Reasoning. <a href="/paper" style="color:var(--text-muted);">arXiv submission pending approval</a>.</div>
+        </div>
+    </footer>
+
+    <script>
+        var animals = ['Bear','Buffalo','Boar','Tiger','Wolf','Monkey','Porcupine','Scorpion','Vulture','Rhino','Viper','Fox','Eagle','Panther'];
+        var matchups = {
+            'Bear':      ['-','E','E','E','E','E','L','E','W','L','E','W','E','E'],
+            'Buffalo':   ['E','-','E','E','E','E','E','L','L','E','L','E','L','L'],
+            'Boar':      ['E','E','-','E','E','E','L','E','E','E','E','W','E','E'],
+            'Tiger':     ['E','E','E','-','E','E','E','W','W','L','E','E','W','E'],
+            'Wolf':      ['E','E','E','E','-','E','E','E','E','E','W','L','E','E'],
+            'Monkey':    ['E','E','E','E','E','-','E','E','E','E','E','L','E','E'],
+            'Porcupine': ['W','E','W','E','E','E','-','L','E','E','L','E','W','E'],
+            'Scorpion':  ['E','W','E','L','E','E','W','-','E','L','W','E','L','E'],
+            'Vulture':   ['L','W','E','L','E','E','E','E','-','W','E','E','E','E'],
+            'Rhino':     ['W','E','E','W','L','E','E','W','L','-','L','E','E','W'],
+            'Viper':     ['E','W','E','E','L','E','W','L','E','W','-','L','E','E'],
+            'Fox':       ['L','E','L','E','W','W','E','E','E','E','W','-','E','E'],
+            'Eagle':     ['E','W','E','L','E','E','L','W','E','E','E','E','-','E'],
+            'Panther':   ['E','W','E','E','E','E','L','E','E','L','E','L','E','-']
+        };
+
+        var selectedAnimal = null;
+
+        function buildTable() {
+            var tbody = document.getElementById('matchupBody');
+            var html = '';
+            for (var i = 0; i < animals.length; i++) {
+                var name = animals[i];
+                var row = matchups[name];
+                html += '<tr data-animal="' + name + '">';
+                html += '<th class="row-header" data-animal="' + name + '" onclick="toggleAnimal(\'' + name + '\')">' + name + '</th>';
+                for (var j = 0; j < row.length; j++) {
+                    var val = row[j];
+                    var cls = val === '-' ? 'cell-diag' : 'cell-' + val;
+                    html += '<td class="' + cls + '" data-col="' + animals[j] + '">' + val + '</td>';
+                }
+                html += '</tr>';
+            }
+            tbody.innerHTML = html;
+        }
+
+        function toggleAnimal(name) {
+            var table = document.getElementById('matchupTable');
+            if (selectedAnimal === name) {
+                selectedAnimal = null;
+                table.classList.remove('has-highlight');
+                clearHighlights();
+                return;
+            }
+            selectedAnimal = name;
+            clearHighlights();
+            table.classList.add('has-highlight');
+
+            // Highlight row
+            var rows = table.querySelectorAll('tbody tr');
+            rows.forEach(function(row) {
+                if (row.getAttribute('data-animal') === name) {
+                    row.classList.add('highlight-row');
+                }
+            });
+
+            // Highlight column cells
+            var allCells = table.querySelectorAll('tbody td');
+            allCells.forEach(function(td) {
+                if (td.getAttribute('data-col') === name) {
+                    td.classList.add('highlight-col');
+                }
+            });
+
+            // Highlight headers
+            var headers = table.querySelectorAll('th[data-animal]');
+            headers.forEach(function(th) {
+                if (th.getAttribute('data-animal') === name) {
+                    th.classList.add('highlight-active');
+                }
+            });
+        }
+
+        function clearHighlights() {
+            var table = document.getElementById('matchupTable');
+            table.querySelectorAll('.highlight-row').forEach(function(el) { el.classList.remove('highlight-row'); });
+            table.querySelectorAll('.highlight-col').forEach(function(el) { el.classList.remove('highlight-col'); });
+            table.querySelectorAll('.highlight-active').forEach(function(el) { el.classList.remove('highlight-active'); });
+        }
+
+        // Column header clicks
+        document.addEventListener('click', function(e) {
+            var th = e.target.closest('th.col-header');
+            if (th) {
+                toggleAnimal(th.getAttribute('data-animal'));
+            }
+        });
+
+        buildTable();
+    </script>
+</body>
+</html>

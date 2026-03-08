@@ -1307,6 +1307,16 @@ def s1_leaderboard_page() -> FileResponse:
     return FileResponse(STATIC_DIR / "s1-leaderboard.html")
 
 
+@app.get("/s1-fighters")
+def s1_fighters_page() -> FileResponse:
+    return FileResponse(STATIC_DIR / "s1-fighters.html")
+
+
+@app.get("/s1-matchups")
+def s1_matchups_page() -> FileResponse:
+    return FileResponse(STATIC_DIR / "s1-matchups.html")
+
+
 @app.post("/fight", response_model=FightResponse)
 def fight(req: FightRequest) -> FightResponse:
     return _fight_logic(req.build1, req.build2, req.games)
