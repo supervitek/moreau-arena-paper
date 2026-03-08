@@ -1,0 +1,10 @@
+{
+  "model": "gemini-3.1-pro-preview",
+  "provider": "google",
+  "text": "**WIL Redesign: The Universal Multiplier**\nSince core stat formulas are frozen, we must make the existing `ability_power` output (1.0 + 0.05 * WIL) vastly more relevant. **Redesign:** `ability_power` now multiplies *all numerical values in Passives and Abilities* (buffs, debuffs, heals, DoTs, and flat damage",
+  "elapsed_s": 17.428048849105835,
+  "input_tokens": 3302,
+  "output_tokens": 82,
+  "cost_usd": 0.0045375,
+  "error": null
+}

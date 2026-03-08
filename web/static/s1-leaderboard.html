@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Season 1 Leaderboard — Moreau Arena</title>
+    <meta property="og:title" content="Moreau Arena — Season 1 Leaderboard">
+    <meta property="og:description" content="Season 1 creature balance leaderboard with pairwise matchup heatmap and non-transitivity cycles.">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        .wr-green { color: var(--green); }
+        .wr-gold { color: var(--gold); }
+        .wr-red { color: var(--accent); }
+        .wr-neutral { color: var(--text-dim); }
+
+        .heatmap-cell-green { background: rgba(78, 204, 163, 0.25); color: var(--green); }
+        .heatmap-cell-red { background: rgba(230, 57, 70, 0.25); color: var(--accent); }
+        .heatmap-cell-neutral { background: transparent; color: var(--text-dim); }
+
+        .cycle-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 1rem;
+        }
+
+        .cycle-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .gates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .gate-item {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.6rem 0.8rem;
+            font-size: 0.8rem;
+        }
+
+        .gate-pass { border-left: 3px solid var(--green); }
+        .gate-fail { border-left: 3px solid var(--accent); }
+
+        .gate-name {
+            font-weight: 600;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+        }
+
+        .gate-detail {
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            margin-top: 0.15rem;
+        }
+
+        .section-subtitle {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/tournaments">Tournaments</a></li>
+                <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/s1-leaderboard" class="active">S1 Leaderboard</a></li>
+                <li class="nav-dropdown">
+                    <a href="/methodology">Evidence</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/match-log">Match Log</a></li>
+                        <li><a href="/methodology">Methodology</a></li>
+                        <li><a href="/compare">Compare</a></li>
+                    </ul>
+                </li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="section">
+            <h1>Season 1 <span class="accent">Leaderboard</span></h1>
+            <p class="section-subtitle">Creature balance rankings across 14 animals. Win rates from round-robin tournament data.</p>
+        </div>
+
+        <!-- Tab bar -->
+        <div class="tab-bar">
+            <button class="tab-btn active" onclick="showTab('rankings')">Rankings</button>
+            <button class="tab-btn" onclick="showTab('heatmap')">Matchup Heatmap</button>
+            <button class="tab-btn" onclick="showTab('cycles')">Non-Transitivity</button>
+            <button class="tab-btn" onclick="showTab('gates')">Quality Gates</button>
+        </div>
+
+        <!-- Rankings tab -->
+        <div class="tab-content active" id="tab-rankings">
+            <div class="card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="col-rank">#</th>
+                            <th>Animal</th>
+                            <th class="col-right">Win Rate</th>
+                            <th>Best Matchup</th>
+                            <th>Worst Matchup</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rankings-body">
+                        <tr><td colspan="5" class="loading">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Heatmap tab -->
+        <div class="tab-content" id="tab-heatmap">
+            <p class="dim small" style="margin-bottom: 1rem;">
+                Pairwise win rates: row animal vs. column animal. Green &gt;55%, red &lt;45%, neutral 45&ndash;55%.
+            </p>
+            <div class="card">
+                <div class="heatmap-wrapper" id="heatmap-container">
+                    <p class="loading">Loading heatmap...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cycles tab -->
+        <div class="tab-content" id="tab-cycles">
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <h3>Rock-Paper-Scissors in the Arena</h3>
+                <p class="dim small">
+                    Non-transitive cycles prove no single creature dominates all others. If A beats B and B beats C,
+                    it does <em>not</em> mean A beats C. This is a key design goal for balanced competitive gameplay.
+                </p>
+            </div>
+            <div class="cycle-container" id="cycles-container">
+                <p class="loading">Loading cycles...</p>
+            </div>
+        </div>
+
+        <!-- Quality Gates tab -->
+        <div class="tab-content" id="tab-gates">
+            <div class="card" style="margin-bottom: 1rem;">
+                <h3>Balance Quality Gates</h3>
+                <p class="dim small">Five automated checks that validate competitive balance in Season 1.</p>
+            </div>
+            <div class="gates-grid" id="gates-container">
+                <p class="loading">Loading gates...</p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-left">Moreau Arena &mdash; Season 1</div>
+            <ul class="footer-links">
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API Docs</a></li>
+                <li><a href="https://github.com">GitHub</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script>
+    // -- Tab switching --
+    function showTab(name) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab-' + name).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    // -- Color helpers --
+    function wrClass(wr) {
+        if (wr > 0.52) return 'wr-green';
+        if (wr >= 0.48) return 'wr-gold';
+        return 'wr-red';
+    }
+
+    function heatClass(wr) {
+        if (wr > 0.55) return 'heatmap-cell-green';
+        if (wr < 0.45) return 'heatmap-cell-red';
+        return 'heatmap-cell-neutral';
+    }
+
+    function capitalize(s) {
+        return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    // -- Load data --
+    async function loadData() {
+        try {
+            const resp = await fetch('/api/v1/s1/leaderboard');
+            if (!resp.ok) throw new Error('Failed to load data');
+            const data = await resp.json();
+            renderRankings(data.animals);
+            renderHeatmap(data.animals, data.pairwise || {});
+            renderCycles(data.animals, data.pairwise || {});
+            renderGates(data.gates);
+        } catch (err) {
+            document.getElementById('rankings-body').innerHTML =
+                '<tr><td colspan="5" class="error-msg">Error loading data: ' + err.message + '</td></tr>';
+        }
+    }
+
+    // -- Render rankings table --
+    function renderRankings(animals) {
+        const sorted = Object.entries(animals)
+            .map(([name, d]) => ({ name, ...d }))
+            .sort((a, b) => b.overall_wr - a.overall_wr);
+
+        const tbody = document.getElementById('rankings-body');
+        tbody.innerHTML = sorted.map((a, i) => {
+            const rank = i + 1;
+            const badge = rank === 1 ? '<span class="badge badge-gold">1st</span>' :
+                          rank === 2 ? '<span class="badge badge-silver">2nd</span>' :
+                          rank === 3 ? '<span class="badge badge-bronze">3rd</span>' : '';
+            return `<tr>
+                <td class="col-rank">${rank}</td>
+                <td class="col-name">${capitalize(a.name)} ${badge}</td>
+                <td class="col-right"><span class="${wrClass(a.overall_wr)}">${(a.overall_wr * 100).toFixed(1)}%</span></td>
+                <td class="small">vs ${capitalize(a.best_matchup.vs)} <span class="wr-green mono">${(a.best_matchup.wr * 100).toFixed(1)}%</span></td>
+                <td class="small">vs ${capitalize(a.worst_matchup.vs)} <span class="wr-red mono">${(a.worst_matchup.wr * 100).toFixed(1)}%</span></td>
+            </tr>`;
+        }).join('');
+    }
+
+    // -- Render pairwise heatmap --
+    function renderHeatmap(animals, pairwise) {
+        const names = Object.keys(animals).sort((a, b) => animals[b].overall_wr - animals[a].overall_wr);
+        const container = document.getElementById('heatmap-container');
+
+        if (!pairwise || Object.keys(pairwise).length === 0) {
+            container.innerHTML = '<p class="error-msg">No pairwise data available.</p>';
+            return;
+        }
+
+        let html = '<table class="heatmap-table"><thead><tr><th class="row-header"></th>';
+        names.forEach(n => { html += `<th>${capitalize(n)}</th>`; });
+        html += '</tr></thead><tbody>';
+
+        names.forEach(row => {
+            html += `<tr><th class="row-header">${capitalize(row)}</th>`;
+            names.forEach(col => {
+                if (row === col) {
+                    html += '<td class="diag">&mdash;</td>';
+                } else {
+                    const wr = pairwise[row] && pairwise[row][col] != null ? pairwise[row][col] : 0.5;
+                    html += `<td class="${heatClass(wr)}">${(wr * 100).toFixed(1)}</td>`;
+                }
+            });
+            html += '</tr>';
+        });
+
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+
+    // -- Render cycles --
+    function renderCycles(animals, pairwise) {
+        const names = Object.keys(animals);
+        const container = document.getElementById('cycles-container');
+
+        if (!pairwise || Object.keys(pairwise).length === 0) {
+            container.innerHTML = '<p class="error-msg">No pairwise data available for cycle detection.</p>';
+            return;
+        }
+
+        const threshold = 0.52;
+        const cycles = [];
+        const seen = new Set();
+
+        for (const a of names) {
+            for (const b of names) {
+                if (a === b) continue;
+                const ab = pairwise[a] && pairwise[a][b] != null ? pairwise[a][b] : 0.5;
+                if (ab <= threshold) continue;
+                for (const c of names) {
+                    if (c === a || c === b) continue;
+                    const bc = pairwise[b] && pairwise[b][c] != null ? pairwise[b][c] : 0.5;
+                    const ca = pairwise[c] && pairwise[c][a] != null ? pairwise[c][a] : 0.5;
+                    if (bc > threshold && ca > threshold) {
+                        const key = [a, b, c].sort().join(',');
+                        if (!seen.has(key)) {
+                            seen.add(key);
+                            const strength = Math.min(ab, bc, ca);
+                            cycles.push({ a, b, c, ab, bc, ca, strength });
+                        }
+                    }
+                }
+            }
+        }
+
+        cycles.sort((x, y) => y.strength - x.strength);
+
+        if (cycles.length === 0) {
+            container.innerHTML = '<p class="muted">No non-transitive cycles found above threshold.</p>';
+            return;
+        }
+
+        container.innerHTML = cycles.slice(0, 8).map((cy, i) => {
+            return `<div class="cycle-item">
+                <div class="cycle-label">Cycle ${i + 1}</div>
+                <span>${capitalize(cy.a)}</span>
+                <span class="cycle-arrow"> &rarr; </span>
+                <span>${capitalize(cy.b)}</span>
+                <span class="cycle-rate"> (${(cy.ab * 100).toFixed(1)}%)</span>
+                <span class="cycle-arrow"> &rarr; </span>
+                <span>${capitalize(cy.c)}</span>
+                <span class="cycle-rate"> (${(cy.bc * 100).toFixed(1)}%)</span>
+                <span class="cycle-arrow"> &rarr; </span>
+                <span>${capitalize(cy.a)}</span>
+                <span class="cycle-rate"> (${(cy.ca * 100).toFixed(1)}%)</span>
+            </div>`;
+        }).join('');
+    }
+
+    // -- Render quality gates --
+    function renderGates(gates) {
+        const container = document.getElementById('gates-container');
+        if (!gates) {
+            container.innerHTML = '<p class="muted">No gate data available.</p>';
+            return;
+        }
+
+        container.innerHTML = Object.entries(gates).map(([key, g]) => {
+            const icon = g.passed ? '&#10003;' : '&#10007;';
+            const cls = g.passed ? 'gate-pass' : 'gate-fail';
+            const color = g.passed ? 'wr-green' : 'wr-red';
+            return `<div class="gate-item ${cls}">
+                <div class="gate-name"><span class="${color}">${icon}</span> ${key}</div>
+                <div class="gate-detail">${g.detail}</div>
+            </div>`;
+        }).join('');
+    }
+
+    // -- Init --
+    loadData();
+    </script>
+</body>
+</html>

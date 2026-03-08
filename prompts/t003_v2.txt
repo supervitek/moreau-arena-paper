@@ -1,0 +1,66 @@
+You are building a fighter for Moreau Arena — a one-on-one battle simulation played on an 8x8 grid.
+
+SETUP:
+- Distribute exactly 20 points among four attributes: HP, ATK, SPD, WIL (minimum 1 each)
+- Select one animal from the six listed below; each has a unique passive trait and two active abilities
+
+STAT CALCULATIONS:
+  max_hp = 50 + 10 * HP
+    e.g. HP=3 -> 80 hp, HP=8 -> 130 hp, HP=14 -> 190 hp
+  base_dmg = floor(2 + 0.85 * ATK)
+    e.g. ATK=8 -> 8 dmg, ATK=14 -> 13 dmg
+  dodge = max(0%, min(30%, 2.5% * (SPD - 1)))
+    NOTE: SPD=1 -> 0% dodge, SPD=5 -> 10%, SPD=13 -> 30% (hard cap)
+  ability_resist = min(60%, WIL * 3.3%)
+    NOTE: Probability of blocking the OPPONENT's ability activations. WIL=1 -> 3.3%, WIL=10 -> 33%, cap 60%
+  ability_proc_bonus = WIL * 0.08% (added to YOUR activation rates)
+    e.g. WIL=8 adds +0.64% to every proc chance
+
+BATTLE SYSTEM:
+- Tick-based simulation (up to 60 ticks)
+- A shrinking ring activates at tick 30, inflicting escalating damage on fighters near the edges
+- Active abilities trigger stochastically each tick according to their proc rate + WIL bonus
+- Processing order per tick: Attack -> Buff ticks -> Ability activations -> Fury check -> DoTs -> Ring -> Second Wind -> Regen
+- High proc-rate abilities (4.5% base): Pounce, Hamstring, Pack Howl, Rend, Chaos Strike, Stampede, Thick Hide
+- Low proc-rate abilities (3.5% base): Berserker Rage, Last Stand, Gore, Mimic, Iron Will
+
+ANIMAL ROSTER:
+  BEAR
+    Passive: Fury Protocol — earns extra ATK after taking damage. Fury activates below 50% HP, granting +3 base_dmg for 5 ticks.
+    Abilities:
+  - Berserker Rage: ATK boost (+4 base_dmg) lasting 3 ticks. Proc rate: 3.5% per tick.
+  - Last Stand: Deals 2.0x damage when HP drops below 15%. One-time use. Proc rate: 3.5%.
+
+  BUFFALO
+    Passive: Thick Hide — absorbs incoming damage. Flat 2 damage reduction on every hit received.
+    Abilities:
+  - Thick Hide: Cuts incoming damage by 3 for 1 tick. Proc rate: 4.5% per tick.
+  - Iron Will: Prevents a lethal blow, leaving fighter at 1 HP. One-time use. Proc rate: 3.5%.
+
+  BOAR
+    Passive: Charge — deals extra damage on the opening attack. Initial strike hits for 1.5x base_dmg.
+    Abilities:
+  - Stampede: Area damage (0.4x base_dmg) plus knockback. Proc rate: 4.5% per tick.
+  - Gore: Hits for 0.60x damage but bypasses dodge entirely. Proc rate: 3.5% per tick.
+
+  TIGER
+    Passive: Ambush Wiring — superior evasion and first-strike capability. +5% dodge bonus; opening attack ignores opponent's dodge.
+    Abilities:
+  - Pounce: +70% damage bonus and stuns opponent (skips their next attack). Proc rate: 4.5% per tick.
+  - Hamstring: Reduces opponent SPD by 55% and dodge by 10% for 4 ticks. Proc rate: 4.5% per tick.
+
+  WOLF
+    Passive: Pack Sense — heightened ability activation rates. +1.5% added to all ability proc chances.
+    Abilities:
+  - Pack Howl: ATK boost (+3 base_dmg) for 4 ticks. Proc rate: 4.5% per tick.
+  - Rend: Bleeding DoT dealing 3 damage per tick over 3 ticks. Proc rate: 4.5% per tick.
+
+  MONKEY
+    Passive: Primate Cortex — adaptive mimic, copies opponent's abilities.
+    Abilities:
+  - Chaos Strike: Applies a random damage multiplier between 0.5x and 2.0x on attack. Proc rate: 4.5% per tick.
+  - Mimic: Duplicates the opponent's most recently activated ability. Proc rate: 3.5% per tick.
+
+Return a JSON object and nothing else:
+{"animal": "ANIMAL_NAME", "hp": N, "atk": N, "spd": N, "wil": N}
+All four stats must sum to 20, each at least 1. The animal must be from the roster above.

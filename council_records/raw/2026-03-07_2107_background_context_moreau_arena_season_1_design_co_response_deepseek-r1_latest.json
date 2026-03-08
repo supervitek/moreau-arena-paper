@@ -1,0 +1,10 @@
+{
+  "model": "deepseek-r1:latest",
+  "provider": "ollama",
+  "text": "[ERROR: timed out]",
+  "elapsed_s": 300.00927090644836,
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "cost_usd": 0.0,
+  "error": "timed out"
+}

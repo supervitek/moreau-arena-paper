@@ -1,0 +1,31 @@
+{
+  "model": "gemini-3.1-pro-preview",
+  "provider": "google",
+  "votes": [
+    {
+      "point": "Proposition 1",
+      "vote": "AGREE",
+      "reason": "The moderator accurately captured our collective agreement on the necessity of a non-dominant WIL buff, capped DoTs, distinct rock-paper-scissors archetypes, and strict adherence to the frozen core constraints."
+    },
+    {
+      "point": "Proposition 2",
+      "vote": "AGREE",
+      "reason": "The summary perfectly outlines the remaining friction points, correctly identifying that the specific WIL mechanic and DoT stacking limits are the primary design hurdles left to resolve."
+    },
+    {
+      "point": "Proposition 3",
+      "vote": "AGREE",
+      "reason": "The highlighted arguments represent the mechanical peaks of our brainstorming, particularly the recognition of Claude's stat-triangle framing and the necessity of Kimi's anti-burst Porcupine."
+    },
+    {
+      "point": "Proposition 4",
+      "vote": "AGREE",
+      "reason": "Halving the regen to 0.25% max HP per tick per WIL provides the sustained relevance the stat desperately needs without crossing the threshold into a broken, unkillable stall meta."
+    }
+  ],
+  "elapsed_s": 12.7918119430542,
+  "input_tokens": 1931,
+  "output_tokens": 215,
+  "cost_usd": 0.00348875,
+  "error": null
+}

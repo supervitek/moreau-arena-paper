@@ -1,0 +1,180 @@
+{
+  "animals": {
+    "fox": {
+      "overall_wr": 0.5706,
+      "best_matchup": {
+        "vs": "buffalo",
+        "wr": 0.625
+      },
+      "worst_matchup": {
+        "vs": "eagle",
+        "wr": 0.522
+      }
+    },
+    "tiger": {
+      "overall_wr": 0.5573,
+      "best_matchup": {
+        "vs": "vulture",
+        "wr": 0.6295
+      },
+      "worst_matchup": {
+        "vs": "fox",
+        "wr": 0.449
+      }
+    },
+    "porcupine": {
+      "overall_wr": 0.5274,
+      "best_matchup": {
+        "vs": "monkey",
+        "wr": 0.6218
+      },
+      "worst_matchup": {
+        "vs": "tiger",
+        "wr": 0.461
+      }
+    },
+    "rhino": {
+      "overall_wr": 0.5251,
+      "best_matchup": {
+        "vs": "vulture",
+        "wr": 0.6135
+      },
+      "worst_matchup": {
+        "vs": "fox",
+        "wr": 0.4482
+      }
+    },
+    "eagle": {
+      "overall_wr": 0.5244,
+      "best_matchup": {
+        "vs": "vulture",
+        "wr": 0.62
+      },
+      "worst_matchup": {
+        "vs": "tiger",
+        "wr": 0.4245
+      }
+    },
+    "wolf": {
+      "overall_wr": 0.5211,
+      "best_matchup": {
+        "vs": "vulture",
+        "wr": 0.6025
+      },
+      "worst_matchup": {
+        "vs": "fox",
+        "wr": 0.3985
+      }
+    },
+    "scorpion": {
+      "overall_wr": 0.5115,
+      "best_matchup": {
+        "vs": "vulture",
+        "wr": 0.564
+      },
+      "worst_matchup": {
+        "vs": "tiger",
+        "wr": 0.4265
+      }
+    },
+    "buffalo": {
+      "overall_wr": 0.4845,
+      "best_matchup": {
+        "vs": "boar",
+        "wr": 0.5965
+      },
+      "worst_matchup": {
+        "vs": "fox",
+        "wr": 0.375
+      }
+    },
+    "monkey": {
+      "overall_wr": 0.4828,
+      "best_matchup": {
+        "vs": "buffalo",
+        "wr": 0.5813
+      },
+      "worst_matchup": {
+        "vs": "porcupine",
+        "wr": 0.3782
+      }
+    },
+    "bear": {
+      "overall_wr": 0.4752,
+      "best_matchup": {
+        "vs": "panther",
+        "wr": 0.5415
+      },
+      "worst_matchup": {
+        "vs": "rhino",
+        "wr": 0.393
+      }
+    },
+    "viper": {
+      "overall_wr": 0.4709,
+      "best_matchup": {
+        "vs": "vulture",
+        "wr": 0.5365
+      },
+      "worst_matchup": {
+        "vs": "fox",
+        "wr": 0.413
+      }
+    },
+    "panther": {
+      "overall_wr": 0.4623,
+      "best_matchup": {
+        "vs": "vulture",
+        "wr": 0.539
+      },
+      "worst_matchup": {
+        "vs": "fox",
+        "wr": 0.406
+      }
+    },
+    "boar": {
+      "overall_wr": 0.4479,
+      "best_matchup": {
+        "vs": "monkey",
+        "wr": 0.5085
+      },
+      "worst_matchup": {
+        "vs": "tiger",
+        "wr": 0.3965
+      }
+    },
+    "vulture": {
+      "overall_wr": 0.4391,
+      "best_matchup": {
+        "vs": "monkey",
+        "wr": 0.548
+      },
+      "worst_matchup": {
+        "vs": "tiger",
+        "wr": 0.3705
+      }
+    }
+  },
+  "gates": {
+    "G1_max_wr": {
+      "passed": true,
+      "detail": "Max WR: fox at 0.5706 (limit 0.58)"
+    },
+    "G2_min_wr": {
+      "passed": true,
+      "detail": "Min WR: vulture at 0.4391 (limit 0.42)"
+    },
+    "G3_nontransitive": {
+      "passed": true,
+      "detail": "Found 5 cycle(s)"
+    },
+    "G4_rng_variance": {
+      "passed": true,
+      "detail": "All matchups within tolerance"
+    },
+    "G5_distinct_identities": {
+      "passed": true,
+      "detail": "All animals distinct"
+    }
+  }
+}

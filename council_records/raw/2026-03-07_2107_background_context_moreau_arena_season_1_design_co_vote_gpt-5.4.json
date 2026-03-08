@@ -1,0 +1,51 @@
+{
+  "model": "gpt-5.4",
+  "provider": "openai",
+  "votes": [
+    {
+      "point": "Proposition 1",
+      "vote": "AGREE",
+      "reason": "WIL must gain a universally relevant payoff because the current system makes it a dominated choice in virtually all builds."
+    },
+    {
+      "point": "Proposition 2",
+      "vote": "AGREE",
+      "reason": "The redesign must preserve a real ATK/HP/WIL triangle rather than letting WIL become the new obvious max stat."
+    },
+    {
+      "point": "Proposition 3",
+      "vote": "AGREE",
+      "reason": "Non-transitive animal matchups are essential to prevent a solved meta and give each new animal a real strategic niche."
+    },
+    {
+      "point": "Proposition 4",
+      "vote": "AGREE",
+      "reason": "DoT needs strict safeguards because the prior Viper failure shows even modest-looking per-tick damage can become overwhelmingly oppressive."
+    },
+    {
+      "point": "Proposition 5",
+      "vote": "AGREE",
+      "reason": "Anti-melee, anti-sustain, and anti-burst-punish archetypes are necessary to check Bear/Boar-style stat-efficient bruisers."
+    },
+    {
+      "point": "Proposition 6",
+      "vote": "AGREE",
+      "reason": "Distinct strategic identity per animal is mandatory because clone-like kits would fail both variety and balance goals."
+    },
+    {
+      "point": "Proposition 7",
+      "vote": "AGREE",
+      "reason": "The frozen-core constraints should stand, and solutions must come from WIL redesign plus new animals rather than retroactively rewriting the base roster."
+    },
+    {
+      "point": "Proposition 8",
+      "vote": "DISAGREE",
+      "reason": "The proposed hybrid regen synthesis still overcorrects by making WIL scale too reliably in every long fight, which risks replacing the current trap with a new default stat."
+    }
+  ],
+  "elapsed_s": 6.073858022689819,
+  "input_tokens": 1884,
+  "output_tokens": 308,
+  "cost_usd": 0.00779,
+  "error": null
+}

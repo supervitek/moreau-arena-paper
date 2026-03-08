@@ -1,0 +1,36 @@
+{
+  "model": "deepseek-r1:latest",
+  "provider": "ollama",
+  "votes": [
+    {
+      "point": "Proposition 1",
+      "vote": "AGREE",
+      "reason": "The hybrid Resolve-Regen system creates a meaningful tradeoff between WIL's sustain and other stats, avoiding both dominance and irrelevance."
+    },
+    {
+      "point": "Proposition 2",
+      "vote": "AGREE",
+      "reason": "Refresh-only DoT prevents the stacking exploits seen in the original Viper, maintaining balance while preserving the mechanic's identity."
+    },
+    {
+      "point": "Proposition 3",
+      "vote": "AGREE",
+      "reason": "Introducing anti-melee mechanisms directly counters existing dominant strategies without replacing them, fulfilling the core need for stat interplay."
+    },
+    {
+      "point": "Proposition 4",
+      "vote": "AGREE",
+      "reason": "The emphasis on distinct strategic identities ensures functional diversity, preventing clones while fulfilling the panel's consensus."
+    },
+    {
+      "point": "Proposition 5",
+      "vote": "AGREE",
+      "reason": "Respecting the frozen core demonstrates the council's commitment to preserving established systems while innovating within them."
+    }
+  ],
+  "elapsed_s": 40.77397298812866,
+  "input_tokens": 1936,
+  "output_tokens": 554,
+  "cost_usd": 0.0,
+  "error": null
+}
