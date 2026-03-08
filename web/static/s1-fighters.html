@@ -5,112 +5,147 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meet the Fighters — Moreau Arena Season 1 (Preview)</title>
     <meta property="og:title" content="Meet the Fighters — Moreau Arena Season 1 (Preview)">
-    <meta property="og:description" content="All 14 animals in Moreau Arena Season 1. Passives, abilities, and strategies.">
+    <meta property="og:description" content="All 14 animals in Moreau Arena Season 1. Passives, abilities, matchups, and strategies.">
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <style>
+        /* Role colors */
+        .role-burst    { background: #e63946; color: #fff; }
+        .role-tank     { background: #457b9d; color: #fff; }
+        .role-bruiser  { background: #e07b39; color: #fff; }
+        .role-sustained{ background: #2ecc71; color: #fff; }
+        .role-wildcard { background: #d4a017; color: #000; }
+        .role-reflect  { background: #8a9bae; color: #000; }
+        .role-antiheal { background: #c0392b; color: #fff; }
+        .role-finisher { background: #a0755a; color: #fff; }
+        .role-dot      { background: #27ae60; color: #fff; }
+        .role-antiproc { background: #8e44ad; color: #fff; }
+        .role-kite     { background: #2980b9; color: #fff; }
+        .role-ambush   { background: #1a1a2e; color: #f1faee; border: 1px solid #555; }
+
         .role-tag {
             display: inline-block;
-            padding: 0.15rem 0.6rem;
+            padding: 0.2rem 0.65rem;
             border-radius: 10px;
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.04em;
         }
-        .role-burst { background: #e63946; color: #fff; }
-        .role-tank { background: #457b9d; color: #fff; }
-        .role-bruiser { background: #e07b39; color: #fff; }
-        .role-mobility { background: #9b59b6; color: #fff; }
-        .role-sustained { background: #2ecc71; color: #fff; }
-        .role-wildcard { background: #d4a017; color: #000; }
-        .role-anti-melee { background: #8a9bae; color: #000; }
-        .role-anti-heal { background: #c0392b; color: #fff; }
-        .role-finisher { background: #a0755a; color: #fff; }
-        .role-anti-burst { background: #34495e; color: #fff; }
-        .role-dot { background: #27ae60; color: #fff; }
-        .role-anti-proc { background: #8e44ad; color: #fff; }
-        .role-kite { background: #2980b9; color: #fff; }
-        .role-crit { background: #1a1a2e; color: #f1faee; border: 1px solid #6a6a7a; }
 
-        .fighter-card {
-            background: var(--bg-card);
+        /* Grid layout */
+        .fighters-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+        }
+        @media (max-width: 900px) { .fighters-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .fighters-grid { grid-template-columns: 1fr; } }
+
+        /* Card */
+        .fc {
+            background: var(--bg-card, #1a1a2e);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 1.5rem;
-            margin-bottom: 1.25rem;
-            transition: border-color 0.2s;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            transition: border-color 0.2s, transform 0.15s;
         }
-        .fighter-card:hover { border-color: #3a3a4a; }
+        .fc:hover { border-color: #555; transform: translateY(-2px); }
 
-        .fighter-header {
+        .fc-top {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.75rem;
+            gap: 0.6rem;
+            margin-bottom: 0.4rem;
         }
-        .fighter-name {
-            font-size: 1.25rem;
-            font-weight: 700;
-        }
-        .fighter-flavor {
-            color: var(--text-muted);
+        .fc-emoji { font-size: 1.5rem; line-height: 1; }
+        .fc-name { font-size: 1.15rem; font-weight: 700; color: var(--text); }
+
+        .fc-quote {
             font-style: italic;
-            font-size: 0.85rem;
-            margin-bottom: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
         }
 
-        .ability-block {
-            background: var(--bg-code);
-            border-radius: var(--radius-sm);
-            padding: 0.75rem 1rem;
-            margin-bottom: 0.5rem;
+        .fc-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 0 0 0.75rem 0;
         }
-        .ability-label {
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--accent);
-        }
-        .ability-label.passive-label { color: var(--gold); }
-        .ability-name {
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--text);
-        }
-        .ability-proc {
-            font-family: var(--font-mono);
-            font-size: 0.72rem;
-            color: var(--text-muted);
-            margin-left: 0.5rem;
-        }
-        .ability-desc {
-            font-size: 0.83rem;
+
+        /* Ability rows */
+        .fc-ability {
+            font-size: 0.8rem;
+            line-height: 1.5;
+            margin-bottom: 0.35rem;
             color: var(--text-dim);
-            margin-top: 0.25rem;
+        }
+        .fc-ability:last-of-type { margin-bottom: 0; }
+        .fc-label {
+            font-weight: 700;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .fc-label-passive { color: var(--gold, #d4a017); }
+        .fc-label-ability { color: var(--accent, #e63946); }
+        .fc-proc {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* Abilities block */
+        .fc-abilities {
+            background: var(--bg-code, #12121a);
+            border-radius: 6px;
+            padding: 0.7rem 0.85rem;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Matchup block */
+        .fc-matchups {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.4rem;
+            margin-bottom: 0.6rem;
+            font-size: 0.78rem;
+        }
+        .fc-mu-label {
+            font-weight: 700;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .fc-mu-strong .fc-mu-label { color: var(--green, #2ecc71); }
+        .fc-mu-weak .fc-mu-label { color: var(--accent, #e63946); }
+        .fc-mu-list {
+            color: var(--text-dim);
+            font-size: 0.78rem;
             line-height: 1.5;
         }
 
-        .strategy-block {
-            margin-top: 0.75rem;
-            padding: 0.75rem 1rem;
-            border-left: 3px solid var(--accent);
-            background: rgba(230, 57, 70, 0.05);
-            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-        }
-        .strategy-block .strat-label {
-            font-size: 0.72rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-            margin-bottom: 0.25rem;
-        }
-        .strategy-block p {
-            font-size: 0.83rem;
+        /* Tip */
+        .fc-tip {
+            margin-top: auto;
+            padding-top: 0.6rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.78rem;
             color: var(--text-dim);
-            line-height: 1.6;
+            line-height: 1.5;
+        }
+        .fc-tip strong {
+            color: var(--text-muted);
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
 
+        /* Filter bar */
         .filter-bar {
             display: flex;
             flex-wrap: wrap;
@@ -118,31 +153,19 @@
             margin-bottom: 1.5rem;
         }
         .filter-btn {
-            padding: 0.4rem 0.85rem;
+            padding: 0.35rem 0.8rem;
             border: 1px solid var(--border);
             border-radius: 20px;
             background: transparent;
             color: var(--text-dim);
             font-family: var(--font-sans);
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.15s;
         }
         .filter-btn:hover { border-color: var(--accent); color: var(--text); }
         .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-
-        .proc-info {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1rem 1.25rem;
-            margin-bottom: 2rem;
-            font-size: 0.83rem;
-            color: var(--text-dim);
-            line-height: 1.6;
-        }
-        .proc-info strong { color: var(--text); }
     </style>
 </head>
 <body>
@@ -155,6 +178,7 @@
                 <li><a href="/about">About</a></li>
                 <li><a href="/tournaments">Tournaments</a></li>
                 <li><a href="/leaderboard">Leaderboard</a></li>
+                <li><a href="/s1-leaderboard">S1 Leaderboard <span style="font-size:0.65rem;color:var(--gold);font-weight:600;">(preview)</span></a></li>
                 <li class="nav-dropdown">
                     <a href="/methodology">Evidence</a>
                     <ul class="nav-dropdown-menu">
@@ -175,388 +199,325 @@
             <div style="background:#1a1400;border:1px solid var(--gold);border-radius:var(--radius-sm);padding:0.65rem 1rem;margin-bottom:1rem;font-size:0.85rem;color:var(--gold);">
                 Season 1 is a public preview. Tournament data coming soon.
             </div>
-            <p class="dim" style="margin-bottom:1.5rem; max-width:650px;">
-                All 14 animals available in Moreau Arena Season 1. Each has a passive (always active),
-                two abilities (proc on any given tick), and a unique playstyle.
+            <p class="dim" style="margin-bottom:0.5rem; max-width:700px;">
+                14 animals. Each has a passive, two abilities, and a unique playstyle.
+                Abilities proc each tick at Standard (4.5%) or Strong (3.5%) rate, modified by WIL.
+            </p>
+            <p class="muted small" style="margin-bottom:1.5rem;">
+                WIL regen: +0.25% max HP per tick per WIL point &middot; WIL resist: 3.3% per point (caps 60%) &middot; WIL proc bonus: +0.08% per point
             </p>
 
-            <div class="proc-info">
-                <strong>Proc tiers:</strong>
-                <strong>Standard (4.5%)</strong> &mdash; Base chance to trigger each tick. Modified by WIL (yours boosts it, opponent's resists it).
-                <strong>Strong (3.5%)</strong> &mdash; Lower base chance, but typically more powerful effects.
-            </div>
-
             <div class="filter-bar" id="filterBar">
-                <button class="filter-btn active" data-role="all" onclick="filterFighters('all', this)">All</button>
-                <button class="filter-btn" data-role="burst" onclick="filterFighters('burst', this)">Burst</button>
-                <button class="filter-btn" data-role="tank" onclick="filterFighters('tank', this)">Tank</button>
-                <button class="filter-btn" data-role="bruiser" onclick="filterFighters('bruiser', this)">Bruiser</button>
-                <button class="filter-btn" data-role="mobility" onclick="filterFighters('mobility', this)">Mobility</button>
-                <button class="filter-btn" data-role="sustained" onclick="filterFighters('sustained', this)">Sustained</button>
-                <button class="filter-btn" data-role="wildcard" onclick="filterFighters('wildcard', this)">Wildcard</button>
-                <button class="filter-btn" data-role="anti-melee" onclick="filterFighters('anti-melee', this)">Anti-Melee</button>
-                <button class="filter-btn" data-role="anti-heal" onclick="filterFighters('anti-heal', this)">Anti-Heal</button>
-                <button class="filter-btn" data-role="finisher" onclick="filterFighters('finisher', this)">Finisher</button>
-                <button class="filter-btn" data-role="anti-burst" onclick="filterFighters('anti-burst', this)">Anti-Burst</button>
-                <button class="filter-btn" data-role="dot" onclick="filterFighters('dot', this)">DOT</button>
-                <button class="filter-btn" data-role="anti-proc" onclick="filterFighters('anti-proc', this)">Anti-Proc</button>
-                <button class="filter-btn" data-role="kite" onclick="filterFighters('kite', this)">Kite</button>
-                <button class="filter-btn" data-role="crit" onclick="filterFighters('crit', this)">Crit</button>
+                <button class="filter-btn active" onclick="filterFighters('all', this)">All (14)</button>
+                <button class="filter-btn" onclick="filterFighters('burst', this)">Burst</button>
+                <button class="filter-btn" onclick="filterFighters('tank', this)">Tank</button>
+                <button class="filter-btn" onclick="filterFighters('bruiser', this)">Bruiser</button>
+                <button class="filter-btn" onclick="filterFighters('sustained', this)">Sustained</button>
+                <button class="filter-btn" onclick="filterFighters('wildcard', this)">Wildcard</button>
+                <button class="filter-btn" onclick="filterFighters('reflect', this)">Reflect</button>
+                <button class="filter-btn" onclick="filterFighters('antiheal', this)">Anti-Heal</button>
+                <button class="filter-btn" onclick="filterFighters('finisher', this)">Finisher</button>
+                <button class="filter-btn" onclick="filterFighters('dot', this)">DOT</button>
+                <button class="filter-btn" onclick="filterFighters('antiproc', this)">Anti-Proc</button>
+                <button class="filter-btn" onclick="filterFighters('kite', this)">Kite</button>
+                <button class="filter-btn" onclick="filterFighters('ambush', this)">Ambush</button>
             </div>
         </div>
 
-        <div id="fightersList">
+        <div class="fighters-grid" id="fightersList">
 
-            <!-- Bear -->
-            <div class="fighter-card" data-roles="burst">
-                <div class="fighter-header">
-                    <span class="fighter-name">Bear</span>
+            <!-- BEAR -->
+            <div class="fc" data-role="burst">
+                <div class="fc-top">
+                    <span class="fc-emoji">&#x1F43B;</span>
+                    <span class="fc-name">Bear</span>
                     <span class="role-tag role-burst">Burst</span>
                 </div>
-                <div class="fighter-flavor">When backed into a corner, the Bear doesn't retreat -- it rampages.</div>
-                <div class="ability-block">
-                    <div><span class="ability-label passive-label">Passive</span> &mdash; <span class="ability-name">Fury Protocol</span></div>
-                    <div class="ability-desc">When your HP drops below 55%, gain +50% ATK for 4 ticks.</div>
+                <div class="fc-quote">"Fury Protocol turns losing into winning."</div>
+                <hr class="fc-divider">
+                <div class="fc-abilities">
+                    <div class="fc-ability"><span class="fc-label fc-label-passive">Passive</span> Fury Protocol &mdash; below 55% HP: +50% ATK for 4 ticks</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A1</span> Berserker Rage <span class="fc-proc">(3.5%)</span> &mdash; +60% ATK, &minus;40% dodge, 3 ticks</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A2</span> Last Stand <span class="fc-proc">(3.5%)</span> &mdash; survive killing blow at 1 HP, retaliate +100% ATK <span class="fc-proc">(one-time)</span></div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 1</span> &mdash; <span class="ability-name">Berserker Rage</span> <span class="ability-proc">Strong 3.5%</span></div>
-                    <div class="ability-desc">Gain +60% ATK for 3 ticks, but lose 40% dodge for the duration.</div>
+                <div class="fc-matchups">
+                    <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Vulture, Fox</div></div>
+                    <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Porcupine, Rhino</div></div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 2</span> &mdash; <span class="ability-name">Last Stand</span> <span class="ability-proc">Strong 3.5%</span></div>
-                    <div class="ability-desc">Survive a killing blow at 1 HP and retaliate with +100% ATK. Single-use per fight.</div>
-                </div>
-                <div class="strategy-block">
-                    <div class="strat-label">Strategy</div>
-                    <p>Stack ATK for maximum Fury Protocol damage. Your low-HP zone is your power zone -- the lower you go, the harder you hit. Pair with enough HP to survive reaching that threshold, but don't over-invest in durability or you waste your kit.</p>
-                </div>
+                <div class="fc-tip"><strong>Tip:</strong> Stack ATK and HP. Let Fury do the rest.</div>
             </div>
 
-            <!-- Buffalo -->
-            <div class="fighter-card" data-roles="tank">
-                <div class="fighter-header">
-                    <span class="fighter-name">Buffalo</span>
+            <!-- BUFFALO -->
+            <div class="fc" data-role="tank">
+                <div class="fc-top">
+                    <span class="fc-emoji">&#x1F403;</span>
+                    <span class="fc-name">Buffalo</span>
                     <span class="role-tag role-tank">Tank</span>
                 </div>
-                <div class="fighter-flavor">Slow to anger, impossible to move.</div>
-                <div class="ability-block">
-                    <div><span class="ability-label passive-label">Passive</span> &mdash; <span class="ability-name">Thick Hide</span></div>
-                    <div class="ability-desc">The first hit you take deals 50% reduced damage.</div>
+                <div class="fc-quote">"Outlast everything. Heal the rest."</div>
+                <hr class="fc-divider">
+                <div class="fc-abilities">
+                    <div class="fc-ability"><span class="fc-label fc-label-passive">Passive</span> Thick Hide &mdash; first hit: 50% reduced damage</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A1</span> Thick Hide Block <span class="fc-proc">(4.5%)</span> &mdash; block ALL damage from 1 hit</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A2</span> Iron Will <span class="fc-proc">(3.5%)</span> &mdash; heal 12% max HP <span class="fc-proc">(one-time)</span></div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 1</span> &mdash; <span class="ability-name">Thick Hide Block</span> <span class="ability-proc">Standard 4.5%</span></div>
-                    <div class="ability-desc">Block ALL damage from 1 hit entirely.</div>
+                <div class="fc-matchups">
+                    <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Glass cannons</div></div>
+                    <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Scorpion, Vulture, Viper, Eagle</div></div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 2</span> &mdash; <span class="ability-name">Iron Will</span> <span class="ability-proc">Strong 3.5%</span></div>
-                    <div class="ability-desc">Heal 12% of your max HP. Single-use per fight.</div>
-                </div>
-                <div class="strategy-block">
-                    <div class="strat-label">Strategy</div>
-                    <p>Stack HP to maximize the value of Iron Will's percentage-based heal. WIL investment pairs well, giving you regen on top of your innate tankiness. You outlast most opponents but beware sustained damage dealers who ignore your front-loaded defenses.</p>
-                </div>
+                <div class="fc-tip"><strong>Tip:</strong> Max HP for Iron Will value. WIL regen stacks beautifully.</div>
             </div>
 
-            <!-- Boar -->
-            <div class="fighter-card" data-roles="bruiser">
-                <div class="fighter-header">
-                    <span class="fighter-name">Boar</span>
+            <!-- BOAR -->
+            <div class="fc" data-role="bruiser">
+                <div class="fc-top">
+                    <span class="fc-emoji">&#x1F417;</span>
+                    <span class="fc-name">Boar</span>
                     <span class="role-tag role-bruiser">Bruiser</span>
                 </div>
-                <div class="fighter-flavor">Lowers its head and doesn't stop.</div>
-                <div class="ability-block">
-                    <div><span class="ability-label passive-label">Passive</span> &mdash; <span class="ability-name">Charge</span></div>
-                    <div class="ability-desc">Your first attack deals +85% damage and ignores dodge.</div>
+                <div class="fc-quote">"First hit, best hit."</div>
+                <hr class="fc-divider">
+                <div class="fc-abilities">
+                    <div class="fc-ability"><span class="fc-label fc-label-passive">Passive</span> Charge &mdash; first attack: +85% damage, ignores dodge</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A1</span> Stampede <span class="fc-proc">(4.5%)</span> &mdash; +60% ATK, opponent skips next attack</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A2</span> Gore <span class="fc-proc">(3.5%)</span> &mdash; &minus;30% ATK but ignores dodge entirely</div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 1</span> &mdash; <span class="ability-name">Stampede</span> <span class="ability-proc">Standard 4.5%</span></div>
-                    <div class="ability-desc">Gain +60% ATK and your opponent skips their next attack.</div>
+                <div class="fc-matchups">
+                    <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Fox, dodge builds</div></div>
+                    <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Porcupine (thorns)</div></div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 2</span> &mdash; <span class="ability-name">Gore</span> <span class="ability-proc">Strong 3.5%</span></div>
-                    <div class="ability-desc">Deal an attack at -30% ATK, but it ignores dodge entirely.</div>
-                </div>
-                <div class="strategy-block">
-                    <div class="strat-label">Strategy</div>
-                    <p>Lead with Charge for a devastating burst opener. Gore punishes dodge-heavy enemies like Fox and Eagle who rely on evasion. Invest in ATK to make your opener and Stampede hits count -- you want fights decided quickly.</p>
-                </div>
+                <div class="fc-tip"><strong>Tip:</strong> All-in ATK. Charge + Stampede = fight over before it starts.</div>
             </div>
 
-            <!-- Tiger -->
-            <div class="fighter-card" data-roles="mobility burst">
-                <div class="fighter-header">
-                    <span class="fighter-name">Tiger</span>
-                    <span class="role-tag role-mobility">Mobility</span>
+            <!-- TIGER -->
+            <div class="fc" data-role="burst">
+                <div class="fc-top">
+                    <span class="fc-emoji">&#x1F405;</span>
+                    <span class="fc-name">Tiger</span>
                     <span class="role-tag role-burst">Burst</span>
                 </div>
-                <div class="fighter-flavor">Patience. Precision. One perfect strike.</div>
-                <div class="ability-block">
-                    <div><span class="ability-label passive-label">Passive</span> &mdash; <span class="ability-name">Ambush Wiring</span></div>
-                    <div class="ability-desc">If your SPD is at least equal to your opponent's SPD, your first attack deals 2x damage. When opponent has Hamstring debuff, gain +15% ATK.</div>
+                <div class="fc-quote">"One perfect strike. That's all it takes."</div>
+                <hr class="fc-divider">
+                <div class="fc-abilities">
+                    <div class="fc-ability"><span class="fc-label fc-label-passive">Passive</span> Ambush Wiring &mdash; SPD &ge; opponent: first attack 2x damage. +15% ATK vs Hamstrung</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A1</span> Pounce <span class="fc-proc">(4.5%)</span> &mdash; +70% ATK, opponent skips next attack</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A2</span> Hamstring <span class="fc-proc">(4.5%)</span> &mdash; &minus;55% SPD, &minus;10% dodge, 4 ticks</div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 1</span> &mdash; <span class="ability-name">Pounce</span> <span class="ability-proc">Standard 4.5%</span></div>
-                    <div class="ability-desc">Gain +70% ATK and your opponent skips their next attack.</div>
+                <div class="fc-matchups">
+                    <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Scorpion, Vulture, Eagle</div></div>
+                    <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Rhino (damage reduction)</div></div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 2</span> &mdash; <span class="ability-name">Hamstring</span> <span class="ability-proc">Standard 4.5%</span></div>
-                    <div class="ability-desc">Reduce opponent's SPD by 55% and dodge by 10% for 4 ticks.</div>
-                </div>
-                <div class="strategy-block">
-                    <div class="strat-label">Strategy</div>
-                    <p>Invest in SPD to guarantee Ambush Wiring triggers -- a 2x opening hit is massive. Hamstring cripples other fast enemies, stripping their speed advantage. You dominate the early fight; close it out before sustain fighters can recover.</p>
-                </div>
+                <div class="fc-tip"><strong>Tip:</strong> SPD guarantees Ambush. Close fights fast before sustain kicks in.</div>
             </div>
 
-            <!-- Wolf -->
-            <div class="fighter-card" data-roles="sustained">
-                <div class="fighter-header">
-                    <span class="fighter-name">Wolf</span>
+            <!-- WOLF -->
+            <div class="fc" data-role="sustained">
+                <div class="fc-top">
+                    <span class="fc-emoji">&#x1F43A;</span>
+                    <span class="fc-name">Wolf</span>
                     <span class="role-tag role-sustained">Sustained</span>
                 </div>
-                <div class="fighter-flavor">The pack hunts as one. You carry them all.</div>
-                <div class="ability-block">
-                    <div><span class="ability-label passive-label">Passive</span> &mdash; <span class="ability-name">Pack Sense</span></div>
-                    <div class="ability-desc">All your ability proc rates gain +1.5% (added to base rates).</div>
+                <div class="fc-quote">"Every tick, another proc. Every proc, another advantage."</div>
+                <hr class="fc-divider">
+                <div class="fc-abilities">
+                    <div class="fc-ability"><span class="fc-label fc-label-passive">Passive</span> Pack Sense &mdash; +1.5% to ALL proc rates</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A1</span> Pack Howl <span class="fc-proc">(4.5%)</span> &mdash; +30% ATK for 4 ticks</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A2</span> Rend <span class="fc-proc">(4.5%)</span> &mdash; 3% max HP bleed/tick for 3 ticks</div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 1</span> &mdash; <span class="ability-name">Pack Howl</span> <span class="ability-proc">Standard 4.5%</span></div>
-                    <div class="ability-desc">Gain +30% ATK for 4 ticks.</div>
+                <div class="fc-matchups">
+                    <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Viper</div></div>
+                    <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Fox (Cunning halves procs)</div></div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 2</span> &mdash; <span class="ability-name">Rend</span> <span class="ability-proc">Standard 4.5%</span></div>
-                    <div class="ability-desc">Apply 3% max HP bleed damage per tick for 3 ticks.</div>
-                </div>
-                <div class="strategy-block">
-                    <div class="strat-label">Strategy</div>
-                    <p>WIL investment amplifies both your proc rates and regen, making Wolf the sustained damage king. With Pack Sense boosting all your procs to 6%, you trigger abilities more often than anyone. Play the long game and grind opponents down.</p>
-                </div>
+                <div class="fc-tip"><strong>Tip:</strong> WIL investment = more procs + regen. The sustained damage king.</div>
             </div>
 
-            <!-- Monkey -->
-            <div class="fighter-card" data-roles="wildcard">
-                <div class="fighter-header">
-                    <span class="fighter-name">Monkey</span>
+            <!-- MONKEY -->
+            <div class="fc" data-role="wildcard">
+                <div class="fc-top">
+                    <span class="fc-emoji">&#x1F412;</span>
+                    <span class="fc-name">Monkey</span>
                     <span class="role-tag role-wildcard">Wildcard</span>
                 </div>
-                <div class="fighter-flavor">Chaos is a ladder -- and Monkey climbs fast.</div>
-                <div class="ability-block">
-                    <div><span class="ability-label passive-label">Passive</span> &mdash; <span class="ability-name">Primate Cortex</span></div>
-                    <div class="ability-desc">Copy a random ability from your opponent at fight start. All proc rates gain +2.5%.</div>
+                <div class="fc-quote">"Your abilities are my abilities now."</div>
+                <hr class="fc-divider">
+                <div class="fc-abilities">
+                    <div class="fc-ability"><span class="fc-label fc-label-passive">Passive</span> Primate Cortex &mdash; copy random opponent ability at fight start. +2.5% all procs</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A1</span> Chaos Strike <span class="fc-proc">(4.5%)</span> &mdash; 1.2x&ndash;2.8x random damage multiplier</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A2</span> Mimic <span class="fc-proc">(3.5%)</span> &mdash; copy opponent's passive at 75% strength</div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 1</span> &mdash; <span class="ability-name">Chaos Strike</span> <span class="ability-proc">Standard 4.5%</span></div>
-                    <div class="ability-desc">Deal an attack with a random damage multiplier between 1.2x and 2.8x.</div>
+                <div class="fc-matchups">
+                    <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Strong-passive animals</div></div>
+                    <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Fox (Cunning + Trick)</div></div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 2</span> &mdash; <span class="ability-name">Mimic</span> <span class="ability-proc">Strong 3.5%</span></div>
-                    <div class="ability-desc">Copy your opponent's passive at 75% strength.</div>
-                </div>
-                <div class="strategy-block">
-                    <div class="strat-label">Strategy</div>
-                    <p>High variance -- your power level depends heavily on what you copy. Monkey is strongest against enemies with powerful passives and abilities (Bear's Fury Protocol at 75% is still devastating). Weakest against simple stat-check fighters with underwhelming passives.</p>
-                </div>
+                <div class="fc-tip"><strong>Tip:</strong> High variance. Best vs powerful passives. Worst vs stat-checkers.</div>
             </div>
 
-            <!-- Porcupine -->
-            <div class="fighter-card" data-roles="anti-melee">
-                <div class="fighter-header">
-                    <span class="fighter-name">Porcupine</span>
-                    <span class="role-tag role-anti-melee">Anti-Melee</span>
+            <!-- PORCUPINE -->
+            <div class="fc" data-role="reflect">
+                <div class="fc-top">
+                    <span class="fc-emoji">&#x1F994;</span>
+                    <span class="fc-name">Porcupine</span>
+                    <span class="role-tag role-reflect">Reflect</span>
                 </div>
-                <div class="fighter-flavor">Hit me. I dare you.</div>
-                <div class="ability-block">
-                    <div><span class="ability-label passive-label">Passive</span> &mdash; <span class="ability-name">Quill Armor</span></div>
-                    <div class="ability-desc">50% chance per hit to reflect 15% of melee damage back to attacker.</div>
+                <div class="fc-quote">"Hit me. I dare you."</div>
+                <hr class="fc-divider">
+                <div class="fc-abilities">
+                    <div class="fc-ability"><span class="fc-label fc-label-passive">Passive</span> Quill Armor &mdash; 50% chance/hit to reflect 15% melee damage back</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A1</span> Spike Shield <span class="fc-proc">(4.5%)</span> &mdash; +15% reflect for 3 ticks (total 30%)</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A2</span> Curl Up <span class="fc-proc">(3.5%)</span> &mdash; block next hit entirely, immobile 2 ticks</div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 1</span> &mdash; <span class="ability-name">Spike Shield</span> <span class="ability-proc">Standard 4.5%</span></div>
-                    <div class="ability-desc">Gain +15% reflect damage for 3 ticks (total 30% reflect).</div>
+                <div class="fc-matchups">
+                    <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Bear, Boar, Eagle</div></div>
+                    <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Scorpion, Viper (DOT bypasses)</div></div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 2</span> &mdash; <span class="ability-name">Curl Up</span> <span class="ability-proc">Strong 3.5%</span></div>
-                    <div class="ability-desc">Block the next hit entirely, but you are immobile for 2 ticks.</div>
-                </div>
-                <div class="strategy-block">
-                    <div class="strat-label">Strategy</div>
-                    <p>The ultimate counter for ATK stackers -- Bear and Boar hurt themselves hitting you. Invest in HP to survive while they kill themselves on your quills. Beware DOT and anti-heal, which bypass reflect entirely.</p>
-                </div>
+                <div class="fc-tip"><strong>Tip:</strong> Stack HP. Let ATK stackers kill themselves on your quills.</div>
             </div>
 
-            <!-- Scorpion -->
-            <div class="fighter-card" data-roles="anti-heal">
-                <div class="fighter-header">
-                    <span class="fighter-name">Scorpion</span>
-                    <span class="role-tag role-anti-heal">Anti-Heal</span>
+            <!-- SCORPION -->
+            <div class="fc" data-role="antiheal">
+                <div class="fc-top">
+                    <span class="fc-emoji">&#x1F982;</span>
+                    <span class="fc-name">Scorpion</span>
+                    <span class="role-tag role-antiheal">Anti-Heal</span>
                 </div>
-                <div class="fighter-flavor">No recovery. No mercy. Just venom.</div>
-                <div class="ability-block">
-                    <div><span class="ability-label passive-label">Passive</span> &mdash; <span class="ability-name">Venom Gland</span></div>
-                    <div class="ability-desc">25% chance on hit to reduce target's healing and regen by 50% for 2 ticks.</div>
+                <div class="fc-quote">"No healing. No mercy. Just venom."</div>
+                <hr class="fc-divider">
+                <div class="fc-abilities">
+                    <div class="fc-ability"><span class="fc-label fc-label-passive">Passive</span> Venom Gland &mdash; 25% chance/hit: &minus;50% healing/regen for 2 ticks</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A1</span> Envenom <span class="fc-proc">(4.5%)</span> &mdash; 1.5% max HP poison DOT, 3 ticks (refresh only)</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A2</span> Tail Strike <span class="fc-proc">(3.5%)</span> &mdash; +80% ATK, ignores 50% damage reduction</div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 1</span> &mdash; <span class="ability-name">Envenom</span> <span class="ability-proc">Standard 4.5%</span></div>
-                    <div class="ability-desc">Apply 1.5% max HP poison DOT for 3 ticks. Refreshes on reapplication, never stacks.</div>
+                <div class="fc-matchups">
+                    <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Buffalo, Porcupine, Viper</div></div>
+                    <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Tiger, Rhino, Eagle</div></div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 2</span> &mdash; <span class="ability-name">Tail Strike</span> <span class="ability-proc">Strong 3.5%</span></div>
-                    <div class="ability-desc">Deal +80% ATK damage, ignoring 50% of the target's damage reduction.</div>
-                </div>
-                <div class="strategy-block">
-                    <div class="strat-label">Strategy</div>
-                    <p>Hard counter to WIL-heavy regen builds and Buffalo's tankiness. Venom Gland halves all healing, and Tail Strike pierces damage reduction. Struggles against fast burst fighters like Tiger and Eagle who can kill you before your debuffs matter.</p>
-                </div>
+                <div class="fc-tip"><strong>Tip:</strong> Hard counter to WIL regen and tanks. Tail Strike pierces everything.</div>
             </div>
 
-            <!-- Vulture -->
-            <div class="fighter-card" data-roles="finisher">
-                <div class="fighter-header">
-                    <span class="fighter-name">Vulture</span>
+            <!-- VULTURE -->
+            <div class="fc" data-role="finisher">
+                <div class="fc-top">
+                    <span class="fc-emoji">&#x1F985;</span>
+                    <span class="fc-name">Vulture</span>
                     <span class="role-tag role-finisher">Finisher</span>
                 </div>
-                <div class="fighter-flavor">Patient. Circling. Waiting for weakness.</div>
-                <div class="ability-block">
-                    <div><span class="ability-label passive-label">Passive</span> &mdash; <span class="ability-name">Carrion Feeder</span></div>
-                    <div class="ability-desc">Gain +3.5% ATK for every 10% HP your opponent is missing.</div>
+                <div class="fc-quote">"The weaker you get, the stronger I become."</div>
+                <hr class="fc-divider">
+                <div class="fc-abilities">
+                    <div class="fc-ability"><span class="fc-label fc-label-passive">Passive</span> Carrion Feeder &mdash; +3.5% ATK per 10% opponent HP missing</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A1</span> Death Spiral <span class="fc-proc">(4.5%)</span> &mdash; +40% ATK for 2 ticks if opponent &lt;50% HP</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A2</span> Feast <span class="fc-proc">(3.5%)</span> &mdash; heal 30% of damage dealt this tick</div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 1</span> &mdash; <span class="ability-name">Death Spiral</span> <span class="ability-proc">Standard 4.5%</span></div>
-                    <div class="ability-desc">Gain +40% ATK for 2 ticks if opponent is below 50% HP.</div>
+                <div class="fc-matchups">
+                    <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Buffalo, Rhino (slow tanks)</div></div>
+                    <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Bear, Tiger (burst kills before ramp)</div></div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 2</span> &mdash; <span class="ability-name">Feast</span> <span class="ability-proc">Strong 3.5%</span></div>
-                    <div class="ability-desc">Heal 30% of damage dealt this tick.</div>
-                </div>
-                <div class="strategy-block">
-                    <div class="strat-label">Strategy</div>
-                    <p>You get stronger as fights progress -- a nearly dead opponent gives you up to +10% ATK from Carrion Feeder alone, plus Death Spiral on top. Pair with WIL for sustain to outlast opponents, then finish with massive scaling damage. Avoid burst fighters who kill you before you ramp up.</p>
-                </div>
+                <div class="fc-tip"><strong>Tip:</strong> WIL for sustain. Survive the opener, then scale into a monster.</div>
             </div>
 
-            <!-- Rhino -->
-            <div class="fighter-card" data-roles="anti-burst tank">
-                <div class="fighter-header">
-                    <span class="fighter-name">Rhino</span>
-                    <span class="role-tag role-anti-burst">Anti-Burst</span>
+            <!-- RHINO -->
+            <div class="fc" data-role="tank">
+                <div class="fc-top">
+                    <span class="fc-emoji">&#x1F98F;</span>
+                    <span class="fc-name">Rhino</span>
                     <span class="role-tag role-tank">Tank</span>
                 </div>
-                <div class="fighter-flavor">You can hit hard. But you can't hit hard enough.</div>
-                <div class="ability-block">
-                    <div><span class="ability-label passive-label">Passive</span> &mdash; <span class="ability-name">Bulwark Frame</span></div>
-                    <div class="ability-desc">When HP drops below 60%, gain 28% damage reduction for 4 ticks (one-time trigger).</div>
+                <div class="fc-quote">"You hit hard. But not hard enough."</div>
+                <hr class="fc-divider">
+                <div class="fc-abilities">
+                    <div class="fc-ability"><span class="fc-label fc-label-passive">Passive</span> Bulwark Frame &mdash; below 60% HP: 28% DR for 4 ticks <span class="fc-proc">(one-time)</span></div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A1</span> Horn Charge <span class="fc-proc">(4.5%)</span> &mdash; +60% ATK damage</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A2</span> Fortify <span class="fc-proc">(3.5%)</span> &mdash; +30% DR for 4 ticks</div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 1</span> &mdash; <span class="ability-name">Horn Charge</span> <span class="ability-proc">Standard 4.5%</span></div>
-                    <div class="ability-desc">Deal +60% ATK damage.</div>
+                <div class="fc-matchups">
+                    <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Bear, Tiger, Scorpion, Panther</div></div>
+                    <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Wolf, Vulture, Viper (DOT bypasses)</div></div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 2</span> &mdash; <span class="ability-name">Fortify</span> <span class="ability-proc">Strong 3.5%</span></div>
-                    <div class="ability-desc">Gain +30% damage reduction for 4 ticks.</div>
-                </div>
-                <div class="strategy-block">
-                    <div class="strat-label">Strategy</div>
-                    <p>Stack HP to maximize the Bulwark threshold -- the higher your max HP, the bigger the hit needs to be before reduction kicks in. Hard counter to Bear and Tiger burst. Weak against sustained DOT damage that comes in small ticks, bypassing Bulwark entirely.</p>
-                </div>
+                <div class="fc-tip"><strong>Tip:</strong> Stack HP. Burst fighters waste damage on your DR wall.</div>
             </div>
 
-            <!-- Viper -->
-            <div class="fighter-card" data-roles="dot">
-                <div class="fighter-header">
-                    <span class="fighter-name">Viper</span>
+            <!-- VIPER -->
+            <div class="fc" data-role="dot">
+                <div class="fc-top">
+                    <span class="fc-emoji">&#x1F40D;</span>
+                    <span class="fc-name">Viper</span>
                     <span class="role-tag role-dot">DOT</span>
                 </div>
-                <div class="fighter-flavor">A slow death is still a death.</div>
-                <div class="ability-block">
-                    <div><span class="ability-label passive-label">Passive</span> &mdash; <span class="ability-name">Hemotoxin</span></div>
-                    <div class="ability-desc">12% chance per hit to apply 1% max HP DOT for 2 ticks. Refreshes on reapplication, never stacks.</div>
+                <div class="fc-quote">"A slow death is still a death."</div>
+                <hr class="fc-divider">
+                <div class="fc-abilities">
+                    <div class="fc-ability"><span class="fc-label fc-label-passive">Passive</span> Hemotoxin &mdash; 12% chance/hit: 1% max HP DOT for 2 ticks (refresh only)</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A1</span> Toxic Bite <span class="fc-proc">(4.5%)</span> &mdash; 1.5% max HP DOT, 5 ticks (refresh only)</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A2</span> Shed Skin <span class="fc-proc">(3.5%)</span> &mdash; remove all debuffs + heal 8% max HP</div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 1</span> &mdash; <span class="ability-name">Toxic Bite</span> <span class="ability-proc">Standard 4.5%</span></div>
-                    <div class="ability-desc">Apply 1.5% max HP DOT for 4 ticks (refresh only).</div>
+                <div class="fc-matchups">
+                    <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Buffalo, Porcupine, Rhino</div></div>
+                    <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Wolf, Scorpion, Fox</div></div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 2</span> &mdash; <span class="ability-name">Shed Skin</span> <span class="ability-proc">Strong 3.5%</span></div>
-                    <div class="ability-desc">Remove all your debuffs and heal 8% max HP.</div>
-                </div>
-                <div class="strategy-block">
-                    <div class="strat-label">Strategy</div>
-                    <p>Consistent ticking damage that wears down tanks over time. Your DOT bypasses Rhino's Bulwark Frame since it deals small per-tick damage. Countered hard by Scorpion's anti-heal, which cuts your DOT healing and sustain in half.</p>
-                </div>
+                <div class="fc-tip"><strong>Tip:</strong> DOT slips past armor and reflect. Tanks melt slowly but surely.</div>
             </div>
 
-            <!-- Fox -->
-            <div class="fighter-card" data-roles="anti-proc">
-                <div class="fighter-header">
-                    <span class="fighter-name">Fox</span>
-                    <span class="role-tag role-anti-proc">Anti-Proc</span>
+            <!-- FOX -->
+            <div class="fc" data-role="antiproc">
+                <div class="fc-top">
+                    <span class="fc-emoji">&#x1F98A;</span>
+                    <span class="fc-name">Fox</span>
+                    <span class="role-tag role-antiproc">Anti-Proc</span>
                 </div>
-                <div class="fighter-flavor">You can't hit what you can't predict.</div>
-                <div class="ability-block">
-                    <div><span class="ability-label passive-label">Passive</span> &mdash; <span class="ability-name">Cunning</span></div>
-                    <div class="ability-desc">Your opponent's proc rates are reduced by 50%.</div>
+                <div class="fc-quote">"Can't hit what you can't predict."</div>
+                <hr class="fc-divider">
+                <div class="fc-abilities">
+                    <div class="fc-ability"><span class="fc-label fc-label-passive">Passive</span> Cunning &mdash; opponent proc rates &minus;50%</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A1</span> Outfox <span class="fc-proc">(4.5%)</span> &mdash; dodge next 3 attacks entirely</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A2</span> Trick <span class="fc-proc">(3.5%)</span> &mdash; steal opponent's next proc</div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 1</span> &mdash; <span class="ability-name">Outfox</span> <span class="ability-proc">Standard 4.5%</span></div>
-                    <div class="ability-desc">Dodge the next 3 attacks entirely.</div>
+                <div class="fc-matchups">
+                    <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Wolf, Monkey, Viper</div></div>
+                    <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Bear, Boar (raw ATK ignores procs)</div></div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 2</span> &mdash; <span class="ability-name">Trick</span> <span class="ability-proc">Strong 3.5%</span></div>
-                    <div class="ability-desc">Steal your opponent's next proc -- you get the effect instead of them.</div>
-                </div>
-                <div class="strategy-block">
-                    <div class="strat-label">Strategy</div>
-                    <p>Shuts down proc-reliant fighters like Wolf and Monkey. High SPD combined with Cunning makes you incredibly evasive and disruptive. Struggles against raw ATK fighters like Bear and Boar who don't need procs to deal damage.</p>
-                </div>
+                <div class="fc-tip"><strong>Tip:</strong> SPD + WIL. Shut down proc-reliant kits. Steal their best moves.</div>
             </div>
 
-            <!-- Eagle -->
-            <div class="fighter-card" data-roles="kite">
-                <div class="fighter-header">
-                    <span class="fighter-name">Eagle</span>
+            <!-- EAGLE -->
+            <div class="fc" data-role="kite">
+                <div class="fc-top">
+                    <span class="fc-emoji">&#x1F985;</span>
+                    <span class="fc-name">Eagle</span>
                     <span class="role-tag role-kite">Kite</span>
                 </div>
-                <div class="fighter-flavor">You fight on the ground. Eagle fights from the sky.</div>
-                <div class="ability-block">
-                    <div><span class="ability-label passive-label">Passive</span> &mdash; <span class="ability-name">Aerial Advantage</span></div>
-                    <div class="ability-desc">While your HP is above 60%, gain +15% dodge and +1 movement range.</div>
+                <div class="fc-quote">"You fight on the ground. I don't."</div>
+                <hr class="fc-divider">
+                <div class="fc-abilities">
+                    <div class="fc-ability"><span class="fc-label fc-label-passive">Passive</span> Aerial Advantage &mdash; above 60% HP: +15% dodge, +1 movement</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A1</span> Dive <span class="fc-proc">(3.5%)</span> &mdash; +100% ATK, lose Aerial for 5 ticks</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A2</span> Tailwind <span class="fc-proc">(4.5%)</span> &mdash; +10% dodge for 3 ticks</div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 1</span> &mdash; <span class="ability-name">Dive</span> <span class="ability-proc">Strong 3.5%</span></div>
-                    <div class="ability-desc">Deal +100% ATK in a single devastating strike, but lose Aerial Advantage for 5 ticks.</div>
+                <div class="fc-matchups">
+                    <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Buffalo, Scorpion</div></div>
+                    <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Tiger (Hamstring grounds you), Porcupine</div></div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 2</span> &mdash; <span class="ability-name">Tailwind</span> <span class="ability-proc">Standard 4.5%</span></div>
-                    <div class="ability-desc">Gain +10% dodge for 3 ticks.</div>
-                </div>
-                <div class="strategy-block">
-                    <div class="strat-label">Strategy</div>
-                    <p>Kite with superior movement and build SPD for maximum evasion. Dive is high-risk, high-reward -- you deal massive damage but lose your passive defensives for 5 ticks. Time it carefully, ideally as a finisher when the opponent is low.</p>
-                </div>
+                <div class="fc-tip"><strong>Tip:</strong> SPD for max evasion. Save Dive as a finisher when they're low.</div>
             </div>
 
-            <!-- Panther -->
-            <div class="fighter-card" data-roles="crit">
-                <div class="fighter-header">
-                    <span class="fighter-name">Panther</span>
-                    <span class="role-tag role-crit">Crit / Ambush</span>
+            <!-- PANTHER -->
+            <div class="fc" data-role="ambush">
+                <div class="fc-top">
+                    <span class="fc-emoji">&#x1F408;&#x200D;&#x2B1B;</span>
+                    <span class="fc-name">Panther</span>
+                    <span class="role-tag role-ambush">Ambush</span>
                 </div>
-                <div class="fighter-flavor">Three strikes from the shadows. Then vanish.</div>
-                <div class="ability-block">
-                    <div><span class="ability-label passive-label">Passive</span> &mdash; <span class="ability-name">Shadow Stalk</span></div>
-                    <div class="ability-desc">Your first 3 attacks deal +35% damage while undetected. Taking damage does not break stealth.</div>
+                <div class="fc-quote">"Three strikes from the shadows. Then vanish."</div>
+                <hr class="fc-divider">
+                <div class="fc-abilities">
+                    <div class="fc-ability"><span class="fc-label fc-label-passive">Passive</span> Shadow Stalk &mdash; first 3 attacks: +35% damage. Damage doesn't break stealth</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A1</span> Lunge <span class="fc-proc">(4.5%)</span> &mdash; +70% ATK damage</div>
+                    <div class="fc-ability"><span class="fc-label fc-label-ability">A2</span> Fade <span class="fc-proc">(3.5%)</span> &mdash; re-enter stealth for 3 ticks, reset Shadow Stalk</div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 1</span> &mdash; <span class="ability-name">Lunge</span> <span class="ability-proc">Standard 4.5%</span></div>
-                    <div class="ability-desc">Deal +70% ATK damage.</div>
+                <div class="fc-matchups">
+                    <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Buffalo</div></div>
+                    <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Porcupine, Rhino, Fox</div></div>
                 </div>
-                <div class="ability-block">
-                    <div><span class="ability-label">Ability 2</span> &mdash; <span class="ability-name">Fade</span> <span class="ability-proc">Strong 3.5%</span></div>
-                    <div class="ability-desc">Become "undetected" again for 3 ticks, resetting Shadow Stalk bonus.</div>
-                </div>
-                <div class="strategy-block">
-                    <div class="strat-label">Strategy</div>
-                    <p>Front-load damage with the Shadow Stalk opener, then use Fade to reset your undetected status and get another burst window. Works well with mixed ATK/SPD builds -- SPD helps you strike first, ATK makes those boosted hits devastating.</p>
-                </div>
+                <div class="fc-tip"><strong>Tip:</strong> ATK + SPD. Burst opener, Fade, burst again. Close fights in two windows.</div>
             </div>
 
         </div>
@@ -577,18 +538,12 @@
 
     <script>
         function filterFighters(role, btn) {
-            var cards = document.querySelectorAll('.fighter-card');
+            var cards = document.querySelectorAll('.fc');
             var buttons = document.querySelectorAll('.filter-btn');
             buttons.forEach(function(b) { b.classList.remove('active'); });
             btn.classList.add('active');
-
             cards.forEach(function(card) {
-                if (role === 'all') {
-                    card.style.display = '';
-                } else {
-                    var roles = card.getAttribute('data-roles');
-                    card.style.display = roles.indexOf(role) !== -1 ? '' : 'none';
-                }
+                card.style.display = (role === 'all' || card.getAttribute('data-role') === role) ? '' : 'none';
             });
         }
     </script>
