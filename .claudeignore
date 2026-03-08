@@ -1,0 +1,8 @@
+data/tournament_001/
+data/tournament_002/
+data/tournament_003/
+data/t003_psi/
+council_records/
+.venv/
+__pycache__/
+*.jsonl
