@@ -39,6 +39,7 @@ from analysis.bt_ranking import (
 )
 from simulator.__main__ import _create_creature, _parse_build, _run_games
 from simulator.engine import CombatEngine
+from season1.engine_s1 import run_match as s1_run_match
 
 logger = logging.getLogger("moreau-arena")
 
@@ -50,10 +51,16 @@ STATIC_DIR = Path(__file__).resolve().parent / "static"
 RESULTS_DIR = _project_root / "results"
 SUBMISSIONS_DIR = RESULTS_DIR / "submissions"
 DATA_DIR = _project_root / "data"
+SEASON1_DIR = _project_root / "season1"
 
 VALID_ANIMALS = [
     "bear", "buffalo", "boar", "tiger", "wolf", "monkey",
     "crocodile", "eagle", "snake", "raven", "shark", "owl", "fox", "scorpion",
+]
+
+S1_ANIMALS = [
+    "bear", "buffalo", "boar", "tiger", "wolf", "monkey",
+    "porcupine", "scorpion", "vulture", "rhino", "viper", "fox", "eagle", "panther",
 ]
 
 # Tournament track mapping
@@ -922,9 +929,10 @@ class PlayRequest(BaseModel):
     @classmethod
     def validate_animal(cls, v: str) -> str:
         v = v.strip().lower()
-        if v not in VALID_ANIMALS:
+        all_animals = set(VALID_ANIMALS) | set(S1_ANIMALS)
+        if v not in all_animals:
             raise ValueError(
-                f"Invalid animal '{v}'. Valid: {', '.join(VALID_ANIMALS)}"
+                f"Invalid animal '{v}'. Valid: {', '.join(sorted(all_animals))}"
             )
         return v
 
@@ -1294,9 +1302,75 @@ def compare_page() -> FileResponse:
     return FileResponse(STATIC_DIR / "compare.html")
 
 
+@app.get("/s1-leaderboard")
+def s1_leaderboard_page() -> FileResponse:
+    return FileResponse(STATIC_DIR / "s1-leaderboard.html")
+
+
 @app.post("/fight", response_model=FightResponse)
 def fight(req: FightRequest) -> FightResponse:
     return _fight_logic(req.build1, req.build2, req.games)
+
+
+def _parse_s1_build(build_str: str) -> tuple[str, int, int, int, int]:
+    """Parse a build string like 'bear 5 5 5 5' into (animal, hp, atk, spd, wil)."""
+    parts = build_str.strip().split()
+    if len(parts) != 5:
+        raise ValueError(f"Expected 'animal hp atk spd wil', got: {build_str!r}")
+    animal = parts[0].lower()
+    if animal not in S1_ANIMALS:
+        raise ValueError(f"Invalid S1 animal '{animal}'. Valid: {', '.join(S1_ANIMALS)}")
+    hp, atk, spd, wil = int(parts[1]), int(parts[2]), int(parts[3]), int(parts[4])
+    if hp + atk + spd + wil != 20:
+        raise ValueError(f"Stats must sum to 20, got {hp + atk + spd + wil}")
+    if any(s < 1 for s in (hp, atk, spd, wil)):
+        raise ValueError("Each stat must be >= 1")
+    return animal, hp, atk, spd, wil
+
+
+def _fight_s1_logic(build1: str, build2: str, games: int) -> FightResponse:
+    """Run a Season 1 fight series using the S1 engine."""
+    try:
+        animal_a, hp_a, atk_a, spd_a, wil_a = _parse_s1_build(build1)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid build1: {e}")
+
+    try:
+        animal_b, hp_b, atk_b, spd_b, wil_b = _parse_s1_build(build2)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid build2: {e}")
+
+    wins_a = 0
+    wins_b = 0
+    draws = 0
+    total_ticks = 0
+
+    for i in range(games):
+        seed = 42 + i
+        result = s1_run_match(
+            animal_a, (hp_a, atk_a, spd_a, wil_a),
+            animal_b, (hp_b, atk_b, spd_b, wil_b),
+            seed,
+        )
+        total_ticks += result["ticks"]
+        if result["winner"] == "a":
+            wins_a += 1
+        elif result["winner"] == "b":
+            wins_b += 1
+        else:
+            draws += 1
+
+    return FightResponse(
+        build1_wins=wins_a,
+        build2_wins=wins_b,
+        draws=draws,
+        avg_ticks=round(total_ticks / games, 2) if games else 0,
+    )
+
+
+@app.post("/fight/s1", response_model=FightResponse)
+def fight_s1(req: FightRequest) -> FightResponse:
+    return _fight_s1_logic(req.build1, req.build2, req.games)
 
 
 # -- API v1 router ---------------------------------------------------------------
@@ -1307,6 +1381,11 @@ api_v1 = APIRouter(prefix="/api/v1")
 @api_v1.post("/fight", response_model=FightResponse)
 def api_fight(req: FightRequest) -> FightResponse:
     return _fight_logic(req.build1, req.build2, req.games)
+
+
+@api_v1.post("/fight/s1", response_model=FightResponse)
+def api_fight_s1(req: FightRequest) -> FightResponse:
+    return _fight_s1_logic(req.build1, req.build2, req.games)
 
 
 @api_v1.get("/leaderboard")
@@ -1394,6 +1473,34 @@ def api_leaderboard_cycles(
     }
 
 
+@api_v1.get("/s1/leaderboard")
+def api_s1_leaderboard() -> dict[str, Any]:
+    """Return Season 1 balance results (animal win rates, gates, pairwise)."""
+    balance_file = SEASON1_DIR / "balance_results.json"
+    if not balance_file.exists():
+        raise HTTPException(status_code=404, detail="Season 1 balance data not found")
+    data = json.loads(balance_file.read_text(encoding="utf-8"))
+
+    # Include pairwise matrix from CSV
+    pairwise_file = SEASON1_DIR / "pairwise_matrix.csv"
+    if pairwise_file.exists():
+        import csv as _csv
+        import io as _io
+
+        text = pairwise_file.read_text(encoding="utf-8")
+        reader = _csv.reader(_io.StringIO(text))
+        headers = next(reader)[1:]  # skip first empty column
+        pairwise: dict[str, dict[str, float | None]] = {}
+        for row in reader:
+            name = row[0]
+            pairwise[name] = {}
+            for j, val in enumerate(row[1:]):
+                pairwise[name][headers[j]] = float(val) if val else None
+        data["pairwise"] = pairwise
+
+    return data
+
+
 @api_v1.post("/play", response_model=PlayResponse)
 def api_play(req: PlayRequest) -> PlayResponse:
     """Run a best-of-7 series: player build vs balanced bear (5/5/5/5)."""
@@ -1447,6 +1554,61 @@ def api_play(req: PlayRequest) -> PlayResponse:
             game=g + 1,
             winner=winner_label,
             ticks=result.ticks,
+        ))
+
+    return PlayResponse(
+        player_wins=player_wins,
+        opponent_wins=opponent_wins,
+        games=game_results,
+    )
+
+
+@api_v1.post("/play/s1", response_model=PlayResponse)
+def api_play_s1(req: PlayRequest) -> PlayResponse:
+    """Run a best-of-7 series using the Season 1 engine: player build vs balanced bear (5/5/5/5)."""
+    total = req.hp + req.atk + req.spd + req.wil
+    if total != 20:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Stats must sum to 20, got {total} ({req.hp}+{req.atk}+{req.spd}+{req.wil})",
+        )
+
+    animal = req.animal.strip().lower()
+    if animal not in S1_ANIMALS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid S1 animal '{animal}'. Valid: {', '.join(S1_ANIMALS)}",
+        )
+
+    player_wins = 0
+    opponent_wins = 0
+    game_results: list[PlayGameResult] = []
+    base_seed = random.randint(0, 100000)
+
+    for g in range(7):
+        if player_wins >= 4 or opponent_wins >= 4:
+            break
+
+        match_seed = base_seed + g
+        result = s1_run_match(
+            animal, (req.hp, req.atk, req.spd, req.wil),
+            "bear", (5, 5, 5, 5),
+            match_seed,
+        )
+
+        if result["winner"] == "a":
+            player_wins += 1
+            winner_label = "player"
+        elif result["winner"] == "b":
+            opponent_wins += 1
+            winner_label = "opponent"
+        else:
+            winner_label = "draw"
+
+        game_results.append(PlayGameResult(
+            game=g + 1,
+            winner=winner_label,
+            ticks=result["ticks"],
         ))
 
     return PlayResponse(
