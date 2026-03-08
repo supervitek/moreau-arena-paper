@@ -187,6 +187,75 @@
         }
         .preset-btn:hover { border-color: var(--accent); color: var(--accent); }
         .preset-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+
+        /* Mode toggle */
+        .mode-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding: 0.6rem 1rem;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+        .mode-toggle-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.15s;
+        }
+        .mode-toggle-label.active {
+            color: var(--accent);
+        }
+        .mode-toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .mode-toggle-switch.s1 {
+            background: var(--accent);
+        }
+        .mode-toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+        .mode-toggle-switch.s1::after {
+            transform: translateX(20px);
+        }
+        .mode-badge {
+            display: inline-block;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 0.15rem 0.5rem;
+            border-radius: 8px;
+            margin-left: 0.5rem;
+        }
+        .mode-badge-benchmark {
+            background: rgba(42, 42, 58, 0.6);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+        .mode-badge-s1 {
+            background: var(--accent-glow);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
     </style>
 </head>
 <body>
@@ -217,6 +286,13 @@
     <div class="container-narrow">
         <h1 style="margin-bottom:0.5rem;">Create Your Fighter</h1>
         <p class="dim" style="margin-bottom:1.5rem;">Build a creature manually or describe your strategy in plain English.</p>
+
+        <div class="mode-toggle" id="modeToggle">
+            <span class="mode-toggle-label" id="modeLabelBenchmark" onclick="setMode('benchmark')">Benchmark (6)</span>
+            <div class="mode-toggle-switch s1" id="modeSwitch" onclick="toggleMode()"></div>
+            <span class="mode-toggle-label active" id="modeLabelS1" onclick="setMode('s1')">Season 1 (14)</span>
+            <span class="mode-badge mode-badge-s1" id="modeBadge">S1</span>
+        </div>
 
         <div class="tab-bar">
             <button class="tab-btn active" onclick="switchTab('build')">Build Mode</button>
@@ -377,6 +453,59 @@
     </footer>
 
     <script>
+        /* ===== Mode toggle (Benchmark vs Season 1) ===== */
+        var BENCHMARK_ANIMALS = ['bear', 'buffalo', 'boar', 'tiger', 'wolf', 'monkey'];
+        var S1_ANIMALS = ['bear', 'buffalo', 'boar', 'tiger', 'wolf', 'monkey',
+                          'porcupine', 'scorpion', 'vulture', 'rhino', 'viper', 'fox', 'eagle', 'panther'];
+        var currentMode = 's1'; // default to Season 1
+
+        function setMode(mode) {
+            currentMode = mode;
+            var sw = document.getElementById('modeSwitch');
+            var labelB = document.getElementById('modeLabelBenchmark');
+            var labelS = document.getElementById('modeLabelS1');
+            var badge = document.getElementById('modeBadge');
+            if (mode === 's1') {
+                sw.classList.add('s1');
+                labelS.classList.add('active');
+                labelB.classList.remove('active');
+                badge.textContent = 'S1';
+                badge.className = 'mode-badge mode-badge-s1';
+            } else {
+                sw.classList.remove('s1');
+                labelB.classList.add('active');
+                labelS.classList.remove('active');
+                badge.textContent = 'BENCH';
+                badge.className = 'mode-badge mode-badge-benchmark';
+            }
+            populateAnimalDropdown();
+        }
+
+        function toggleMode() {
+            setMode(currentMode === 's1' ? 'benchmark' : 's1');
+        }
+
+        function populateAnimalDropdown() {
+            var select = document.getElementById('animal');
+            var current = select.value;
+            var animals = currentMode === 's1' ? S1_ANIMALS : BENCHMARK_ANIMALS;
+            select.innerHTML = '';
+            for (var i = 0; i < animals.length; i++) {
+                var opt = document.createElement('option');
+                opt.value = animals[i];
+                opt.textContent = animals[i].charAt(0).toUpperCase() + animals[i].slice(1);
+                select.appendChild(opt);
+            }
+            // Restore selection if still valid
+            if (animals.indexOf(current) !== -1) {
+                select.value = current;
+            }
+        }
+
+        function getFightUrl() {
+            return currentMode === 's1' ? '/fight/s1' : '/fight';
+        }
+
         /* ===== Tab switching ===== */
         function switchTab(name) {
             var tabs = document.querySelectorAll('.tab-btn');
@@ -453,7 +582,8 @@
 
             var values = getStatValues();
             try {
-                var resp = await fetch('/api/v1/play', {
+                var playUrl = currentMode === 's1' ? '/api/v1/play/s1' : '/api/v1/play';
+                var resp = await fetch(playUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -608,7 +738,7 @@
             for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
 
             if (key === 'random') {
-                var animals = ['bear','buffalo','boar','tiger','wolf','monkey','crocodile','eagle','snake','raven','shark','owl','fox','scorpion'];
+                var animals = currentMode === 's1' ? S1_ANIMALS : BENCHMARK_ANIMALS;
                 var a = animals[Math.floor(Math.random() * animals.length)];
                 // Generate random valid stats summing to 20, each >= 1
                 var pts = [1,1,1,1];
@@ -649,6 +779,7 @@
         }
 
         /* ===== Init ===== */
+        populateAnimalDropdown();
         updateStats();
         checkHash();
     </script>
