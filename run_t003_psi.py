@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
-"""T003 PSI Validation — Prompt Sensitivity Index for the No-Meta-Context finding.
+"""T003 PSI Validation v2 — Prompt Sensitivity Index for the No-Meta-Context finding.
 
 Runs a MINI tournament using a paraphrased T003 prompt (t003_v2.txt) with
-6 agents: 4 LLMs (gemini-flash, gemini-pro, grok, gpt-5.4) + 2 baselines
-(SmartAgent, GreedyAgent). 15 pairings, 5 series each = 75 series.
+7 agents: 5 LLMs (gemini-flash, gemini-pro, gpt-5.4, claude-opus, claude-sonnet)
++ 2 baselines (SmartAgent, GreedyAgent). 21 pairings, 5 series each = 105 series.
 
-Then computes Kendall tau between original T003 rankings and t003_v2 rankings
-for these 6 agents. If tau > 0.85: prompt-robust. If tau < 0.60: problem.
+v2 changes vs v1:
+  - Grok excluded (intermittent 403 errors)
+  - Claude Opus 4.6 + Claude Sonnet 4.6 added
+  - Google rate limiter (2s gap between calls)
+  - Google 429 retry (60s wait, 3 attempts)
+  - No GreedyAgent fallback on API failure (series marked FAILED)
+  - Gemini failure abort threshold (>30%)
 
 Usage:
     python run_t003_psi.py                # Real tournament
@@ -22,6 +27,7 @@ import math
 import os
 import random
 import sys
+import threading
 import time
 from collections import Counter
 from datetime import datetime, timezone
@@ -49,8 +55,8 @@ from simulator.engine import CombatEngine, CombatResult
 from simulator.grid import Grid
 
 from run_challenge import (
+    _api_call_anthropic,
     _api_call_openai,
-    _api_call_xai,
     _make_request,
 )
 from agents.llm_agent_v2 import BUILD_JSON_SCHEMA
@@ -61,6 +67,11 @@ from agents.llm_agent_v2 import BUILD_JSON_SCHEMA
 # ---------------------------------------------------------------------------
 
 _GOOGLE_SCHEMA = {k: v for k, v in BUILD_JSON_SCHEMA.items() if k != "additionalProperties"}
+
+
+_google_lock = threading.Lock()
+_google_last_call = {"t": 0.0}
+_GOOGLE_CALL_GAP = 3.0  # Pro RPM=25, need >=2.4s gap
 
 
 def _api_call_google_fixed(api_key: str, model: str, prompt: str) -> dict | str:
@@ -77,7 +88,23 @@ def _api_call_google_fixed(api_key: str, model: str, prompt: str) -> dict | str:
             "temperature": 0.7,
         },
     }
-    resp = _make_request(url, {}, body, timeout=90)
+    # Rate limiter: serialize Google calls with 2s gap
+    with _google_lock:
+        elapsed = time.monotonic() - _google_last_call["t"]
+        if elapsed < _GOOGLE_CALL_GAP:
+            time.sleep(_GOOGLE_CALL_GAP - elapsed)
+        _google_last_call["t"] = time.monotonic()
+    # 429 retry: wait 60s and retry up to 3 times
+    for attempt in range(3):
+        try:
+            resp = _make_request(url, {}, body, timeout=90)
+            break
+        except RuntimeError as exc:
+            if "429" in str(exc) and attempt < 2:
+                print(f"    [RATE] Google 429 — waiting 60s (attempt {attempt + 1}/3)", flush=True)
+                time.sleep(60)
+                continue
+            raise
     candidates = resp.get("candidates", [])
     if candidates:
         parts = candidates[0].get("content", {}).get("parts", [])
@@ -102,9 +129,9 @@ def _api_call_google_fixed(api_key: str, model: str, prompt: str) -> dict | str:
 
 def _build_psi_api_callable(provider: str, model: str, api_key: str):
     dispatch = {
+        "anthropic": _api_call_anthropic,
         "openai": _api_call_openai,
         "google": _api_call_google_fixed,
-        "xai": _api_call_xai,
     }
     fn = dispatch[provider]
     def api_call(prompt: str) -> dict | str:
@@ -121,18 +148,20 @@ OUTPUT_DIR = Path("data/t003_psi")
 SERIES_PER_PAIR = 5
 
 AGENT_DEFS: list[dict[str, Any]] = [
-    {"name": "gemini-3-flash-preview",  "provider": "google", "model": "gemini-3-flash-preview"},
-    {"name": "gemini-3.1-pro-preview",  "provider": "google", "model": "gemini-3.1-pro-preview"},
-    {"name": "grok-4-1-fast-reasoning", "provider": "xai",    "model": "grok-4-1-fast-reasoning"},
-    {"name": "gpt-5.4",                 "provider": "openai", "model": "gpt-5.4"},
-    {"name": "SmartAgent",              "provider": None,     "model": None},
-    {"name": "GreedyAgent",             "provider": None,     "model": None},
+    # Gemini excluded — structured output quota exhausted on both Flash and Pro
+    # {"name": "gemini-3-flash-preview",  "provider": "google",    "model": "gemini-3-flash-preview"},
+    # {"name": "gemini-3.1-pro-preview",  "provider": "google",    "model": "gemini-3.1-pro-preview"},
+    {"name": "gpt-5.4",                 "provider": "openai",    "model": "gpt-5.4"},
+    {"name": "claude-opus-4-6",         "provider": "anthropic", "model": "claude-opus-4-6"},
+    {"name": "claude-sonnet-4-6",       "provider": "anthropic", "model": "claude-sonnet-4-6"},
+    {"name": "SmartAgent",              "provider": None,        "model": None},
+    {"name": "GreedyAgent",             "provider": None,        "model": None},
 ]
 
 ENV_KEYS = {
+    "anthropic": "ANTHROPIC_API_KEY",
     "openai": "OPENAI_API_KEY",
     "google": "GOOGLE_API_KEY",
-    "xai": "XAI_API_KEY",
 }
 
 # Original T003 results file
@@ -183,7 +212,7 @@ class PromptFileAdaptiveAgent(BaseAgent):
                     time.sleep(2 ** attempt)
                     continue
                 print(f"    [WARN] {self._name} API failed after 3 attempts: {exc}")
-        return GreedyAgent().choose_build(opponent_animal, banned)
+        return None  # No fallback — series will be marked FAILED
 
 
 # ---------------------------------------------------------------------------
@@ -237,12 +266,21 @@ def _run_adaptive_series(
     agent_a: BaseAgent,
     agent_b: BaseAgent,
     series_seed: int,
-) -> tuple[str, list[dict]]:
+) -> tuple[str, list[dict], bool]:
+    """Returns (winner_name, game_records, failed).
+
+    failed=True if any agent returned None build (API failure, no fallback).
+    """
     name_a = getattr(agent_a, "_name", agent_a.__class__.__name__)
     name_b = getattr(agent_b, "_name", agent_b.__class__.__name__)
 
     build_a = agent_a.choose_build(opponent_animal=None, banned=[], opponent_reveal=None)
     build_b = agent_b.choose_build(opponent_animal=None, banned=[], opponent_reveal=None)
+
+    if build_a is None or build_b is None:
+        failed_name = name_a if build_a is None else name_b
+        print(f"    [FAIL] {failed_name} returned None build — series FAILED", flush=True)
+        return "error", [], True
 
     wins_a, wins_b = 0, 0
     records: list[dict] = []
@@ -260,24 +298,22 @@ def _run_adaptive_series(
         })
         if result.winner == "a":
             wins_a += 1
-            try:
-                build_b = agent_b.choose_build(
-                    opponent_animal=build_a.animal, banned=[], opponent_reveal=build_a)
-            except Exception:
-                pass
+            new_b = agent_b.choose_build(
+                opponent_animal=build_a.animal, banned=[], opponent_reveal=build_a)
+            if new_b is not None:
+                build_b = new_b
         elif result.winner == "b":
             wins_b += 1
-            try:
-                build_a = agent_a.choose_build(
-                    opponent_animal=build_b.animal, banned=[], opponent_reveal=build_b)
-            except Exception:
-                pass
+            new_a = agent_a.choose_build(
+                opponent_animal=build_b.animal, banned=[], opponent_reveal=build_b)
+            if new_a is not None:
+                build_a = new_a
 
     if wins_a > wins_b:
-        return name_a, records
+        return name_a, records, False
     elif wins_b > wins_a:
-        return name_b, records
-    return "draw", records
+        return name_b, records, False
+    return "draw", records, False
 
 
 # ---------------------------------------------------------------------------
@@ -408,7 +444,6 @@ def main() -> None:
     print(flush=True)
 
     # Run tournament with parallel workers
-    import threading
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -419,6 +454,7 @@ def main() -> None:
     all_records: list[dict] = []
     _lock = threading.Lock()
     _done = {"n": 0}
+    _failed = {"n": 0, "gemini": 0, "gemini_total": 0}
     base_seed = 500_000
     t_start_all = time.monotonic()
 
@@ -436,12 +472,13 @@ def main() -> None:
         agent_a = _fresh_agent(agents[i], prompt_text, api_callables if not args.dry_run else None, args.dry_run)
         agent_b = _fresh_agent(agents[j], prompt_text, api_callables if not args.dry_run else None, args.dry_run)
         t0 = time.monotonic()
-        winner, game_records = _run_adaptive_series(agent_a, agent_b, seed)
+        winner, game_records, failed = _run_adaptive_series(agent_a, agent_b, seed)
         dur = time.monotonic() - t0
         return {
             "series_id": f"{name_a}_vs_{name_b}_s{s:03d}",
             "agent_a": name_a, "agent_b": name_b,
             "winner": winner,
+            "failed": failed,
             "games_played": len(game_records),
             "games": game_records,
             "base_seed": seed,
@@ -461,6 +498,15 @@ def main() -> None:
                 name_b = record["agent_b"]
                 winner = record["winner"]
 
+                # Track failures
+                if record["failed"]:
+                    _failed["n"] += 1
+                    if "gemini" in name_a.lower() or "gemini" in name_b.lower():
+                        _failed["gemini"] += 1
+
+                if "gemini" in name_a.lower() or "gemini" in name_b.lower():
+                    _failed["gemini_total"] += 1
+
                 if winner == name_a:
                     bt_pairs.append((name_a, name_b))
                 elif winner == name_b:
@@ -474,16 +520,26 @@ def main() -> None:
                 elapsed = time.monotonic() - t_start_all
                 eta = (elapsed / n * (total_series - n)) if n > 0 else 0
                 eta_str = f"{eta:.0f}s" if eta < 60 else f"{eta/60:.0f}m"
+                status = "FAILED" if record["failed"] else winner
                 print(
                     f"  [{n}/{total_series} {pct:.0f}% ETA:{eta_str}] "
-                    f"{name_a} vs {name_b} -> {winner} "
+                    f"{name_a} vs {name_b} -> {status} "
                     f"({record['games_played']}g {record['duration_s']:.1f}s)",
                     flush=True,
                 )
 
+                # Gemini abort threshold: if >30% of Gemini series fail, abort
+                if _failed["gemini_total"] >= 10 and _failed["gemini"] / _failed["gemini_total"] > 0.30:
+                    print(f"\n  ABORT: Gemini failure rate {_failed['gemini']}/{_failed['gemini_total']} > 30%", flush=True)
+                    executor.shutdown(wait=False, cancel_futures=True)
+                    sys.exit(1)
+
     total_time = time.monotonic() - t_start_all
+    n_failed = _failed["n"]
+    n_valid = len(all_records) - n_failed
     print(f"\n  Tournament done in {total_time:.0f}s", flush=True)
     print(f"  Results saved: {results_path}", flush=True)
+    print(f"  Valid series: {n_valid}/{len(all_records)} ({n_failed} failed)", flush=True)
 
     # Compute BT rankings for PSI run
     if not bt_pairs:
@@ -655,7 +711,7 @@ def _write_report(
         f"- **Original prompt**: `prompts/t003_prompt.txt`",
         f"- **Paraphrased prompt**: `{prompt_path}` (sha256: `{prompt_hash}...`)",
         f"- **Protocol**: Adaptive best-of-7 (same as T003)",
-        f"- **Agents**: gemini-flash, gemini-pro, grok, gpt-5.4, SmartAgent, GreedyAgent",
+        f"- **Agents**: gemini-flash, gemini-pro, gpt-5.4, claude-opus-4-6, claude-sonnet-4-6, SmartAgent, GreedyAgent",
         f"- **Series per pair**: {SERIES_PER_PAIR}",
         "",
         "## Ranking Comparison",
