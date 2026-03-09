@@ -1,0 +1,10 @@
+{
+  "model": "qwen3-next:80b-cloud",
+  "provider": "ollama",
+  "votes": [],
+  "elapsed_s": 6.774378061294556,
+  "input_tokens": 136,
+  "output_tokens": 1050,
+  "cost_usd": 0.0,
+  "error": null
+}

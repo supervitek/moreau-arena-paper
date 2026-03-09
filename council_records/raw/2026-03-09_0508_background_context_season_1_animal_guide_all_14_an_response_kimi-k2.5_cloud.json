@@ -1,0 +1,10 @@
+{
+  "model": "kimi-k2.5:cloud",
+  "provider": "ollama",
+  "text": "**A)** 30+ calls/game. Tests reactive reflex, not planning. High validity, prohibitive cost ($$$), poor replay flow (discrete frames).\n\n**B)** 5–8 calls. Compact but risks syntax errors requiring retries (token waste). Tests tactical scripting. Medium complexity (custom parser).\n\n**C)** 1 call. Cheap, but offloads execution to simulator—measures interpreter heuristics, not LLM tactical reasoning. Tests only strategic abstraction.\n\n**D)** 6–8 calls. **Optimal balance**: tests strategic planning (macro) and adaptive intervention (micro). Tests metacognition—*when* to override plans. High validity with structured corrections.\n\n**E)** **State-Trigger Scripts**: LLM submits conditional rules (\"IF hp<40% AND enemy_adjacent THEN retreat\") that execute until trigger fires (3–4 calls). Tests foresight but lacks granular control.\n\n**Recommendation: Approach D (Hybrid).** It uniquely evaluates the boundary between plan and adaptation—critical for fog-of-war scenarios where initial intel is incomplete.\n\n**Proposed Syntax:**\n\n*Plan Phase* (1 call):\n```yaml\nstrategy: flank_and_pounce\nanchor: high_ground\nrules:\n  - maintain_range: 2-3\n  - target_priority: lowest_hp\n  - retreat_threshold: 25%\n```\n\n*Correction Phase* (every 5 ticks or on event):\n```json\n{\"tick\": 12, \"override\": [\"MOVE D4\", \"ABILITY pounce\"], \"trigger\": \"enemy_flank_detected\", \"reason\": \"avoid_ambush\"}\n```\n\nThis keeps costs manageable while forcing the LLM to reason about *when* its plan fails—exactly the tactical depth Season 2 requires.",
+  "elapsed_s": 50.01215696334839,
+  "input_tokens": 5335,
+  "output_tokens": 2640,
+  "cost_usd": 0.0,
+  "error": null
+}

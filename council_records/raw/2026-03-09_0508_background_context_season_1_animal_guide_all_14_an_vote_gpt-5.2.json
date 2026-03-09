@@ -1,0 +1,76 @@
+{
+  "model": "gpt-5.2",
+  "provider": "openai",
+  "votes": [
+    {
+      "point": "Proposition 1",
+      "vote": "AGREE",
+      "reason": "The hybrid (plan + mid-combat updates) best preserves tactical agency while keeping cost and robustness within tournament constraints."
+    },
+    {
+      "point": "Proposition 2",
+      "vote": "AGREE",
+      "reason": "Strict enumerated JSON avoids brittle parsing and makes validation and graceful fallback straightforward."
+    },
+    {
+      "point": "Proposition 3",
+      "vote": "AGREE",
+      "reason": "Degrading to safe defaults/no-op on invalid outputs is essential to prevent freezes and preserve match integrity."
+    },
+    {
+      "point": "Proposition 4",
+      "vote": "AGREE",
+      "reason": "A ~4–9 call budget per game per agent is the right order of magnitude for scale while still testing adaptation."
+    },
+    {
+      "point": "Proposition 5",
+      "vote": "AGREE",
+      "reason": "The benchmark’s value is in situated in-combat decisions, not outsourcing tactics to the simulator."
+    },
+    {
+      "point": "Proposition 6",
+      "vote": "AGREE",
+      "reason": "Plan + decision-point updates produces clearer, more interpretable replays than either extreme."
+    },
+    {
+      "point": "Proposition 7",
+      "vote": "AGREE",
+      "reason": "Event-driven triggers dominate fixed intervals for decision relevance, but should be paired with a backstop to cover trigger gaps."
+    },
+    {
+      "point": "Proposition 8",
+      "vote": "AGREE",
+      "reason": "2–5 calls is generally too sparse to measure tactical control; you need enough interrupts to capture key fight pivots."
+    },
+    {
+      "point": "Proposition 9",
+      "vote": "AGREE",
+      "reason": "Conditional logic should be expressed as structured predicates (AST-like JSON) to avoid “string DSL” ambiguity and parsing risk."
+    },
+    {
+      "point": "Proposition 10",
+      "vote": "AGREE",
+      "reason": "Intent-level ordered actions without per-tick micromanagement is the right granularity for robustness and meaningful choice."
+    },
+    {
+      "point": "Proposition 11",
+      "vote": "AGREE",
+      "reason": "Autopilot must be deliberately weak/limited and clearly specified so model decisions, not simulator policy, drive outcomes."
+    },
+    {
+      "point": "Proposition 12",
+      "vote": "AGREE",
+      "reason": "Two call types (pre-combat plan + event-driven tactical updates) is a clean, implementable architecture that matches the goals."
+    },
+    {
+      "point": "Proposition 13",
+      "vote": "AGREE",
+      "reason": "A max silent interval (e.g., forced update after N ticks without events) is a necessary safeguard against imperfect trigger sets."
+    }
+  ],
+  "elapsed_s": 9.053507804870605,
+  "input_tokens": 1927,
+  "output_tokens": 433,
+  "cost_usd": 0.0091475,
+  "error": null
+}

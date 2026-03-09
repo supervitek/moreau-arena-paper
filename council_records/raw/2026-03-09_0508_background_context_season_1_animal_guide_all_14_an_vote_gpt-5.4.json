@@ -1,0 +1,71 @@
+{
+  "model": "gpt-5.4",
+  "provider": "openai",
+  "votes": [
+    {
+      "point": "Proposition 1",
+      "vote": "AGREE",
+      "reason": "Option D is the right architecture because it preserves real tactical control while keeping call volume and parsing complexity manageable."
+    },
+    {
+      "point": "Proposition 2",
+      "vote": "AGREE",
+      "reason": "Strict JSON with enumerated fields is the safest and cleanest way to avoid DSL creep, malformed outputs, and ambiguous execution."
+    },
+    {
+      "point": "Proposition 3",
+      "vote": "AGREE",
+      "reason": "Graceful degradation is essential for benchmark robustness because model formatting failures should not decide matches."
+    },
+    {
+      "point": "Proposition 4",
+      "vote": "AGREE",
+      "reason": "A budget around 4–9 calls per game per agent is the practical range that still meaningfully tests adaptation."
+    },
+    {
+      "point": "Proposition 5",
+      "vote": "AGREE",
+      "reason": "Season 2 should evaluate situated tactical reasoning during combat rather than collapsing into precomputed strategy descriptions."
+    },
+    {
+      "point": "Proposition 6",
+      "vote": "AGREE",
+      "reason": "The hybrid structure naturally improves replay interpretability by tying visible tactical shifts to explicit decision points."
+    },
+    {
+      "point": "Proposition 7",
+      "vote": "AGREE",
+      "reason": "Event-driven updates should be the primary trigger model because they align calls with information-rich decision moments."
+    },
+    {
+      "point": "Proposition 8",
+      "vote": "AGREE",
+      "reason": "A max silent interval backstop is necessary because pure event-driven triggering can miss important but unmodeled situations."
+    },
+    {
+      "point": "Proposition 9",
+      "vote": "AGREE",
+      "reason": "2–5 calls is too sparse for this benchmark, and roughly 6–8 calls is a better minimum target for meaningful tactical agency."
+    },
+    {
+      "point": "Proposition 10",
+      "vote": "AGREE",
+      "reason": "Conditions should be represented as structured predicate objects rather than string expressions to preserve validation simplicity and eliminate mini-language parsing."
+    },
+    {
+      "point": "Proposition 11",
+      "vote": "AGREE",
+      "reason": "Ordered intent-level action lists are preferable to per-tick action scripts because they retain tactical choice without sliding back toward brittle microprogramming."
+    },
+    {
+      "point": "Proposition 12",
+      "vote": "AGREE",
+      "reason": "Autopilot should be deliberately minimal and deterministic so the benchmark measures model decisions rather than hidden simulator intelligence."
+    }
+  ],
+  "elapsed_s": 7.6806299686431885,
+  "input_tokens": 1927,
+  "output_tokens": 394,
+  "cost_usd": 0.0087575,
+  "error": null
+}
