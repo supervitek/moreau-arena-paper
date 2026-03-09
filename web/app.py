@@ -1336,16 +1336,19 @@ def moreddit_page() -> FileResponse:
 # -- Pets routes ---------------------------------------------------------------
 
 @app.get("/pets")
-def pets_index_page() -> FileResponse:
-    return FileResponse(STATIC_DIR / "pets" / "index.html")
+def pets_landing_page() -> FileResponse:
+    """Serve the hub page; JS handles redirect to creation if no pets exist."""
+    return FileResponse(STATIC_DIR / "pets" / "hub.html")
 
 
 @app.get("/pets/{page}")
 def pets_page(page: str) -> FileResponse:
-    allowed = {"index", "home", "train", "mutate", "profile"}
+    allowed = {"index", "create", "hub", "home", "train", "mutate", "profile"}
     if page not in allowed:
         raise HTTPException(404, f"Unknown pets page: {page}")
-    return FileResponse(STATIC_DIR / "pets" / f"{page}.html")
+    # "create" is served from index.html (the creation wizard)
+    filename = "index.html" if page == "create" else f"{page}.html"
+    return FileResponse(STATIC_DIR / "pets" / filename)
 
 
 @app.post("/api/v1/pets/soul")

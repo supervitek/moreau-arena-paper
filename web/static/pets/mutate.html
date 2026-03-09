@@ -675,10 +675,36 @@
             return 99;
         }
 
+        // -- Multi-pet migration & loader --
+        function migrateAndLoadPet() {
+            const oldRaw = localStorage.getItem('moreau_pet');
+            if (oldRaw) {
+                try {
+                    const oldPet = JSON.parse(oldRaw);
+                    const existing = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                    if (existing.length < 6) existing.push(oldPet);
+                    localStorage.setItem('moreau_pets', JSON.stringify(existing));
+                    localStorage.setItem('moreau_active_pet', String(existing.length - 1));
+                    localStorage.removeItem('moreau_pet');
+                } catch(e) { localStorage.removeItem('moreau_pet'); }
+            }
+            const pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            if (pets.length === 0) return null;
+            let idx = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
+            if (idx < 0 || idx >= pets.length) idx = 0;
+            return pets[idx];
+        }
+        function saveActivePet(p) {
+            const pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            let idx = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
+            if (idx < 0 || idx >= pets.length) idx = 0;
+            pets[idx] = p;
+            localStorage.setItem('moreau_pets', JSON.stringify(pets));
+        }
+
         function init() {
-            const raw = localStorage.getItem('moreau_pet');
-            if (!raw) { window.location.href = '/pets'; return; }
-            pet = JSON.parse(raw);
+            pet = migrateAndLoadPet();
+            if (!pet) { window.location.href = '/pets'; return; }
             forkLevel = canMutate(pet);
 
             document.getElementById('intro-emoji').textContent = pet.emoji || '';
@@ -811,7 +837,7 @@
                 }
             }
 
-            localStorage.setItem('moreau_pet', JSON.stringify(pet));
+            saveActivePet(pet);
 
             // Hide everything, show transformation
             document.getElementById('confirm-overlay').style.display = 'none';
