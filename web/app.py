@@ -40,6 +40,7 @@ from analysis.bt_ranking import (
 from simulator.__main__ import _create_creature, _parse_build, _run_games
 from simulator.engine import CombatEngine
 from season1.engine_s1 import run_match as s1_run_match
+from pets.soul import generate_soul_response, calculate_mood as pet_calculate_mood
 
 logger = logging.getLogger("moreau-arena")
 
@@ -1330,6 +1331,33 @@ def fighter_page(animal: str) -> FileResponse:
 @app.get("/moreddit")
 def moreddit_page() -> FileResponse:
     return FileResponse(STATIC_DIR / "moreddit.html")
+
+
+# -- Pets routes ---------------------------------------------------------------
+
+@app.get("/pets")
+def pets_index_page() -> FileResponse:
+    return FileResponse(STATIC_DIR / "pets" / "index.html")
+
+
+@app.get("/pets/{page}")
+def pets_page(page: str) -> FileResponse:
+    allowed = {"index", "home", "train", "mutate", "profile"}
+    if page not in allowed:
+        raise HTTPException(404, f"Unknown pets page: {page}")
+    return FileResponse(STATIC_DIR / "pets" / f"{page}.html")
+
+
+@app.post("/api/v1/pets/soul")
+def pets_soul(req: dict) -> dict:
+    """Generate an AI soul response for a pet."""
+    pet = req.get("pet", {})
+    context = req.get("context", "idle")
+    kwargs = {k: v for k, v in req.items() if k not in ("pet", "context")}
+    mood = pet_calculate_mood(pet)
+    pet["mood"] = mood
+    response = generate_soul_response(pet, context=context, **kwargs)
+    return {"response": response, "mood": mood}
 
 
 @app.post("/fight", response_model=FightResponse)
