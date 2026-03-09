@@ -657,8 +657,8 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 // --- Show Result ---
 function showResult(data, opp) {
-    const won = data.winner === 'build1' || data.winner === 'a';
-    const ticks = data.ticks || (data.results?.[0]?.ticks) || '?';
+    const won = data.build1_wins > 0;
+    const ticks = data.avg_ticks || data.ticks || (data.results?.[0]?.ticks) || null;
 
     // Hide arena, show result
     document.getElementById('phase-fight').classList.remove('visible');

@@ -698,7 +698,7 @@
 
             // XP bar
             const xp = xpProgress(pet);
-            document.getElementById('xpText').textContent = xp.needed > 0 ? (xp.current + ' / ' + xp.needed) : 'MAX';
+            document.getElementById('xpText').textContent = xp.needed > 0 ? (xp.current + ' / ' + xp.needed + ' to Lv.' + ((pet.level || 1) + 1)) : 'MAX';
             document.getElementById('xpBar').style.width = xp.pct + '%';
 
             // Stat bars
