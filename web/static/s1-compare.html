@@ -73,6 +73,10 @@
             font-weight: 800;
         }
 
+        .highlight-row-gold {
+            background: rgba(255, 215, 0, 0.08);
+        }
+
         .highlight-row {
             background: rgba(78, 204, 163, 0.06);
         }
@@ -206,9 +210,9 @@
 
             <p class="intro-text">
                 The original benchmark (T003) tested 15 agents with 6 animals in best-of-5 format.
-                Season 1 expanded to 14 animals, best-of-7 adaptive format, and added new agents.
+                Season 1 expanded to 14 animals, best-of-7 adaptive format, and introduced new agents.
                 Eight agents appear in both &mdash; their rank changes reveal how well each model
-                adapts when complexity scales up.
+                adapts when complexity scales up. Six agents are new to Season 1.
             </p>
 
             <div class="callout">
@@ -231,7 +235,7 @@
                 <div class="legend">
                     <span><span class="change-up" style="font-weight:700;">&uarr;</span> Rank improved (lower number = better)</span>
                     <span><span class="change-down" style="font-weight:700;">&darr;</span> Rank dropped</span>
-                    <span><span class="change-neutral">&mdash;</span> Unchanged</span>
+                    <span><span class="change-neutral">&mdash;</span> New in S1 (no benchmark rank)</span>
                 </div>
 
                 <table class="compare-table">
@@ -244,29 +248,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="highlight-row">
-                            <td><span class="agent-name">gpt-5.4</span> <span class="agent-type agent-type-llm">LLM</span></td>
-                            <td class="rank-cell">14</td>
-                            <td class="rank-cell">2</td>
-                            <td class="change-cell change-up change-hero">&uarr;12</td>
-                        </tr>
                         <tr>
                             <td><span class="agent-name">gpt-5.2</span> <span class="agent-type agent-type-llm">LLM</span></td>
                             <td class="rank-cell">4</td>
                             <td class="rank-cell">1</td>
                             <td class="change-cell change-up">&uarr;3</td>
                         </tr>
-                        <tr>
-                            <td><span class="agent-name">GreedyAgent</span> <span class="agent-type agent-type-baseline">Baseline</span></td>
-                            <td class="rank-cell">15</td>
-                            <td class="rank-cell">13</td>
-                            <td class="change-cell change-up">&uarr;2</td>
-                        </tr>
-                        <tr>
-                            <td><span class="agent-name">claude-haiku-4-5</span> <span class="agent-type agent-type-llm">LLM</span></td>
-                            <td class="rank-cell">11</td>
-                            <td class="rank-cell">9</td>
-                            <td class="change-cell change-up">&uarr;2</td>
+                        <tr class="highlight-row-gold">
+                            <td><span class="agent-name">gpt-5.4</span> <span class="agent-type agent-type-llm">LLM</span></td>
+                            <td class="rank-cell">14</td>
+                            <td class="rank-cell">2</td>
+                            <td class="change-cell change-up change-hero">&uarr;12</td>
                         </tr>
                         <tr>
                             <td><span class="agent-name">gpt-5.2-codex</span> <span class="agent-type agent-type-llm">LLM</span></td>
@@ -275,22 +267,70 @@
                             <td class="change-cell change-down">&darr;2</td>
                         </tr>
                         <tr>
-                            <td><span class="agent-name">claude-opus-4-6</span> <span class="agent-type agent-type-llm">LLM</span></td>
+                            <td><span class="agent-name">gpt-5.3-codex</span> <span class="agent-type agent-type-llm">LLM</span></td>
+                            <td class="rank-cell change-neutral">N/A</td>
+                            <td class="rank-cell">4</td>
+                            <td class="change-cell change-neutral">&mdash;</td>
+                        </tr>
+                        <tr>
+                            <td><span class="agent-name">ConservativeAgent</span> <span class="agent-type agent-type-baseline">Baseline</span></td>
+                            <td class="rank-cell change-neutral">N/A</td>
+                            <td class="rank-cell">5</td>
+                            <td class="change-cell change-neutral">&mdash;</td>
+                        </tr>
+                        <tr>
+                            <td><span class="agent-name">claude-opus</span> <span class="agent-type agent-type-llm">LLM</span></td>
                             <td class="rank-cell">3</td>
                             <td class="rank-cell">6</td>
                             <td class="change-cell change-down">&darr;3</td>
                         </tr>
                         <tr>
-                            <td><span class="agent-name">claude-sonnet-4-6</span> <span class="agent-type agent-type-llm">LLM</span></td>
-                            <td class="rank-cell">5</td>
+                            <td><span class="agent-name">grok</span> <span class="agent-type agent-type-llm">LLM</span></td>
+                            <td class="rank-cell change-neutral">N/A</td>
+                            <td class="rank-cell">7</td>
+                            <td class="change-cell change-neutral">&mdash;</td>
+                        </tr>
+                        <tr>
+                            <td><span class="agent-name">HighVarianceAgent</span> <span class="agent-type agent-type-baseline">Baseline</span></td>
+                            <td class="rank-cell change-neutral">N/A</td>
+                            <td class="rank-cell">8</td>
+                            <td class="change-cell change-neutral">&mdash;</td>
+                        </tr>
+                        <tr>
+                            <td><span class="agent-name">claude-haiku</span> <span class="agent-type agent-type-llm">LLM</span></td>
+                            <td class="rank-cell change-neutral">N/A</td>
+                            <td class="rank-cell">9</td>
+                            <td class="change-cell change-neutral">&mdash;</td>
+                        </tr>
+                        <tr>
+                            <td><span class="agent-name">claude-sonnet</span> <span class="agent-type agent-type-llm">LLM</span></td>
+                            <td class="rank-cell">6</td>
                             <td class="rank-cell">10</td>
-                            <td class="change-cell change-down">&darr;5</td>
+                            <td class="change-cell change-down">&darr;4</td>
+                        </tr>
+                        <tr>
+                            <td><span class="agent-name">gemini-flash</span> <span class="agent-type agent-type-llm">LLM</span></td>
+                            <td class="rank-cell">5</td>
+                            <td class="rank-cell">11</td>
+                            <td class="change-cell change-down">&darr;6</td>
                         </tr>
                         <tr class="highlight-row-red">
                             <td><span class="agent-name">SmartAgent</span> <span class="agent-type agent-type-baseline">Baseline</span></td>
                             <td class="rank-cell">2</td>
                             <td class="rank-cell">12</td>
                             <td class="change-cell change-down change-hero">&darr;10</td>
+                        </tr>
+                        <tr>
+                            <td><span class="agent-name">GreedyAgent</span> <span class="agent-type agent-type-baseline">Baseline</span></td>
+                            <td class="rank-cell change-neutral">N/A</td>
+                            <td class="rank-cell">13</td>
+                            <td class="change-cell change-neutral">&mdash;</td>
+                        </tr>
+                        <tr>
+                            <td><span class="agent-name">RandomAgent</span> <span class="agent-type agent-type-baseline">Baseline</span></td>
+                            <td class="rank-cell change-neutral">N/A</td>
+                            <td class="rank-cell">14</td>
+                            <td class="change-cell change-neutral">&mdash;</td>
                         </tr>
                     </tbody>
                 </table>
@@ -304,8 +344,8 @@
                     <li><strong style="color:var(--text);">Complexity rewards reasoning.</strong> GPT-5.4 and GPT-5.2 improved most, suggesting their reasoning scales with game complexity. More animals and longer series favored models that could adapt.</li>
                     <li><strong style="color:var(--text);">Heuristics break under expansion.</strong> SmartAgent's fixed strategy, dominant in the simpler benchmark, collapsed when the animal roster tripled. Hard-coded logic can't generalize.</li>
                     <li><strong style="color:var(--text);">The top is stable-ish.</strong> GPT-5.2-Codex stayed near the top (1&rarr;3), confirming that strong benchmark performance translates &mdash; but doesn't guarantee pole position.</li>
-                    <li><strong style="color:var(--text);">Claude models shifted down.</strong> Both Opus (&minus;3) and Sonnet (&minus;5) dropped, possibly indicating less adaptation to the expanded mechanics relative to GPT variants.</li>
-                    <li><strong style="color:var(--text);">Baselines anchor the bottom.</strong> GreedyAgent remained near the bottom in both settings (15&rarr;13), providing a consistent reference point.</li>
+                    <li><strong style="color:var(--text);">Claude models shifted down.</strong> Both Opus (&minus;3) and Sonnet (&minus;4) dropped, possibly indicating less adaptation to the expanded mechanics relative to GPT variants.</li>
+                    <li><strong style="color:var(--text);">Baselines anchor the bottom.</strong> GreedyAgent and RandomAgent landed at the bottom of Season 1, providing consistent reference points.</li>
                 </ul>
             </div>
         </div>
