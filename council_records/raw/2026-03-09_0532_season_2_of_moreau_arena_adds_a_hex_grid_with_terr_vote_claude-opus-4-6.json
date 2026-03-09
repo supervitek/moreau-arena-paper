@@ -1,0 +1,10 @@
+{
+  "model": "claude-opus-4-6",
+  "provider": "anthropic",
+  "votes": [],
+  "elapsed_s": 17.406011819839478,
+  "input_tokens": 2192,
+  "output_tokens": 740,
+  "cost_usd": 0.08838,
+  "error": null
+}

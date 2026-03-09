@@ -1,0 +1,66 @@
+{
+  "model": "gpt-5.2",
+  "provider": "openai",
+  "votes": [
+    {
+      "point": "Proposition 1",
+      "vote": "AGREE",
+      "reason": "Python output makes the benchmark about sandboxing untrusted code rather than tactical reasoning and is uniquely high-risk for safety/contamination."
+    },
+    {
+      "point": "Proposition 2",
+      "vote": "AGREE",
+      "reason": "A small DSL like Morpeton is the right long-term choice for contamination resistance, safety-by-construction, and readable/replayable policies."
+    },
+    {
+      "point": "Proposition 3",
+      "vote": "AGREE",
+      "reason": "JSON without native conditional structure forces either awkward pseudo-DSL extensions or shifts decision logic into the engine/orchestrator."
+    },
+    {
+      "point": "Proposition 4",
+      "vote": "AGREE",
+      "reason": "A deterministic Morpeton parser is straightforward engineering compared to any safe “execute code” approach and is not a credible blocker."
+    },
+    {
+      "point": "Proposition 5",
+      "vote": "AGREE",
+      "reason": "Benchmark integrity depends on a complete, unambiguous spec with clear edge-case behavior and validation rules."
+    },
+    {
+      "point": "Proposition 6",
+      "vote": "AGREE",
+      "reason": "Top-to-bottom, first-match-wins is the simplest semantics to implement and evaluate, and it cleanly tests prioritization."
+    },
+    {
+      "point": "Proposition 7",
+      "vote": "AGREE",
+      "reason": "Keeping v1 small is the correct way to control complexity and isolate what’s being measured in S2."
+    },
+    {
+      "point": "Proposition 8",
+      "vote": "AGREE",
+      "reason": "Making Morpeton the scored primary in S2 preserves Moreau’s core differentiation, while a parallel JSON track can quantify any syntax-vs-tactics confound."
+    },
+    {
+      "point": "Proposition 9",
+      "vote": "AGREE",
+      "reason": "A 30-line cap is a reasonable S2 on-ramp that reduces “format friction” without preventing meaningful prioritization."
+    },
+    {
+      "point": "Proposition 10",
+      "vote": "AGREE",
+      "reason": "Partial-parse with a conservative default fallback is the least leaderboard-distorting invalid-output policy while still penalizing malformed rules via lost coverage."
+    },
+    {
+      "point": "Proposition 11",
+      "vote": "AGREE",
+      "reason": "Reporting separate syntax-validity and tactical-effectiveness metrics improves attribution and addresses the main measurement-cleanliness concern."
+    }
+  ],
+  "elapsed_s": 6.630171775817871,
+  "input_tokens": 1958,
+  "output_tokens": 401,
+  "cost_usd": 0.008905,
+  "error": null
+}

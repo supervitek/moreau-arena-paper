@@ -1,0 +1,71 @@
+{
+  "model": "gpt-5.4",
+  "provider": "openai",
+  "votes": [
+    {
+      "point": "Proposition 1",
+      "vote": "AGREE",
+      "reason": "Python should be eliminated because it primarily measures secure code execution and coding fluency rather than tactical reasoning."
+    },
+    {
+      "point": "Proposition 2",
+      "vote": "AGREE",
+      "reason": "Morpeton is the right long-term format because it best aligns with contamination resistance, safety, and readable tactical programs."
+    },
+    {
+      "point": "Proposition 3",
+      "vote": "AGREE",
+      "reason": "JSON is a poor fit for conditional tactics and extending it to handle them just recreates a worse DSL."
+    },
+    {
+      "point": "Proposition 4",
+      "vote": "AGREE",
+      "reason": "A Morpeton parser is tractable and clearly not an implementation blocker relative to the alternatives."
+    },
+    {
+      "point": "Proposition 5",
+      "vote": "AGREE",
+      "reason": "The spec must be fully precise because ambiguity in grammar or semantics would undermine benchmark validity."
+    },
+    {
+      "point": "Proposition 6",
+      "vote": "AGREE",
+      "reason": "Top-to-bottom first-match-wins is the cleanest and most interpretable evaluation rule for WHEN blocks."
+    },
+    {
+      "point": "Proposition 7",
+      "vote": "AGREE",
+      "reason": "A deliberately small v1 command set is the right way to control complexity in S2."
+    },
+    {
+      "point": "Proposition 8",
+      "vote": "DISAGREE",
+      "reason": "Morpeton should not be the primary scored S2 format because introducing a novel DSL alongside major gameplay changes makes attribution of failures too noisy."
+    },
+    {
+      "point": "Proposition 9",
+      "vote": "AGREE",
+      "reason": "The strongest practical compromise is to run both formats in parallel so the field can measure syntax validity and score correlation empirically."
+    },
+    {
+      "point": "Proposition 10",
+      "vote": "DISAGREE",
+      "reason": "A 30-line limit is too loose for S2 and a tighter cap better preserves prioritization pressure."
+    },
+    {
+      "point": "Proposition 11",
+      "vote": "DISAGREE",
+      "reason": "Partial parse as the default fallback risks inconsistent incentives and fairness issues, so invalid-output handling needs more careful specification before adoption."
+    },
+    {
+      "point": "Proposition 12",
+      "vote": "AGREE",
+      "reason": "Reporting separate syntax-validity and tactical-effectiveness subscores is a good way to preserve interpretability regardless of which format is primary."
+    }
+  ],
+  "elapsed_s": 7.667528867721558,
+  "input_tokens": 1958,
+  "output_tokens": 404,
+  "cost_usd": 0.008935,
+  "error": null
+}

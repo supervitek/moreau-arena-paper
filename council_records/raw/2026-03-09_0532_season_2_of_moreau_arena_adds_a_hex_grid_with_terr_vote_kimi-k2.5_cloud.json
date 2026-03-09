@@ -1,0 +1,36 @@
+{
+  "model": "kimi-k2.5:cloud",
+  "provider": "ollama",
+  "votes": [
+    {
+      "point": "Proposition 1",
+      "vote": "AGREE",
+      "reason": "Zero contamination is essential to isolate in-context learning from memorized patterns, and Morpeton’s novel grammar forces models to demonstrate true reasoning rather than recalling training data."
+    },
+    {
+      "point": "Proposition 2",
+      "vote": "AGREE",
+      "reason": "Thirty lines provides sufficient expressiveness for tactical complexity without inducing the token-limit anxiety or syntax truncation errors that aggressive compression would risk."
+    },
+    {
+      "point": "Proposition 3",
+      "vote": "AGREE",
+      "reason": "The strict separation between permissive condition expressions and restricted command vocabulary is architecturally crucial for maintaining both parseability and expressive tactical logic."
+    },
+    {
+      "point": "Proposition 4",
+      "vote": "AGREE",
+      "reason": "OVERWATCH and FLANK represent distinct tactical commitments requiring primitive status to avoid verbose multi-line emulation that would violate compression goals."
+    },
+    {
+      "point": "Proposition 5",
+      "vote": "AGREE",
+      "reason": "Simple regex/PEG parsing minimizes implementation overhead while preserving the non-negotiable safety guarantees and contamination resistance required for adversarial evaluation."
+    }
+  ],
+  "elapsed_s": 28.593950986862183,
+  "input_tokens": 1400,
+  "output_tokens": 1555,
+  "cost_usd": 0.0,
+  "error": null
+}
