@@ -1,0 +1,10 @@
+{
+  "model": "deepseek-v3.2:cloud",
+  "provider": "ollama",
+  "text": "",
+  "elapsed_s": 13.282256841659546,
+  "input_tokens": 3154,
+  "output_tokens": 666,
+  "cost_usd": 0.0,
+  "error": null
+}

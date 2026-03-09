@@ -1,0 +1,8 @@
+{
+  "model": "deepseek-v3.2:cloud",
+  "text": "",
+  "elapsed_s": 26.84379816055298,
+  "input_tokens": 4610,
+  "output_tokens": 1202,
+  "cost_usd": 0.0
+}

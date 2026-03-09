@@ -1,0 +1,36 @@
+{
+  "model": "cogito-2.1:671b-cloud",
+  "provider": "ollama",
+  "votes": [
+    {
+      "point": "Proposition 1",
+      "vote": "AGREE",
+      "reason": "The hexagonal grid with momentum physics and elevation creates elegant tactical depth while avoiding the computational and competitive integrity issues of quantum mechanics."
+    },
+    {
+      "point": "Proposition 2",
+      "vote": "AGREE",
+      "reason": "Persistent injuries and adrenaline mechanics enhance strategic depth across matches without disrupting the real-time flow of combat like mid-fight breeding would."
+    },
+    {
+      "point": "Proposition 3",
+      "vote": "AGREE",
+      "reason": "Interactive environmental synergies reward player agency and positioning skill far better than random forced movement mechanics that diminish control."
+    },
+    {
+      "point": "Proposition 4",
+      "vote": "AGREE",
+      "reason": "Spectator tools and community creation systems will drive long-term engagement more effectively than overly complex physics that could obscure core gameplay clarity."
+    },
+    {
+      "point": "Proposition 5",
+      "vote": "AGREE",
+      "reason": "Between-round progression maintains combat purity while still allowing deep meta-strategy, and faction wars offer compelling seasonal narrative hooks."
+    }
+  ],
+  "elapsed_s": 4.167246103286743,
+  "input_tokens": 1912,
+  "output_tokens": 184,
+  "cost_usd": 0.0,
+  "error": null
+}

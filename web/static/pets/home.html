@@ -628,7 +628,8 @@
 
         function canMutate(p) {
             const m = (p.mutations || []).length;
-            return (p.level >= 3 && m === 0) || (p.level >= 6 && m === 1) || (p.level >= 9 && m === 2);
+            const xp = p.xp || 0;
+            return (p.level >= 3 && xp >= 100 && m === 0) || (p.level >= 6 && xp >= 300 && m === 1) || (p.level >= 9 && xp >= 600 && m === 2);
         }
 
         function nextMutationLevel(p) {
@@ -675,7 +676,7 @@
             document.getElementById('xpBar').style.width = xp.pct + '%';
 
             // Stat bars
-            const stats = pet.stats || {};
+            const stats = pet.base_stats || pet.stats || {};
             const maxStat = 30;
             ['HP', 'ATK', 'SPD', 'WIL'].forEach(s => {
                 const key = s.toLowerCase();
@@ -750,16 +751,16 @@
             })
             .then(r => r.json())
             .then(data => {
-                const text = data.text || data.message || '';
-                if (text.includes('stares at you silently')) {
-                    body.innerHTML = '<div class="soul-locked">&#128274; Soul requires API key</div>';
+                const text = data.text || data.message || data.response || '';
+                if (!text || text.includes('stares at you silently')) {
+                    body.innerHTML = '<em>* ' + (pet.name || 'Your pet') + ' stares at you silently. The soul awaits awakening... *</em>';
                 } else {
                     typewriter(body, text);
                 }
             })
             .catch(err => {
                 if (err.name === 'AbortError') return;
-                body.innerHTML = '<div class="soul-locked">&#128274; Soul requires API key</div>';
+                body.innerHTML = '<em>* ' + (pet.name || 'Your pet') + ' stares at you silently. The soul awaits awakening... *</em>';
             });
         }
 

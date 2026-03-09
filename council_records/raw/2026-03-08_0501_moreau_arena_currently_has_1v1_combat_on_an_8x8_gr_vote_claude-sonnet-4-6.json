@@ -1,0 +1,10 @@
+{
+  "model": "claude-sonnet-4-6",
+  "provider": "anthropic",
+  "votes": [],
+  "elapsed_s": 48.14452815055847,
+  "input_tokens": 2194,
+  "output_tokens": 2048,
+  "cost_usd": 0.037302,
+  "error": null
+}

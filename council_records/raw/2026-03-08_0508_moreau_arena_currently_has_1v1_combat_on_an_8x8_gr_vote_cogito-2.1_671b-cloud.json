@@ -1,0 +1,10 @@
+{
+  "model": "cogito-2.1:671b-cloud",
+  "provider": "ollama",
+  "votes": [],
+  "elapsed_s": 2.4788269996643066,
+  "input_tokens": 160,
+  "output_tokens": 97,
+  "cost_usd": 0.0,
+  "error": null
+}

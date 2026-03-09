@@ -558,7 +558,8 @@ function getOpponentData() {
 // --- Start Fight ---
 async function startFight() {
     const opp = getOpponentData();
-    const petBuild = pet.animal + ' ' + pet.hp + ' ' + pet.atk + ' ' + pet.spd + ' ' + pet.wil;
+    const bs = pet.base_stats || pet.stats || {};
+    const petBuild = pet.animal + ' ' + (bs.hp || 5) + ' ' + (bs.atk || 5) + ' ' + (bs.spd || 5) + ' ' + (bs.wil || 5);
 
     // Show phase 2
     document.getElementById('phase-choose').style.display = 'none';
@@ -728,9 +729,12 @@ async function fetchSoul(won, oppName) {
         });
         const data = await resp.json();
         const text = data.message || data.response || data.text || '';
-        if (!text) return;
-
         bubble.classList.add('visible');
+        if (!text) {
+            bubble.innerHTML = '<em>* ' + (pet.name || 'Your pet') + ' stares at you silently. The soul awaits awakening... *</em>';
+            return;
+        }
+
         bubble.textContent = '';
         // Typewriter
         for (let i = 0; i < text.length; i++) {
@@ -738,7 +742,9 @@ async function fetchSoul(won, oppName) {
             await sleep(25);
         }
     } catch {
-        // Soul is optional, fail silently
+        const bubble = document.getElementById('soul-bubble');
+        bubble.classList.add('visible');
+        bubble.innerHTML = '<em>* ' + (pet.name || 'Your pet') + ' stares at you silently. The soul awaits awakening... *</em>';
     }
 }
 

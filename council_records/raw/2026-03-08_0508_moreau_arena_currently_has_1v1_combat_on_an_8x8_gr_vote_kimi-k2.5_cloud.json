@@ -1,0 +1,10 @@
+{
+  "model": "kimi-k2.5:cloud",
+  "provider": "ollama",
+  "votes": [],
+  "elapsed_s": 13.389548063278198,
+  "input_tokens": 136,
+  "output_tokens": 1144,
+  "cost_usd": 0.0,
+  "error": null
+}

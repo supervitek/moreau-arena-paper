@@ -1,0 +1,231 @@
+{
+  "model": "gpt-5.2",
+  "provider": "openai",
+  "votes": [
+    {
+      "point": "Proposition 1",
+      "vote": "AGREE",
+      "reason": "Hex grids materially improve positional tactics (angles, flanks, kiting) without adding opaque complexity."
+    },
+    {
+      "point": "Proposition 2",
+      "vote": "AGREE",
+      "reason": "Elevation creates readable, skill-expressive advantages that map designers can balance with access routes."
+    },
+    {
+      "point": "Proposition 3",
+      "vote": "AGREE",
+      "reason": "Ice sliding is a clean positional puzzle mechanic with strong counterplay via planning and body-blocking."
+    },
+    {
+      "point": "Proposition 4",
+      "vote": "AGREE",
+      "reason": "Destructible terrain adds tactical time horizons and prevents static turtling while staying legible."
+    },
+    {
+      "point": "Proposition 5",
+      "vote": "AGREE",
+      "reason": "Fog of war increases scouting/ambush play and differentiates species in a learnable way."
+    },
+    {
+      "point": "Proposition 6",
+      "vote": "AGREE",
+      "reason": "Flooding is a strong alternative to a generic ring and naturally spotlights aquatic archetypes."
+    },
+    {
+      "point": "Proposition 7",
+      "vote": "AGREE",
+      "reason": "Teleporter pairs create high-skill rotations and bluffing, especially with clear UI telegraphs."
+    },
+    {
+      "point": "Proposition 8",
+      "vote": "AGREE",
+      "reason": "Mud/bog is a simple movement tax that also enables species identity through immunities/interactions."
+    },
+    {
+      "point": "Proposition 9",
+      "vote": "AGREE",
+      "reason": "Bleeding adds meaningful chase vs. reset decisions and supports tracking gameplay without raw RNG."
+    },
+    {
+      "point": "Proposition 10",
+      "vote": "AGREE",
+      "reason": "Limb damage adds tactical targeting depth as long as it’s tightly tuned to avoid hard-locks."
+    },
+    {
+      "point": "Proposition 11",
+      "vote": "AGREE",
+      "reason": "Stamina rewards pacing and sequencing, making “big moves” a strategic resource rather than default spam."
+    },
+    {
+      "point": "Proposition 12",
+      "vote": "AGREE",
+      "reason": "A low-HP adrenaline window creates comeback lines while still being predictable and counterable."
+    },
+    {
+      "point": "Proposition 13",
+      "vote": "AGREE",
+      "reason": "Persistent injuries across a series meaningfully reward efficient wins and strategic risk management."
+    },
+    {
+      "point": "Proposition 14",
+      "vote": "AGREE",
+      "reason": "Combo/sequencing promotes planning and hazard use, which is core to a tile tactics identity."
+    },
+    {
+      "point": "Proposition 15",
+      "vote": "AGREE",
+      "reason": "2v2 is the best team size for coordination depth without overwhelming readability."
+    },
+    {
+      "point": "Proposition 16",
+      "vote": "AGREE",
+      "reason": "King of the Hill forces engagement and produces clear spectator narratives and win conditions."
+    },
+    {
+      "point": "Proposition 17",
+      "vote": "AGREE",
+      "reason": "Between-round mutation drafts add roguelike variety while preserving a stable match core."
+    },
+    {
+      "point": "Proposition 18",
+      "vote": "ABSTAIN",
+      "reason": "Breeding/hybrids are exciting but risk exploding the balance surface unless heavily constrained."
+    },
+    {
+      "point": "Proposition 19",
+      "vote": "AGREE",
+      "reason": "Pickups add contested micro-objectives and tempo swings if spawn rules are deterministic/telegraphed."
+    },
+    {
+      "point": "Proposition 20",
+      "vote": "AGREE",
+      "reason": "Live AI commentary is high leverage for spectator value and replay comprehension."
+    },
+    {
+      "point": "Proposition 21",
+      "vote": "AGREE",
+      "reason": "Prediction markets can deepen engagement if walled off from competitive integrity and abuse vectors."
+    },
+    {
+      "point": "Proposition 22",
+      "vote": "AGREE",
+      "reason": "Replay tools are essential for competitive legitimacy, learning, and content creation."
+    },
+    {
+      "point": "Proposition 23",
+      "vote": "AGREE",
+      "reason": "User maps extend longevity, provided validation enforces fairness and readability constraints."
+    },
+    {
+      "point": "Proposition 24",
+      "vote": "AGREE",
+      "reason": "A modding API is a force multiplier for community and analytics if security/sandboxing is solid."
+    },
+    {
+      "point": "Proposition 25",
+      "vote": "AGREE",
+      "reason": "Hidden traits create discovery and mind-games without the unfairness of hidden numeric variance."
+    },
+    {
+      "point": "Proposition 26",
+      "vote": "AGREE",
+      "reason": "Draft/ban is foundational for a healthy competitive meta and reduces hard-counter frustration."
+    },
+    {
+      "point": "Proposition 27",
+      "vote": "AGREE",
+      "reason": "Faction lore is low-risk flavor that can also structure seasons and events."
+    },
+    {
+      "point": "Proposition 28",
+      "vote": "AGREE",
+      "reason": "A PvE campaign is a strong onboarding path and a sandbox for teaching systems."
+    },
+    {
+      "point": "Proposition 29",
+      "vote": "AGREE",
+      "reason": "Day/night cycles create planned timing windows and distinct archetype spikes with clear signaling."
+    },
+    {
+      "point": "Proposition 30",
+      "vote": "AGREE",
+      "reason": "Weather adds match-to-match texture as long as it’s forecasted/telegraphed and not purely random."
+    },
+    {
+      "point": "Proposition 31",
+      "vote": "AGREE",
+      "reason": "Mid-match gear drops can be exciting if power is bounded and counterplay is clear."
+    },
+    {
+      "point": "Proposition 32",
+      "vote": "AGREE",
+      "reason": "Prestige ranks provide progression without corrupting balance when kept cosmetic."
+    },
+    {
+      "point": "Proposition 33",
+      "vote": "AGREE",
+      "reason": "Boss creatures are great seasonal tentpoles and can create novel PvPvE scenarios."
+    },
+    {
+      "point": "Proposition 34",
+      "vote": "AGREE",
+      "reason": "Lava fissures are strong zoning tools when telegraphed and placed to create decisions, not coin flips."
+    },
+    {
+      "point": "Proposition 35",
+      "vote": "AGREE",
+      "reason": "Lightning with a 1-tick warning is readable, tense, and rewards positioning discipline."
+    },
+    {
+      "point": "Proposition 36",
+      "vote": "ABSTAIN",
+      "reason": "Earthquakes can be great but terrain reshuffles are risky for competitive planning unless constrained."
+    },
+    {
+      "point": "Proposition 37",
+      "vote": "AGREE",
+      "reason": "Poison/spore zones are classic area denial that synergize with movement hazards and objectives."
+    },
+    {
+      "point": "Proposition 38",
+      "vote": "AGREE",
+      "reason": "CTF/object carry adds clear macro goals and chase dynamics that suit grid tactics well."
+    },
+    {
+      "point": "Proposition 39",
+      "vote": "AGREE",
+      "reason": "A pre-combat negotiation/bluff phase can add depth if time-boxed and not mandatory in ranked."
+    },
+    {
+      "point": "Proposition 40",
+      "vote": "AGREE",
+      "reason": "Deception abilities enrich mind-games as long as information rules remain learnable and consistent."
+    },
+    {
+      "point": "Proposition 41",
+      "vote": "AGREE",
+      "reason": "Seasonal tournaments create stakes, content cadence, and a meaningful competitive arc."
+    },
+    {
+      "point": "Proposition 42",
+      "vote": "ABSTAIN",
+      "reason": "Custom animal submissions are valuable but require strict pipelines and may be best limited to curated releases."
+    },
+    {
+      "point": "Proposition 43",
+      "vote": "AGREE",
+      "reason": "Progression unlocks can work if they’re sidegrades or mode-limited so ranked remains fair."
+    },
+    {
+      "point": "Proposition 44",
+      "vote": "AGREE",
+      "reason": "Grapple/drag is tactically rich because it turns hazards and terrain into deliberate win conditions."
+    }
+  ],
+  "elapsed_s": 17.934026956558228,
+  "input_tokens": 1942,
+  "output_tokens": 1203,
+  "cost_usd": 0.016885,
+  "error": null
+}
