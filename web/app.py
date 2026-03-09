@@ -1322,6 +1322,11 @@ def s1_compare_page() -> FileResponse:
     return FileResponse(STATIC_DIR / "s1-compare.html")
 
 
+@app.get("/fighters/{animal}")
+def fighter_page(animal: str) -> FileResponse:
+    return FileResponse(STATIC_DIR / "fighters" / f"{animal}.html")
+
+
 @app.get("/moreddit")
 def moreddit_page() -> FileResponse:
     return FileResponse(STATIC_DIR / "moreddit.html")

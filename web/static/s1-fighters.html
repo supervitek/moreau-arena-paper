@@ -172,6 +172,22 @@
         }
         .filter-btn:hover { border-color: var(--accent); color: var(--text); }
         .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+        /* Dossier link */
+        .fc-name a { color: var(--text); text-decoration: none; }
+        .fc-name a:hover { color: var(--accent); }
+        .fc-dossier-link {
+            display: inline-block;
+            margin-top: 0.5rem;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #cc0000;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+        .fc-dossier-link:hover { color: #ff3333; }
     </style>
 </head>
 <body>
@@ -246,7 +262,7 @@
             <div class="fc" data-role="burst">
                 <div class="fc-top">
                     <span class="fc-emoji">&#x1F43B;</span>
-                    <span class="fc-name">Bear</span>
+                    <span class="fc-name"><a href="/fighters/bear">Bear</a></span>
                     <span class="role-tag role-burst">Burst</span>
                 </div>
                 <div class="fc-quote">"Fury Protocol turns losing into winning."</div>
@@ -260,14 +276,14 @@
                     <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Vulture, Fox</div></div>
                     <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Porcupine, Rhino</div></div>
                 </div>
-                <div class="fc-tip"><strong>Tip:</strong> Stack ATK and HP. Let Fury do the rest.</div>
+                <div class="fc-tip"><strong>Tip:</strong> Stack ATK and HP. Let Fury do the rest.<br><a href="/fighters/bear" class="fc-dossier-link">View Dossier &rarr;</a></div>
             </div>
 
             <!-- BUFFALO -->
             <div class="fc" data-role="tank">
                 <div class="fc-top">
                     <span class="fc-emoji">&#x1F403;</span>
-                    <span class="fc-name">Buffalo</span>
+                    <span class="fc-name"><a href="/fighters/buffalo">Buffalo</a></span>
                     <span class="role-tag role-tank">Tank</span>
                 </div>
                 <div class="fc-quote">"Outlast everything. Heal the rest."</div>
@@ -281,14 +297,14 @@
                     <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Glass cannons</div></div>
                     <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Scorpion, Vulture, Viper, Eagle</div></div>
                 </div>
-                <div class="fc-tip"><strong>Tip:</strong> Max HP for Iron Will value. WIL regen stacks beautifully.</div>
+                <div class="fc-tip"><strong>Tip:</strong> Max HP for Iron Will value. WIL regen stacks beautifully.<br><a href="/fighters/buffalo" class="fc-dossier-link">View Dossier &rarr;</a></div>
             </div>
 
             <!-- BOAR -->
             <div class="fc" data-role="bruiser">
                 <div class="fc-top">
                     <span class="fc-emoji">&#x1F417;</span>
-                    <span class="fc-name">Boar</span>
+                    <span class="fc-name"><a href="/fighters/boar">Boar</a></span>
                     <span class="role-tag role-bruiser">Bruiser</span>
                 </div>
                 <div class="fc-quote">"First hit, best hit."</div>
@@ -302,14 +318,14 @@
                     <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Fox, dodge builds</div></div>
                     <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Porcupine (thorns)</div></div>
                 </div>
-                <div class="fc-tip"><strong>Tip:</strong> All-in ATK. Charge + Stampede = fight over before it starts.</div>
+                <div class="fc-tip"><strong>Tip:</strong> All-in ATK. Charge + Stampede = fight over before it starts.<br><a href="/fighters/boar" class="fc-dossier-link">View Dossier &rarr;</a></div>
             </div>
 
             <!-- TIGER -->
             <div class="fc" data-role="burst">
                 <div class="fc-top">
                     <span class="fc-emoji">&#x1F405;</span>
-                    <span class="fc-name">Tiger</span>
+                    <span class="fc-name"><a href="/fighters/tiger">Tiger</a></span>
                     <span class="role-tag role-burst">Burst</span>
                 </div>
                 <div class="fc-quote">"One perfect strike. That's all it takes."</div>
@@ -323,14 +339,14 @@
                     <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Scorpion, Vulture, Eagle</div></div>
                     <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Rhino (damage reduction)</div></div>
                 </div>
-                <div class="fc-tip"><strong>Tip:</strong> SPD guarantees Ambush. Close fights fast before sustain kicks in.</div>
+                <div class="fc-tip"><strong>Tip:</strong> SPD guarantees Ambush. Close fights fast before sustain kicks in.<br><a href="/fighters/tiger" class="fc-dossier-link">View Dossier &rarr;</a></div>
             </div>
 
             <!-- WOLF -->
             <div class="fc" data-role="sustained">
                 <div class="fc-top">
                     <span class="fc-emoji">&#x1F43A;</span>
-                    <span class="fc-name">Wolf</span>
+                    <span class="fc-name"><a href="/fighters/wolf">Wolf</a></span>
                     <span class="role-tag role-sustained">Sustained</span>
                 </div>
                 <div class="fc-quote">"Every tick, another proc. Every proc, another advantage."</div>
@@ -344,14 +360,14 @@
                     <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Viper</div></div>
                     <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Fox (Cunning halves procs)</div></div>
                 </div>
-                <div class="fc-tip"><strong>Tip:</strong> WIL investment = more procs + regen. The sustained damage king.</div>
+                <div class="fc-tip"><strong>Tip:</strong> WIL investment = more procs + regen. The sustained damage king.<br><a href="/fighters/wolf" class="fc-dossier-link">View Dossier &rarr;</a></div>
             </div>
 
             <!-- MONKEY -->
             <div class="fc" data-role="wildcard">
                 <div class="fc-top">
                     <span class="fc-emoji">&#x1F412;</span>
-                    <span class="fc-name">Monkey</span>
+                    <span class="fc-name"><a href="/fighters/monkey">Monkey</a></span>
                     <span class="role-tag role-wildcard">Wildcard</span>
                 </div>
                 <div class="fc-quote">"Your abilities are my abilities now."</div>
@@ -365,14 +381,14 @@
                     <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Strong-passive animals</div></div>
                     <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Fox (Cunning + Trick)</div></div>
                 </div>
-                <div class="fc-tip"><strong>Tip:</strong> High variance. Best vs powerful passives. Worst vs stat-checkers.</div>
+                <div class="fc-tip"><strong>Tip:</strong> High variance. Best vs powerful passives. Worst vs stat-checkers.<br><a href="/fighters/monkey" class="fc-dossier-link">View Dossier &rarr;</a></div>
             </div>
 
             <!-- PORCUPINE -->
             <div class="fc" data-role="reflect">
                 <div class="fc-top">
                     <span class="fc-emoji">&#x1F994;</span>
-                    <span class="fc-name">Porcupine</span>
+                    <span class="fc-name"><a href="/fighters/porcupine">Porcupine</a></span>
                     <span class="role-tag role-reflect">Reflect</span>
                 </div>
                 <div class="fc-quote">"Hit me. I dare you."</div>
@@ -386,14 +402,14 @@
                     <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Bear, Boar, Eagle</div></div>
                     <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Scorpion, Viper (DOT bypasses)</div></div>
                 </div>
-                <div class="fc-tip"><strong>Tip:</strong> Stack HP. Let ATK stackers kill themselves on your quills.</div>
+                <div class="fc-tip"><strong>Tip:</strong> Stack HP. Let ATK stackers kill themselves on your quills.<br><a href="/fighters/porcupine" class="fc-dossier-link">View Dossier &rarr;</a></div>
             </div>
 
             <!-- SCORPION -->
             <div class="fc" data-role="antiheal">
                 <div class="fc-top">
                     <span class="fc-emoji">&#x1F982;</span>
-                    <span class="fc-name">Scorpion</span>
+                    <span class="fc-name"><a href="/fighters/scorpion">Scorpion</a></span>
                     <span class="role-tag role-antiheal">Anti-Heal</span>
                 </div>
                 <div class="fc-quote">"No healing. No mercy. Just venom."</div>
@@ -407,14 +423,14 @@
                     <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Buffalo, Porcupine, Viper</div></div>
                     <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Tiger, Rhino, Eagle</div></div>
                 </div>
-                <div class="fc-tip"><strong>Tip:</strong> Hard counter to WIL regen and tanks. Tail Strike pierces everything.</div>
+                <div class="fc-tip"><strong>Tip:</strong> Hard counter to WIL regen and tanks. Tail Strike pierces everything.<br><a href="/fighters/scorpion" class="fc-dossier-link">View Dossier &rarr;</a></div>
             </div>
 
             <!-- VULTURE -->
             <div class="fc" data-role="finisher">
                 <div class="fc-top">
                     <span class="fc-emoji">&#x1F985;</span>
-                    <span class="fc-name">Vulture</span>
+                    <span class="fc-name"><a href="/fighters/vulture">Vulture</a></span>
                     <span class="role-tag role-finisher">Finisher</span>
                 </div>
                 <div class="fc-quote">"The weaker you get, the stronger I become."</div>
@@ -428,14 +444,14 @@
                     <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Buffalo, Rhino (slow tanks)</div></div>
                     <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Bear, Tiger (burst kills before ramp)</div></div>
                 </div>
-                <div class="fc-tip"><strong>Tip:</strong> WIL for sustain. Survive the opener, then scale into a monster.</div>
+                <div class="fc-tip"><strong>Tip:</strong> WIL for sustain. Survive the opener, then scale into a monster.<br><a href="/fighters/vulture" class="fc-dossier-link">View Dossier &rarr;</a></div>
             </div>
 
             <!-- RHINO -->
             <div class="fc" data-role="tank">
                 <div class="fc-top">
                     <span class="fc-emoji">&#x1F98F;</span>
-                    <span class="fc-name">Rhino</span>
+                    <span class="fc-name"><a href="/fighters/rhino">Rhino</a></span>
                     <span class="role-tag role-tank">Tank</span>
                 </div>
                 <div class="fc-quote">"You hit hard. But not hard enough."</div>
@@ -449,14 +465,14 @@
                     <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Bear, Tiger, Scorpion, Panther</div></div>
                     <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Wolf, Vulture, Viper (DOT bypasses)</div></div>
                 </div>
-                <div class="fc-tip"><strong>Tip:</strong> Stack HP. Burst fighters waste damage on your DR wall.</div>
+                <div class="fc-tip"><strong>Tip:</strong> Stack HP. Burst fighters waste damage on your DR wall.<br><a href="/fighters/rhino" class="fc-dossier-link">View Dossier &rarr;</a></div>
             </div>
 
             <!-- VIPER -->
             <div class="fc" data-role="dot">
                 <div class="fc-top">
                     <span class="fc-emoji">&#x1F40D;</span>
-                    <span class="fc-name">Viper</span>
+                    <span class="fc-name"><a href="/fighters/viper">Viper</a></span>
                     <span class="role-tag role-dot">DOT</span>
                 </div>
                 <div class="fc-quote">"A slow death is still a death."</div>
@@ -470,14 +486,14 @@
                     <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Buffalo, Porcupine, Rhino</div></div>
                     <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Wolf, Scorpion, Fox</div></div>
                 </div>
-                <div class="fc-tip"><strong>Tip:</strong> DOT slips past armor and reflect. Tanks melt slowly but surely.</div>
+                <div class="fc-tip"><strong>Tip:</strong> DOT slips past armor and reflect. Tanks melt slowly but surely.<br><a href="/fighters/viper" class="fc-dossier-link">View Dossier &rarr;</a></div>
             </div>
 
             <!-- FOX -->
             <div class="fc" data-role="antiproc">
                 <div class="fc-top">
                     <span class="fc-emoji">&#x1F98A;</span>
-                    <span class="fc-name">Fox</span>
+                    <span class="fc-name"><a href="/fighters/fox">Fox</a></span>
                     <span class="role-tag role-antiproc">Anti-Proc</span>
                 </div>
                 <div class="fc-quote">"Can't hit what you can't predict."</div>
@@ -491,14 +507,14 @@
                     <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Wolf, Monkey, Viper</div></div>
                     <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Bear, Boar (raw ATK ignores procs)</div></div>
                 </div>
-                <div class="fc-tip"><strong>Tip:</strong> SPD + WIL. Shut down proc-reliant kits. Steal their best moves.</div>
+                <div class="fc-tip"><strong>Tip:</strong> SPD + WIL. Shut down proc-reliant kits. Steal their best moves.<br><a href="/fighters/fox" class="fc-dossier-link">View Dossier &rarr;</a></div>
             </div>
 
             <!-- EAGLE -->
             <div class="fc" data-role="kite">
                 <div class="fc-top">
                     <span class="fc-emoji">&#x1F985;</span>
-                    <span class="fc-name">Eagle</span>
+                    <span class="fc-name"><a href="/fighters/eagle">Eagle</a></span>
                     <span class="role-tag role-kite">Kite</span>
                 </div>
                 <div class="fc-quote">"You fight on the ground. I don't."</div>
@@ -512,14 +528,14 @@
                     <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Buffalo, Scorpion</div></div>
                     <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Tiger (Hamstring grounds you), Porcupine</div></div>
                 </div>
-                <div class="fc-tip"><strong>Tip:</strong> SPD for max evasion. Save Dive as a finisher when they're low.</div>
+                <div class="fc-tip"><strong>Tip:</strong> SPD for max evasion. Save Dive as a finisher when they're low.<br><a href="/fighters/eagle" class="fc-dossier-link">View Dossier &rarr;</a></div>
             </div>
 
             <!-- PANTHER -->
             <div class="fc" data-role="ambush">
                 <div class="fc-top">
                     <span class="fc-emoji">&#x1F408;&#x200D;&#x2B1B;</span>
-                    <span class="fc-name">Panther</span>
+                    <span class="fc-name"><a href="/fighters/panther">Panther</a></span>
                     <span class="role-tag role-ambush">Ambush</span>
                 </div>
                 <div class="fc-quote">"Three strikes from the shadows. Then vanish."</div>
@@ -533,7 +549,7 @@
                     <div class="fc-mu-strong"><div class="fc-mu-label">Strong vs</div><div class="fc-mu-list">Buffalo</div></div>
                     <div class="fc-mu-weak"><div class="fc-mu-label">Weak vs</div><div class="fc-mu-list">Porcupine, Rhino, Fox</div></div>
                 </div>
-                <div class="fc-tip"><strong>Tip:</strong> ATK + SPD. Burst opener, Fade, burst again. Close fights in two windows.</div>
+                <div class="fc-tip"><strong>Tip:</strong> ATK + SPD. Burst opener, Fade, burst again. Close fights in two windows.<br><a href="/fighters/panther" class="fc-dossier-link">View Dossier &rarr;</a></div>
             </div>
 
         </div>

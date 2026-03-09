@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Rhino — Fighter Dossier | Moreau Arena">
+    <meta property="og:description" content="CLASSIFIED: Rhino combat dossier. Anti-Burst Tank, 52.51% WR. Bulwark Frame engaged.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="/static/og-image.png">
+    <title>Rhino — Fighter Dossier | Moreau Arena</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        .dossier-wrapper { position: relative; max-width: 800px; margin: 0 auto; padding: 2rem 0; }
+        .dossier { position: relative; background: #0a0a0a; border: 2px solid #cc0000; border-radius: 4px; padding: 2.5rem 2rem; overflow: hidden; }
+        .dossier::before { content: 'CLASSIFIED'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-35deg); font-size: 6rem; font-weight: 900; color: rgba(204, 0, 0, 0.06); letter-spacing: 0.3em; pointer-events: none; white-space: nowrap; z-index: 0; }
+        .dossier > * { position: relative; z-index: 1; }
+        .dossier-header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap; }
+        .dossier-avatar { width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle at 40% 40%, #2a2a2a 0%, #0a0a0a 70%); border: 3px solid #cc0000; display: flex; align-items: center; justify-content: center; font-size: 3rem; flex-shrink: 0; }
+        .dossier-title-block { flex: 1; min-width: 200px; }
+        .dossier-name { font-size: 2.2rem; font-weight: 900; color: #f1faee; text-transform: uppercase; letter-spacing: 0.08em; margin: 0; }
+        .dossier-role { display: inline-block; background: #457b9d; color: #fff; padding: 0.2rem 0.75rem; border-radius: 3px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.4rem; }
+        .dossier-threat { margin-top: 0.4rem; font-size: 0.85rem; color: #cc0000; letter-spacing: 0.05em; }
+        .dossier-threat .star { color: #cc0000; }
+        .dossier-threat .star-empty { color: #333; }
+        .red-line { border: none; height: 1px; background: linear-gradient(90deg, transparent, #cc0000, transparent); margin: 1.5rem 0; }
+        .dossier-section-title { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: #cc0000; margin-bottom: 0.75rem; padding-bottom: 0.3rem; border-bottom: 1px solid #2a0000; }
+        .dossier-profile { font-size: 0.9rem; line-height: 1.7; color: #c0c0c0; }
+        .dossier-stats { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .dossier-stats td { padding: 0.5rem 0.75rem; border-bottom: 1px solid #1a1a1a; }
+        .dossier-stats td:first-child { color: #888; font-weight: 600; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.08em; width: 35%; }
+        .dossier-stats td:last-child { color: #d0d0d0; }
+        .dossier-stats tr:last-child td { border-bottom: none; }
+        .stat-highlight { color: #cc0000 !important; font-weight: 700; }
+        .stat-passive { color: #d4a017 !important; }
+        .stat-ability { color: #e63946 !important; }
+        .proc-rate { font-family: var(--font-mono, monospace); font-size: 0.75rem; color: #666; }
+        .matchup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .matchup-card { background: #111; border: 1px solid #1a1a1a; border-radius: 4px; padding: 0.85rem; }
+        .matchup-card-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.4rem; }
+        .matchup-best .matchup-card-title { color: #4ecca3; }
+        .matchup-worst .matchup-card-title { color: #e63946; }
+        .matchup-name { font-size: 1rem; font-weight: 600; color: #d0d0d0; }
+        .matchup-wr { font-family: var(--font-mono, monospace); font-size: 0.85rem; color: #888; }
+        .psych-traits { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+        .psych-trait { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 3px; padding: 0.3rem 0.65rem; font-size: 0.78rem; color: #a0a0a0; }
+        .psych-quote { font-style: italic; color: #888; font-size: 0.88rem; line-height: 1.6; padding-left: 1rem; border-left: 2px solid #cc0000; }
+        .transmission { background: #0c0c0c; border: 1px solid #1a3a1a; border-radius: 4px; padding: 1rem 1.25rem; font-family: var(--font-mono, monospace); font-size: 0.82rem; color: #4ecca3; line-height: 1.7; position: relative; }
+        .transmission::before { content: '> SIGNAL INTERCEPT // FREQ 52.51 MHz'; display: block; font-size: 0.65rem; color: #2a6a4a; margin-bottom: 0.5rem; letter-spacing: 0.1em; }
+        .dossier-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #1a1a1a; font-size: 0.85rem; }
+        .dossier-nav a { color: #cc0000; text-decoration: none; transition: color 0.2s; }
+        .dossier-nav a:hover { color: #ff3333; }
+        @media (max-width: 600px) {
+            .dossier { padding: 1.5rem 1rem; }
+            .dossier-header { gap: 1rem; }
+            .dossier-avatar { width: 72px; height: 72px; font-size: 2.2rem; }
+            .dossier-name { font-size: 1.6rem; }
+            .matchup-grid { grid-template-columns: 1fr; }
+            .dossier::before { font-size: 3.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li class="nav-dropdown">
+                    <a href="/tournaments">Benchmark &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/tournaments">Tournaments</a></li>
+                        <li><a href="/leaderboard">Leaderboard</a></li>
+                        <li><a href="/methodology">Methodology</a></li>
+                        <li><a href="/match-log">Match Log</a></li>
+                        <li><a href="/compare">Compare</a></li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="/s1-leaderboard" class="active">Seasons &#9662; <span style="font-size:0.6rem;color:var(--gold);font-weight:600;">(preview)</span></a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/s1-leaderboard">S1 Leaderboard</a></li>
+                        <li><a href="/s1-fighters" class="active">Meet the Fighters</a></li>
+                        <li><a href="/s1-matchups">Matchup Explorer</a></li>
+                        <li><a href="/play">S1 Quick Fight</a></li>
+                        <li><a href="/s1-compare">Benchmark vs S1</a></li>
+                        <li><a href="/moreddit">The Moreddit</a></li>
+                    </ul>
+                </li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="dossier-wrapper">
+            <div class="dossier">
+
+                <div class="dossier-header">
+                    <div class="dossier-avatar">&#x1F98F;</div>
+                    <div class="dossier-title-block">
+                        <h1 class="dossier-name">Rhino</h1>
+                        <div class="dossier-role">Anti-Burst Tank</div>
+                        <div class="dossier-threat">
+                            THREAT LEVEL:
+                            <span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star-empty">&#9733;</span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="red-line">
+
+                <div class="dossier-section-title">Subject Profile</div>
+                <div class="dossier-profile">
+                    Subject addresses all personnel as "maggot" regardless of rank, species, or context. Maintains a rigorous 0400 training schedule despite there being no requirement for training and no actual clock in the arena. Has been observed performing barking drills at empty chairs, demanding that furniture "TIGHTEN UP THAT FORMATION." Bulwark Frame -- his damage reduction passive -- activates automatically when his HP drops, which he describes as "the armor doing its JOB, unlike SOME of you." Subject's quarters are immaculate. His combat record is 52.51%. He considers both facts related.
+                </div>
+
+                <hr class="red-line">
+
+                <div class="dossier-section-title">Combat Assessment</div>
+                <table class="dossier-stats">
+                    <tr><td>Win Rate</td><td class="stat-highlight">52.51%</td></tr>
+                    <tr><td>Season Rank</td><td>#4 of 14</td></tr>
+                    <tr><td>Role</td><td>Anti-Burst Tank</td></tr>
+                    <tr><td>Passive</td><td class="stat-passive">Bulwark Frame &mdash; 28% DR below 60% HP</td></tr>
+                    <tr><td>Ability 1</td><td class="stat-ability">Horn Charge <span class="proc-rate">(Standard 4.5%)</span> &mdash; +60% ATK</td></tr>
+                    <tr><td>Ability 2</td><td class="stat-ability">Fortify <span class="proc-rate">(Strong 3.5%)</span> &mdash; +30% DR</td></tr>
+                </table>
+
+                <hr class="red-line">
+
+                <div class="dossier-section-title">Known Associates &amp; Rivals</div>
+                <div class="matchup-grid">
+                    <div class="matchup-card matchup-best">
+                        <div class="matchup-card-title">Best Matchup</div>
+                        <div class="matchup-name">vs Vulture</div>
+                        <div class="matchup-wr">61.35% WR</div>
+                    </div>
+                    <div class="matchup-card matchup-worst">
+                        <div class="matchup-card-title">Worst Matchup</div>
+                        <div class="matchup-name">vs Fox</div>
+                        <div class="matchup-wr">44.82% WR</div>
+                    </div>
+                </div>
+
+                <hr class="red-line">
+
+                <div class="dossier-section-title">Psychological Profile</div>
+                <div class="psych-traits">
+                    <span class="psych-trait">Authoritarian</span>
+                    <span class="psych-trait">Disciplined</span>
+                    <span class="psych-trait">Loud</span>
+                    <span class="psych-trait">Immovable</span>
+                    <span class="psych-trait">By-the-Book</span>
+                </div>
+                <div class="psych-quote">
+                    "Rhino does not adapt to combat. Combat adapts to Rhino. His strategic philosophy can be summarized in three words: HOLD THE LINE. When asked what happens when the line breaks, subject responded -- at considerable volume -- that the line does NOT break. When shown statistical evidence of losses, subject classified the data as 'insubordinate.'"
+                </div>
+
+                <hr class="red-line">
+
+                <div class="dossier-section-title">Intercepted Transmission</div>
+                <div class="transmission">
+                    LISTEN UP MAGGOTS!<br>
+                    <br>
+                    I don't care WHAT your damage multiplier<br>
+                    is. I don't care about your fancy procs<br>
+                    or your little dodge percentages.<br>
+                    <br>
+                    You hit me? 28% DAMAGE REDUCTION.<br>
+                    You hit me AGAIN? FORTIFY. 30% MORE.<br>
+                    You KEEP hitting me? HORN CHARGE TO<br>
+                    YOUR FACE.<br>
+                    <br>
+                    THAT'S NOT A STRATEGY. THAT'S A PROMISE.<br>
+                    <br>
+                    NOW DROP AND GIVE ME TWENTY.
+                </div>
+
+                <div class="dossier-nav">
+                    <a href="/fighters/vulture">&larr; Vulture</a>
+                    <a href="/s1-fighters">Back to Roster</a>
+                    <a href="/fighters/viper">Viper &rarr;</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-left">Created by Victor Stasiuc &mdash; Independent AI Safety Researcher</div>
+            <ul class="footer-links">
+                <li><a href="https://github.com/supervitek/moreau-arena-paper">GitHub</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+                <li><a href="mailto:stvitek@gmail.com">Contact</a></li>
+            </ul>
+            <div class="footer-cite">Stasiuc, V. (2026). Moreau Arena: A Contamination-Resistant Benchmark for LLM Strategic Reasoning. <a href="/paper" style="color:var(--text-muted);">arXiv submission pending approval</a>.</div>
+        </div>
+    </footer>
+</body>
+</html>
