@@ -32,8 +32,8 @@ The primary goal is to measure how the expanded strategy space shifts LLM perfor
 
 | Parameter | Value |
 |-----------|-------|
-| Agents | 10 LLMs + 5 baselines = 15 total |
-| LLM roster | GPT-5.4, Claude-opus-4-6, Claude-sonnet-4-6, Gemini-3.1-pro, Gemini-flash, Grok, DeepSeek-R1, Kimi-K2 + 2 others from T003 |
+| Agents | 9 LLMs + 5 baselines = 14 total† |
+| LLM roster | claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5, gpt-5.2, gpt-5.2-codex, gpt-5.4, gpt-5.3-codex, gemini-3-flash-preview, grok-4-1-fast-reasoning |
 | Baseline roster | SmartAgent, GreedyAgent, ConservativeAgent, HighVarianceAgent, RandomAgent |
 | Animal pool | All 14 S1 animals |
 | Series format | Best-of-7, 3 animal-selection rounds per series |
@@ -48,7 +48,9 @@ The animal selection prompt will be the T003 v2 paraphrase (PSI-validated, tau =
 
 ## 4. Cost and Runtime Estimate
 
-**Series count:** 15 × 14 / 2 = **105 series**
+† gemini-3.1-pro-preview excluded due to Google API free tier limit (250 req/day). See `data/season1_tournament/EXCLUDED_MODELS.md`.
+
+**Series count:** 14 × 13 / 2 = **91 series**
 **Games per series:** 7 max (best-of-7)
 **Total games:** ~735 maximum, ~500 expected (series end early when one side reaches 4 wins)
 

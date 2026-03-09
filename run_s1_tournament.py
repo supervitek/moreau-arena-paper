@@ -42,7 +42,7 @@ from season1.engine_s1 import run_match as s1_run_match
 
 OUTPUT_DIR = Path("data/season1_tournament")
 SERIES_PER_PAIR = 1   # one best-of-7 series per pair (can be increased)
-NUM_AGENTS = 15
+NUM_AGENTS = 14
 GAMES_TO_WIN = 4      # first to 4 wins takes the series (best-of-7)
 
 S1_ANIMALS = [
@@ -62,13 +62,13 @@ AGENT_DEFS: list[dict[str, Any]] = [
     {"idx": 5,  "name": "gpt-5.4",                   "provider": "openai",    "model": "gpt-5.4"},
     {"idx": 6,  "name": "gpt-5.3-codex",             "provider": "openai",    "model": "gpt-5.3-codex"},
     {"idx": 7,  "name": "gemini-3-flash-preview",    "provider": "google",    "model": "gemini-3-flash-preview"},
-    {"idx": 8,  "name": "gemini-3.1-pro-preview",    "provider": "google",    "model": "gemini-3.1-pro-preview"},
-    {"idx": 9,  "name": "grok-4-1-fast-reasoning",   "provider": "xai",       "model": "grok-4-1-fast-reasoning"},
-    {"idx": 10, "name": "RandomAgent_S1",      "provider": None, "model": None, "baseline_cls": "RandomAgent_S1"},
-    {"idx": 11, "name": "GreedyAgent_S1",      "provider": None, "model": None, "baseline_cls": "GreedyAgent_S1"},
-    {"idx": 12, "name": "SmartAgent_S1",       "provider": None, "model": None, "baseline_cls": "SmartAgent_S1"},
-    {"idx": 13, "name": "ConservativeAgent_S1","provider": None, "model": None, "baseline_cls": "ConservativeAgent_S1"},
-    {"idx": 14, "name": "HighVarianceAgent_S1","provider": None, "model": None, "baseline_cls": "HighVarianceAgent_S1"},
+    # gemini-3.1-pro-preview excluded — 250 RPD quota, structured output blocked
+    {"idx": 8,  "name": "grok-4-1-fast-reasoning",   "provider": "xai",       "model": "grok-4-1-fast-reasoning"},
+    {"idx": 9,  "name": "RandomAgent_S1",      "provider": None, "model": None, "baseline_cls": "RandomAgent_S1"},
+    {"idx": 10, "name": "GreedyAgent_S1",      "provider": None, "model": None, "baseline_cls": "GreedyAgent_S1"},
+    {"idx": 11, "name": "SmartAgent_S1",       "provider": None, "model": None, "baseline_cls": "SmartAgent_S1"},
+    {"idx": 12, "name": "ConservativeAgent_S1","provider": None, "model": None, "baseline_cls": "ConservativeAgent_S1"},
+    {"idx": 13, "name": "HighVarianceAgent_S1","provider": None, "model": None, "baseline_cls": "HighVarianceAgent_S1"},
 ]
 
 _AGENT_BY_IDX = {d["idx"]: d for d in AGENT_DEFS}
@@ -81,8 +81,8 @@ ENV_KEYS = {
 }
 
 WORKER_LABELS = [
-    "W0-grok", "W1-flash", "W2-pro",
-    "W3-codex", "W4-anthropic", "W5-fast",
+    "W0-grok", "W1-flash",
+    "W2-codex", "W3-anthropic", "W4-fast",
 ]
 
 # ---------------------------------------------------------------------------
@@ -430,20 +430,18 @@ def _run_s1_series(
 
 def _assign_pairs() -> dict[int, list[tuple[int, int, int]]]:
     all_pairs = list(combinations(range(NUM_AGENTS), 2))
-    workers: dict[int, list] = {i: [] for i in range(6)}
+    workers: dict[int, list] = {i: [] for i in range(5)}
     for pair_idx, (a, b) in enumerate(all_pairs):
-        if 9 in (a, b):           # grok
+        if 8 in (a, b):           # grok (idx 8)
             workers[0].append((pair_idx, a, b))
-        elif 7 in (a, b):         # gemini-flash
+        elif 7 in (a, b):         # gemini-flash (idx 7)
             workers[1].append((pair_idx, a, b))
-        elif 8 in (a, b):         # gemini-pro
-            workers[2].append((pair_idx, a, b))
         elif 4 in (a, b) or 6 in (a, b):   # codex models
-            workers[3].append((pair_idx, a, b))
+            workers[2].append((pair_idx, a, b))
         elif 0 in (a, b) or 1 in (a, b):   # anthropic flagship
-            workers[4].append((pair_idx, a, b))
+            workers[3].append((pair_idx, a, b))
         else:
-            workers[5].append((pair_idx, a, b))
+            workers[4].append((pair_idx, a, b))
     return workers
 
 
@@ -674,6 +672,18 @@ def main() -> None:
             sys.exit(1)
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Write exclusion log
+    excl = OUTPUT_DIR / "EXCLUDED_MODELS.md"
+    excl.write_text(
+        "# Excluded Models\n\n"
+        "| Model | Provider | Reason |\n"
+        "|-------|----------|--------|\n"
+        "| gemini-3.1-pro-preview | Google | API free tier: 250 req/day. "
+        "gemini-3-flash-preview retained as Google representative. |\n",
+        encoding="utf-8",
+    )
+
     worker_pairs = _assign_pairs()
     total_pairs = sum(len(p) for p in worker_pairs.values())
     total = sum(len(p) * SERIES_PER_PAIR for p in worker_pairs.values())
@@ -690,22 +700,25 @@ def main() -> None:
     print(f"  Estimated runtime: 4-6 hours")
     print(f"  Series:            {total_pairs} | Games (est): ~{total_pairs * 5} | Agents: {NUM_AGENTS}")
     print()
-    print(f"  Agents:     {NUM_AGENTS} (10 LLMs + 5 baselines)")
+    n_llm = sum(1 for d in AGENT_DEFS if d["provider"] is not None)
+    n_base = sum(1 for d in AGENT_DEFS if d["provider"] is None)
+    print(f"  Agents:     {NUM_AGENTS} ({n_llm} LLMs + {n_base} baselines)")
     print(f"  Pairs:      {total_pairs}")
     print(f"  Total series: {total}")
     print(f"  Series format: Best-of-7 (first to {GAMES_TO_WIN} wins)")
     print(f"  Dry run:    {args.dry_run}")
     print(f"  Resume:     {args.resume}")
-    for wid in range(6):
+    for wid in range(len(WORKER_LABELS)):
         n = len(worker_pairs[wid])
         print(f"  {WORKER_LABELS[wid]}: {n} pairs ({n * SERIES_PER_PAIR} series)")
     print("=" * 70)
     print()
 
-    with ThreadPoolExecutor(max_workers=6) as executor:
+    n_workers = len(WORKER_LABELS)
+    with ThreadPoolExecutor(max_workers=n_workers) as executor:
         futures: dict[Any, int] = {}
 
-        # W0 (grok) starts first
+        # W0 (grok) starts first — slowest provider
         cp = OUTPUT_DIR / f"chunk_{WORKER_LABELS[0]}.jsonl"
         if not args.resume:
             cp.unlink(missing_ok=True)
@@ -716,7 +729,7 @@ def main() -> None:
 
         time.sleep(0.5)
 
-        for wid in range(1, 6):
+        for wid in range(1, n_workers):
             cp = OUTPUT_DIR / f"chunk_{WORKER_LABELS[wid]}.jsonl"
             if not args.resume:
                 cp.unlink(missing_ok=True)
