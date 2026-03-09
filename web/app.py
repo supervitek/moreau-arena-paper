@@ -1525,7 +1525,7 @@ def api_s1_tournament() -> dict[str, Any]:
     if results_file.exists():
         for line in results_file.read_text(encoding="utf-8").strip().split("\n"):
             rec = json.loads(line)
-            a1, a2 = rec["agent1"], rec["agent2"]
+            a1, a2 = rec["agent_a"], rec["agent_b"]
             w = rec.get("winner", "")
             for x, y in [(a1, a2), (a2, a1)]:
                 h2h.setdefault(x, {}).setdefault(y, {"w": 0, "l": 0})
