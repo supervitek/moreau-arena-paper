@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. Moreau's Laboratory — Moreau Arena</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="/static/favicon.svg">
+    <style>
+        /* -- Page-specific styles -- */
+        .lab-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            min-height: calc(100vh - 64px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .step { display: none; }
+        .step.active { display: block; }
+
+        /* Step 1: Intro */
+        .intro-text {
+            text-align: center;
+            font-size: 1.4rem;
+            color: var(--text);
+            opacity: 0;
+            transition: opacity 1.5s ease;
+            line-height: 1.8;
+        }
+        .intro-text.visible { opacity: 1; }
+        .intro-sub {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            opacity: 0;
+            transition: opacity 1.5s ease;
+            margin-top: 1rem;
+        }
+        .intro-sub.visible { opacity: 1; }
+        .intro-btn-wrap {
+            text-align: center;
+            margin-top: 2.5rem;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        .intro-btn-wrap.visible { opacity: 1; }
+
+        /* Shared button */
+        .lab-btn {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s, transform 0.15s;
+        }
+        .lab-btn:hover { background: #ff4757; transform: scale(1.03); }
+        .lab-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+        .step-title {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+
+        /* Step 2: Animal grid */
+        .animal-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        @media (max-width: 768px) {
+            .animal-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .animal-grid { grid-template-columns: 1fr; }
+        }
+        .animal-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.2rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+            user-select: none;
+        }
+        .animal-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 16px rgba(230, 57, 70, 0.3);
+            transform: translateY(-2px);
+        }
+        .animal-card.selected {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(212, 160, 23, 0.4);
+        }
+        .animal-emoji { font-size: 2.4rem; display: block; margin-bottom: 0.4rem; }
+        .animal-name { font-weight: 700; color: var(--text); text-transform: capitalize; }
+        .animal-hint {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.3rem;
+            font-style: italic;
+            line-height: 1.3;
+        }
+
+        .step-nav {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+            padding: 0.6rem 1.5rem;
+            font-size: 0.95rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .btn-secondary:hover { border-color: var(--text-dim); color: var(--text); }
+
+        /* Step 3: Name */
+        .name-section { text-align: center; }
+        .name-preview {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        .name-preview-label {
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+            text-transform: capitalize;
+        }
+        .name-input {
+            background: var(--bg-code);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            padding: 0.8rem 1.2rem;
+            font-size: 1.1rem;
+            width: 100%;
+            max-width: 360px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .name-input:focus { border-color: var(--accent); }
+        .char-count {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Step 4: Stats */
+        .stats-section { max-width: 560px; margin: 0 auto; }
+        .stat-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+        }
+        .stat-label {
+            width: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+        .stat-label.hp { color: var(--green); }
+        .stat-label.atk { color: var(--accent); }
+        .stat-label.spd { color: var(--blue); }
+        .stat-label.wil { color: #a855f7; }
+
+        .stat-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--bg-code);
+            outline: none;
+        }
+        .stat-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .stat-slider.hp::-webkit-slider-thumb { background: var(--green); }
+        .stat-slider.atk::-webkit-slider-thumb { background: var(--accent); }
+        .stat-slider.spd::-webkit-slider-thumb { background: var(--blue); }
+        .stat-slider.wil::-webkit-slider-thumb { background: #a855f7; }
+
+        .stat-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        .stat-slider.hp::-moz-range-thumb { background: var(--green); }
+        .stat-slider.atk::-moz-range-thumb { background: var(--accent); }
+        .stat-slider.spd::-moz-range-thumb { background: var(--blue); }
+        .stat-slider.wil::-moz-range-thumb { background: #a855f7; }
+
+        .stat-value {
+            width: 36px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text);
+        }
+        .stat-tooltip {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            width: 110px;
+            text-align: right;
+        }
+        .points-remaining {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 1rem;
+        }
+        .points-remaining strong {
+            color: var(--gold);
+            font-size: 1.2rem;
+        }
+        .points-remaining.over strong { color: var(--accent); }
+
+        /* Step 5: Confirm */
+        .confirm-section { text-align: center; }
+        .confirm-summary {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 400px;
+            margin: 0 auto 2rem;
+        }
+        .confirm-emoji { font-size: 4rem; }
+        .confirm-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0.5rem 0 0.2rem;
+        }
+        .confirm-animal {
+            color: var(--text-dim);
+            text-transform: capitalize;
+            margin-bottom: 1rem;
+        }
+        .confirm-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            text-align: left;
+            max-width: 200px;
+            margin: 0 auto;
+        }
+        .confirm-stats span { font-weight: 600; }
+        .confirm-stats .hp { color: var(--green); }
+        .confirm-stats .atk { color: var(--accent); }
+        .confirm-stats .spd { color: var(--blue); }
+        .confirm-stats .wil { color: #a855f7; }
+
+        /* Transform button pulse */
+        .btn-transform {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: var(--radius);
+            cursor: pointer;
+            animation: pulse 2s ease-in-out infinite;
+            transition: transform 0.15s;
+        }
+        .btn-transform:hover { transform: scale(1.05); }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.6); }
+            50% { box-shadow: 0 0 30px 10px rgba(230, 57, 70, 0.3); }
+        }
+
+        /* Flash overlay */
+        .flash-overlay {
+            position: fixed;
+            inset: 0;
+            background: #fff;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+        }
+        .flash-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Serum text after flash */
+        .serum-text {
+            text-align: center;
+            font-size: 1.3rem;
+            color: var(--text-dim);
+            opacity: 0;
+            transition: opacity 1s ease;
+            margin-top: 3rem;
+        }
+        .serum-text.visible { opacity: 1; }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li class="nav-dropdown">
+                    <a href="/tournaments">Benchmark &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/tournaments">Tournaments</a></li>
+                        <li><a href="/leaderboard">Leaderboard</a></li>
+                        <li><a href="/methodology">Methodology</a></li>
+                        <li><a href="/match-log">Match Log</a></li>
+                        <li><a href="/compare">Compare</a></li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="/s1-leaderboard">Seasons &#9662; <span style="font-size:0.6rem;color:var(--gold);font-weight:600;">(preview)</span></a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/s1-leaderboard">S1 Leaderboard</a></li>
+                        <li><a href="/s1-fighters">Meet the Fighters</a></li>
+                        <li><a href="/s1-matchups">Matchup Explorer</a></li>
+                        <li><a href="/play">S1 Quick Fight</a></li>
+                    </ul>
+                </li>
+                <li><a href="/pets" class="active">Pets</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="flash-overlay" id="flashOverlay"></div>
+
+    <div class="lab-container">
+        <!-- Step 1: Intro -->
+        <div class="step active" id="step1">
+            <p class="intro-text" id="introText1">Welcome to the Island.<br>Dr. Moreau has been expecting you.</p>
+            <p class="intro-sub" id="introText2">Choose your subject.</p>
+            <div class="intro-btn-wrap" id="introBtnWrap">
+                <button class="lab-btn" onclick="goToStep(2)">Enter the Laboratory</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Animal Selection -->
+        <div class="step" id="step2">
+            <h2 class="step-title">Select Your Subject</h2>
+            <div class="animal-grid" id="animalGrid"></div>
+            <div class="step-nav">
+                <button class="btn-secondary" onclick="goToStep(1)">Back</button>
+                <button class="lab-btn" id="btnToStep3" disabled onclick="goToStep(3)">Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Name -->
+        <div class="step" id="step3">
+            <div class="name-section">
+                <h2 class="step-title">Name Your Creation</h2>
+                <div class="name-preview" id="namePreviewEmoji"></div>
+                <div class="name-preview-label" id="namePreviewAnimal"></div>
+                <input type="text" class="name-input" id="nameInput" placeholder="Every monster deserves a name..." maxlength="20">
+                <div class="char-count"><span id="charCount">0</span>/20</div>
+            </div>
+            <div class="step-nav">
+                <button class="btn-secondary" onclick="goToStep(2)">Back</button>
+                <button class="lab-btn" id="btnToStep4" disabled onclick="goToStep(4)">Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 4: Stats -->
+        <div class="step" id="step4">
+            <h2 class="step-title">Allocate the Serum</h2>
+            <div class="stats-section">
+                <div class="stat-row">
+                    <span class="stat-label hp">HP</span>
+                    <input type="range" class="stat-slider hp" id="sliderHp" min="1" max="16" value="5" oninput="onStatChange('hp')">
+                    <span class="stat-value" id="valHp">5</span>
+                    <span class="stat-tooltip">Health points</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label atk">ATK</span>
+                    <input type="range" class="stat-slider atk" id="sliderAtk" min="1" max="16" value="5" oninput="onStatChange('atk')">
+                    <span class="stat-value" id="valAtk">5</span>
+                    <span class="stat-tooltip">Attack power</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label spd">SPD</span>
+                    <input type="range" class="stat-slider spd" id="sliderSpd" min="1" max="16" value="5" oninput="onStatChange('spd')">
+                    <span class="stat-value" id="valSpd">5</span>
+                    <span class="stat-tooltip">Speed / initiative</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label wil">WIL</span>
+                    <input type="range" class="stat-slider wil" id="sliderWil" min="1" max="16" value="5" oninput="onStatChange('wil')">
+                    <span class="stat-value" id="valWil">5</span>
+                    <span class="stat-tooltip">Willpower / resist</span>
+                </div>
+                <div class="points-remaining" id="pointsRemaining">
+                    Points remaining: <strong>0</strong>
+                </div>
+            </div>
+            <div class="step-nav">
+                <button class="btn-secondary" onclick="goToStep(3)">Back</button>
+                <button class="lab-btn" id="btnToStep5" onclick="goToStep(5)">Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 5: Confirm -->
+        <div class="step" id="step5">
+            <div class="confirm-section" id="confirmContent">
+                <h2 class="step-title">Begin Transformation</h2>
+                <div class="confirm-summary">
+                    <div class="confirm-emoji" id="confirmEmoji"></div>
+                    <div class="confirm-name" id="confirmName"></div>
+                    <div class="confirm-animal" id="confirmAnimal"></div>
+                    <div class="confirm-stats" id="confirmStats"></div>
+                </div>
+                <div class="step-nav" style="margin-bottom:1.5rem;">
+                    <button class="btn-secondary" onclick="goToStep(4)">Back</button>
+                </div>
+                <button class="btn-transform" onclick="beginTransformation()">Begin Transformation</button>
+            </div>
+            <div id="serumPhase" style="display:none;">
+                <p class="serum-text" id="serumText">The serum takes hold...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Redirect if pet already exists
+        if (localStorage.getItem('moreau_pet')) {
+            window.location.href = '/pets/home';
+        }
+
+        // Animal data
+        var ANIMALS = [
+            { id: 'bear',      emoji: '\u{1F43B}',       hint: 'Gentle librarian\u2026 until the rage takes over.' },
+            { id: 'buffalo',   emoji: '\u{1F9AC}',       hint: "I've been hit by worse, kid." },
+            { id: 'boar',      emoji: '\u{1F417}',       hint: 'JUST TELL ME WHO TO HIT.' },
+            { id: 'tiger',     emoji: '\u{1F42F}',       hint: 'One opening. One strike. Done.' },
+            { id: 'wolf',      emoji: '\u{1F43A}',       hint: 'Every blow is a stanza.' },
+            { id: 'monkey',    emoji: '\u{1F412}',       hint: 'THE ENERGY IS THERE!' },
+            { id: 'porcupine', emoji: '\u{1F994}',       hint: "I'm a trap already sprung." },
+            { id: 'scorpion',  emoji: '\u{1F982}',       hint: "Everything's poison." },
+            { id: 'vulture',   emoji: '\u{1F985}',       hint: 'I am simply here to observe.' },
+            { id: 'rhino',     emoji: '\u{1F98F}',       hint: 'PAIN IS WEAKNESS LEAVING THE BODY!' },
+            { id: 'viper',     emoji: '\u{1F40D}',       hint: "That little sting? That's nothing." },
+            { id: 'fox',       emoji: '\u{1F98A}',       hint: "You're losing to yourself. I just helped." },
+            { id: 'eagle',     emoji: '\u{1F985}',       hint: 'The outcome was decided when you looked up.' },
+            { id: 'panther',   emoji: '\u{1F408}\u200D\u2B1B', hint: "Nobody's ever really seen me." }
+        ];
+
+        var selectedAnimal = null;
+        var petName = '';
+        var stats = { hp: 5, atk: 5, spd: 5, wil: 5 };
+        var TOTAL_POINTS = 20;
+
+        // Build animal grid
+        var grid = document.getElementById('animalGrid');
+        ANIMALS.forEach(function(a) {
+            var card = document.createElement('div');
+            card.className = 'animal-card';
+            card.dataset.id = a.id;
+            card.innerHTML =
+                '<span class="animal-emoji">' + a.emoji + '</span>' +
+                '<div class="animal-name">' + a.id + '</div>' +
+                '<div class="animal-hint">' + a.hint + '</div>';
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.animal-card').forEach(function(c) { c.classList.remove('selected'); });
+                card.classList.add('selected');
+                selectedAnimal = a;
+                document.getElementById('btnToStep3').disabled = false;
+            });
+            grid.appendChild(card);
+        });
+
+        // Step navigation
+        function goToStep(n) {
+            document.querySelectorAll('.step').forEach(function(s) { s.classList.remove('active'); });
+            document.getElementById('step' + n).classList.add('active');
+
+            if (n === 1) { runIntroAnimation(); }
+            if (n === 3 && selectedAnimal) {
+                document.getElementById('namePreviewEmoji').textContent = selectedAnimal.emoji;
+                document.getElementById('namePreviewAnimal').textContent = selectedAnimal.id;
+            }
+            if (n === 5) { buildConfirm(); }
+        }
+
+        // Step 1: Intro animation
+        function runIntroAnimation() {
+            var t1 = document.getElementById('introText1');
+            var t2 = document.getElementById('introText2');
+            var btn = document.getElementById('introBtnWrap');
+            t1.classList.remove('visible');
+            t2.classList.remove('visible');
+            btn.classList.remove('visible');
+            setTimeout(function() { t1.classList.add('visible'); }, 300);
+            setTimeout(function() { t2.classList.add('visible'); }, 2300);
+            setTimeout(function() { btn.classList.add('visible'); }, 3300);
+        }
+        // Run on load
+        runIntroAnimation();
+
+        // Step 3: Name input
+        var nameInput = document.getElementById('nameInput');
+        nameInput.addEventListener('input', function() {
+            petName = nameInput.value.trim();
+            document.getElementById('charCount').textContent = nameInput.value.length;
+            document.getElementById('btnToStep4').disabled = petName.length === 0;
+        });
+
+        // Step 4: Stat sliders
+        function onStatChange(changed) {
+            var keys = ['hp', 'atk', 'spd', 'wil'];
+            stats[changed] = parseInt(document.getElementById('slider' + capitalize(changed)).value);
+
+            var total = keys.reduce(function(sum, k) { return sum + stats[k]; }, 0);
+            var diff = total - TOTAL_POINTS;
+
+            // If over budget, reduce other sliders proportionally
+            if (diff > 0) {
+                var others = keys.filter(function(k) { return k !== changed; });
+                var remaining = diff;
+                // Try to subtract from others, round-robin
+                var attempts = 0;
+                while (remaining > 0 && attempts < 50) {
+                    for (var i = 0; i < others.length && remaining > 0; i++) {
+                        if (stats[others[i]] > 1) {
+                            stats[others[i]]--;
+                            remaining--;
+                        }
+                    }
+                    attempts++;
+                }
+                // Sync sliders
+                others.forEach(function(k) {
+                    document.getElementById('slider' + capitalize(k)).value = stats[k];
+                });
+            }
+
+            // Update displayed values
+            keys.forEach(function(k) {
+                document.getElementById('val' + capitalize(k)).textContent = stats[k];
+            });
+
+            var currentTotal = keys.reduce(function(sum, k) { return sum + stats[k]; }, 0);
+            var rem = TOTAL_POINTS - currentTotal;
+            var pr = document.getElementById('pointsRemaining');
+            pr.innerHTML = 'Points remaining: <strong>' + rem + '</strong>';
+            pr.className = rem < 0 ? 'points-remaining over' : 'points-remaining';
+        }
+
+        function capitalize(s) {
+            return s.charAt(0).toUpperCase() + s.slice(1);
+        }
+
+        // Step 5: Build confirmation
+        function buildConfirm() {
+            document.getElementById('confirmEmoji').textContent = selectedAnimal.emoji;
+            document.getElementById('confirmName').textContent = petName;
+            document.getElementById('confirmAnimal').textContent = selectedAnimal.id;
+            document.getElementById('confirmStats').innerHTML =
+                '<span class="hp">HP ' + stats.hp + '</span>' +
+                '<span class="atk">ATK ' + stats.atk + '</span>' +
+                '<span class="spd">SPD ' + stats.spd + '</span>' +
+                '<span class="wil">WIL ' + stats.wil + '</span>';
+        }
+
+        // Step 5: Transformation
+        function beginTransformation() {
+            var confirmContent = document.getElementById('confirmContent');
+            var serumPhase = document.getElementById('serumPhase');
+            var flash = document.getElementById('flashOverlay');
+            var serumText = document.getElementById('serumText');
+
+            // Flash white
+            flash.classList.add('active');
+            setTimeout(function() {
+                flash.classList.remove('active');
+                confirmContent.style.display = 'none';
+                serumPhase.style.display = 'block';
+                setTimeout(function() { serumText.classList.add('visible'); }, 200);
+
+                // Save and redirect after 2 seconds
+                setTimeout(function() {
+                    var pet = {
+                        name: petName,
+                        animal: selectedAnimal.id,
+                        level: 1,
+                        xp: 0,
+                        base_stats: {
+                            hp: stats.hp,
+                            atk: stats.atk,
+                            spd: stats.spd,
+                            wil: stats.wil
+                        },
+                        mutations: [],
+                        fights: [],
+                        mood: 'excited',
+                        created_at: new Date().toISOString()
+                    };
+                    localStorage.setItem('moreau_pet', JSON.stringify(pet));
+                    window.location.href = '/pets/home';
+                }, 2000);
+            }, 300);
+        }
+    </script>
+</body>
+</html>
