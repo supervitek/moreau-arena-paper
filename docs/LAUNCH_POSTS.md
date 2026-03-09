@@ -1,158 +1,100 @@
-# Launch Posts -- Moreau Arena
+# Moreau Arena — Launch Posts
 
-Ready-to-publish posts for X/Twitter, Reddit, and Hacker News.
-
-Data source: 2,609 series across T001 (779), T002 (780), T003 (1,050) + Season 1 (91 series).
+Ready-to-copy-paste posts for launch day. Site: moreauarena.com
 
 ---
 
-## 1. X/Twitter Thread
+## X/Twitter Thread (6 tweets)
 
-### Tweet 1 (Hook)
+**Tweet 1 (Hook):**
 
-GPT-5.4 went from 14th to 2nd place. Same model. Different game design.
+GPT-5.4 went from 14th to 2nd place. Same model. Different game design. Here's what happened 🧵
 
-We built Moreau Arena -- a benchmark that tests LLM strategic reasoning through creature combat. 2,609 series. 15 agents. 4 tournaments. What we found challenges how we measure intelligence.
+**Tweet 2:**
 
-### Tweet 2 (The Story)
+We built Moreau Arena — a contamination-resistant benchmark where LLMs design creature builds for combat. No memorization possible. 3 tournaments, 2609 series, 15 agents.
 
-The progression:
+**Tweet 3:**
 
-T001 (minimal prompt): Baselines beat every LLM. Claude Opus ranked 12th of 13.
-T002 (engineered prompt): LLMs crushed baselines 61% to 30%. GPT-5.2-Codex jumped from 9th to 1st.
-T003 (no meta-context): Rankings reshuffled again. Claude Opus climbed to 3rd. GPT-5.4 sank to 14th.
+T001 (vague rules): LLMs win 37.5%. T002 (exact formulas + hints): 89.75%. Same models. The bottleneck isn't reasoning — it's comprehension.
 
-Same engine. Same rules. The prompt changed everything.
+**Tweet 4:**
 
-### Tweet 3 (Season 1 Twist)
+T003 (exact formulas, NO hints): the field splits. Some models stay strong. Three freeze on identical builds. GPT-5.4 ranks 14th of 15.
 
-Then we expanded from 6 animals to 14 with new mechanics.
+**Tweet 5:**
 
-GPT-5.4 -- dead last among LLMs in T003 -- jumped to 2nd overall. SmartAgent (a heuristic bot ranked 2nd in T003) dropped to 12th.
+Then Season 1: 14 animals, new mechanics. GPT-5.4 jumps to 2nd. ConservativeAgent (a baseline!) beats Claude Opus. Rankings depend on game design, not just model size.
 
-The model wasn't bad at reasoning. The game was too small for it to show what it could do.
+**Tweet 6:**
 
-### Tweet 4 (Negative Transfer)
-
-The finding we didn't expect: negative transfer.
-
-GPT-5.4 excels at creative strategic reasoning (21 unique builds across 5 animals in S1). But in T003's constrained 6-animal format, that same creativity was a liability -- it explored when it should have exploited.
-
-Narrow benchmarks don't just undercount ability. They can actively penalize it.
-
-### Tweet 5 (PSI)
-
-How do we know the results aren't just prompt sensitivity?
-
-We ran PSI validation -- the same tournament with a semantically equivalent paraphrased prompt. Kendall tau = 1.0 (perfect rank correlation). Rankings are robust to wording changes.
-
-### Tweet 6 (CTA)
-
-Paper, data, code -- everything open.
-
-15 agents from 5 providers (OpenAI, Anthropic, Google, xAI + baselines). All 2,609 series with full match records. Reproducible from JSONL.
-
-Site: moreauarena.com
-Paper: moreauarena.com/paper
-
-The arena is open.
+PSI tau=1.0 — rankings are prompt-robust. Paper + data + live arena: moreauarena.com
 
 ---
 
-## 2. Reddit r/MachineLearning
+## Reddit r/MachineLearning
 
-**Title:** [R] Moreau Arena: A Multi-Tournament Benchmark Revealing Negative Transfer in LLM Strategic Reasoning (tau=1.0 prompt robustness, 2,609 series, 15 agents)
+**Title:** Moreau Arena: A contamination-resistant benchmark reveals sharp boundary conditions for LLM strategic reasoning (3 tournaments, 2609 series, PSI τ=1.0)
 
 **Body:**
 
-We present Moreau Arena, a benchmark for evaluating LLM strategic reasoning through creature combat tournaments. Agents select animals and allocate stat points, then fight in a deterministic tick-based simulation. No training data leakage is possible -- the game engine is custom.
+We present Moreau Arena, a benchmark for evaluating LLM strategic reasoning through combinatorial creature-design games. The core mechanism: models allocate stat points across attributes to build creatures that fight in deterministic simulated combat. Because game parameters — animals, mechanics, stat budgets — can be regenerated at will, the benchmark is inherently resistant to data contamination.
 
-**Key results across 4 tournaments (2,609 series, 15 agents from OpenAI/Anthropic/Google/xAI):**
+**Methodology.** We ran three tournament configurations (T001–T003) plus a Season 1 expansion, totaling 2,609 series across 15 agents (8 frontier LLMs + 7 algorithmic baselines). Each series consists of multiple rounds of build-counter-build in a best-of-7 adaptive format where the loser sees the opponent's previous build. All combat outcomes are deterministic given the builds, eliminating evaluation noise. Tournament configs vary along two axes: rule specificity (vague vs. exact formulas) and strategic guidance (hints vs. no hints). Rankings use Bradley-Terry scores with 1000-bootstrap confidence intervals.
 
-| Tournament | Prompt | Animals | Key Finding |
-|------------|--------|---------|-------------|
-| T001 | Minimal (qualitative) | 6 | Baselines dominate LLMs (53.6% vs 46.5% avg WR) |
-| T002 | Engineered (exact formulas + meta) | 6 | LLMs dominate baselines (60.9% vs 30.0%) |
-| T003 | Engineered minus meta-context | 6 | LLM avg WR = 53.1% -- formulas alone provide partial lift |
-| Season 1 | Engineered + adaptation | 14 | Rankings dramatically reshuffle |
+**Key findings:**
 
-**Main findings:**
+1. **Comprehension dominates reasoning.** LLM win rate jumps from 37.5% (vague rules, T001) to 89.75% (exact formulas + hints, T002) with identical models. The primary bottleneck is not strategic depth but rule comprehension.
 
-1. **Negative transfer in LLM reasoning.** GPT-5.4 ranked 14th of 15 in T003 (6 animals, BT=0.175) but 2nd of 14 in Season 1 (14 animals, BT=0.698). The model's creative exploration -- 21 unique builds across 5 animals -- was penalized in the constrained format but rewarded in the expanded one. This suggests narrow strategy spaces can produce misleading rankings.
+2. **Boundary conditions are sharp and model-specific.** Removing hints (T002→T003) causes three models to freeze on identical builds every round. GPT-5.4 drops to 14th of 15. The failure mode is not gradual degradation but discrete collapse.
 
-2. **Heuristic collapse under complexity.** SmartAgent (a hand-crafted heuristic) ranked 2nd in T003 but 12th in Season 1. Fixed strategies that exploit small game spaces fail when the strategy space expands.
+3. **Rankings are game-design-dependent.** In Season 1 (14 animals, expanded mechanics), GPT-5.4 recovers to 2nd place. A hard-coded ConservativeAgent outranks Claude Opus. Model capability is not a fixed scalar — it interacts with task structure in ways that produce qualitatively different orderings.
 
-3. **Prompt sensitivity validation.** PSI (Prompt Sensitivity Index) using a semantically equivalent paraphrase yielded Kendall tau = 1.0 -- perfect rank preservation. Rankings measure reasoning ability, not prompt sensitivity.
+4. **Prompt robustness validated.** PSI (Prompt Sensitivity Index) yields Kendall tau = 1.0, confirming that ranking differences reflect genuine capability gaps rather than prompt sensitivity artifacts.
 
-4. **Prompt engineering as intervention.** T001 to T002 (adding exact formulas, worked examples, and meta-context) flipped the LLM-vs-baseline hierarchy completely. Claude Opus went from BT=0.036 (rank 12) to BT=0.531 (rank 5) -- a 15x improvement.
+These results suggest that single-number benchmark scores obscure critical, model-specific failure modes. Strategic reasoning capability is conditional on task presentation in ways current evaluations do not capture.
 
-**T003 vs Season 1 rank shifts (LLMs only):**
+Config is SHA-256 hash-locked. All results reproducible from JSONL data files.
 
-| Agent | T003 Rank | S1 Rank | Delta |
-|-------|-----------|---------|-------|
-| GPT-5.2 | 4 | 1 | +3 |
-| GPT-5.4 | 14 | 2 | **+12** |
-| GPT-5.2-Codex | 1 | 3 | -2 |
-| Claude Opus 4.6 | 3 | 6 | -3 |
-| Gemini Flash | 7 | 11 | -5 |
-
-**Methodology:**
-
-- Bradley-Terry ranking with 1000-bootstrap CIs (seed=42)
-- Best-of-7 adaptive format (loser sees opponent's previous build)
-- Frozen config (SHA-256 hash-locked)
-- All results reproducible from JSONL data files
-
-Paper: moreauarena.com/paper
-Code + data: open source
+Paper, full data, and live arena: [moreauarena.com](https://moreauarena.com)
 
 ---
 
-## 3. Reddit r/LocalLLaMA
+## Reddit r/LocalLLaMA
 
-**Title:** We ran 2,609 LLM battles in a creature combat arena. GPT-5.4 went from dead last to 2nd place just by changing the game design.
+**Title:** Built a benchmark where LLMs fight as animals. GPT-5.4 went from last place to 2nd just by adding more animals. Wild results inside.
 
 **Body:**
 
-Moreau Arena is a benchmark where LLMs design creatures (pick an animal, allocate 20 stat points) and then fight in a tick-based simulation. Think Pokemon teambuilding meets LLM evaluation.
+So I built this thing called Moreau Arena where you give LLMs a stat budget and they design creature builds — allocate points to attack, defense, speed, etc. Then the creatures fight in a deterministic simulation. No RNG, no memorization possible, totally fresh every time.
 
-Some things that surprised us:
+Ran 2,609 series across GPT-5.4, Claude Opus/Sonnet, Gemini Pro/Flash, and a bunch of hard-coded baselines.
 
-**The rankings are unstable across game designs.** GPT-5.4 ranked 14th of 15 agents with 6 animals but jumped to 2nd when we expanded to 14 animals. The model wasn't dumb -- it was exploring too much for a small game space. Give it room to be creative, and it dominates.
+The results are genuinely surprising:
 
-**Heuristic bots can beat frontier LLMs.** In our first tournament with vague rules, a simple ConservativeAgent (hardcoded build) beat every frontier model. In the engineered prompt tournament, every LLM beat every baseline. The prompt matters as much as the model.
+- With clear rules + hints, LLMs win **89.75%** of the time. Without hints, some models completely break — three of them submit the exact same build every single round.
+- GPT-5.4 ranked **14th out of 15** in T003. Then we added more animals and new mechanics (Season 1) and it jumped to **2nd place**. Same model, same weights.
+- A simple hard-coded ConservativeAgent beat Claude Opus in Season 1. Not a fine-tuned model. A script with if-statements.
+- Rankings are fully prompt-robust (PSI tau = 1.0), so this isn't noise.
 
-**Models have different strategic personalities.** GPT-5.2-Codex generates 44 unique builds across 7 animals (maximum exploration). Grok and Gemini Flash each produce exactly 1 build for all 64+ games (total lock-in). Neither extreme is optimal -- GPT-5.2 with moderate exploration (24 builds, 6 animals) took the top spot in Season 1.
+The takeaway: how you design the benchmark matters as much as the model you're testing. One config makes GPT-5.4 look broken, another makes it look elite.
 
-**Prompt paraphrasing doesn't change rankings.** We validated with Kendall tau = 1.0 -- reword the prompt, get the same ranking.
+The engine is fully local and deterministic — you could plug in a local model by just implementing the API call function. Some frontier models (Gemini Flash, Grok) produce a single frozen build regardless of opponent. A well-tuned local model that actually adapts could beat them.
 
-The arena runs against API models right now, but the engine is fully local and deterministic. If you wanted to plug in a local model, you'd just need to implement the API call function -- the simulation, scoring, and analysis are all open source.
-
-Worth noting: some models (Grok, Gemini Flash) produce a single frozen build regardless of opponent or adaptation history. A well-tuned local model that actually adapts could potentially outperform them.
-
-Site: moreauarena.com
-Paper: moreauarena.com/paper
+Everything open — paper, data, code: [moreauarena.com](https://moreauarena.com)
 
 ---
 
-## 4. Hacker News
+## Hacker News
 
-**Title:** Moreau Arena: LLM benchmark where GPT-5.4 goes from last to 2nd by changing game design
+**Title:** Moreau Arena — LLM strategic reasoning benchmark where GPT-5.4 ranks 14th of 15
 
-**First comment:**
+**Submitter's first comment:**
 
-Author here. Moreau Arena is a strategic reasoning benchmark built around creature combat. LLMs pick an animal (from a roster of 6 or 14), allocate stat points, and fight in a deterministic tick-based simulation. We ran 2,609 best-of-7 series across 4 tournaments with 15 agents from OpenAI, Anthropic, Google, and xAI.
+Author here. Moreau Arena is a contamination-resistant benchmark: LLMs allocate stat points to build creatures for deterministic combat. Game parameters are regenerable, so memorization is impossible. We ran 2,609 series across 15 agents from OpenAI, Anthropic, Google, and xAI.
 
-The core finding is about negative transfer. GPT-5.4 ranked 14th of 15 in our 6-animal tournament -- below hand-coded heuristic bots. When we expanded to 14 animals with new mechanics, it jumped to 2nd. The model's tendency to explore creative builds (21 unique builds, 5 different animals) was punished in a narrow game space but rewarded in a rich one.
+The core finding: the same model can rank 14th or 2nd depending on game configuration. GPT-5.4 collapses in a stripped-down format (no strategic hints) but recovers when the design space expands to 14 animals with new mechanics. Three models froze entirely — submitting identical builds every round. The failure isn't gradual; it's a sharp boundary condition tied to how rules are presented.
 
-This has implications for benchmark design. If your evaluation space is too constrained, you're not just failing to measure some abilities -- you may be actively penalizing them. A model that "wastes" moves exploring in a small game might be exactly the one that excels in a complex environment.
+Other results: prompt engineering flips LLM-vs-baseline hierarchy completely (37.5% to 89.75% win rate). PSI validation yields tau = 1.0 — rankings survive paraphrasing. ConservativeAgent, a hard-coded baseline, outranks Claude Opus in Season 1.
 
-Other findings:
-- Prompt engineering flips LLM-vs-baseline rankings entirely (46.5% to 60.9% LLM win rate)
-- PSI validation shows tau=1.0 prompt robustness -- rankings survive paraphrasing
-- 36 non-transitive cycles in the 14-agent field -- no single dominant strategy
-- SmartAgent (heuristic baseline) went from rank 2 to rank 12 when complexity increased
-
-All data is JSONL, all results are reproducible, config is hash-locked.
-
-moreauarena.com/paper
+All data JSONL, config hash-locked, fully reproducible. moreauarena.com
