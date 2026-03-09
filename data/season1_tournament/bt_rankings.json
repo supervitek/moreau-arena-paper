@@ -1,0 +1,114 @@
+[
+  {
+    "rank": 1,
+    "name": "gpt-5.2",
+    "score": 1.0,
+    "ci_lower": 0.7445,
+    "ci_upper": 1.0,
+    "is_llm": true
+  },
+  {
+    "rank": 2,
+    "name": "gpt-5.4",
+    "score": 0.6984,
+    "ci_lower": 0.4015,
+    "ci_upper": 1.0,
+    "is_llm": true
+  },
+  {
+    "rank": 3,
+    "name": "gpt-5.2-codex",
+    "score": 0.5046,
+    "ci_lower": 0.281,
+    "ci_upper": 0.961,
+    "is_llm": true
+  },
+  {
+    "rank": 4,
+    "name": "gpt-5.3-codex",
+    "score": 0.5046,
+    "ci_lower": 0.281,
+    "ci_upper": 0.9256,
+    "is_llm": true
+  },
+  {
+    "rank": 5,
+    "name": "ConservativeAgent_S1",
+    "score": 0.4319,
+    "ci_lower": 0.2521,
+    "ci_upper": 0.7668,
+    "is_llm": false
+  },
+  {
+    "rank": 6,
+    "name": "claude-opus-4-6",
+    "score": 0.3705,
+    "ci_lower": 0.2155,
+    "ci_upper": 0.6595,
+    "is_llm": true
+  },
+  {
+    "rank": 7,
+    "name": "grok-4-1-fast-reasoning",
+    "score": 0.3705,
+    "ci_lower": 0.2112,
+    "ci_upper": 0.6487,
+    "is_llm": true
+  },
+  {
+    "rank": 8,
+    "name": "HighVarianceAgent_S1",
+    "score": 0.318,
+    "ci_lower": 0.1859,
+    "ci_upper": 0.5851,
+    "is_llm": false
+  },
+  {
+    "rank": 9,
+    "name": "claude-haiku-4-5-20251001",
+    "score": 0.318,
+    "ci_lower": 0.1838,
+    "ci_upper": 0.581,
+    "is_llm": true
+  },
+  {
+    "rank": 10,
+    "name": "claude-sonnet-4-6",
+    "score": 0.2728,
+    "ci_lower": 0.1501,
+    "ci_upper": 0.5296,
+    "is_llm": true
+  },
+  {
+    "rank": 11,
+    "name": "gemini-3-flash-preview",
+    "score": 0.2728,
+    "ci_lower": 0.1556,
+    "ci_upper": 0.4866,
+    "is_llm": true
+  },
+  {
+    "rank": 12,
+    "name": "SmartAgent_S1",
+    "score": 0.1991,
+    "ci_lower": 0.1215,
+    "ci_upper": 0.3257,
+    "is_llm": false
+  },
+  {
+    "rank": 13,
+    "name": "GreedyAgent_S1",
+    "score": 0.1419,
+    "ci_lower": 0.0968,
+    "ci_upper": 0.2357,
+    "is_llm": false
+  },
+  {
+    "rank": 14,
+    "name": "RandomAgent_S1",
+    "score": 0.1419,
+    "ci_lower": 0.0898,
+    "ci_upper": 0.2452,
+    "is_llm": false
+  }
+]
