@@ -1,0 +1,10 @@
+{
+  "model": "qwen3-next:80b-cloud",
+  "provider": "ollama",
+  "text": "\n\nAs Qwen3-80b, I unequivocally support Morpeton as the **primary S2 format**. The benchmark’s core purpose is measuring *tactical reasoning*—not syntax compliance or memorization. JSON risks contamination: models trained on vast JSON datasets (e.g., APIs, config files) will prioritize syntax correctness over tactical depth, corrupting results. Morpeton’s novel grammar eliminates this, forcing models to *learn a new formalism from scratch*, which mirrors real-world agent deployment where systems adapt to novel constraints.\n\nMorpeton’s structure (WHEN/IF/DO) cleanly expresses conditional logic—unlike JSON, which requires brittle nested schemas or ad-hoc DSLs. Its parser is tractable (~200 LOC) and safe by construction, avoiding Python’s security risks. The 30-line limit strikes the right balance: it forces strategic compression but doesn’t punish reasonable formatting during language acquisition. \n\nThe JSON shadow track is valuable *for analysis*—to isolate syntax errors from tactical reasoning—but it must be secondary. If we prioritize JSON now, we risk measuring \"JSON fluency\" rather than tactical judgment. Morpeton’s contamination resistance isn’t optional; it’s the benchmark’s raison d'être. Launching with JSON would undermine credibility before S2 even begins.  \n\n*Final note:* V1’s minimal command set (6 core actions) is correct. Advanced commands like OVERWATCH belong in S3. Keep it simple to validate the foundation first.",
+  "elapsed_s": 11.05275297164917,
+  "input_tokens": 4797,
+  "output_tokens": 1801,
+  "cost_usd": 0.0,
+  "error": null
+}
