@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. Moreau's Lab — Moreau Arena</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-card: #12121a;
+            --bg-card-hover: #1a1a26;
+            --border: #2a2a3a;
+            --accent: #e63946;
+            --text: #f1faee;
+            --text-dim: #a8a8b8;
+            --text-muted: #6a6a7a;
+            --green: #4ecca3;
+            --blue: #457b9d;
+            --gold: #d4a017;
+            --radius: 8px;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text);
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        /* ── Intro Phase ── */
+        #phase-intro {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .intro-line {
+            font-size: 1.4rem;
+            color: var(--text-dim);
+            opacity: 0;
+            animation: fadeIn 1.5s ease forwards;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .intro-line:nth-child(2) {
+            animation-delay: 2s;
+            font-size: 1.6rem;
+            color: var(--text);
+        }
+
+        .intro-pet {
+            opacity: 0;
+            animation: fadeIn 1s ease forwards;
+            animation-delay: 4s;
+            margin-top: 2rem;
+        }
+
+        .intro-pet .pet-emoji {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .intro-pet .pet-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .intro-pet .pet-level {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .intro-proceed {
+            opacity: 0;
+            animation: fadeIn 1s ease forwards;
+            animation-delay: 5.5s;
+            margin-top: 2.5rem;
+        }
+
+        .intro-proceed button {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 0.75rem 2.5rem;
+            font-size: 1.1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .intro-proceed button:hover {
+            background: var(--accent);
+            color: var(--text);
+            box-shadow: 0 0 30px rgba(230, 57, 70, 0.4);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Not Ready ── */
+        #phase-not-ready {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .not-ready-msg {
+            font-size: 1.3rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+
+        .not-ready-level {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .btn-return {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-return:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--text-muted);
+            color: var(--text);
+        }
+
+        /* ── Soul Speech Bubble ── */
+        .soul-bubble {
+            display: none;
+            max-width: 500px;
+            margin: 0 auto 2rem;
+            padding: 1rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            position: relative;
+            color: var(--text-dim);
+            font-style: italic;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .soul-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px 8px 0;
+            border-style: solid;
+            border-color: var(--bg-card) transparent transparent;
+        }
+
+        /* ── Mutation Cards Phase ── */
+        #phase-cards {
+            display: none;
+            padding: 2rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .cards-title {
+            text-align: center;
+            font-size: 1.6rem;
+            color: var(--text-dim);
+            margin-bottom: 0.5rem;
+            font-weight: 400;
+        }
+
+        .cards-subtitle {
+            text-align: center;
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+        }
+
+        .cards-grid {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .mutation-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem 1.5rem;
+            width: 280px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: cardFloat 3s ease-in-out infinite;
+        }
+
+        .mutation-card:nth-child(2) { animation-delay: 0.5s; }
+        .mutation-card:nth-child(3) { animation-delay: 1s; }
+
+        @keyframes cardFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .mutation-card::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 14px;
+            padding: 2px;
+            background: linear-gradient(135deg, var(--card-glow), transparent 60%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0.4;
+            transition: opacity 0.3s ease;
+        }
+
+        .mutation-card:hover {
+            transform: translateY(-8px) scale(1.03);
+            border-color: var(--card-glow);
+            box-shadow: 0 0 40px color-mix(in srgb, var(--card-glow) 30%, transparent);
+        }
+
+        .mutation-card:hover::before {
+            opacity: 0.9;
+        }
+
+        .mutation-card h3 {
+            font-size: 1.4rem;
+            margin: 0 0 0.75rem;
+            color: var(--card-glow);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .mutation-effect {
+            font-size: 1rem;
+            color: var(--text);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .mutation-stats {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-change {
+            font-size: 0.9rem;
+            font-weight: 700;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .stat-change.positive {
+            color: var(--green);
+            background: rgba(78, 204, 163, 0.1);
+        }
+
+        .stat-change.negative {
+            color: var(--accent);
+            background: rgba(230, 57, 70, 0.1);
+        }
+
+        .mutation-flavor {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-style: italic;
+            line-height: 1.5;
+            margin-top: auto;
+        }
+
+        .mutation-card.destiny-card {
+            width: 400px;
+            border-width: 3px;
+            animation: destinyPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes destinyPulse {
+            0%, 100% { box-shadow: 0 0 20px color-mix(in srgb, var(--card-glow) 20%, transparent); }
+            50% { box-shadow: 0 0 50px color-mix(in srgb, var(--card-glow) 50%, transparent); }
+        }
+
+        .destiny-header {
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        /* ── Confirmation Modal ── */
+        #confirm-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .confirm-box {
+            background: var(--bg-card);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 2.5rem;
+            max-width: 450px;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .confirm-box .warn-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .confirm-box p {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        .confirm-box .warn-text {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .confirm-box .mutation-preview {
+            font-size: 1.3rem;
+            color: var(--gold);
+            font-weight: 700;
+            margin: 1rem 0;
+        }
+
+        .confirm-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .btn-transform {
+            background: var(--accent);
+            color: var(--text);
+            border: none;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-transform:hover {
+            box-shadow: 0 0 30px rgba(230, 57, 70, 0.5);
+            transform: scale(1.05);
+        }
+
+        .btn-wait {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-wait:hover {
+            border-color: var(--text-muted);
+            color: var(--text-dim);
+        }
+
+        /* ── Transformation Phase ── */
+        #phase-transform {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .transform-flash {
+            animation: flash 0.5s ease;
+        }
+
+        @keyframes flash {
+            0% { background: var(--bg-primary); }
+            30% { background: #fff; }
+            100% { background: var(--bg-primary); }
+        }
+
+        .transform-text {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            animation: transformPulse 0.8s ease-in-out infinite;
+            margin-bottom: 2rem;
+        }
+
+        @keyframes transformPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .transform-name {
+            font-size: 3rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0;
+            animation: nameReveal 1s ease forwards;
+            animation-delay: 1s;
+            margin-bottom: 1.5rem;
+        }
+
+        @keyframes nameReveal {
+            from { opacity: 0; transform: scale(0.5); filter: blur(10px); }
+            to { opacity: 1; transform: scale(1); filter: blur(0); }
+        }
+
+        .transform-stats {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            opacity: 0;
+            animation: fadeIn 0.8s ease forwards;
+            animation-delay: 2s;
+            margin-bottom: 2rem;
+        }
+
+        .stat-anim {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .stat-anim .old-val {
+            color: var(--text-muted);
+            text-decoration: line-through;
+            margin-right: 0.5rem;
+        }
+
+        .stat-anim .arrow {
+            color: var(--text-dim);
+            margin-right: 0.5rem;
+        }
+
+        .stat-anim .new-val {
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        .transform-reaction {
+            display: none;
+            max-width: 450px;
+            margin: 1.5rem auto;
+            padding: 1rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-dim);
+            font-style: italic;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .transform-home {
+            opacity: 0;
+            animation: fadeIn 0.8s ease forwards;
+            animation-delay: 3.5s;
+        }
+
+        .transform-home a {
+            display: inline-block;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .transform-home a:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--text-muted);
+            color: var(--text);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 700px) {
+            .mutation-card { width: 100%; max-width: 340px; }
+            .mutation-card.destiny-card { width: 100%; max-width: 400px; }
+            .transform-name { font-size: 2rem; }
+            .cards-grid { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li class="nav-dropdown">
+                    <a href="/tournaments">Benchmark &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/tournaments">Tournaments</a></li>
+                        <li><a href="/leaderboard">Leaderboard</a></li>
+                        <li><a href="/methodology">Methodology</a></li>
+                        <li><a href="/match-log">Match Log</a></li>
+                        <li><a href="/compare">Compare</a></li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="/s1-leaderboard">Seasons &#9662; <span style="font-size:0.6rem;color:var(--gold);font-weight:600;">(preview)</span></a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/s1-leaderboard">S1 Leaderboard</a></li>
+                        <li><a href="/s1-fighters">Meet the Fighters</a></li>
+                        <li><a href="/s1-matchups">Matchup Explorer</a></li>
+                        <li><a href="/play">S1 Quick Fight</a></li>
+                    </ul>
+                </li>
+                <li><a href="/pets" class="active">Pets</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Phase: Intro -->
+    <div id="phase-intro">
+        <div class="intro-line">Dr. Moreau adjusts his instruments.</div>
+        <div class="intro-line">"Are you ready for the next phase?"</div>
+        <div class="intro-pet">
+            <span class="pet-emoji" id="intro-emoji"></span>
+            <span class="pet-name" id="intro-name"></span>
+            <div class="pet-level" id="intro-level"></div>
+        </div>
+        <div class="intro-proceed">
+            <button onclick="showCards()">Enter the Lab</button>
+        </div>
+    </div>
+
+    <!-- Phase: Not Ready -->
+    <div id="phase-not-ready">
+        <div style="font-size:3rem;margin-bottom:1rem;">&#128300;</div>
+        <div class="not-ready-msg">"Not yet. You need more experience."</div>
+        <div class="not-ready-level" id="not-ready-info"></div>
+        <a href="/pets/home" class="btn-return">Return Home</a>
+    </div>
+
+    <!-- Phase: Mutation Cards -->
+    <div id="phase-cards">
+        <div id="soul-pre" class="soul-bubble"></div>
+        <div class="cards-title">Choose Your Mutation</div>
+        <div class="cards-subtitle">This choice will shape your path forever.</div>
+        <div id="destiny-header" class="destiny-header" style="display:none;"></div>
+        <div class="cards-grid" id="cards-grid"></div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-overlay">
+        <div class="confirm-box">
+            <div class="warn-icon">&#9888;&#65039;</div>
+            <div class="mutation-preview" id="confirm-name"></div>
+            <p>This transformation is <strong>PERMANENT</strong>.</p>
+            <p>Dr. Moreau cannot undo his work.</p>
+            <p class="warn-text">Proceed?</p>
+            <div class="confirm-buttons">
+                <button class="btn-transform" onclick="applyMutation()">Transform</button>
+                <button class="btn-wait" onclick="closeConfirm()">Wait</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phase: Transformation -->
+    <div id="phase-transform">
+        <div class="transform-text">TRANSFORMATION IN PROGRESS...</div>
+        <div class="transform-name" id="transform-name"></div>
+        <div class="transform-stats" id="transform-stats"></div>
+        <div class="transform-reaction" id="transform-reaction"></div>
+        <div class="transform-home">
+            <a href="/pets/home">Return Home</a>
+        </div>
+    </div>
+
+    <script>
+        const MUTATIONS = {
+            blood_rage: { name:"Bloodrage", level:3, parent:null, stats:{atk:2,spd:-1}, effect:"+2 ATK, -1 SPD", flavor:"The rage builds. Your muscles swell. Speed is a luxury you no longer need.", color:"#e63946" },
+            thick_hide: { name:"Thick Hide", level:3, parent:null, stats:{hp:2,atk:-1}, effect:"+2 HP, -1 ATK", flavor:"Your skin hardens. Blows that once hurt now feel like rain.", color:"#457b9d" },
+            quick_feet: { name:"Quick Feet", level:3, parent:null, stats:{spd:2,hp:-1}, effect:"+2 SPD, -1 HP", flavor:"You shed weight, shed armor, shed fear. Only speed remains.", color:"#4ecca3" },
+            frenzy: { name:"Frenzy", level:6, parent:"blood_rage", stats:{}, effect:"Double attack when HP <25%", flavor:"Pain is fuel. The closer to death, the more alive you become.", color:"#e63946" },
+            intimidate: { name:"Intimidate", level:6, parent:"blood_rage", stats:{}, effect:"Enemy -10% ATK", flavor:"They see the scars. They see the madness in your eyes. They hesitate.", color:"#e63946" },
+            regeneration: { name:"Regeneration", level:6, parent:"thick_hide", stats:{}, effect:"+1 HP per 5 ticks", flavor:"Your flesh knits itself. What was torn, heals. What was broken, mends.", color:"#457b9d" },
+            fortress: { name:"Fortress", level:6, parent:"thick_hide", stats:{}, effect:"Ignore first hit each game", flavor:"The first blow is free. There won't be a second.", color:"#457b9d" },
+            ambush: { name:"Ambush", level:6, parent:"quick_feet", stats:{}, effect:"First attack deals 2x damage", flavor:"They never see you coming. By the time they do, it's already over.", color:"#4ecca3" },
+            evasion: { name:"Evasion", level:6, parent:"quick_feet", stats:{}, effect:"+15% dodge chance", flavor:"You exist between their strikes. A ghost in the space where pain should be.", color:"#4ecca3" },
+            berserker: { name:"BERSERKER MODE", level:9, parent:"frenzy", stats:{}, effect:"Triple attack at <10% HP, ignore pain", flavor:"I AM BECOME DEATH.", color:"#e63946" },
+            warlord: { name:"WARLORD", level:9, parent:"intimidate", stats:{}, effect:"Aura: all enemies -15% ATK permanently", flavor:"Kneel.", color:"#e63946" },
+            immortal: { name:"IMMORTAL", level:9, parent:"regeneration", stats:{}, effect:"Revive once per game at 25% HP", flavor:"You cannot kill what refuses to die.", color:"#457b9d" },
+            juggernaut: { name:"JUGGERNAUT", level:9, parent:"fortress", stats:{}, effect:"Immune to abilities, only raw damage hurts", flavor:"Your tricks mean nothing to me.", color:"#457b9d" },
+            phantom_strike: { name:"PHANTOM STRIKE", level:9, parent:"ambush", stats:{}, effect:"Teleport behind enemy + guaranteed crit", flavor:"Nothing personal, kid.", color:"#4ecca3" },
+            ghost: { name:"GHOST", level:9, parent:"evasion", stats:{}, effect:"50% dodge for 3 ticks when HP <30%", flavor:"Now you see me... actually, no you don't.", color:"#4ecca3" }
+        };
+
+        let pet = null;
+        let forkLevel = 0;
+        let selectedMutationId = null;
+
+        function canMutate(pet) {
+            const ml = pet.mutations.length;
+            if (pet.level >= 3 && ml === 0) return 3;
+            if (pet.level >= 6 && ml === 1) return 6;
+            if (pet.level >= 9 && ml === 2) return 9;
+            return 0;
+        }
+
+        function getNextRequiredLevel(pet) {
+            const ml = pet.mutations.length;
+            if (ml === 0) return 3;
+            if (ml === 1) return 6;
+            if (ml === 2) return 9;
+            return 99;
+        }
+
+        function init() {
+            const raw = localStorage.getItem('moreau_pet');
+            if (!raw) { window.location.href = '/pets'; return; }
+            pet = JSON.parse(raw);
+            forkLevel = canMutate(pet);
+
+            document.getElementById('intro-emoji').textContent = pet.emoji || '';
+            document.getElementById('intro-name').textContent = pet.name || 'Unknown';
+            document.getElementById('intro-level').textContent = 'Level ' + pet.level;
+
+            if (forkLevel === 0) {
+                document.getElementById('phase-intro').style.display = 'none';
+                document.getElementById('phase-not-ready').style.display = 'flex';
+                const needed = getNextRequiredLevel(pet);
+                const ml = pet.mutations.length;
+                if (ml >= 3) {
+                    document.getElementById('not-ready-info').textContent = 'Your evolution is complete. All mutations have been applied.';
+                } else {
+                    document.getElementById('not-ready-info').textContent =
+                        'Current level: ' + pet.level + '. Next mutation unlocks at level ' + needed + '.';
+                }
+            }
+        }
+
+        function showCards() {
+            document.getElementById('phase-intro').style.display = 'none';
+            document.getElementById('phase-cards').style.display = 'block';
+
+            // Try to fetch soul thoughts
+            fetchSoul('pre_mutation');
+
+            const grid = document.getElementById('cards-grid');
+            grid.innerHTML = '';
+
+            let available = [];
+
+            if (forkLevel === 3) {
+                available = ['blood_rage', 'thick_hide', 'quick_feet'];
+            } else if (forkLevel === 6) {
+                const l3mut = pet.mutations[0];
+                available = Object.keys(MUTATIONS).filter(k => MUTATIONS[k].level === 6 && MUTATIONS[k].parent === l3mut);
+            } else if (forkLevel === 9) {
+                const l6mut = pet.mutations[1];
+                available = Object.keys(MUTATIONS).filter(k => MUTATIONS[k].level === 9 && MUTATIONS[k].parent === l6mut);
+
+                document.querySelector('.cards-title').textContent = 'Your Destiny Awaits';
+                document.querySelector('.cards-subtitle').textContent = '';
+                const dh = document.getElementById('destiny-header');
+                dh.style.display = 'block';
+                dh.textContent = 'Your path has led here. This is who you are.';
+            }
+
+            available.forEach(id => {
+                const m = MUTATIONS[id];
+                const card = document.createElement('div');
+                card.className = 'mutation-card' + (forkLevel === 9 ? ' destiny-card' : '');
+                card.style.setProperty('--card-glow', m.color);
+
+                let statsHtml = '';
+                if (m.stats && Object.keys(m.stats).length > 0) {
+                    statsHtml = '<div class="mutation-stats">';
+                    for (const [stat, val] of Object.entries(m.stats)) {
+                        const cls = val > 0 ? 'positive' : 'negative';
+                        const sign = val > 0 ? '+' : '';
+                        statsHtml += `<span class="stat-change ${cls}">${sign}${val} ${stat.toUpperCase()}</span>`;
+                    }
+                    statsHtml += '</div>';
+                }
+
+                card.innerHTML = `
+                    <h3>${m.name}</h3>
+                    <div class="mutation-effect">${m.effect}</div>
+                    ${statsHtml}
+                    <div class="mutation-flavor">${m.flavor}</div>
+                `;
+
+                card.addEventListener('click', () => showConfirm(id));
+                grid.appendChild(card);
+            });
+        }
+
+        async function fetchSoul(context, mutationName) {
+            try {
+                const body = { context };
+                if (mutationName) body.mutation_name = mutationName;
+                const resp = await fetch('/api/v1/pets/soul', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                if (!resp.ok) return null;
+                const data = await resp.json();
+                return data.thought || data.message || null;
+            } catch {
+                return null;
+            }
+        }
+
+        async function showSoulThought() {
+            const thought = await fetchSoul('pre_mutation');
+            if (thought) {
+                const bubble = document.getElementById('soul-pre');
+                bubble.textContent = '"' + thought + '"';
+                bubble.style.display = 'block';
+            }
+        }
+
+        function showConfirm(mutationId) {
+            selectedMutationId = mutationId;
+            const m = MUTATIONS[mutationId];
+            document.getElementById('confirm-name').textContent = m.name;
+            document.getElementById('confirm-name').style.color = m.color;
+            document.getElementById('confirm-overlay').style.display = 'flex';
+        }
+
+        function closeConfirm() {
+            document.getElementById('confirm-overlay').style.display = 'none';
+            selectedMutationId = null;
+        }
+
+        function applyMutation() {
+            if (!selectedMutationId) return;
+
+            const m = MUTATIONS[selectedMutationId];
+
+            // Save to localStorage
+            if (!pet.mutations) pet.mutations = [];
+            pet.mutations.push(selectedMutationId);
+
+            if (m.stats && Object.keys(m.stats).length > 0) {
+                if (!pet.base_stats) pet.base_stats = { hp: 5, atk: 5, spd: 5 };
+                for (const [stat, val] of Object.entries(m.stats)) {
+                    pet.base_stats[stat] = (pet.base_stats[stat] || 0) + val;
+                }
+            }
+
+            localStorage.setItem('moreau_pet', JSON.stringify(pet));
+
+            // Hide everything, show transformation
+            document.getElementById('confirm-overlay').style.display = 'none';
+            document.getElementById('phase-cards').style.display = 'none';
+            document.getElementById('phase-transform').style.display = 'flex';
+
+            // Flash
+            document.body.classList.add('transform-flash');
+            setTimeout(() => document.body.classList.remove('transform-flash'), 500);
+
+            // Show mutation name
+            const nameEl = document.getElementById('transform-name');
+            nameEl.textContent = m.name;
+            nameEl.style.color = m.color;
+
+            // Show stat changes
+            const statsEl = document.getElementById('transform-stats');
+            statsEl.innerHTML = '';
+            if (m.stats && Object.keys(m.stats).length > 0) {
+                for (const [stat, val] of Object.entries(m.stats)) {
+                    const oldVal = (pet.base_stats[stat] || 0) - val;
+                    const newVal = pet.base_stats[stat] || 0;
+                    const div = document.createElement('div');
+                    div.className = 'stat-anim';
+                    div.innerHTML = `
+                        ${stat.toUpperCase()}:
+                        <span class="old-val">${oldVal}</span>
+                        <span class="arrow">&rarr;</span>
+                        <span class="new-val">${newVal}</span>
+                    `;
+                    statsEl.appendChild(div);
+                }
+            } else {
+                const div = document.createElement('div');
+                div.className = 'stat-anim';
+                div.innerHTML = `<span class="new-val">${m.effect}</span>`;
+                statsEl.appendChild(div);
+            }
+
+            // Fetch mutation reaction
+            fetchSoul('mutation_reaction', m.name).then(thought => {
+                if (thought) {
+                    const reactionEl = document.getElementById('transform-reaction');
+                    reactionEl.textContent = '"' + thought + '"';
+                    reactionEl.style.display = 'block';
+                }
+            });
+
+            // Auto-redirect after 8 seconds
+            setTimeout(() => {
+                window.location.href = '/pets/home';
+            }, 8000);
+        }
+
+        // Init on load
+        init();
+
+        // Also try to show soul thought when cards are displayed
+        function fetchSoulOnCards() {
+            fetchSoul('pre_mutation').then(thought => {
+                if (thought) {
+                    const bubble = document.getElementById('soul-pre');
+                    bubble.textContent = '"' + thought + '"';
+                    bubble.style.display = 'block';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
