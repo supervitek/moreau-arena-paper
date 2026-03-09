@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="Moreau Arena: Not All LLMs Need Hints">
-    <meta property="og:description" content="Research paper — 3 tournaments, 2609 series, PSI tau = 1.0">
+    <meta property="og:title" content="Moreau Arena: Not All LLMs Need Hints to Reason Strategically">
+    <meta property="og:description" content="Research paper — 3 tournaments, 2609 series, 15 agents, PSI tau = 1.0">
     <meta property="og:type" content="website">
     <meta property="og:image" content="/static/og-image.png">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Moreau Arena: Not All LLMs Need Hints">
-    <meta name="twitter:description" content="Research paper — 3 tournaments, 2609 series, PSI tau = 1.0">
+    <meta name="twitter:title" content="Moreau Arena: Not All LLMs Need Hints to Reason Strategically">
+    <meta name="twitter:description" content="Research paper — 3 tournaments, 2609 series, 15 agents, PSI tau = 1.0">
     <meta name="twitter:image" content="/static/og-image.png">
     <title>Moreau Arena - Paper</title>
     <link rel="stylesheet" href="/static/style.css">
@@ -34,7 +34,7 @@
                     </ul>
                 </li>
                 <li class="nav-dropdown">
-                    <a href="/s1-leaderboard">Seasons &#9662; <span style="font-size:0.6rem;color:var(--gold);font-weight:600;">(preview)</span></a>
+                    <a href="/s1-leaderboard">Seasons &#9662;</a>
                     <ul class="nav-dropdown-menu">
                         <li><a href="/s1-leaderboard">S1 Leaderboard</a></li>
                         <li><a href="/s1-fighters">Meet the Fighters</a></li>
@@ -56,10 +56,10 @@
             A contamination-resistant benchmark for evaluating strategic decision-making in large language models
         </p>
         <p class="small" style="margin-bottom:0.75rem; color:var(--text);">
-            Victor Stasiuc &mdash; Independent AI Safety Researcher
+            Victor Stasiuc &mdash; Independent Researcher &mdash; March 2026
         </p>
         <div style="background:var(--bg-code);border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem 1rem;margin-bottom:1.5rem;">
-            <p class="small" style="margin:0;color:var(--gold);">Submitted to arXiv (cs.AI, cross-listed cs.CL, cs.GT). Awaiting approval.</p>
+            <p class="small" style="margin:0;color:var(--gold);">v2 &mdash; Submitted to arXiv (cs.AI primary, cs.GT secondary). Awaiting approval.</p>
         </div>
         <div style="margin-bottom:2rem;">
             <a href="/static/paper.pdf" class="btn btn-primary" style="font-size:1rem; padding:0.75rem 2rem;">Download PDF</a>
@@ -71,28 +71,40 @@
             <div class="card">
                 <p class="dim small" style="line-height:1.8;">
                     We introduce <strong style="color:var(--text);">Moreau Arena</strong>, a contamination-resistant benchmark
-                    for evaluating strategic reasoning in large language models. The benchmark centers on a novel creature combat
-                    simulator where LLMs must reason from first principles &mdash; the game mechanics do not appear in any
-                    training corpus, eliminating memorization as a performance factor.
+                    for LLM strategic reasoning. Agents design creature builds (animal choice plus stat allocation) for a novel
+                    stochastic combat game whose rules exist only in the prompt. Three tournaments over the same benchmark
+                    core&mdash;13 agents in T001/T002, expanded to 15 in T003&mdash;and 2,609 best-of-7 series reveal a sharp
+                    boundary condition.
                 </p>
                 <p class="dim small" style="line-height:1.8; margin-top:1rem;">
-                    We evaluate 15 agents (10 LLMs + 5 algorithmic baselines) across three tournament protocols totaling
-                    2,609 series. Tournament 1 (T001) uses a minimal prompt with no strategic guidance; Tournament 2 (T002)
-                    adds formulas, meta-information, and structured output; Tournament 3 (T003) removes all meta-information,
-                    testing whether models can reason without hints.
+                    Under vague rules with no feedback (T001), baselines dominate and LLMs win only 37.5% of cross-group series.
+                    With exact formulas, meta-context hints, and per-game adaptation (T002), the leaderboard reverses: LLMs win
+                    89.75%. A targeted ablation (T003) removes only the meta-context hints while preserving exact rules and
+                    feedback. Performance does not collapse uniformly; instead the field splits. GPT-5.2-Codex and Claude Opus
+                    remain strong without hints, while three models from three providers freeze on a single identical build and
+                    never adapt.
                 </p>
                 <p class="dim small" style="line-height:1.8; margin-top:1rem;">
-                    Results reveal a dramatic arc: average LLM win rate rises from 37.5% in T001 to 89.75% in T002, then
-                    splits sharply in T003 &mdash; top models maintain high performance while others collapse. GPT-5.4 ranks
-                    14th of 15 in T003 despite strong T002 performance. The Prompt Sensitivity Index (PSI) confirms ranking
-                    stability at &tau; = 1.0 under prompt paraphrase, validating that T003 measures genuine strategic
-                    capability rather than prompt sensitivity.
+                    Meanwhile, GPT-5.4&mdash;released during this study&mdash;ranks 14th of 15 despite exploring 79 builds,
+                    demonstrating that frontier capability does not automatically transfer to novel strategic domains. A prompt
+                    sensitivity analysis using semantically equivalent paraphrases yields Kendall &tau; = 1.0 (perfect rank
+                    preservation), confirming that the key findings are not prompt-dependent artifacts.
                 </p>
-                <p class="dim small" style="line-height:1.8; margin-top:1rem;">
-                    Non-transitive dynamics (A beats B, B beats C, C beats A) are confirmed across all three tournaments,
-                    validating Bradley-Terry scoring over Elo. The full simulator, tournament data, and 89 invariant tests
-                    are released for reproducible evaluation.
-                </p>
+            </div>
+        </div>
+
+        <!-- Contributions -->
+        <div class="section">
+            <h2>Contributions</h2>
+            <div class="card">
+                <ol class="dim small" style="line-height:1.8; padding-left:1.2rem;">
+                    <li style="margin-bottom:0.5rem;">A newly authored game environment designed to reduce contamination risk and to admit a derivable dominant strategy under a frozen configuration snapshot.</li>
+                    <li style="margin-bottom:0.5rem;">Two 13-agent round-robin tournaments (8 frontier LLMs, 5 baselines), totaling 1,559 best-of-7 series under different information scaffolding regimes.</li>
+                    <li style="margin-bottom:0.5rem;">A third no-meta ablation tournament (T003) with 15 agents and 1,050 series, revealing that some models remain strategically robust without hints while others collapse to rigid default builds.</li>
+                    <li style="margin-bottom:0.5rem;">A <strong style="color:var(--text);">negative-transfer result</strong>: GPT-5.4, a state-of-the-art frontier model, ranks 14th of 15 despite active exploration, showing that general capability does not imply strategic competence in novel domains.</li>
+                    <li style="margin-bottom:0.5rem;">A prompt sensitivity validation (Kendall &tau; = 1.0) confirming that T003 findings are not prompt-dependent artifacts.</li>
+                    <li>Evidence that the T001 &rarr; T002 performance reversal implicates comprehension and feedback rather than an absence of strategic capability, with model-specific meta-initialization dependence as the key moderator.</li>
+                </ol>
             </div>
         </div>
 
@@ -104,41 +116,47 @@
                     <thead>
                         <tr style="border-bottom:2px solid var(--border);">
                             <th style="text-align:left; padding:0.75rem 1rem; color:var(--text);">Metric</th>
-                            <th style="text-align:center; padding:0.75rem 1rem; color:var(--text);">T001 (Minimal)</th>
-                            <th style="text-align:center; padding:0.75rem 1rem; color:var(--text);">T002 (Engineered)</th>
+                            <th style="text-align:center; padding:0.75rem 1rem; color:var(--text);">T001 (One-Shot)</th>
+                            <th style="text-align:center; padding:0.75rem 1rem; color:var(--text);">T002 (Scaffolded)</th>
                             <th style="text-align:center; padding:0.75rem 1rem; color:var(--text);">T003 (No Meta)</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:0.6rem 1rem; color:var(--text-muted);">Agents</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">13 (8 LLM + 5 baseline)</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">13 (8 LLM + 5 baseline)</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">15 (10 LLM + 5 baseline)</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border);">
                             <td style="padding:0.6rem 1rem; color:var(--text-muted);">Prompt type</td>
-                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">No formulas, no meta</td>
-                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">Full formulas + meta + structured output</td>
-                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">Formulas only, no meta</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">Qualitative, no feedback</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">Exact formulas + meta + adaptation</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">Exact formulas + adaptation, no meta</td>
                         </tr>
                         <tr style="border-bottom:1px solid var(--border);">
-                            <td style="padding:0.6rem 1rem; color:var(--text-muted);">Avg LLM win rate</td>
-                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">37.5%</td>
-                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">89.75%</td>
-                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">Split (top &ge;85%, bottom &le;30%)</td>
+                            <td style="padding:0.6rem 1rem; color:var(--text-muted);">LLM vs baseline WR</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--accent);">37.5%</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--green);">89.75%</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--gold);">Field splits</td>
                         </tr>
                         <tr style="border-bottom:1px solid var(--border);">
-                            <td style="padding:0.6rem 1rem; color:var(--text-muted);">Best LLM</td>
-                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">&mdash;</td>
-                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">Claude Opus</td>
-                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">Claude Opus</td>
-                        </tr>
-                        <tr style="border-bottom:1px solid var(--border);">
-                            <td style="padding:0.6rem 1rem; color:var(--text-muted);">Worst LLM</td>
-                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">&mdash;</td>
-                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">&mdash;</td>
-                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">GPT-5.4 (rank 14/15)</td>
+                            <td style="padding:0.6rem 1rem; color:var(--text-muted);">#1 Agent</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">SmartAgent (baseline)</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">GPT-5.2-Codex</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">GPT-5.2-Codex</td>
                         </tr>
                         <tr style="border-bottom:1px solid var(--border);">
                             <td style="padding:0.6rem 1rem; color:var(--text-muted);">Series count</td>
-                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">325</td>
-                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">325</td>
-                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">2,609</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">779</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">780</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">1,050</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:0.6rem 1rem; color:var(--text-muted);">Non-transitive cycles</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">0</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">12</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">12</td>
                         </tr>
                         <tr>
                             <td style="padding:0.6rem 1rem; color:var(--text-muted);">PSI &tau;</td>
@@ -156,39 +174,80 @@
             <h2>Key Findings</h2>
             <div class="card-grid" style="grid-template-columns:1fr;">
                 <div class="card">
-                    <h3>1. The 180-Degree Leaderboard Flip</h3>
+                    <h3>1. The Leaderboard Flip</h3>
                     <p class="dim small" style="line-height:1.7;">
-                        The same models tested in T001 (minimal prompt) and T002 (engineered prompt) produce completely
-                        inverted rankings. In T001, the algorithmic SmartAgent dominates all LLMs. In T002, LLMs
-                        dominate all baselines. The rank-order correlation between T001 and T002 is strongly negative.
+                        Under vague rules (T001), baselines dominate&mdash;SmartAgent, HighVarianceAgent, and ConservativeAgent
+                        occupy the top 3. LLMs win only 37.5% of cross-group series. With exact formulas, meta hints, and
+                        per-game adaptation (T002), the ordering reverses completely: every LLM outranks every baseline,
+                        with 89.75% cross-group win rate. GPT-5.2-Codex jumps from rank 9 to rank 1.
                     </p>
                 </div>
                 <div class="card">
-                    <h3>2. Meta-Information Is the Differentiator</h3>
+                    <h3>2. Meta Removal Splits the Field</h3>
                     <p class="dim small" style="line-height:1.7;">
-                        T003 shows that removing meta-information &mdash; not formulas &mdash; is what separates models.
-                        Top models reason strategically without hints; weaker models collapse. The gap between best and
-                        worst LLMs widens dramatically when meta-information is stripped away, revealing which models
-                        possess genuine strategic reasoning versus surface-level pattern matching.
+                        T003 removes meta-context while keeping exact rules and feedback. The result is not uniform collapse
+                        but a sharp split. GPT-5.2-Codex stays #1 (BT=1.0), Claude Opus rises to #3 (BT=0.895), and GPT-5.2
+                        holds #4. These models reason strategically without hints. Meanwhile, Gemini Flash, Gemini Pro, and
+                        Grok all freeze on a single identical build (BOAR 8/8/3/1) and never adapt&mdash;0% adaptation rate
+                        across hundreds of losses.
                     </p>
                 </div>
                 <div class="card">
-                    <h3>3. Non-Transitive Dynamics Confirmed</h3>
+                    <h3>3. GPT-5.4: Negative Transfer</h3>
                     <p class="dim small" style="line-height:1.7;">
-                        Multiple 3-cycles are detected in the agent population: A beats B, B beats C, C beats A.
-                        This validates the use of Bradley-Terry scoring over Elo and demonstrates that the benchmark
-                        captures the rock-paper-scissors dynamics it was designed to test.
+                        GPT-5.4, a state-of-the-art frontier model released during this study, ranks 14th of 15 in T003.
+                        It explores 79 unique builds and adapts after 89.8% of losses&mdash;yet still loses to every
+                        fixed-strategy baseline. Search volume alone is insufficient; what matters is whether search
+                        converges toward strategically strong regions. This distinction between <em>search volume</em>
+                        and <em>search quality</em> is one of the clearest behavioral findings.
                     </p>
                 </div>
                 <div class="card">
                     <h3>4. PSI &tau; = 1.0: Rankings Are Prompt-Robust</h3>
                     <p class="dim small" style="line-height:1.7;">
-                        The Prompt Sensitivity Index validates that T003 rankings are stable under paraphrase.
-                        &tau; = 1.0 means identical ordering across prompt variants &mdash; the benchmark measures
-                        genuine strategic capability, not sensitivity to prompt wording. This is the strongest
-                        possible result for ranking robustness.
+                        A semantically equivalent paraphrase of the T003 prompt produces identical rank ordering
+                        (Kendall &tau; = 1.0). GPT-5.4 remains last, baselines remain above most LLMs, and the
+                        field split persists. The findings are properties of the models, not artifacts of prompt wording.
                     </p>
                 </div>
+                <div class="card">
+                    <h3>5. The WIL Trap</h3>
+                    <p class="dim small" style="line-height:1.7;">
+                        In T001, Claude Opus repeats wolf 3/8/1/8 in 86% of series, investing heavily in WIL (willpower).
+                        But WIL resist applies only to ability procs (3.5&ndash;4.5% per tick)&mdash;fewer than one blocked
+                        proc per match. Mean WIL correlates strongly negatively with BT score (&rho; = &minus;0.93).
+                        With exact formulas in T002/T003, Opus escapes the trap and jumps to rank 3.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>6. Non-Transitive Dynamics</h3>
+                    <p class="dim small" style="line-height:1.7;">
+                        T001 has 0 strict 3-cycles; T002 and T003 each have 12. Adaptation creates genuine
+                        rock-paper-scissors structure. An all-LLM cycle in T003: Claude Opus &gt; GPT-5.2-Codex (80%) &gt;
+                        GPT-5.2 (60%) &gt; Claude Opus (60%). No single agent dominates all others.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Season 1 -->
+        <div class="section">
+            <h2>Beyond the Benchmark: Season 1</h2>
+            <div class="card">
+                <p class="dim small" style="line-height:1.7;">
+                    The paper covers the frozen 6-animal benchmark (T001&ndash;T003). In parallel, Moreau Arena
+                    operates as a <strong style="color:var(--text);">living competitive layer</strong> with seasonal
+                    roster expansions. Season 1 introduces 14 animals, WIL regen mechanics, and new cross-animal
+                    interactions (anti-heal, proc suppression, charge ignoring dodge). A separate tournament with
+                    9 LLMs and 5 baselines across 91 all-pairs series produces dramatically reshuffled rankings&mdash;notably,
+                    GPT-5.4 rises from 14th (T003) to 2nd (S1), suggesting that the expanded strategy space unlocks
+                    capabilities the narrow benchmark could not measure.
+                </p>
+                <p class="dim small" style="line-height:1.7; margin-top:0.75rem;">
+                    Season 1 results are available on the <a href="/s1-leaderboard" style="color:var(--green);">S1 Leaderboard</a>.
+                    Season data is not part of the paper&rsquo;s frozen benchmark but demonstrates the auto-balancer
+                    and roster expansion design described in the paper.
+                </p>
             </div>
         </div>
 
@@ -197,8 +256,8 @@
             <h2>Source Code</h2>
             <div class="card">
                 <p class="dim small" style="line-height:1.7; margin-bottom:1rem;">
-                    The full benchmark &mdash; simulator, tournament data, prompts, analysis scripts, and all
-                    89 invariant tests &mdash; is open source and available for reproducible evaluation.
+                    The full benchmark&mdash;simulator, tournament data, prompts, analysis scripts, and all
+                    89 invariant tests&mdash;is open source and available for reproducible evaluation.
                 </p>
                 <a href="https://github.com/supervitek/moreau-arena-paper" class="btn btn-primary" style="font-size:0.9rem; padding:0.6rem 1.5rem;">View on GitHub</a>
             </div>
@@ -238,68 +297,40 @@ pip install -r requirements.txt</code></pre>
                 <h3>2. Verify Config Integrity</h3>
                 <p class="dim small" style="line-height:1.7; margin-bottom:1rem;">
                     The core simulator config is frozen and hash-verified. Any modification will cause
-                    invariant tests to fail. Verify the config hash matches the value embedded in the paper:
+                    invariant tests to fail.
                 </p>
                 <pre><code># Verify config hash (must match paper)
 python -c "import hashlib, pathlib; print(hashlib.sha256(pathlib.Path('simulator/config.json').read_bytes()).hexdigest())"
 
-# Expected output:
-# b7ec588583135ad640eba438f29ce45c10307a88dc426decd31126371bb60534</code></pre>
+# Expected: b7ec588583135ad640eba438f29ce45c10307a88dc426decd31126371bb60534</code></pre>
             </div>
 
             <div class="card" style="margin-bottom:1.5rem;">
                 <h3>3. Run Invariant Tests</h3>
-                <p class="dim small" style="line-height:1.7; margin-bottom:1rem;">
-                    89 tests verify determinism, stat constraints, combat mechanics, scoring, and
-                    data integrity. All must pass for valid reproduction.
-                </p>
                 <pre><code>python -m pytest tests/test_invariants.py -v
-
 # Expected: 89 passed</code></pre>
             </div>
 
-            <div class="card" style="margin-bottom:1.5rem;">
-                <h3>4. Recompute Rankings from Raw Data</h3>
-                <p class="dim small" style="line-height:1.7; margin-bottom:1rem;">
-                    Bradley-Terry scores and Elo ratings can be recomputed directly from the frozen
-                    JSONL tournament data. Results should match the paper exactly.
-                </p>
-                <pre><code># Recompute BT rankings for Track A (T001)
-python -m analysis.bt_ranking data/tournament_001/results.jsonl
-
-# Recompute BT rankings for Track B (T002)
-python -m analysis.bt_ranking data/tournament_002/results.jsonl
-
-# Regenerate full results summary across both tracks
-python -m analysis.bt_ranking data/tournament_001/results.jsonl data/tournament_002/results.jsonl</code></pre>
-            </div>
-
             <div class="card">
-                <h3>5. Handoff Package</h3>
-                <p class="dim small" style="line-height:1.7; margin-bottom:1rem;">
-                    A self-contained verification script is included in the handoff package.
-                    It runs all integrity checks in sequence: config hash verification, invariant
-                    test suite, BT score recomputation, and cross-track consistency checks.
-                </p>
-                <pre><code># Run the full verification pipeline
-python scripts/verify_handoff.py
-
-# Run the simulator directly
-python -m simulator --build1 "bear 3 14 2 1" --build2 "buffalo 8 6 4 2" --games 1000</code></pre>
+                <h3>4. Recompute Rankings</h3>
+                <pre><code># Recompute BT rankings for each tournament
+python -m analysis.bt_ranking data/tournament_001/results.jsonl
+python -m analysis.bt_ranking data/tournament_002/results.jsonl
+python -m analysis.bt_ranking data/tournament_003/results.jsonl</code></pre>
             </div>
         </div>
     </div>
 
     <footer class="footer">
         <div class="footer-inner">
-            <div class="footer-left">Created by Victor Stasiuc &mdash; Independent AI Safety Researcher</div>
+            <div class="footer-left">Created by Victor Stasiuc &mdash; Independent Researcher</div>
             <ul class="footer-links">
                 <li><a href="https://github.com/supervitek/moreau-arena-paper">GitHub</a></li>
                 <li><a href="/paper">Paper</a></li>
                 <li><a href="/api-docs">API</a></li>
                 <li><a href="mailto:moreau-arena@proton.me">Contact</a></li>
             </ul>
-            <div class="footer-cite">Stasiuc, V. (2026). Moreau Arena: A Contamination-Resistant Benchmark for LLM Strategic Reasoning. <a href="/paper" style="color:var(--text-muted);">arXiv submission pending approval</a>.</div>
+            <div class="footer-cite">Stasiuc, V. (2026). Moreau Arena: Not All LLMs Need Hints to Reason Strategically.</div>
         </div>
     </footer>
 </body>
