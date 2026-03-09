@@ -65,7 +65,7 @@
   },
   {
     "rank": 9,
-    "name": "claude-haiku-4-5-20251001",
+    "name": "claude-haiku-4-5",
     "score": 0.318,
     "ci_lower": 0.1838,
     "ci_upper": 0.581,
