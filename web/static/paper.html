@@ -3,6 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Moreau Arena: Not All LLMs Need Hints">
+    <meta property="og:description" content="Research paper — 3 tournaments, 2609 series, PSI tau = 1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="/static/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Moreau Arena: Not All LLMs Need Hints">
+    <meta name="twitter:description" content="Research paper — 3 tournaments, 2609 series, PSI tau = 1.0">
+    <meta name="twitter:image" content="/static/og-image.png">
     <title>Moreau Arena - Paper</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
@@ -41,21 +49,20 @@
     </nav>
 
     <div class="container-narrow">
-        <h1 style="margin-bottom:0.5rem;">Research Paper</h1>
-        <p class="dim" style="margin-bottom:0.75rem;">Academic publication and citation information.</p>
-        <div style="background:var(--bg-code);border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem 1rem;margin-bottom:2rem;">
-            <p class="small" style="margin:0;color:var(--gold);">Paper submitted to arXiv (cs.AI, cross-listed cs.CL, cs.GT). Status: awaiting approval.</p>
-        </div>
 
-        <!-- Download -->
-        <div class="section">
-            <div class="card text-center" style="padding:2.5rem;">
-                <h2 style="margin-bottom:0.5rem;">Moreau Arena</h2>
-                <p class="dim" style="margin-bottom:1.5rem; max-width:500px; margin-left:auto; margin-right:auto; line-height:1.6;">
-                    A Non-Transitive Benchmark for Evaluating Strategic Decision-Making in Large Language Models
-                </p>
-                <a href="/static/paper.pdf" class="btn btn-primary" style="font-size:1rem; padding:0.75rem 2rem;">Download PDF</a>
-            </div>
+        <!-- Header -->
+        <h1 style="margin-bottom:0.25rem;">Moreau Arena: Not All LLMs Need Hints to Reason Strategically</h1>
+        <p class="dim" style="margin-bottom:0.5rem; line-height:1.6;">
+            A contamination-resistant benchmark for evaluating strategic decision-making in large language models
+        </p>
+        <p class="small" style="margin-bottom:0.75rem; color:var(--text);">
+            Victor Stasiuc &mdash; Independent AI Safety Researcher
+        </p>
+        <div style="background:var(--bg-code);border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem 1rem;margin-bottom:1.5rem;">
+            <p class="small" style="margin:0;color:var(--gold);">Submitted to arXiv (cs.AI, cross-listed cs.CL, cs.GT). Awaiting approval.</p>
+        </div>
+        <div style="margin-bottom:2rem;">
+            <a href="/static/paper.pdf" class="btn btn-primary" style="font-size:1rem; padding:0.75rem 2rem;">Download PDF</a>
         </div>
 
         <!-- Abstract -->
@@ -64,28 +71,87 @@
             <div class="card">
                 <p class="dim small" style="line-height:1.8;">
                     We introduce <strong style="color:var(--text);">Moreau Arena</strong>, a contamination-resistant benchmark
-                    for evaluating strategic reasoning in large language models. The benchmark centers on a creature combat
-                    simulator with 14 animal types and a 4-stat allocation system that produces non-transitive dominance
-                    structures. Because the game mechanics are novel and do not appear in any training corpus, LLMs cannot
-                    rely on memorized solutions and must reason from first principles.
+                    for evaluating strategic reasoning in large language models. The benchmark centers on a novel creature combat
+                    simulator where LLMs must reason from first principles &mdash; the game mechanics do not appear in any
+                    training corpus, eliminating memorization as a performance factor.
                 </p>
                 <p class="dim small" style="line-height:1.8; margin-top:1rem;">
-                    We evaluate 8 LLMs across two tournament protocols: T001 (minimal prompt, fixed builds) and T002
-                    (engineered prompt with formulas, meta-information, structured output, and adaptation). Results show a
-                    dramatic performance shift: LLM average win rate rises from 37.5% in T001 to 89.75% in T002, with the
-                    leaderboard inverting completely. This demonstrates that prompt engineering &mdash; not model capability
-                    &mdash; is the primary determinant of strategic performance in novel domains.
+                    We evaluate 15 agents (10 LLMs + 5 algorithmic baselines) across three tournament protocols totaling
+                    2,609 series. Tournament 1 (T001) uses a minimal prompt with no strategic guidance; Tournament 2 (T002)
+                    adds formulas, meta-information, and structured output; Tournament 3 (T003) removes all meta-information,
+                    testing whether models can reason without hints.
                 </p>
                 <p class="dim small" style="line-height:1.8; margin-top:1rem;">
-                    We provide ablation studies isolating the contribution of each T002 component, a Prompt Sensitivity
-                    Index (PSI) measuring ranking stability under paraphrase, and characterize 3-cycle intransitive dynamics
-                    in the agent population. The full simulator, tournament data, and 89 invariant tests are released to
-                    enable reproducible evaluation of future models.
+                    Results reveal a dramatic arc: average LLM win rate rises from 37.5% in T001 to 89.75% in T002, then
+                    splits sharply in T003 &mdash; top models maintain high performance while others collapse. GPT-5.4 ranks
+                    14th of 15 in T003 despite strong T002 performance. The Prompt Sensitivity Index (PSI) confirms ranking
+                    stability at &tau; = 1.0 under prompt paraphrase, validating that T003 measures genuine strategic
+                    capability rather than prompt sensitivity.
+                </p>
+                <p class="dim small" style="line-height:1.8; margin-top:1rem;">
+                    Non-transitive dynamics (A beats B, B beats C, C beats A) are confirmed across all three tournaments,
+                    validating Bradley-Terry scoring over Elo. The full simulator, tournament data, and 89 invariant tests
+                    are released for reproducible evaluation.
                 </p>
             </div>
         </div>
 
-        <!-- Key findings -->
+        <!-- Tournament Progression Table -->
+        <div class="section">
+            <h2>Tournament Progression</h2>
+            <div class="card" style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+                    <thead>
+                        <tr style="border-bottom:2px solid var(--border);">
+                            <th style="text-align:left; padding:0.75rem 1rem; color:var(--text);">Metric</th>
+                            <th style="text-align:center; padding:0.75rem 1rem; color:var(--text);">T001 (Minimal)</th>
+                            <th style="text-align:center; padding:0.75rem 1rem; color:var(--text);">T002 (Engineered)</th>
+                            <th style="text-align:center; padding:0.75rem 1rem; color:var(--text);">T003 (No Meta)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:0.6rem 1rem; color:var(--text-muted);">Prompt type</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">No formulas, no meta</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">Full formulas + meta + structured output</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">Formulas only, no meta</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:0.6rem 1rem; color:var(--text-muted);">Avg LLM win rate</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">37.5%</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">89.75%</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">Split (top &ge;85%, bottom &le;30%)</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:0.6rem 1rem; color:var(--text-muted);">Best LLM</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">&mdash;</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">Claude Opus</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">Claude Opus</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:0.6rem 1rem; color:var(--text-muted);">Worst LLM</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">&mdash;</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">&mdash;</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">GPT-5.4 (rank 14/15)</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:0.6rem 1rem; color:var(--text-muted);">Series count</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">325</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">325</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">2,609</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:0.6rem 1rem; color:var(--text-muted);">PSI &tau;</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">&mdash;</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--text-muted);">&mdash;</td>
+                            <td style="padding:0.6rem 1rem; text-align:center; color:var(--gold);">1.0 (prompt-robust)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Key Findings -->
         <div class="section">
             <h2>Key Findings</h2>
             <div class="card-grid" style="grid-template-columns:1fr;">
@@ -98,14 +164,16 @@
                     </p>
                 </div>
                 <div class="card">
-                    <h3>2. Prompt Engineering > Model Scale</h3>
+                    <h3>2. Meta-Information Is the Differentiator</h3>
                     <p class="dim small" style="line-height:1.7;">
-                        The T001&rarr;T002 performance jump is larger than any difference between models within the same
-                        track. This suggests that for novel strategic domains, how you ask matters more than which model you ask.
+                        T003 shows that removing meta-information &mdash; not formulas &mdash; is what separates models.
+                        Top models reason strategically without hints; weaker models collapse. The gap between best and
+                        worst LLMs widens dramatically when meta-information is stripped away, revealing which models
+                        possess genuine strategic reasoning versus surface-level pattern matching.
                     </p>
                 </div>
                 <div class="card">
-                    <h3>3. Non-Transitive Dynamics Are Real</h3>
+                    <h3>3. Non-Transitive Dynamics Confirmed</h3>
                     <p class="dim small" style="line-height:1.7;">
                         Multiple 3-cycles are detected in the agent population: A beats B, B beats C, C beats A.
                         This validates the use of Bradley-Terry scoring over Elo and demonstrates that the benchmark
@@ -113,13 +181,26 @@
                     </p>
                 </div>
                 <div class="card">
-                    <h3>4. Contamination Resistance Confirmed</h3>
+                    <h3>4. PSI &tau; = 1.0: Rankings Are Prompt-Robust</h3>
                     <p class="dim small" style="line-height:1.7;">
-                        The variance budget analysis shows RNG contributes &lt;25% of outcome variance. The remaining
-                        &gt;75% is attributable to strategic choices. Combined with novel mechanics, this confirms the
-                        benchmark measures reasoning, not memorization.
+                        The Prompt Sensitivity Index validates that T003 rankings are stable under paraphrase.
+                        &tau; = 1.0 means identical ordering across prompt variants &mdash; the benchmark measures
+                        genuine strategic capability, not sensitivity to prompt wording. This is the strongest
+                        possible result for ranking robustness.
                     </p>
                 </div>
+            </div>
+        </div>
+
+        <!-- GitHub -->
+        <div class="section">
+            <h2>Source Code</h2>
+            <div class="card">
+                <p class="dim small" style="line-height:1.7; margin-bottom:1rem;">
+                    The full benchmark &mdash; simulator, tournament data, prompts, analysis scripts, and all
+                    89 invariant tests &mdash; is open source and available for reproducible evaluation.
+                </p>
+                <a href="https://github.com/supervitek/moreau-arena-paper" class="btn btn-primary" style="font-size:0.9rem; padding:0.6rem 1.5rem;">View on GitHub</a>
             </div>
         </div>
 
@@ -127,12 +208,14 @@
         <div class="section">
             <h2>Citation</h2>
             <div class="card">
-                <pre><code>@article{moreau-arena-2026,
-  title   = {Moreau Arena: A Non-Transitive Benchmark for
-             Evaluating Strategic Decision-Making in LLMs},
+                <pre><code>@article{stasiuc2026moreau,
+  title   = {Moreau Arena: Not All LLMs Need Hints to Reason
+             Strategically},
+  author  = {Stasiuc, Victor},
   year    = {2026},
   note    = {Config hash: b7ec5885, 89 invariant tests,
-             13 agents across 2 tournament protocols}
+             15 agents across 3 tournament protocols,
+             2609 series, PSI tau = 1.0}
 }</code></pre>
             </div>
         </div>
@@ -146,8 +229,8 @@
                     The full benchmark, including simulator, tournament data, and all 89 invariant tests,
                     is available from the repository. No GPU required.
                 </p>
-                <pre><code>git clone https://github.com/moreau-arena/moreau-arena.git
-cd moreau-arena
+                <pre><code>git clone https://github.com/supervitek/moreau-arena-paper.git
+cd moreau-arena-paper
 pip install -r requirements.txt</code></pre>
             </div>
 
