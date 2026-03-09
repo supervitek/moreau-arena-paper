@@ -449,9 +449,10 @@
     </div>
 
     <script>
-        // Redirect if pet already exists
-        if (localStorage.getItem('moreau_pet')) {
-            window.location.href = '/pets/home';
+        // Redirect if at max pets (6)
+        const existingPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+        if (existingPets.length >= 6) {
+            window.location.href = '/pets';
         }
 
         // Animal data
@@ -622,7 +623,10 @@
                         mood: 'excited',
                         created_at: new Date().toISOString()
                     };
-                    localStorage.setItem('moreau_pet', JSON.stringify(pet));
+                    const pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                    pets.push(pet);
+                    localStorage.setItem('moreau_pets', JSON.stringify(pets));
+                    localStorage.setItem('moreau_active_pet', String(pets.length - 1));
                     window.location.href = '/pets/home';
                 }, 2000);
             }, 300);

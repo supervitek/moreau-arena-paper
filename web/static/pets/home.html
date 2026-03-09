@@ -619,12 +619,38 @@
 
         const LEVEL_THRESHOLDS = {1:0, 2:50, 3:100, 4:150, 5:200, 6:300, 7:400, 8:500, 9:600, 10:750};
 
-        // Load pet or redirect
-        const raw = localStorage.getItem('moreau_pet');
-        if (!raw) {
+        // Multi-pet migration & load
+        function migrateAndLoadPet() {
+            // Migrate old single-pet format
+            const oldRaw = localStorage.getItem('moreau_pet');
+            if (oldRaw) {
+                try {
+                    const oldPet = JSON.parse(oldRaw);
+                    const existing = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                    if (existing.length < 6) existing.push(oldPet);
+                    localStorage.setItem('moreau_pets', JSON.stringify(existing));
+                    localStorage.setItem('moreau_active_pet', String(existing.length - 1));
+                    localStorage.removeItem('moreau_pet');
+                } catch(e) { localStorage.removeItem('moreau_pet'); }
+            }
+            const pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            if (pets.length === 0) return null;
+            let idx = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
+            if (idx < 0 || idx >= pets.length) idx = 0;
+            return pets[idx];
+        }
+        function saveActivePet(pet) {
+            const pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            let idx = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
+            if (idx < 0 || idx >= pets.length) idx = 0;
+            pets[idx] = pet;
+            localStorage.setItem('moreau_pets', JSON.stringify(pets));
+        }
+
+        const pet = migrateAndLoadPet();
+        if (!pet) {
             window.location.href = '/pets';
         }
-        const pet = raw ? JSON.parse(raw) : null;
 
         function canMutate(p) {
             const m = (p.mutations || []).length;
@@ -795,7 +821,15 @@
         }
 
         function releasePet() {
-            localStorage.removeItem('moreau_pet');
+            const pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            let idx = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
+            if (idx >= 0 && idx < pets.length) pets.splice(idx, 1);
+            localStorage.setItem('moreau_pets', JSON.stringify(pets));
+            if (pets.length === 0) {
+                localStorage.removeItem('moreau_active_pet');
+            } else {
+                localStorage.setItem('moreau_active_pet', '0');
+            }
             window.location.href = '/pets';
         }
 
