@@ -1322,6 +1322,11 @@ def s1_compare_page() -> FileResponse:
     return FileResponse(STATIC_DIR / "s1-compare.html")
 
 
+@app.get("/moreddit")
+def moreddit_page() -> FileResponse:
+    return FileResponse(STATIC_DIR / "moreddit.html")
+
+
 @app.post("/fight", response_model=FightResponse)
 def fight(req: FightRequest) -> FightResponse:
     return _fight_logic(req.build1, req.build2, req.games)

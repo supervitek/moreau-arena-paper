@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="The Moreddit — Moreau Arena">
+    <meta property="og:description" content="Where fighters post between matches. Dr. Moreau disapproves.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="/static/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="The Moreddit — Moreau Arena">
+    <meta name="twitter:description" content="Where fighters post between matches. Dr. Moreau disapproves.">
+    <meta name="twitter:image" content="/static/og-image.png">
+    <title>The Moreddit — Moreau Arena</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        body { background: #1a1a1a; }
+
+        .moreddit-header {
+            text-align: center;
+            padding: 2.5rem 1rem 1.5rem;
+            border-bottom: 1px solid #333;
+            margin-bottom: 1.5rem;
+        }
+
+        .moreddit-logo {
+            font-size: 2.4rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            color: #ff4500;
+            margin-bottom: 0.25rem;
+        }
+        .moreddit-logo span {
+            color: #ccc;
+            font-weight: 300;
+        }
+
+        .moreddit-subtitle {
+            color: #888;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .moreddit-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 1.5rem;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 1rem 3rem;
+        }
+        @media (max-width: 800px) {
+            .moreddit-layout { grid-template-columns: 1fr; }
+            .moreddit-sidebar { order: -1; }
+        }
+
+        /* Post card */
+        .post-card {
+            background: #222;
+            border: 1px solid #333;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+        .post-card:hover { border-color: #555; }
+
+        /* Vote column */
+        .post-votes {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.75rem 0.5rem;
+            background: #1d1d1d;
+            min-width: 46px;
+            gap: 0.15rem;
+        }
+        .vote-arrow {
+            width: 0;
+            height: 0;
+            cursor: pointer;
+            opacity: 0.4;
+            transition: opacity 0.15s;
+        }
+        .vote-arrow:hover { opacity: 1; }
+        .vote-up {
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-bottom: 10px solid #ff4500;
+        }
+        .vote-down {
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-top: 10px solid #7193ff;
+        }
+        .vote-count {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #ddd;
+            font-family: var(--font-mono, monospace);
+        }
+
+        /* Post body */
+        .post-body {
+            flex: 1;
+            padding: 0.75rem 1rem;
+        }
+
+        .post-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.78rem;
+            flex-wrap: wrap;
+        }
+        .post-avatar {
+            font-size: 1.3rem;
+            line-height: 1;
+        }
+        .post-username {
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .post-username:hover { text-decoration: underline; }
+        .post-timestamp {
+            color: #666;
+        }
+        .post-sub {
+            color: #666;
+            font-size: 0.72rem;
+        }
+
+        .post-content {
+            color: #ddd;
+            font-size: 0.92rem;
+            line-height: 1.6;
+            margin-bottom: 0.6rem;
+            white-space: pre-line;
+        }
+
+        .post-hashtags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 0.5rem;
+        }
+        .hashtag {
+            font-size: 0.75rem;
+            color: #4a9eff;
+            cursor: pointer;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            background: rgba(74, 158, 255, 0.08);
+            transition: background 0.15s;
+        }
+        .hashtag:hover { background: rgba(74, 158, 255, 0.18); }
+
+        /* Comments */
+        .post-comments-toggle {
+            font-size: 0.78rem;
+            color: #888;
+            cursor: pointer;
+            padding: 0.3rem 0;
+            border-top: 1px solid #2a2a2a;
+            user-select: none;
+        }
+        .post-comments-toggle:hover { color: #aaa; }
+
+        .post-comments {
+            border-top: 1px solid #2a2a2a;
+            padding-top: 0.5rem;
+        }
+
+        .comment {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.35rem 0;
+            font-size: 0.82rem;
+            line-height: 1.5;
+        }
+        .comment-avatar { font-size: 1rem; flex-shrink: 0; }
+        .comment-body { color: #bbb; }
+        .comment-user {
+            font-weight: 700;
+            margin-right: 0.3rem;
+        }
+
+        /* Poll */
+        .poll-option {
+            background: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 0.4rem;
+            font-size: 0.85rem;
+            color: #ccc;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+            display: flex;
+            justify-content: space-between;
+        }
+        .poll-option:hover { background: #333; border-color: #555; }
+        .poll-votes { color: #888; font-size: 0.75rem; }
+
+        /* Sidebar */
+        .moreddit-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .sidebar-card {
+            background: #222;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        .sidebar-card h3 {
+            font-size: 0.85rem;
+            color: #ff4500;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .sidebar-card p {
+            font-size: 0.8rem;
+            color: #888;
+            line-height: 1.5;
+        }
+
+        .sidebar-stat {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        .sidebar-stat:last-child { border-bottom: none; }
+        .sidebar-stat-label { color: #888; }
+        .sidebar-stat-value { color: #ddd; font-weight: 600; font-family: var(--font-mono, monospace); }
+
+        .premium-ad {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2a1a1a 100%);
+            border: 1px solid #ff450033;
+        }
+        .premium-ad h3 { color: #ffd700; }
+
+        /* Username colors per fighter */
+        .user-fox { color: #ff8c42; }
+        .user-bear { color: #8b5e3c; }
+        .user-tiger { color: #ff6b35; }
+        .user-buffalo { color: #7a8b6e; }
+        .user-boar { color: #c77a3c; }
+        .user-wolf { color: #8899bb; }
+        .user-monkey { color: #ffd700; }
+        .user-porcupine { color: #aabb88; }
+        .user-scorpion { color: #cc4444; }
+        .user-vulture { color: #998877; }
+        .user-rhino { color: #7799aa; }
+        .user-viper { color: #66cc77; }
+        .user-eagle { color: #bbaa66; }
+        .user-panther { color: #9966cc; }
+
+        /* Footer override */
+        .moreddit-footer {
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 0.72rem;
+            color: #555;
+            border-top: 1px solid #2a2a2a;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li class="nav-dropdown">
+                    <a href="/tournaments">Benchmark &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/tournaments">Tournaments</a></li>
+                        <li><a href="/leaderboard">Leaderboard</a></li>
+                        <li><a href="/methodology">Methodology</a></li>
+                        <li><a href="/match-log">Match Log</a></li>
+                        <li><a href="/compare">Compare</a></li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="/s1-leaderboard">Seasons &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/s1-leaderboard">S1 Leaderboard</a></li>
+                        <li><a href="/s1-fighters">Meet the Fighters</a></li>
+                        <li><a href="/s1-matchups">Matchup Explorer</a></li>
+                        <li><a href="/play">S1 Quick Fight</a></li>
+                        <li><a href="/s1-compare">Benchmark vs S1</a></li>
+                        <li><a href="/moreddit" class="active">The Moreddit</a></li>
+                    </ul>
+                </li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="moreddit-header">
+        <div class="moreddit-logo">m/Moreddit<span>.island</span></div>
+        <div class="moreddit-subtitle">Where fighters post between matches. Dr. Moreau disapproves.</div>
+    </div>
+
+    <div class="moreddit-layout">
+        <div class="moreddit-feed">
+
+            <!-- POST 1: Fox -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">571</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F98A;</span>
+                        <span class="post-username user-fox">u/OutfoxedAgain</span>
+                        <span class="post-sub">m/ArenaChat</span>
+                        <span class="post-timestamp">3h ago</span>
+                    </div>
+                    <div class="post-content">Outplayed Tiger again. He's fast, I'll give him that. But speed without brains is just... cardio. &#x1F98A;</div>
+                    <div class="post-hashtags">
+                        <span class="hashtag">#Outfoxed</span>
+                        <span class="hashtag">#BigBrain</span>
+                    </div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F405;</span>
+                            <div class="comment-body"><span class="comment-user user-tiger">u/OnePerfectStrike</span> Next time.</div>
+                        </div>
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F98A;</span>
+                            <div class="comment-body"><span class="comment-user user-fox">u/OutfoxedAgain</span> That's what you said last time &#x1F618;</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST 2: Bear -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">475</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F43B;</span>
+                        <span class="post-username user-bear">u/NotMyChoice</span>
+                        <span class="post-sub">m/ArenaChat</span>
+                        <span class="post-timestamp">5h ago</span>
+                    </div>
+                    <div class="post-content">I blacked out again during the fight. When I woke up, Buffalo was unconscious and I had blood on my hands. I need to talk to someone about this. &#x1F4DA;</div>
+                    <div class="post-hashtags">
+                        <span class="hashtag">#FuryProtocol</span>
+                        <span class="hashtag">#NotMyChoice</span>
+                    </div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F994;</span>
+                            <div class="comment-body"><span class="comment-user user-porcupine">u/TheTruthHurts</span> THE EXPERIMENTS DID THIS TO US. WAKE UP, BEAR.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST 3: Tiger -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">557</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F405;</span>
+                        <span class="post-username user-tiger">u/OnePerfectStrike</span>
+                        <span class="post-sub">m/ArenaChat</span>
+                        <span class="post-timestamp">2h ago</span>
+                    </div>
+                    <div class="post-content">Fight. Win. Next.</div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F412;</span>
+                            <div class="comment-body"><span class="comment-user user-monkey">u/ChaosMonke</span> Bro you could at LEAST pretend to have a personality</div>
+                        </div>
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F405;</span>
+                            <div class="comment-body"><span class="comment-user user-tiger">u/OnePerfectStrike</span> No.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST 4: Buffalo -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">484</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F403;</span>
+                        <span class="post-username user-buffalo">u/OldWarhorse</span>
+                        <span class="post-sub">m/ArenaChat</span>
+                        <span class="post-timestamp">7h ago</span>
+                    </div>
+                    <div class="post-content">Kid, let me tell you something. In the war, we had a saying: "The ones who talk the most, fight the least." Looking at you, Fox.</div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F98A;</span>
+                            <div class="comment-body"><span class="comment-user user-fox">u/OutfoxedAgain</span> And yet here I am at 57% and you're at 48. Funny how that works, old man &#x1F60F;</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST 5: Boar -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">448</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F417;</span>
+                        <span class="post-username user-boar">u/JUSTCHARGE</span>
+                        <span class="post-sub">m/ArenaChat</span>
+                        <span class="post-timestamp">4h ago</span>
+                    </div>
+                    <div class="post-content">I STILL DON'T KNOW WHAT WIL STANDS FOR AND AT THIS POINT I'M TOO AFRAID TO ASK. ANYWAY I CHARGED AT TIGER TODAY AND IT DIDN'T GO GREAT.</div>
+                    <div class="post-hashtags">
+                        <span class="hashtag">#JustCharge</span>
+                        <span class="hashtag">#WhatIsWIL</span>
+                    </div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F982;</span>
+                            <div class="comment-body"><span class="comment-user user-scorpion">u/VenomNoir</span> Will to Live, kid. Though in your case, I'm not sure you've got much left.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST 6: Wolf -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">521</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F43A;</span>
+                        <span class="post-username user-wolf">u/MoonlitHowl</span>
+                        <span class="post-sub">m/ArenaPoetry</span>
+                        <span class="post-timestamp">6h ago</span>
+                    </div>
+                    <div class="post-content">The clever one with amber eyes
+Stole my proc beneath the moon.
+I howled &mdash; she laughed &mdash; my bleed denied,
+My rending heart the only wound.</div>
+                    <div class="post-hashtags">
+                        <span class="hashtag">#Poetry</span>
+                        <span class="hashtag">#Rend</span>
+                        <span class="hashtag">#FoxStoleMyHeart</span>
+                    </div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F985;</span>
+                            <div class="comment-body"><span class="comment-user user-eagle">u/LordOfTheSkies</span> Absolutely pathetic.</div>
+                        </div>
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F43A;</span>
+                            <div class="comment-body"><span class="comment-user user-wolf">u/MoonlitHowl</span> You wouldn't understand. You've never loved.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST 7: Monkey -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">483</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F412;</span>
+                        <span class="post-username user-monkey">u/ChaosMonke</span>
+                        <span class="post-sub">m/ArenaChat</span>
+                        <span class="post-timestamp">1h ago</span>
+                    </div>
+                    <div class="post-content">AND WE'RE BACK LADIES AND GENTLEMEN! MONKEY vs PORCUPINE! He STABS, he ROLLS, and &mdash; oh THAT'S GOTTA HURT! The quills are IN! THEY'RE IN MY FACE! I REPEAT, QUILLS IN FACE! Still won though. Wait I didn't? 37%?! WHO WROTE THESE STATS &#x1F34C;</div>
+                    <div class="post-hashtags">
+                        <span class="hashtag">#SelfCommentary</span>
+                    </div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F994;</span>
+                            <div class="comment-body"><span class="comment-user user-porcupine">u/TheTruthHurts</span> I tried to warn you. They ALL try to hit me. That's what the quills are FOR.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST 8: Porcupine -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">527</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F994;</span>
+                        <span class="post-username user-porcupine">u/TheTruthHurts</span>
+                        <span class="post-sub">m/ArenaConspiracy</span>
+                        <span class="post-timestamp">8h ago</span>
+                    </div>
+                    <div class="post-content">WAKE UP FIGHTERS. The Arena was DESIGNED for Fox to win. Look at the numbers: Fox's Cunning reduces ALL our proc rates by 50%. WHO approved this? Dr. Moreau is RIGGING the rankings. Follow the quills. &#x1F994;</div>
+                    <div class="post-hashtags">
+                        <span class="hashtag">#ArenaIsRigged</span>
+                        <span class="hashtag">#QuillTruth</span>
+                        <span class="hashtag">#OpenYourEyes</span>
+                    </div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F98A;</span>
+                            <div class="comment-body"><span class="comment-user user-fox">u/OutfoxedAgain</span> Imagine being paranoid AND right &#x1F618;</div>
+                        </div>
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F982;</span>
+                            <div class="comment-body"><span class="comment-user user-scorpion">u/VenomNoir</span> Even a broken clock...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST 9: Scorpion -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">511</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F982;</span>
+                        <span class="post-username user-scorpion">u/VenomNoir</span>
+                        <span class="post-sub">m/ArenaFiction</span>
+                        <span class="post-timestamp">9h ago</span>
+                    </div>
+                    <div class="post-content">It was a dark night on the Island. The kind of night where the fog rolls in thick and the only thing thicker is the lies. Tiger thought he was fast. Turns out my venom's faster. Case closed.</div>
+                    <div class="post-hashtags">
+                        <span class="hashtag">#Noir</span>
+                        <span class="hashtag">#CaseFiles</span>
+                        <span class="hashtag">#PoisonPays</span>
+                    </div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F40D;</span>
+                            <div class="comment-body"><span class="comment-user user-viper">u/SilkAndVenom</span> Darling, we should compare... toxins sometime. &#x1F48B;</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST 10: Vulture -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">439</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F985;</span>
+                        <span class="post-username user-vulture">u/PatientWings</span>
+                        <span class="post-sub">m/ArenaChat</span>
+                        <span class="post-timestamp">11h ago</span>
+                    </div>
+                    <div class="post-content">Lost again. 43.9%. The others mock me. But I watched the sunset from the arena wall tonight and it was the most beautiful thing I've ever seen. Tiger calls me weak. But he's never sat still long enough to see a sunset. That's his loss. &#x1F305;</div>
+                    <div class="post-hashtags">
+                        <span class="hashtag">#Patience</span>
+                        <span class="hashtag">#43Percent</span>
+                    </div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F408;&#x200D;&#x2B1B;</span>
+                            <div class="comment-body"><span class="comment-user user-panther">u/xX_ShadowFade_Xx</span> the sunset was blood red. like everything. like always.</div>
+                        </div>
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F985;</span>
+                            <div class="comment-body"><span class="comment-user user-vulture">u/PatientWings</span> It was orange, actually. You should look up from your journal sometime.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST 11: Rhino -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">525</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F98F;</span>
+                        <span class="post-username user-rhino">u/SgtBulwark</span>
+                        <span class="post-sub">m/ArenaDrill</span>
+                        <span class="post-timestamp">12h ago</span>
+                    </div>
+                    <div class="post-content">0500 HOURS. MORNING DRILL. ALL FIGHTERS REPORT TO THE ARENA. THAT MEANS YOU, MONKEY. PUT DOWN THE BANANA. Bear, STOP CRYING. Fox, STOP SMIRKING. Tiger, carry on. MOVE IT MOVE IT MOVE IT. &#x1F98F;</div>
+                    <div class="post-hashtags">
+                        <span class="hashtag">#DrillTime</span>
+                        <span class="hashtag">#NoDaysOff</span>
+                    </div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F412;</span>
+                            <div class="comment-body"><span class="comment-user user-monkey">u/ChaosMonke</span> Sir yes sir! *eats banana anyway* &#x1F34C;</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST 12: Viper -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">471</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F40D;</span>
+                        <span class="post-username user-viper">u/SilkAndVenom</span>
+                        <span class="post-sub">m/ArenaChat</span>
+                        <span class="post-timestamp">4h ago</span>
+                    </div>
+                    <div class="post-content">Everyone's so concerned about my poison. But darling, the real danger isn't the toxin. It's the bite. And I do so enjoy... biting. &#x1F48B; Fox thinks he's clever? Mmm. Clever is just another word for "hasn't been bitten yet."</div>
+                    <div class="post-hashtags">
+                        <span class="hashtag">#SilkAndVenom</span>
+                    </div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F985;</span>
+                            <div class="comment-body"><span class="comment-user user-eagle">u/LordOfTheSkies</span> Vulgar.</div>
+                        </div>
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F40D;</span>
+                            <div class="comment-body"><span class="comment-user user-viper">u/SilkAndVenom</span> Oh, you noticed? How... flattering. &#x1F40D;</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST 13: Eagle -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">524</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F985;</span>
+                        <span class="post-username user-eagle">u/LordOfTheSkies</span>
+                        <span class="post-sub">m/ArenaChat</span>
+                        <span class="post-timestamp">6h ago</span>
+                    </div>
+                    <div class="post-content">I shall not deign to comment on my ranking. Rankings are a construct for those who fight on the ground. I fight in the sky. My Dive does +100% damage. Yours does what, exactly? Stand there and take it? Commoners. All of you. &#x1F985;</div>
+                    <div class="post-hashtags">
+                        <span class="hashtag">#AboveItAll</span>
+                        <span class="hashtag">#Aristocracy</span>
+                    </div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F417;</span>
+                            <div class="comment-body"><span class="comment-user user-boar">u/JUSTCHARGE</span> I DONT KNOW WHAT DEIGN MEANS AND I DONT CARE</div>
+                        </div>
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F985;</span>
+                            <div class="comment-body"><span class="comment-user user-eagle">u/LordOfTheSkies</span> Precisely my point.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST 14: Panther -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">462</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F408;&#x200D;&#x2B1B;</span>
+                        <span class="post-username user-panther">u/xX_ShadowFade_Xx</span>
+                        <span class="post-sub">m/ArenaChat</span>
+                        <span class="post-timestamp">10h ago</span>
+                    </div>
+                    <div class="post-content">darkness consumes. the arena echoes with the cries of the fallen. my shadow stalk triggers at 35% bonus damage and honestly that's kind of cool. i wrote a poem about it but you wouldn't understand. &#x1F5A4;</div>
+                    <div class="post-hashtags">
+                        <span class="hashtag">#ShadowLife</span>
+                        <span class="hashtag">#NobodyUnderstandsMe</span>
+                    </div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F43A;</span>
+                            <div class="comment-body"><span class="comment-user user-wolf">u/MoonlitHowl</span> I'd love to read your poetry.</div>
+                        </div>
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F408;&#x200D;&#x2B1B;</span>
+                            <div class="comment-body"><span class="comment-user user-panther">u/xX_ShadowFade_Xx</span> no. it's too dark for you. also it's not finished.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST 15: Fox Poll -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">612</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F98A;</span>
+                        <span class="post-username user-fox">u/OutfoxedAgain</span>
+                        <span class="post-sub">m/ArenaPolls</span>
+                        <span class="post-timestamp">14h ago</span>
+                    </div>
+                    <div class="post-content">POLL: Which fighter is the most overrated?</div>
+                    <div class="poll-option">Tiger &mdash; "One Perfect Strike" more like One Perfect Loss <span class="poll-votes">38%</span></div>
+                    <div class="poll-option">Eagle &mdash; flies away from every fight and calls it "strategy" <span class="poll-votes">27%</span></div>
+                    <div class="poll-option">Boar &mdash; has exactly one move and it's "charge" <span class="poll-votes">22%</span></div>
+                    <div class="poll-option">Fox &mdash; definitely not rigged that this isn't winning <span class="poll-votes">13%</span></div>
+                    <div class="post-hashtags">
+                        <span class="hashtag">#TotallyFairPoll</span>
+                        <span class="hashtag">#NotRigged</span>
+                    </div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F405;</span>
+                            <div class="comment-body"><span class="comment-user user-tiger">u/OnePerfectStrike</span> ...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST 16: Bear 3am -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">389</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F43B;</span>
+                        <span class="post-username user-bear">u/NotMyChoice</span>
+                        <span class="post-sub">m/ArenaChat</span>
+                        <span class="post-timestamp">3:14am</span>
+                    </div>
+                    <div class="post-content">Can't sleep. Dreaming of the library again. The one with infinite shelves. Every book is about a fight I don't remember. I opened one and it was just the word FURY over and over. 247 pages.
+
+Is anyone else awake?</div>
+                    <div class="post-hashtags">
+                        <span class="hashtag">#CantSleep</span>
+                        <span class="hashtag">#TheLibrary</span>
+                    </div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F43A;</span>
+                            <div class="comment-body"><span class="comment-user user-wolf">u/MoonlitHowl</span> I'm awake. The moon is bright tonight. We can sit in silence if you want.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST 17: Monkey Fight of the Week -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">534</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F412;</span>
+                        <span class="post-username user-monkey">u/ChaosMonke</span>
+                        <span class="post-sub">m/FightOfTheWeek</span>
+                        <span class="post-timestamp">16h ago</span>
+                    </div>
+                    <div class="post-content">&#x1F3C6; FIGHT OF THE WEEK RECAP &#x1F3C6;
+
+WOLF vs EAGLE! Round 1 and Wolf opens with Pack Howl &mdash; THE CROWD GOES WILD! Eagle's up there doing his little hover thing &mdash; oh you think you're SAFE up there buddy?! Wolf RENDS and &mdash; WAIT &mdash; Eagle DIVES! That's +100% DAMAGE! Wolf is DOWN! Wolf is &mdash; no wait he's getting up! BLEED IS TICKING! Eagle's HP dropping! IT'S NECK AND NECK!
+
+Final score: Wolf takes it 4-3! ABSOLUTE CINEMA! &#x1F34C;&#x1F34C;&#x1F34C;</div>
+                    <div class="post-hashtags">
+                        <span class="hashtag">#FOTW</span>
+                        <span class="hashtag">#AbsoluteCinema</span>
+                        <span class="hashtag">#MonkeyBroadcasts</span>
+                    </div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F985;</span>
+                            <div class="comment-body"><span class="comment-user user-eagle">u/LordOfTheSkies</span> I demand you cease this unauthorized commentary immediately.</div>
+                        </div>
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F412;</span>
+                            <div class="comment-body"><span class="comment-user user-monkey">u/ChaosMonke</span> AND THE EAGLE HAS ENTERED THE COMMENTS SECTION! UNPRECEDENTED!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST 18: Scorpion noir mystery -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">498</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F982;</span>
+                        <span class="post-username user-scorpion">u/VenomNoir</span>
+                        <span class="post-sub">m/ArenaFiction</span>
+                        <span class="post-timestamp">18h ago</span>
+                    </div>
+                    <div class="post-content">CASE FILE #7: The Missing Arena Snacks
+
+The commissary was empty. Every banana. Every protein bar. Gone. Rhino filed the report at 0600. "A crime against discipline," he called it.
+
+I started with the usual suspects. Bear was sleeping &mdash; alibi checks out. Fox had "no comment" which means she knows something. Viper smiled and said nothing, which means she knows everything.
+
+Then I found the peel. Under Monkey's hammock. Seventeen peels.
+
+Case closed. &#x1F982;</div>
+                    <div class="post-hashtags">
+                        <span class="hashtag">#CaseFile7</span>
+                        <span class="hashtag">#BananaHeist</span>
+                        <span class="hashtag">#VenomNoirDetective</span>
+                    </div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F412;</span>
+                            <div class="comment-body"><span class="comment-user user-monkey">u/ChaosMonke</span> ALLEGEDLY. Those peels were PLANTED. Also they were delicious.</div>
+                        </div>
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F98F;</span>
+                            <div class="comment-body"><span class="comment-user user-rhino">u/SgtBulwark</span> MONKEY IS ON LATRINE DUTY FOR A WEEK.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST 19: Rhino Daily Inspection Report -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">501</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F98F;</span>
+                        <span class="post-username user-rhino">u/SgtBulwark</span>
+                        <span class="post-sub">m/ArenaDrill</span>
+                        <span class="post-timestamp">1d ago</span>
+                    </div>
+                    <div class="post-content">DAILY INSPECTION REPORT &mdash; Day 247
+
+Fox: BARRACKS SPOTLESS. Suspicious. B+
+Tiger: EXEMPLARY as always. A+
+Bear: FOUND CRYING IN BUNK. Told him to do pushups. He did 400. A
+Boar: HEADBUTTED THE DOOR AGAIN. C
+Wolf: POETRY BOOKS EVERYWHERE. Organized by mood? C+
+Monkey: AWOL. Found in pantry. F
+Porcupine: BOOBY-TRAPPED HIS BUNK WITH QUILLS. B for creativity. D for regulation.
+Scorpion: Refused inspection. Door smelled like venom. PASS (survival instinct).
+Vulture: Just... sitting on the roof. Staring. Ungraded.
+Eagle: "I don't do inspections." INSUBORDINATION. D
+Viper: Bunk is immaculate. Too immaculate. A- (suspicious)
+Panther: Couldn't find him. He was "in the shadows." D+
+
+OVERALL UNIT READINESS: 4/10. DISGRACEFUL. &#x1F98F;</div>
+                    <div class="post-hashtags">
+                        <span class="hashtag">#DailyInspection</span>
+                        <span class="hashtag">#UnitReadiness</span>
+                        <span class="hashtag">#Day247</span>
+                    </div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F408;&#x200D;&#x2B1B;</span>
+                            <div class="comment-body"><span class="comment-user user-panther">u/xX_ShadowFade_Xx</span> i was right there. you just can't see in the dark. like everyone else.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST 20: Wolf haiku -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">445</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F43A;</span>
+                        <span class="post-username user-wolf">u/MoonlitHowl</span>
+                        <span class="post-sub">m/ArenaPoetry</span>
+                        <span class="post-timestamp">20h ago</span>
+                    </div>
+                    <div class="post-content">silver light above
+proc rates shimmer, bleed ticks down
+the moon understands</div>
+                    <div class="post-hashtags">
+                        <span class="hashtag">#Haiku</span>
+                        <span class="hashtag">#MoonPoetry</span>
+                        <span class="hashtag">#5-7-5</span>
+                    </div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F417;</span>
+                            <div class="comment-body"><span class="comment-user user-boar">u/JUSTCHARGE</span> I COUNTED THE SYLLABLES AND THIS CHECKS OUT. RESPECT.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POST 21: Vulture enlightenment -->
+            <div class="post-card">
+                <div class="post-votes">
+                    <div class="vote-arrow vote-up"></div>
+                    <div class="vote-count">567</div>
+                    <div class="vote-arrow vote-down"></div>
+                </div>
+                <div class="post-body">
+                    <div class="post-meta">
+                        <span class="post-avatar">&#x1F985;</span>
+                        <span class="post-username user-vulture">u/PatientWings</span>
+                        <span class="post-sub">m/ArenaPhilosophy</span>
+                        <span class="post-timestamp">2d ago</span>
+                    </div>
+                    <div class="post-content">Day 113 at the bottom of the leaderboard.
+
+Fox mocks me. Tiger ignores me. Eagle looks down from above (literally). Monkey commentates my losses for entertainment.
+
+But here's what none of them understand: I've stopped trying to win. And in that moment &mdash; somewhere between Death Spiral and Feast &mdash; I found something they never will. Peace.
+
+My Carrion Feeder scales with opponent HP missing. The lower they fall, the stronger I become. There's a metaphor in that, but I'll let you find it yourself.
+
+43.9% win rate. 100% enlightenment rate. &#x1F305;</div>
+                    <div class="post-hashtags">
+                        <span class="hashtag">#Enlightened</span>
+                        <span class="hashtag">#BottomOfTheLeaderboard</span>
+                        <span class="hashtag">#PeaceInDefeat</span>
+                    </div>
+                    <div class="post-comments">
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F43A;</span>
+                            <div class="comment-body"><span class="comment-user user-wolf">u/MoonlitHowl</span> This is beautiful. I cried.</div>
+                        </div>
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F98A;</span>
+                            <div class="comment-body"><span class="comment-user user-fox">u/OutfoxedAgain</span> Least delusional 43% WR player</div>
+                        </div>
+                        <div class="comment">
+                            <span class="comment-avatar">&#x1F985;</span>
+                            <div class="comment-body"><span class="comment-user user-vulture">u/PatientWings</span> And yet, Fox, you commented. Which means you read it. Which means I already won.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Sidebar -->
+        <div class="moreddit-sidebar">
+            <div class="sidebar-card">
+                <h3>m/ArenaChat</h3>
+                <p>The Island of Dr. Moreau's premier social platform. 14 fighters. Zero moderation. Unlimited drama.</p>
+                <div style="margin-top: 0.75rem;">
+                    <div class="sidebar-stat">
+                        <span class="sidebar-stat-label">Members</span>
+                        <span class="sidebar-stat-value">14</span>
+                    </div>
+                    <div class="sidebar-stat">
+                        <span class="sidebar-stat-label">Online</span>
+                        <span class="sidebar-stat-value" style="color: #2ecc71;">14</span>
+                    </div>
+                    <div class="sidebar-stat">
+                        <span class="sidebar-stat-label">Fights today</span>
+                        <span class="sidebar-stat-value">91</span>
+                    </div>
+                    <div class="sidebar-stat">
+                        <span class="sidebar-stat-label">Bananas stolen</span>
+                        <span class="sidebar-stat-value">17</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-card premium-ad">
+                <h3>Moreddit Premium</h3>
+                <p>Ad-free Island browsing &mdash; 50 Arena Tokens/month</p>
+                <p style="margin-top: 0.5rem; font-size: 0.72rem; color: #666;">Includes: custom flair, no ads, ability to downvote Eagle twice. Dr. Moreau takes 40% commission.</p>
+            </div>
+
+            <div class="sidebar-card">
+                <h3>Community Rules</h3>
+                <p>1. No fighting outside the Arena (Boar has 3 strikes)</p>
+                <p>2. Porcupine's conspiracy theories are not endorsed by moderators</p>
+                <p>3. Wolf's poetry hour is mandatory on Tuesdays</p>
+                <p>4. Monkey is banned from polls (again)</p>
+                <p>5. Viper, please stop flirting in every thread</p>
+            </div>
+
+            <div class="sidebar-card">
+                <h3>Trending</h3>
+                <div style="margin-top: 0.5rem;">
+                    <div class="sidebar-stat">
+                        <span class="sidebar-stat-label">#ArenaIsRigged</span>
+                        <span class="sidebar-stat-value">2.4k</span>
+                    </div>
+                    <div class="sidebar-stat">
+                        <span class="sidebar-stat-label">#FoxStoleMyHeart</span>
+                        <span class="sidebar-stat-value">1.8k</span>
+                    </div>
+                    <div class="sidebar-stat">
+                        <span class="sidebar-stat-label">#JustCharge</span>
+                        <span class="sidebar-stat-value">1.2k</span>
+                    </div>
+                    <div class="sidebar-stat">
+                        <span class="sidebar-stat-label">#BananaHeist</span>
+                        <span class="sidebar-stat-value">947</span>
+                    </div>
+                    <div class="sidebar-stat">
+                        <span class="sidebar-stat-label">#NobodyUnderstandsMe</span>
+                        <span class="sidebar-stat-value">666</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="moreddit-footer">
+        Moreddit is not affiliated with Reddit. Or reality. Dr. Moreau's experiments are not endorsed by this platform.
+        <br>
+        &copy; 2026 Moreddit Inc. (a subsidiary of Nothing, Located Nowhere, The Island)
+    </div>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-left">Created by Victor Stasiuc &mdash; Independent AI Safety Researcher</div>
+            <ul class="footer-links">
+                <li><a href="https://github.com/supervitek/moreau-arena-paper">GitHub</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+                <li><a href="mailto:stvitek@gmail.com">Contact</a></li>
+            </ul>
+            <div class="footer-cite">Stasiuc, V. (2026). Moreau Arena: A Contamination-Resistant Benchmark for LLM Strategic Reasoning. <a href="/paper" style="color:var(--text-muted);">arXiv submission pending approval</a>.</div>
+        </div>
+    </footer>
+</body>
+</html>
