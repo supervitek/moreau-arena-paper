@@ -1511,6 +1511,43 @@ def api_s1_leaderboard() -> dict[str, Any]:
     return data
 
 
+@api_v1.get("/s1/tournament")
+def api_s1_tournament() -> dict[str, Any]:
+    """Return Season 1 tournament results (BT rankings + series stats)."""
+    bt_file = DATA_DIR / "season1_tournament" / "bt_rankings.json"
+    if not bt_file.exists():
+        raise HTTPException(status_code=404, detail="Season 1 tournament data not found")
+    rankings = json.loads(bt_file.read_text(encoding="utf-8"))
+
+    # Compute head-to-head from results.jsonl
+    results_file = DATA_DIR / "season1_tournament" / "results.jsonl"
+    h2h: dict[str, dict[str, dict[str, int]]] = {}
+    if results_file.exists():
+        for line in results_file.read_text(encoding="utf-8").strip().split("\n"):
+            rec = json.loads(line)
+            a1, a2 = rec["agent1"], rec["agent2"]
+            w = rec.get("winner", "")
+            for x, y in [(a1, a2), (a2, a1)]:
+                h2h.setdefault(x, {}).setdefault(y, {"w": 0, "l": 0})
+            if w == a1:
+                h2h[a1][a2]["w"] += 1
+                h2h[a2][a1]["l"] += 1
+            elif w == a2:
+                h2h[a2][a1]["w"] += 1
+                h2h[a1][a2]["l"] += 1
+
+    return {
+        "rankings": rankings,
+        "head_to_head": h2h,
+        "meta": {
+            "format": "Best-of-7, adaptive",
+            "agents": len(rankings),
+            "series": 91,
+            "date": "2026-03-08",
+        },
+    }
+
+
 @api_v1.post("/play", response_model=PlayResponse)
 def api_play(req: PlayRequest) -> PlayResponse:
     """Run a best-of-7 series: player build vs balanced bear (5/5/5/5)."""

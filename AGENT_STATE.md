@@ -1,17 +1,31 @@
 # AGENT_STATE.md — Read before, update after every task
 
-Last updated: 2026-03-08 16:30 UTC
+Last updated: 2026-03-08 20:00 UTC
 
 ## Current Branch
 `main`
 
-## Recent Commits (main)
-```
-17adb45 feat: Round Table brainstorm #2 — Ollama cloud models + 8-model comparison
-a1b7b8a feat: Round Table brainstorm — 200 ideas for Seasons 2-5 (4 models)
-825f498 feat: add Benchmark/Season 1 toggle to homepage Quick Fight
-a5e09a2 feat: Season 1 — 14 animals, S1 Quick Fight, leaderboard, heatmap, fighters page, matchup explorer
-```
+## Season 1 Tournament — COMPLETED
+
+- **Result:** 91 series, 14 agents (9 LLMs + 5 baselines), 0 errors, 13 min
+- **Format:** Best-of-7, adaptive (loser sees opponent's previous animal)
+- **Engine:** 14 animals, WIL regen (+0.25% max HP/tick/WIL), 8x8 grid, 60 ticks
+
+### BT Rankings (Top 5)
+| Rank | Agent | BT Score | W-L | WR |
+|------|-------|----------|-----|-----|
+| 1 | gpt-5.2 | 1.0000 | 18-7 | 72.0% |
+| 2 | gpt-5.4 | 0.6984 | 15-10 | 60.0% |
+| 3 | gpt-5.2-codex | 0.5046 | 16-9 | 64.0% |
+| 4 | gpt-5.3-codex | 0.5046 | 14-11 | 56.0% |
+| 5 | ConservativeAgent_S1 | 0.4319 | 17-8 | 68.0% |
+
+### Key Findings
+- **GPT-5.4 rehabilitation:** 14th in T003 → 2nd in S1 (+12 ranks). Largest swing in project history.
+- **WIL=1 vanished:** All LLMs invest in WIL with regen. Sweet spot: WIL 3-4.
+- **36 non-transitive cycles** confirm balanced competitive landscape.
+- **ConservativeAgent_S1 > Claude Opus:** Fixed baseline (rank 5) beats claude-opus-4-6 (rank 6).
+- **Frozen models:** grok-4-1-fast-reasoning and gemini-3-flash-preview each use exactly 1 build.
 
 ## PSI Validation — COMPLETED
 
@@ -26,25 +40,26 @@ a5e09a2 feat: Season 1 — 14 animals, S1 Quick Fight, leaderboard, heatmap, fig
 - **Prompt:** `prompts/t003_v2.txt` (paraphrase of t003_prompt.txt)
 - **Gemini excluded:** Structured output quota exhausted (both Flash 10K RPD and Pro 250 RPD hit 429)
 - **Grok excluded:** Intermittent 403 errors (unreliable)
-- **No GreedyAgent fallback:** API failures → series marked FAILED (none occurred)
-
-### PSI v1 (superseded)
-- tau = 0.7333 (MODERATE) — corrupted by Grok 403s + GreedyAgent fallback
-- Committed at bed3e2f, now overwritten by v2
 
 ## Completed Tasks
 - T003 Integrity Verification (prompt integrity, determinism, bootstrap stability)
 - T003 PSI Validation (tau=1.0, PROMPT-ROBUST)
 - Season 1 (14 animals, balance harness, all 5 gates pass, deployed)
+- Season 1 Tournament (91 series, BT rankings, report, leaderboard updated)
 - Replication Package (Dockerfile, verify_all.py, pyproject.toml)
 - Round Table brainstorm S2-S5 (8 models, 2 councils, ~350 ideas)
 
+## Deliverables
+- `docs/S1_TOURNAMENT_REPORT.md` — Full tournament analysis
+- `data/season1_tournament/bt_rankings.json` — BT scores for all 14 agents
+- `data/season1_tournament/results.jsonl` — 91 series records
+- `web/static/s1-leaderboard.html` — Updated with tournament BT rankings
+- `web/app.py` — New `/api/v1/s1/tournament` endpoint
+
 ## Next Tasks
-1. Add Gemini to PSI when quota resets (optional — tau=1.0 already conclusive)
-2. Create paper v2 (moreau_arena_v2.tex) with T003 + PSI results
-3. Upload v2 to arXiv when v1 approves
-4. Run Season 1 LLM tournament
-5. Begin Season 2 development (hex grid + terrain)
+1. Create paper v2 (moreau_arena_v2.tex) with T003 + PSI + S1 results
+2. Upload v2 to arXiv when v1 approves
+3. Begin Season 2 development (hex grid + terrain)
 
 ## API Status
 | Provider | Status | Notes |
@@ -52,7 +67,7 @@ a5e09a2 feat: Season 1 — 14 animals, S1 Quick Fight, leaderboard, heatmap, fig
 | Google (Gemini) | QUOTA ISSUE | Flash: 10K RPD but structured output blocked. Pro: 250 RPD exhausted. |
 | OpenAI (gpt-5.4) | OK | |
 | Anthropic (Claude) | OK | opus-4-6, sonnet-4-6. Sonnet has 30K input tokens/min limit. |
-| xAI (Grok) | EXCLUDED | Intermittent 403 errors |
+| xAI (Grok) | OK | grok-4-1-fast-reasoning works. Intermittent 403s resolved. |
 
 ## Key Constraints
 - `config.json` is FROZEN (hash: b7ec588...)

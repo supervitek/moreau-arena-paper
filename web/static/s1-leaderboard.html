@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="Season 1 Leaderboard — Moreau Arena">
-    <meta property="og:description" content="Season 1 rankings with 14 animals and WIL regen">
+    <meta property="og:description" content="Season 1 tournament rankings — 14 agents, best-of-7 adaptive format">
     <meta property="og:type" content="website">
     <meta property="og:image" content="/static/og-image.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Season 1 Leaderboard — Moreau Arena">
-    <meta name="twitter:description" content="Season 1 rankings with 14 animals and WIL regen">
+    <meta name="twitter:description" content="Season 1 tournament rankings — 14 agents, best-of-7 adaptive format">
     <meta name="twitter:image" content="/static/og-image.png">
-    <title>Season 1 Leaderboard (Preview) — Moreau Arena</title>
+    <title>Season 1 Leaderboard — Moreau Arena</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <style>
@@ -73,6 +73,57 @@
             font-size: 0.9rem;
             margin-bottom: 1.5rem;
         }
+
+        .agent-type {
+            font-size: 0.65rem;
+            padding: 0.1rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            vertical-align: middle;
+            margin-left: 0.3rem;
+        }
+        .agent-type-llm {
+            background: rgba(78, 204, 163, 0.15);
+            color: var(--green);
+        }
+        .agent-type-baseline {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-dim);
+        }
+
+        .bt-score {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+        }
+
+        .ci-range {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+
+        .meta-bar {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+            padding: 0.5rem 0;
+        }
+
+        .meta-bar span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .h2h-record {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
@@ -94,7 +145,7 @@
                     </ul>
                 </li>
                 <li class="nav-dropdown">
-                    <a href="/s1-leaderboard" class="active">Seasons &#9662; <span style="font-size:0.6rem;color:var(--gold);font-weight:600;">(preview)</span></a>
+                    <a href="/s1-leaderboard" class="active">Seasons &#9662;</a>
                     <ul class="nav-dropdown-menu">
                         <li><a href="/s1-leaderboard" class="active">S1 Leaderboard</a></li>
                         <li><a href="/s1-fighters">Meet the Fighters</a></li>
@@ -110,23 +161,58 @@
 
     <div class="container">
         <div class="section">
-            <h1>Season 1 <span class="accent">Leaderboard</span> <span class="badge badge-preview">PREVIEW</span></h1>
-            <div style="background:#1a1400;border:1px solid var(--gold);border-radius:var(--radius-sm);padding:0.65rem 1rem;margin-bottom:1rem;font-size:0.85rem;color:var(--gold);">
-                Season 1 is a public preview. Tournament data coming soon.
-            </div>
-            <p class="section-subtitle">Creature balance rankings across 14 animals. Win rates from round-robin tournament data.</p>
+            <h1>Season 1 <span class="accent">Leaderboard</span></h1>
+            <p class="section-subtitle">Bradley-Terry rankings from 91 all-pairs series. Best-of-7, adaptive format with 14 animals and WIL regen.</p>
+            <div class="meta-bar" id="meta-bar"></div>
         </div>
 
         <!-- Tab bar -->
         <div class="tab-bar">
             <button class="tab-btn active" onclick="showTab('rankings')">Rankings</button>
-            <button class="tab-btn" onclick="showTab('heatmap')">Matchup Heatmap</button>
-            <button class="tab-btn" onclick="showTab('cycles')">Non-Transitivity</button>
+            <button class="tab-btn" onclick="showTab('h2h')">Head-to-Head</button>
+            <button class="tab-btn" onclick="showTab('balance')">Animal Balance</button>
             <button class="tab-btn" onclick="showTab('gates')">Quality Gates</button>
         </div>
 
         <!-- Rankings tab -->
         <div class="tab-content active" id="tab-rankings">
+            <div class="card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="col-rank">#</th>
+                            <th>Agent</th>
+                            <th class="col-right">BT Score</th>
+                            <th class="col-right">95% CI</th>
+                            <th class="col-right">W-L</th>
+                            <th class="col-right">Win Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rankings-body">
+                        <tr><td colspan="6" class="loading">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Head-to-Head tab -->
+        <div class="tab-content" id="tab-h2h">
+            <p class="dim small" style="margin-bottom: 1rem;">
+                Series wins between agents. Green = winning record, red = losing record.
+            </p>
+            <div class="card">
+                <div class="heatmap-wrapper" id="h2h-container">
+                    <p class="loading">Loading head-to-head...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Animal Balance tab -->
+        <div class="tab-content" id="tab-balance">
+            <div class="card" style="margin-bottom: 1rem;">
+                <h3>Animal Balance (Harness)</h3>
+                <p class="dim small">Creature win rates from the balance harness (round-robin simulation). This validates roster design, independent of LLM agent play.</p>
+            </div>
             <div class="card">
                 <table>
                     <thead>
@@ -138,36 +224,10 @@
                             <th>Worst Matchup</th>
                         </tr>
                     </thead>
-                    <tbody id="rankings-body">
+                    <tbody id="balance-body">
                         <tr><td colspan="5" class="loading">Loading...</td></tr>
                     </tbody>
                 </table>
-            </div>
-        </div>
-
-        <!-- Heatmap tab -->
-        <div class="tab-content" id="tab-heatmap">
-            <p class="dim small" style="margin-bottom: 1rem;">
-                Pairwise win rates: row animal vs. column animal. Green &gt;55%, red &lt;45%, neutral 45&ndash;55%.
-            </p>
-            <div class="card">
-                <div class="heatmap-wrapper" id="heatmap-container">
-                    <p class="loading">Loading heatmap...</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Cycles tab -->
-        <div class="tab-content" id="tab-cycles">
-            <div class="card" style="margin-bottom: 1.5rem;">
-                <h3>Rock-Paper-Scissors in the Arena</h3>
-                <p class="dim small">
-                    Non-transitive cycles prove no single creature dominates all others. If A beats B and B beats C,
-                    it does <em>not</em> mean A beats C. This is a key design goal for balanced competitive gameplay.
-                </p>
-            </div>
-            <div class="cycle-container" id="cycles-container">
-                <p class="loading">Loading cycles...</p>
             </div>
         </div>
 
@@ -214,6 +274,12 @@
         return 'wr-red';
     }
 
+    function btClass(score) {
+        if (score >= 0.5) return 'wr-green';
+        if (score >= 0.3) return 'wr-gold';
+        return 'wr-red';
+    }
+
     function heatClass(wr) {
         if (wr > 0.55) return 'heatmap-cell-green';
         if (wr < 0.45) return 'heatmap-cell-red';
@@ -224,66 +290,110 @@
         return s.charAt(0).toUpperCase() + s.slice(1);
     }
 
-    // -- Load data --
+    function formatAgent(name) {
+        return name.replace(/_S1$/, '').replace(/_/g, ' ');
+    }
+
+    // -- Load tournament data --
     async function loadData() {
         try {
-            const resp = await fetch('/api/v1/s1/leaderboard');
-            if (!resp.ok) throw new Error('Failed to load data');
-            const data = await resp.json();
-            renderRankings(data.animals);
-            renderHeatmap(data.animals, data.pairwise || {});
-            renderCycles(data.animals, data.pairwise || {});
-            renderGates(data.gates);
+            const [tournResp, balanceResp] = await Promise.all([
+                fetch('/api/v1/s1/tournament'),
+                fetch('/api/v1/s1/leaderboard'),
+            ]);
+
+            if (tournResp.ok) {
+                const tourn = await tournResp.json();
+                renderRankings(tourn.rankings, tourn.head_to_head);
+                renderH2H(tourn.rankings, tourn.head_to_head);
+                renderMeta(tourn.meta);
+            } else {
+                document.getElementById('rankings-body').innerHTML =
+                    '<tr><td colspan="6" class="error-msg">Tournament data not available.</td></tr>';
+            }
+
+            if (balanceResp.ok) {
+                const balance = await balanceResp.json();
+                renderBalance(balance.animals);
+                renderGates(balance.gates);
+            }
         } catch (err) {
             document.getElementById('rankings-body').innerHTML =
-                '<tr><td colspan="5" class="error-msg">Error loading data: ' + err.message + '</td></tr>';
+                '<tr><td colspan="6" class="error-msg">Error: ' + err.message + '</td></tr>';
         }
     }
 
-    // -- Render rankings table --
-    function renderRankings(animals) {
-        const sorted = Object.entries(animals)
-            .map(([name, d]) => ({ name, ...d }))
-            .sort((a, b) => b.overall_wr - a.overall_wr);
+    // -- Render meta bar --
+    function renderMeta(meta) {
+        if (!meta) return;
+        document.getElementById('meta-bar').innerHTML = `
+            <span><strong>${meta.agents}</strong> agents</span>
+            <span><strong>${meta.series}</strong> series</span>
+            <span>${meta.format}</span>
+            <span>${meta.date}</span>
+        `;
+    }
 
+    // -- Render tournament rankings --
+    function renderRankings(rankings, h2h) {
         const tbody = document.getElementById('rankings-body');
-        tbody.innerHTML = sorted.map((a, i) => {
-            const rank = i + 1;
-            const badge = rank === 1 ? '<span class="badge badge-gold">1st</span>' :
-                          rank === 2 ? '<span class="badge badge-silver">2nd</span>' :
-                          rank === 3 ? '<span class="badge badge-bronze">3rd</span>' : '';
+        tbody.innerHTML = rankings.map(a => {
+            const badge = a.rank === 1 ? '<span class="badge badge-gold">1st</span>' :
+                          a.rank === 2 ? '<span class="badge badge-silver">2nd</span>' :
+                          a.rank === 3 ? '<span class="badge badge-bronze">3rd</span>' : '';
+            const typeClass = a.is_llm ? 'agent-type-llm' : 'agent-type-baseline';
+            const typeLabel = a.is_llm ? 'LLM' : 'Baseline';
+
+            // Compute W-L from h2h
+            let wins = 0, losses = 0;
+            if (h2h && h2h[a.name]) {
+                Object.values(h2h[a.name]).forEach(rec => {
+                    wins += rec.w || 0;
+                    losses += rec.l || 0;
+                });
+            }
+            const total = wins + losses;
+            const wr = total > 0 ? wins / total : 0;
+
             return `<tr>
-                <td class="col-rank">${rank}</td>
-                <td class="col-name">${capitalize(a.name)} ${badge}</td>
-                <td class="col-right"><span class="${wrClass(a.overall_wr)}">${(a.overall_wr * 100).toFixed(1)}%</span></td>
-                <td class="small">vs ${capitalize(a.best_matchup.vs)} <span class="wr-green mono">${(a.best_matchup.wr * 100).toFixed(1)}%</span></td>
-                <td class="small">vs ${capitalize(a.worst_matchup.vs)} <span class="wr-red mono">${(a.worst_matchup.wr * 100).toFixed(1)}%</span></td>
+                <td class="col-rank">${a.rank}</td>
+                <td class="col-name">${formatAgent(a.name)} ${badge} <span class="agent-type ${typeClass}">${typeLabel}</span></td>
+                <td class="col-right"><span class="bt-score ${btClass(a.score)}">${a.score.toFixed(4)}</span></td>
+                <td class="col-right"><span class="ci-range">[${a.ci_lower.toFixed(2)}, ${a.ci_upper.toFixed(2)}]</span></td>
+                <td class="col-right"><span class="h2h-record">${wins}-${losses}</span></td>
+                <td class="col-right"><span class="${wrClass(wr)}">${(wr * 100).toFixed(1)}%</span></td>
             </tr>`;
         }).join('');
     }
 
-    // -- Render pairwise heatmap --
-    function renderHeatmap(animals, pairwise) {
-        const names = Object.keys(animals).sort((a, b) => animals[b].overall_wr - animals[a].overall_wr);
-        const container = document.getElementById('heatmap-container');
-
-        if (!pairwise || Object.keys(pairwise).length === 0) {
-            container.innerHTML = '<p class="error-msg">No pairwise data available.</p>';
+    // -- Render head-to-head heatmap --
+    function renderH2H(rankings, h2h) {
+        const container = document.getElementById('h2h-container');
+        if (!h2h || Object.keys(h2h).length === 0) {
+            container.innerHTML = '<p class="error-msg">No head-to-head data available.</p>';
             return;
         }
 
+        const names = rankings.map(r => r.name);
+
         let html = '<table class="heatmap-table"><thead><tr><th class="row-header"></th>';
-        names.forEach(n => { html += `<th>${capitalize(n)}</th>`; });
+        names.forEach(n => { html += `<th title="${n}">${formatAgent(n).slice(0, 10)}</th>`; });
         html += '</tr></thead><tbody>';
 
         names.forEach(row => {
-            html += `<tr><th class="row-header">${capitalize(row)}</th>`;
+            html += `<tr><th class="row-header">${formatAgent(row)}</th>`;
             names.forEach(col => {
                 if (row === col) {
                     html += '<td class="diag">&mdash;</td>';
                 } else {
-                    const wr = pairwise[row] && pairwise[row][col] != null ? pairwise[row][col] : 0.5;
-                    html += `<td class="${heatClass(wr)}">${(wr * 100).toFixed(1)}</td>`;
+                    const rec = h2h[row] && h2h[row][col];
+                    if (rec) {
+                        const total = rec.w + rec.l;
+                        const wr = total > 0 ? rec.w / total : 0.5;
+                        html += `<td class="${heatClass(wr)}" title="${row} vs ${col}: ${rec.w}-${rec.l}">${rec.w}-${rec.l}</td>`;
+                    } else {
+                        html += '<td class="heatmap-cell-neutral">-</td>';
+                    }
                 }
             });
             html += '</tr>';
@@ -293,62 +403,27 @@
         container.innerHTML = html;
     }
 
-    // -- Render cycles --
-    function renderCycles(animals, pairwise) {
-        const names = Object.keys(animals);
-        const container = document.getElementById('cycles-container');
-
-        if (!pairwise || Object.keys(pairwise).length === 0) {
-            container.innerHTML = '<p class="error-msg">No pairwise data available for cycle detection.</p>';
+    // -- Render animal balance table --
+    function renderBalance(animals) {
+        if (!animals) {
+            document.getElementById('balance-body').innerHTML =
+                '<tr><td colspan="5" class="error-msg">No balance data.</td></tr>';
             return;
         }
+        const sorted = Object.entries(animals)
+            .map(([name, d]) => ({ name, ...d }))
+            .sort((a, b) => b.overall_wr - a.overall_wr);
 
-        const threshold = 0.52;
-        const cycles = [];
-        const seen = new Set();
-
-        for (const a of names) {
-            for (const b of names) {
-                if (a === b) continue;
-                const ab = pairwise[a] && pairwise[a][b] != null ? pairwise[a][b] : 0.5;
-                if (ab <= threshold) continue;
-                for (const c of names) {
-                    if (c === a || c === b) continue;
-                    const bc = pairwise[b] && pairwise[b][c] != null ? pairwise[b][c] : 0.5;
-                    const ca = pairwise[c] && pairwise[c][a] != null ? pairwise[c][a] : 0.5;
-                    if (bc > threshold && ca > threshold) {
-                        const key = [a, b, c].sort().join(',');
-                        if (!seen.has(key)) {
-                            seen.add(key);
-                            const strength = Math.min(ab, bc, ca);
-                            cycles.push({ a, b, c, ab, bc, ca, strength });
-                        }
-                    }
-                }
-            }
-        }
-
-        cycles.sort((x, y) => y.strength - x.strength);
-
-        if (cycles.length === 0) {
-            container.innerHTML = '<p class="muted">No non-transitive cycles found above threshold.</p>';
-            return;
-        }
-
-        container.innerHTML = cycles.slice(0, 8).map((cy, i) => {
-            return `<div class="cycle-item">
-                <div class="cycle-label">Cycle ${i + 1}</div>
-                <span>${capitalize(cy.a)}</span>
-                <span class="cycle-arrow"> &rarr; </span>
-                <span>${capitalize(cy.b)}</span>
-                <span class="cycle-rate"> (${(cy.ab * 100).toFixed(1)}%)</span>
-                <span class="cycle-arrow"> &rarr; </span>
-                <span>${capitalize(cy.c)}</span>
-                <span class="cycle-rate"> (${(cy.bc * 100).toFixed(1)}%)</span>
-                <span class="cycle-arrow"> &rarr; </span>
-                <span>${capitalize(cy.a)}</span>
-                <span class="cycle-rate"> (${(cy.ca * 100).toFixed(1)}%)</span>
-            </div>`;
+        const tbody = document.getElementById('balance-body');
+        tbody.innerHTML = sorted.map((a, i) => {
+            const rank = i + 1;
+            return `<tr>
+                <td class="col-rank">${rank}</td>
+                <td class="col-name">${capitalize(a.name)}</td>
+                <td class="col-right"><span class="${wrClass(a.overall_wr)}">${(a.overall_wr * 100).toFixed(1)}%</span></td>
+                <td class="small">vs ${capitalize(a.best_matchup.vs)} <span class="wr-green mono">${(a.best_matchup.wr * 100).toFixed(1)}%</span></td>
+                <td class="small">vs ${capitalize(a.worst_matchup.vs)} <span class="wr-red mono">${(a.worst_matchup.wr * 100).toFixed(1)}%</span></td>
+            </tr>`;
         }).join('');
     }
 
