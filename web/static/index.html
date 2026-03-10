@@ -90,45 +90,51 @@
             </p>
 
             <div class="compare-grid" style="grid-template-columns:1fr auto 1fr auto 1fr;">
-                <div class="card">
-                    <div class="compare-header">
-                        <div class="label">Track A &middot; T001</div>
-                        <div class="title">Minimal Prompt</div>
-                        <div class="winrate wr-low">37.5%</div>
-                        <div class="small muted">LLM avg win rate</div>
+                <a href="/leaderboard?track=A" class="compare-track-link" aria-label="Open Track A leaderboard">
+                    <div class="card">
+                        <div class="compare-header">
+                            <div class="label">Track A &middot; T001</div>
+                            <div class="title">Minimal Prompt</div>
+                            <div class="winrate wr-low">37.5%</div>
+                            <div class="small muted">LLM avg win rate</div>
+                        </div>
+                        <ul class="mini-ranking" id="trackA-ranking">
+                            <li class="loading">Loading...</li>
+                        </ul>
                     </div>
-                    <ul class="mini-ranking" id="trackA-ranking">
-                        <li class="loading">Loading...</li>
-                    </ul>
-                </div>
+                </a>
 
                 <div class="compare-divider">&rarr;</div>
 
-                <div class="card">
-                    <div class="compare-header">
-                        <div class="label">Track B &middot; T002</div>
-                        <div class="title">Full Prompt + Meta</div>
-                        <div class="winrate wr-high">89.75%</div>
-                        <div class="small muted">LLM avg win rate</div>
+                <a href="/leaderboard?track=B" class="compare-track-link" aria-label="Open Track B leaderboard">
+                    <div class="card">
+                        <div class="compare-header">
+                            <div class="label">Track B &middot; T002</div>
+                            <div class="title">Full Prompt + Meta</div>
+                            <div class="winrate wr-high">89.75%</div>
+                            <div class="small muted">LLM avg win rate</div>
+                        </div>
+                        <ul class="mini-ranking" id="trackB-ranking">
+                            <li class="loading">Loading...</li>
+                        </ul>
                     </div>
-                    <ul class="mini-ranking" id="trackB-ranking">
-                        <li class="loading">Loading...</li>
-                    </ul>
-                </div>
+                </a>
 
                 <div class="compare-divider">&rarr;</div>
 
-                <div class="card">
-                    <div class="compare-header">
-                        <div class="label">Track C &middot; T003</div>
-                        <div class="title">Full Prompt, No Meta</div>
-                        <div class="winrate" style="color:var(--accent);">53.1%</div>
-                        <div class="small muted">LLM avg win rate</div>
+                <a href="/leaderboard?track=C" class="compare-track-link" aria-label="Open Track C leaderboard">
+                    <div class="card">
+                        <div class="compare-header">
+                            <div class="label">Track C &middot; T003</div>
+                            <div class="title">Full Prompt, No Meta</div>
+                            <div class="winrate" style="color:var(--accent);">53.1%</div>
+                            <div class="small muted">LLM avg win rate</div>
+                        </div>
+                        <ul class="mini-ranking" id="trackC-ranking">
+                            <li class="loading">Loading...</li>
+                        </ul>
                     </div>
-                    <ul class="mini-ranking" id="trackC-ranking">
-                        <li class="loading">Loading...</li>
-                    </ul>
-                </div>
+                </a>
             </div>
         </div>
 
