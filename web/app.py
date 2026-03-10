@@ -1457,7 +1457,7 @@ def api_challenge(req: ChallengeRequest) -> ChallengeResponse:
 
 @api_v1.get("/leaderboard/bt")
 def api_leaderboard_bt(
-    track: str = Query(default="all", pattern="^(A|B|all)$"),
+    track: str = Query(default="all", pattern="^(A|B|C|all)$"),
 ) -> dict[str, Any]:
     """Return cached BT scores + Elo ratings for the given track."""
     key = track.upper() if track.upper() in ("A", "B", "C") else "all"
@@ -1493,7 +1493,7 @@ def api_leaderboard_bt(
 
 @api_v1.get("/leaderboard/pairwise")
 def api_leaderboard_pairwise(
-    track: str = Query(default="all", pattern="^(A|B|all)$"),
+    track: str = Query(default="all", pattern="^(A|B|C|all)$"),
 ) -> dict[str, Any]:
     """Return cached pairwise win-rate matrix for the given track."""
     key = track.upper() if track.upper() in ("A", "B", "C") else "all"
@@ -1510,7 +1510,7 @@ def api_leaderboard_pairwise(
 
 @api_v1.get("/leaderboard/cycles")
 def api_leaderboard_cycles(
-    track: str = Query(default="all", pattern="^(A|B|all)$"),
+    track: str = Query(default="all", pattern="^(A|B|C|all)$"),
 ) -> dict[str, Any]:
     """Return cached 3-cycles for the given track."""
     key = track.upper() if track.upper() in ("A", "B", "C") else "all"
