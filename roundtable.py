@@ -31,10 +31,13 @@ Available models:
     anthropic:  claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001
     openai:     gpt-5.2, gpt-5.2-codex, gpt-5.4, gpt-5.3-codex
     google:     gemini-3-flash-preview, gemini-3.1-pro-preview
-    xai:        grok-4-1-fast-reasoning
+    xai:        grok-4-1-fast-reasoning (currently 403 — key issue)
+    ollama:     deepseek-v3.2:cloud, kimi-k2.5:cloud, qwen3-next:80b-cloud,
+                cogito-2.1:671b-cloud, kimi-k2-thinking:cloud
 
 Environment variables (set before running):
     ANTHROPIC_API_KEY, OPENAI_API_KEY, GOOGLE_API_KEY, XAI_API_KEY
+    OLLAMA_HOST (default: http://localhost:11434)
 """
 
 from __future__ import annotations
@@ -51,9 +54,9 @@ DEFAULT_PANELISTS = [
     "claude-opus-4-6",
     "gpt-5.4",
     "gemini-3.1-pro-preview",
-    "grok-4-1-fast-reasoning",
-    "deepseek-r1:latest",
-    "kimi-k2-thinking:cloud",
+    "deepseek-v3.2:cloud",
+    "kimi-k2.5:cloud",
+    "qwen3-next:80b-cloud",
 ]
 DEFAULT_MODERATOR = "claude-opus-4-6"
 DEFAULT_OUTPUT = "council_records"
