@@ -157,6 +157,72 @@
         .lab-pet-info .pet-emoji { font-size: 2rem; }
         .lab-pet-info .pet-name { color: var(--gold); font-weight: 700; }
 
+        .lab-current-muts {
+            max-width: 600px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .lab-current-muts h3 {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .lab-mut-slots {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .lab-mut-chip {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+        }
+
+        .lab-mut-chip .chip-slot {
+            font-size: 0.6rem;
+            font-weight: 700;
+            opacity: 0.6;
+        }
+
+        .lab-mut-chip.tier-1 { border-color: rgba(78, 204, 163, 0.4); color: var(--green); }
+        .lab-mut-chip.tier-2 { border-color: rgba(244, 162, 97, 0.4); color: #f4a261; }
+        .lab-mut-chip.tier-3 { border-color: rgba(230, 57, 70, 0.4); color: var(--accent); }
+
+        .lab-mut-chip.empty {
+            opacity: 0.3;
+            font-style: italic;
+            color: var(--text-muted);
+        }
+
+        .lab-se-pills {
+            display: flex;
+            gap: 0.3rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .lab-se-pill {
+            font-size: 0.6rem;
+            padding: 0.15rem 0.45rem;
+            border-radius: 10px;
+            background: rgba(230, 57, 70, 0.1);
+            border: 1px solid rgba(230, 57, 70, 0.2);
+            color: var(--accent);
+        }
+
         .btn-view-odds {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -870,6 +936,9 @@
             <span class="pet-name" id="lab-pet-name"></span>
             <span id="lab-pet-level"></span>
         </div>
+
+        <!-- Current Mutations -->
+        <div class="lab-current-muts" id="lab-current-muts"></div>
 
         <!-- Tier Columns -->
         <div class="tiers-grid">
@@ -1586,6 +1655,46 @@
         emojiEl.textContent = emojiMap[pet.animal] || '\u2753';
         nameEl.textContent = pet.name || 'Your Pet';
         levelEl.textContent = `Lv.${pet.level || 1}`;
+
+        // Render current mutations panel
+        renderCurrentMuts();
+    }
+
+    function renderCurrentMuts() {
+        const container = document.getElementById('lab-current-muts');
+        if (!pet) { container.innerHTML = ''; return; }
+
+        const muts = pet.lab_mutations || {};
+        const sideEffects = pet.side_effects || [];
+        const hasAny = Object.keys(muts).length > 0 || sideEffects.length > 0;
+
+        if (!hasAny) {
+            container.innerHTML = '<h3>Mutation Slots</h3><div class="lab-mut-slots">' +
+                ['L3','L6','L9'].map(s => '<span class="lab-mut-chip empty"><span class="chip-slot">' + s + '</span> Empty</span>').join('') +
+                '</div>';
+            return;
+        }
+
+        let html = '<h3>Mutation Slots</h3><div class="lab-mut-slots">';
+        ['L3','L6','L9'].forEach(slot => {
+            const m = muts[slot];
+            if (m) {
+                const tier = m.tier || 1;
+                html += '<span class="lab-mut-chip tier-' + tier + '">' +
+                    '<span class="chip-slot">' + slot + '</span>' +
+                    (m.name || '?') + (m.isUltra ? ' \u2605' : '') + '</span>';
+            } else {
+                html += '<span class="lab-mut-chip empty"><span class="chip-slot">' + slot + '</span> Empty</span>';
+            }
+        });
+        html += '</div>';
+
+        if (sideEffects.length > 0) {
+            html += '<div class="lab-se-pills">' +
+                sideEffects.map(se => '<span class="lab-se-pill">' + (se.name || '?') + '</span>').join('') +
+                '</div>';
+        }
+        container.innerHTML = html;
     }
 
     // ══════════════════════════════════════════════

@@ -351,6 +351,93 @@
         }
 
         /* ── Fight History ── */
+        /* ── Lab Mutations ── */
+        .lab-section {
+            margin-top: 1.5rem;
+        }
+
+        .lab-section h3 {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+        }
+
+        .lab-slot {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0.8rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 0.4rem;
+        }
+
+        .lab-slot-tag {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            background: var(--bg-code);
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .lab-slot-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .lab-slot-desc {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .lab-slot-stats {
+            font-size: 0.65rem;
+            color: var(--gold);
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .lab-slot.tier-1 { border-color: rgba(78, 204, 163, 0.3); }
+        .lab-slot.tier-1 .lab-slot-tag { background: rgba(78, 204, 163, 0.15); color: var(--green); }
+        .lab-slot.tier-2 { border-color: rgba(244, 162, 97, 0.3); }
+        .lab-slot.tier-2 .lab-slot-tag { background: rgba(244, 162, 97, 0.15); color: #f4a261; }
+        .lab-slot.tier-3 { border-color: rgba(230, 57, 70, 0.3); }
+        .lab-slot.tier-3 .lab-slot-tag { background: rgba(230, 57, 70, 0.15); color: var(--accent); }
+
+        .side-effect-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.55rem;
+            border-radius: 12px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            margin: 0.15rem;
+            background: rgba(230, 57, 70, 0.1);
+            border: 1px solid rgba(230, 57, 70, 0.2);
+            color: var(--accent);
+        }
+
+        .side-effect-pill.cosmetic { background: rgba(155, 89, 182, 0.1); border-color: rgba(155, 89, 182, 0.2); color: #9b59b6; }
+        .side-effect-pill.behavioral { background: rgba(244, 162, 97, 0.1); border-color: rgba(244, 162, 97, 0.2); color: #f4a261; }
+        .side-effect-pill.stat { background: rgba(230, 57, 70, 0.1); border-color: rgba(230, 57, 70, 0.2); color: var(--accent); }
+
+        .lab-empty {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-style: italic;
+            text-align: center;
+            padding: 0.6rem;
+        }
+
+        /* ── Fight History ── */
         .fight-history {
             margin-top: 1.5rem;
         }
@@ -592,6 +679,13 @@
 
         <button class="release-btn" onclick="showReleaseModal()">Release Pet</button>
 
+        <!-- Lab Mutations & Side Effects -->
+        <div class="lab-section" id="labSection" style="display:none;">
+            <h3>&#9762; Lab Mutations</h3>
+            <div id="labSlots"></div>
+            <div id="labSideEffects" style="margin-top:0.6rem;"></div>
+        </div>
+
         <!-- Fight History -->
         <div class="fight-history">
             <h3>Recent Fights</h3>
@@ -741,6 +835,9 @@
 
             // Fight history
             renderFights();
+
+            // Lab mutations
+            renderLabMutations();
         }
 
         function renderFights() {
@@ -759,6 +856,49 @@
                     '<span class="fight-time">' + relativeTime(f.timestamp) + '</span>' +
                     '</div>';
             }).join('');
+        }
+
+        function renderLabMutations() {
+            const section = document.getElementById('labSection');
+            const slotsEl = document.getElementById('labSlots');
+            const seEl = document.getElementById('labSideEffects');
+            const muts = pet.lab_mutations || {};
+            const sideEffects = pet.side_effects || [];
+            const hasAny = Object.keys(muts).length > 0 || sideEffects.length > 0;
+
+            if (!hasAny) {
+                section.style.display = 'none';
+                return;
+            }
+            section.style.display = 'block';
+
+            // Render mutation slots
+            const tierNames = {1: 'Stable', 2: 'Volatile', 3: 'Forbidden'};
+            let slotsHTML = '';
+            ['L3', 'L6', 'L9'].forEach(slot => {
+                const m = muts[slot];
+                if (!m) return;
+                const tier = m.tier || 1;
+                const statsStr = m.stats ? Object.entries(m.stats).map(([k,v]) => (v > 0 ? '+' : '') + v + ' ' + k.toUpperCase()).join('  ') : '';
+                slotsHTML += '<div class="lab-slot tier-' + tier + '">' +
+                    '<span class="lab-slot-tag">' + slot + '</span>' +
+                    '<div><div class="lab-slot-name">' + (m.name || '?') + (m.isUltra ? ' ★' : '') + '</div>' +
+                    '<div class="lab-slot-desc">' + (m.desc || '') + '</div></div>' +
+                    (statsStr ? '<span class="lab-slot-stats">' + statsStr + '</span>' : '') +
+                    '</div>';
+            });
+            slotsEl.innerHTML = slotsHTML || '<div class="lab-empty">No mutations applied yet</div>';
+
+            // Render side effects
+            if (sideEffects.length > 0) {
+                seEl.innerHTML = '<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.3rem;">Side Effects:</div>' +
+                    sideEffects.map(se => {
+                        const cat = se.category || se.type || 'stat';
+                        return '<span class="side-effect-pill ' + cat + '">' + (se.name || '?') + '</span>';
+                    }).join('');
+            } else {
+                seEl.innerHTML = '';
+            }
         }
 
         // Soul Window
