@@ -1377,8 +1377,9 @@ def _parse_s1_build(build_str: str) -> tuple[str, int, int, int, int]:
     if animal not in S1_ANIMALS:
         raise ValueError(f"Invalid S1 animal '{animal}'. Valid: {', '.join(S1_ANIMALS)}")
     hp, atk, spd, wil = int(parts[1]), int(parts[2]), int(parts[3]), int(parts[4])
-    if hp + atk + spd + wil != 20:
-        raise ValueError(f"Stats must sum to 20, got {hp + atk + spd + wil}")
+    total = hp + atk + spd + wil
+    if total < 4 or total > 24:
+        raise ValueError(f"Stats must sum to 4-24, got {total}")
     if any(s < 1 for s in (hp, atk, spd, wil)):
         raise ValueError("Each stat must be >= 1")
     return animal, hp, atk, spd, wil

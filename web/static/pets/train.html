@@ -601,6 +601,10 @@ async function startFight() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ build1: petBuild, build2: opp.build, games: 1 })
         });
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.detail || 'Server error ' + resp.status);
+        }
         const data = await resp.json();
         await animateFight(data, opp);
         showResult(data, opp);
