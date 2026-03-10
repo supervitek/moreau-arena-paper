@@ -13,6 +13,7 @@
             --bg: #0a0a0f;
             --bg-card: #12121a;
             --bg-card-hover: #1a1a26;
+            --bg-code: #1e1e2e;
             --border: #2a2a3a;
             --accent: #e63946;
             --text: #f1faee;
@@ -21,6 +22,8 @@
             --gold: #d4a017;
             --green: #4ecca3;
             --blue: #457b9d;
+            --purple: #9b59b6;
+            --orange: #f4a261;
             --radius: 8px;
         }
 
@@ -110,9 +113,7 @@
         }
 
         /* ── Flicker Effect (ambient) ── */
-        .flicker {
-            animation: flicker 4s infinite;
-        }
+        .flicker { animation: flicker 4s infinite; }
 
         @keyframes flicker {
             0%, 93%, 95%, 97%, 100% { opacity: 1; }
@@ -149,7 +150,7 @@
 
         .lab-pet-info {
             text-align: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.75rem;
             font-size: 0.95rem;
             color: var(--text-dim);
         }
@@ -157,6 +158,134 @@
         .lab-pet-info .pet-emoji { font-size: 2rem; }
         .lab-pet-info .pet-name { color: var(--gold); font-weight: 700; }
 
+        /* ── Instability Meter ── */
+        .instability-section {
+            max-width: 500px;
+            margin: 0 auto 1.5rem;
+            text-align: center;
+        }
+
+        .instability-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.35rem;
+        }
+
+        .instability-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+        }
+
+        .instability-value {
+            font-size: 0.8rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+
+        .instability-bar-bg {
+            height: 12px;
+            background: var(--bg-code);
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .instability-bar-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.8s ease, background 0.8s ease;
+        }
+
+        .instability-bar-fill.safe { background: linear-gradient(90deg, #2d6a4f, var(--green)); }
+        .instability-bar-fill.caution { background: linear-gradient(90deg, var(--gold), var(--orange)); }
+        .instability-bar-fill.danger { background: linear-gradient(90deg, var(--orange), var(--accent)); }
+        .instability-bar-fill.critical { background: linear-gradient(90deg, var(--accent), #8b0000); animation: criticalPulse 1s ease-in-out infinite; }
+
+        @keyframes criticalPulse {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.4); }
+        }
+
+        .instability-zone {
+            font-size: 0.65rem;
+            margin-top: 0.25rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .instability-death-chance {
+            font-size: 0.7rem;
+            margin-top: 0.15rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .stabilize-section {
+            margin-top: 0.5rem;
+        }
+
+        .btn-stabilize {
+            background: transparent;
+            border: 1px solid var(--green);
+            color: var(--green);
+            padding: 0.35rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-stabilize:hover { background: rgba(78,204,163,0.1); }
+        .btn-stabilize:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .scar-display {
+            display: inline-flex;
+            gap: 0.2rem;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .scar-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: 1px solid var(--accent);
+        }
+
+        .scar-dot.filled { background: var(--accent); }
+        .scar-dot.empty { background: transparent; }
+
+        /* ── Glitch overlay for high instability ── */
+        .glitch-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 500;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(230, 57, 70, 0.03) 2px,
+                rgba(230, 57, 70, 0.03) 4px
+            );
+            animation: glitchScan 8s linear infinite;
+        }
+
+        .glitch-overlay.active { display: block; }
+
+        @keyframes glitchScan {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 1000px; }
+        }
+
+        /* ── Current Mutations Panel ── */
         .lab-current-muts {
             max-width: 600px;
             margin: 0 auto 1.5rem;
@@ -190,21 +319,11 @@
             border: 1px solid var(--border);
         }
 
-        .lab-mut-chip .chip-slot {
-            font-size: 0.6rem;
-            font-weight: 700;
-            opacity: 0.6;
-        }
-
+        .lab-mut-chip .chip-slot { font-size: 0.6rem; font-weight: 700; opacity: 0.6; }
         .lab-mut-chip.tier-1 { border-color: rgba(78, 204, 163, 0.4); color: var(--green); }
-        .lab-mut-chip.tier-2 { border-color: rgba(244, 162, 97, 0.4); color: #f4a261; }
+        .lab-mut-chip.tier-2 { border-color: rgba(244, 162, 97, 0.4); color: var(--orange); }
         .lab-mut-chip.tier-3 { border-color: rgba(230, 57, 70, 0.4); color: var(--accent); }
-
-        .lab-mut-chip.empty {
-            opacity: 0.3;
-            font-style: italic;
-            color: var(--text-muted);
-        }
+        .lab-mut-chip.empty { opacity: 0.3; font-style: italic; color: var(--text-muted); }
 
         .lab-se-pills {
             display: flex;
@@ -233,13 +352,39 @@
             cursor: pointer;
             transition: all 0.3s ease;
             display: inline-block;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
-        .btn-view-odds:hover {
-            border-color: var(--text-dim);
-            color: var(--text);
+        .btn-view-odds:hover { border-color: var(--text-dim); color: var(--text); }
+
+        /* ── Tab Navigation ── */
+        .lab-tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+            justify-content: center;
         }
+
+        .lab-tab {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .lab-tab:hover { color: var(--text-dim); }
+        .lab-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        .lab-tab-content { display: none; }
+        .lab-tab-content.active { display: block; }
 
         /* ── Tier Columns ── */
         .tiers-grid {
@@ -269,9 +414,7 @@
             transition: transform 0.3s ease;
         }
 
-        .tier-col:hover {
-            transform: translateY(-4px);
-        }
+        .tier-col:hover { transform: translateY(-4px); }
 
         .tier-col::before {
             content: '';
@@ -282,7 +425,7 @@
         }
 
         .tier-col.tier-stable { --tier-color: var(--green); border-color: rgba(78, 204, 163, 0.3); }
-        .tier-col.tier-volatile { --tier-color: #f4a261; border-color: rgba(244, 162, 97, 0.3); }
+        .tier-col.tier-volatile { --tier-color: var(--orange); border-color: rgba(244, 162, 97, 0.3); }
         .tier-col.tier-forbidden {
             --tier-color: var(--accent);
             border-color: rgba(230, 57, 70, 0.4);
@@ -309,9 +452,13 @@
             margin-bottom: 0.25rem;
         }
 
-        .tier-meta span {
-            color: var(--tier-color);
-            font-weight: 600;
+        .tier-meta span { color: var(--tier-color); font-weight: 600; }
+
+        .tier-instability-gain {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 0.2rem;
+            font-family: 'Courier New', monospace;
         }
 
         .tier-pool-count {
@@ -342,18 +489,10 @@
             box-shadow: 0 0 30px color-mix(in srgb, var(--tier-color) 40%, transparent);
         }
 
-        .btn-roll:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
+        .btn-roll:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        .btn-roll.pulse-subtle {
-            animation: pulseSubtle 2s ease-in-out infinite;
-        }
-
-        .btn-roll.pulse-intense {
-            animation: pulseIntense 1.5s ease-in-out infinite;
-        }
+        .btn-roll.pulse-subtle { animation: pulseSubtle 2s ease-in-out infinite; }
+        .btn-roll.pulse-intense { animation: pulseIntense 1.5s ease-in-out infinite; }
 
         @keyframes pulseSubtle {
             0%, 100% { box-shadow: 0 0 8px color-mix(in srgb, var(--tier-color) 20%, transparent); }
@@ -364,6 +503,91 @@
             0%, 100% { box-shadow: 0 0 12px color-mix(in srgb, var(--tier-color) 30%, transparent); transform: scale(1); }
             50% { box-shadow: 0 0 40px color-mix(in srgb, var(--tier-color) 60%, transparent); transform: scale(1.03); }
         }
+
+        /* ── Confirmation Modal ── */
+        #confirm-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 900;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .confirm-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .confirm-card h3 {
+            font-size: 1.1rem;
+            margin: 0 0 1rem;
+        }
+
+        .confirm-risk-display {
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .confirm-risk-display .risk-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.3rem;
+        }
+
+        .confirm-risk-display .risk-pct {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .confirm-instability-change {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+
+        .btn-confirm-roll {
+            padding: 0.65rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid var(--accent);
+            background: transparent;
+            color: var(--accent);
+        }
+
+        .btn-confirm-roll:hover { background: var(--accent); color: var(--text); }
+
+        .btn-confirm-cancel {
+            padding: 0.65rem 1.5rem;
+            font-size: 0.95rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+        }
+
+        .btn-confirm-cancel:hover { border-color: var(--text-dim); color: var(--text); }
 
         /* ── Roll Result Card ── */
         #result-overlay {
@@ -402,7 +626,7 @@
         }
 
         .result-card .tier-badge.stable { background: rgba(78,204,163,0.15); color: var(--green); }
-        .result-card .tier-badge.volatile { background: rgba(244,162,97,0.15); color: #f4a261; }
+        .result-card .tier-badge.volatile { background: rgba(244,162,97,0.15); color: var(--orange); }
         .result-card .tier-badge.forbidden { background: rgba(230,57,70,0.15); color: var(--accent); }
 
         .slot-machine {
@@ -421,18 +645,8 @@
             transition: none;
         }
 
-        .result-mutation-name {
-            font-size: 1.6rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-        }
-
-        .result-description {
-            font-size: 0.95rem;
-            color: var(--text-dim);
-            margin-bottom: 1rem;
-            line-height: 1.5;
-        }
+        .result-mutation-name { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .result-description { font-size: 0.95rem; color: var(--text-dim); margin-bottom: 1rem; line-height: 1.5; }
 
         .result-stats {
             display: flex;
@@ -472,27 +686,9 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .side-effect-card .se-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-            color: var(--accent);
-            margin-bottom: 0.5rem;
-            font-weight: 700;
-        }
-
-        .side-effect-card .se-name {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 0.4rem;
-        }
-
-        .side-effect-card .se-desc {
-            font-size: 0.85rem;
-            color: var(--text-dim);
-            line-height: 1.5;
-        }
+        .side-effect-card .se-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); margin-bottom: 0.5rem; font-weight: 700; }
+        .side-effect-card .se-name { font-size: 1.2rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+        .side-effect-card .se-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; }
 
         .cascade-flash {
             color: var(--gold) !important;
@@ -505,278 +701,258 @@
             50% { box-shadow: 0 0 40px rgba(212,160,23,0.6); }
         }
 
-        /* Action buttons in result */
-        .result-actions {
-            display: flex;
-            gap: 0.75rem;
-            justify-content: center;
-            margin-top: 1.25rem;
-        }
+        .result-actions { display: flex; gap: 0.75rem; justify-content: center; margin-top: 1.25rem; }
 
         .btn-apply {
-            background: var(--green);
-            color: var(--bg);
-            border: none;
-            padding: 0.65rem 1.8rem;
-            font-size: 0.95rem;
-            font-weight: 700;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: all 0.3s ease;
+            background: var(--green); color: var(--bg); border: none;
+            padding: 0.65rem 1.8rem; font-size: 0.95rem; font-weight: 700;
+            border-radius: var(--radius); cursor: pointer; transition: all 0.3s ease;
         }
 
-        .btn-apply:hover {
-            box-shadow: 0 0 20px rgba(78,204,163,0.4);
-            transform: scale(1.03);
-        }
+        .btn-apply:hover { box-shadow: 0 0 20px rgba(78,204,163,0.4); transform: scale(1.03); }
 
         .btn-discard {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            padding: 0.65rem 1.8rem;
-            font-size: 0.95rem;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: all 0.3s ease;
+            background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+            padding: 0.65rem 1.8rem; font-size: 0.95rem; border-radius: var(--radius);
+            cursor: pointer; transition: all 0.3s ease;
         }
 
-        .btn-discard:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        /* ── Screen Shake ── */
-        .screen-shake {
-            animation: shake 0.4s ease-in-out;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10% { transform: translateX(-8px) rotate(-0.5deg); }
-            20% { transform: translateX(8px) rotate(0.5deg); }
-            30% { transform: translateX(-6px); }
-            40% { transform: translateX(6px); }
-            50% { transform: translateX(-4px); }
-            60% { transform: translateX(4px); }
-            70% { transform: translateX(-2px); }
-            80% { transform: translateX(2px); }
-        }
+        .btn-discard:hover { border-color: var(--accent); color: var(--accent); }
 
         /* ── Ultra-Rare Overlay ── */
         #ultra-overlay {
             display: none;
             position: fixed;
             inset: 0;
-            z-index: 2000;
-            background: rgba(0,0,0,0.95);
+            background: radial-gradient(ellipse at center, rgba(212,160,23,0.15), rgba(0,0,0,0.95) 60%);
+            z-index: 1100;
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            text-align: center;
             padding: 2rem;
         }
 
-        .ultra-flash {
-            animation: ultraFlash 0.5s ease;
-        }
+        #ultra-overlay.ultra-flash { animation: ultraFlash 0.5s ease; }
 
         @keyframes ultraFlash {
-            0% { background: rgba(212,160,23,0.8); }
-            100% { background: rgba(0,0,0,0.95); }
+            0% { background: rgba(212,160,23,0.4); }
+            100% { background: radial-gradient(ellipse at center, rgba(212,160,23,0.15), rgba(0,0,0,0.95) 60%); }
         }
 
-        .ultra-title {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-            color: var(--gold);
-            margin-bottom: 1rem;
-            opacity: 0;
-            animation: ultraFade 1s ease forwards 0.5s;
+        .ultra-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--gold); margin-bottom: 1.5rem; }
+        .ultra-name { font-size: 2.5rem; font-weight: 900; color: var(--gold); text-shadow: 0 0 30px rgba(212,160,23,0.4); margin-bottom: 0.5rem; }
+        .ultra-animal { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 1rem; }
+        .ultra-desc { font-size: 1rem; color: var(--text-dim); max-width: 400px; text-align: center; line-height: 1.6; margin-bottom: 2rem; }
+        .ultra-actions { display: flex; gap: 1rem; }
+
+        .confetti-container { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 1099; }
+
+        .confetti-particle {
+            position: absolute;
+            top: -20px;
+            animation: confettiFall 3s ease-in-out forwards;
         }
 
-        .ultra-name {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--gold);
-            text-shadow: 0 0 40px rgba(212,160,23,0.6);
-            margin-bottom: 0.5rem;
-            opacity: 0;
-            animation: ultraFade 1s ease forwards 1s;
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
 
-        .ultra-animal {
-            font-size: 1.1rem;
-            color: var(--text-dim);
-            margin-bottom: 0.75rem;
-            opacity: 0;
-            animation: ultraFade 1s ease forwards 1.5s;
+        /* ── Death Overlay ── */
+        #death-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 2rem;
         }
 
-        .ultra-desc {
-            font-size: 1rem;
-            color: var(--text);
-            max-width: 500px;
-            line-height: 1.6;
+        .death-ekg {
+            width: 100%;
+            max-width: 600px;
+            height: 80px;
             margin-bottom: 2rem;
-            opacity: 0;
-            animation: ultraFade 1s ease forwards 2s;
         }
 
-        .ultra-actions {
-            opacity: 0;
-            animation: ultraFade 1s ease forwards 2.5s;
-            display: flex;
-            gap: 1rem;
+        .death-ekg-line {
+            stroke: var(--accent);
+            stroke-width: 2;
+            fill: none;
+            stroke-dasharray: 800;
+            stroke-dashoffset: 800;
+            animation: ekgDraw 3s ease forwards;
         }
 
-        @keyframes ultraFade {
+        .death-ekg-flat {
+            stroke: var(--accent);
+            stroke-width: 2;
+            fill: none;
+            opacity: 0;
+            animation: ekgFlat 1s ease forwards 3s;
+        }
+
+        @keyframes ekgDraw {
+            to { stroke-dashoffset: 0; }
+        }
+
+        @keyframes ekgFlat {
+            from { opacity: 0; }
+            to { opacity: 0.6; }
+        }
+
+        .death-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: var(--accent);
+            opacity: 0;
+            animation: deathFade 1.5s ease forwards 3.5s;
+            margin-bottom: 1rem;
+        }
+
+        .death-name {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text);
+            opacity: 0;
+            animation: deathFade 1.5s ease forwards 4s;
+            margin-bottom: 0.5rem;
+        }
+
+        .death-notes {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            font-style: italic;
+            max-width: 500px;
+            text-align: center;
+            line-height: 1.7;
+            opacity: 0;
+            animation: deathFade 1.5s ease forwards 5s;
+            margin-bottom: 2rem;
+        }
+
+        .death-btn {
+            opacity: 0;
+            animation: deathFade 1s ease forwards 6.5s;
+        }
+
+        .death-btn button {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 0.6rem 1.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .death-btn button:hover { background: var(--accent); color: #000; }
+
+        @keyframes deathFade {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Confetti */
-        .confetti-container {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 2001;
-            overflow: hidden;
+        /* ── Experiment Log ── */
+        .log-section {
+            max-width: 700px;
+            margin: 0 auto;
         }
 
-        .confetti-particle {
+        .log-entry {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            font-size: 0.8rem;
+        }
+
+        .log-entry.discarded { opacity: 0.4; }
+        .log-entry.discarded .log-mutation { text-decoration: line-through; }
+
+        .log-entry.death-entry {
+            border-color: var(--accent);
+            background: rgba(230, 57, 70, 0.05);
+        }
+
+        .log-entry.death-entry::after {
+            content: 'SUBJECT LOST';
             position: absolute;
+            top: 50%;
+            right: 1rem;
+            transform: translateY(-50%) rotate(-5deg);
+            font-size: 0.65rem;
+            font-weight: 900;
+            color: var(--accent);
+            letter-spacing: 0.12em;
+            border: 2px solid var(--accent);
+            padding: 0.15rem 0.5rem;
+            opacity: 0.7;
+        }
+
+        .log-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .log-tier-dot {
             width: 8px;
             height: 8px;
-            top: -10px;
-            animation: confettiFall linear forwards;
+            border-radius: 50%;
+            flex-shrink: 0;
         }
 
-        @keyframes confettiFall {
-            to { top: 110vh; transform: rotate(720deg); }
-        }
+        .log-tier-dot.t1 { background: var(--green); }
+        .log-tier-dot.t2 { background: var(--orange); }
+        .log-tier-dot.t3 { background: var(--accent); }
 
-        /* ── Odds Modal ── */
-        #odds-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            z-index: 900;
-            align-items: flex-start;
-            justify-content: center;
-            padding: 2rem;
-            overflow-y: auto;
-        }
+        .log-mutation { font-weight: 600; color: var(--text); }
+        .log-time { font-size: 0.7rem; color: var(--text-muted); margin-left: auto; font-family: 'Courier New', monospace; }
+        .log-details { color: var(--text-dim); font-size: 0.75rem; }
+        .log-instability { color: var(--text-muted); font-family: 'Courier New', monospace; font-size: 0.7rem; }
 
-        .odds-content {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 2rem;
-            max-width: 700px;
-            width: 100%;
-            margin-top: 3rem;
-        }
-
-        .odds-content h2 {
-            color: var(--text);
-            margin: 0 0 1.5rem;
-            font-size: 1.3rem;
-        }
-
-        .odds-content h3 {
-            color: var(--text-dim);
-            font-size: 1rem;
-            margin: 1.5rem 0 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .odds-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-        }
-
-        .odds-table th {
-            text-align: left;
+        .log-empty {
             color: var(--text-muted);
-            padding: 0.4rem 0.6rem;
-            border-bottom: 1px solid var(--border);
-            font-weight: 600;
-        }
-
-        .odds-table td {
-            padding: 0.35rem 0.6rem;
-            border-bottom: 1px solid rgba(42,42,58,0.4);
-            color: var(--text-dim);
-        }
-
-        .odds-table td:last-child {
-            text-align: right;
-            font-weight: 600;
-        }
-
-        .btn-close-modal {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            color: var(--text-dim);
-            padding: 0.5rem 1.5rem;
-            font-size: 0.9rem;
-            border-radius: var(--radius);
-            cursor: pointer;
-            margin-top: 1.5rem;
-            transition: all 0.3s;
-        }
-
-        .btn-close-modal:hover {
-            border-color: var(--text-muted);
-            color: var(--text);
-        }
-
-        /* ── Codex ── */
-        .codex-section {
-            margin-top: 1rem;
-            padding-top: 2rem;
-            border-top: 1px solid var(--border);
-        }
-
-        .codex-header {
+            font-size: 0.85rem;
             text-align: center;
-            margin-bottom: 1.5rem;
+            padding: 2rem;
+            font-style: italic;
         }
 
-        .codex-header h2 {
-            font-size: 1.3rem;
-            color: var(--text-dim);
-            margin: 0 0 0.25rem;
-        }
-
-        .codex-header .codex-count {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
+        /* ── Codex / Mutation Map ── */
+        .codex-section { margin-top: 1rem; }
+        .codex-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+        .codex-header h2 { font-size: 1.2rem; color: var(--text-dim); margin: 0; }
+        .codex-count { color: var(--text-muted); font-size: 0.8rem; }
 
         .codex-tier-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
+            font-size: 0.7rem;
             font-weight: 700;
-            margin: 1.25rem 0 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin: 1rem 0 0.4rem;
             padding-left: 0.25rem;
         }
 
         .codex-tier-label.stable { color: var(--green); }
-        .codex-tier-label.volatile { color: #f4a261; }
+        .codex-tier-label.volatile { color: var(--orange); }
         .codex-tier-label.forbidden { color: var(--accent); }
         .codex-tier-label.ultra { color: var(--gold); }
 
         .codex-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 0.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 0.4rem;
         }
 
         .codex-tile {
@@ -791,65 +967,96 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
+            cursor: default;
         }
 
-        .codex-tile.discovered {
-            border-color: var(--tile-color, var(--border));
-            color: var(--text-dim);
+        .codex-tile.discovered { border-color: var(--tile-color, var(--border)); color: var(--text-dim); }
+        .codex-tile.equipped { border-color: var(--gold); box-shadow: 0 0 8px rgba(212,160,23,0.3); color: var(--gold); animation: equippedPulse 2s ease-in-out infinite; }
+        .codex-tile.undiscovered { color: var(--text-muted); opacity: 0.4; }
+
+        @keyframes equippedPulse {
+            0%, 100% { box-shadow: 0 0 4px rgba(212,160,23,0.2); }
+            50% { box-shadow: 0 0 12px rgba(212,160,23,0.5); }
         }
 
-        .codex-tile.undiscovered {
+        /* ── Odds Modal ── */
+        #odds-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1200;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 2rem 1rem;
+            overflow-y: auto;
+        }
+
+        .odds-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .odds-content h2 { font-size: 1.2rem; margin-bottom: 1.5rem; text-align: center; color: var(--text-dim); }
+        .odds-content h3 { font-size: 0.9rem; color: var(--text-dim); margin: 1.5rem 0 0.5rem; }
+
+        .odds-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        .odds-table th { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); text-align: left; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--border); }
+        .odds-table td { padding: 0.35rem 0.6rem; color: var(--text-dim); border-bottom: 1px solid rgba(42,42,58,0.3); }
+
+        .btn-close-modal {
+            display: block;
+            margin: 1.5rem auto 0;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
             color: var(--text-muted);
-            opacity: 0.4;
+            padding: 0.5rem 1.5rem;
+            font-size: 0.85rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+        }
+
+        .btn-close-modal:hover { border-color: var(--text-dim); color: var(--text); }
+
+        /* ── Screen Shake ── */
+        .screen-shake { animation: shake 0.4s ease-in-out; }
+
+        @keyframes shake {
+            0%, 100% { transform: translate(0, 0); }
+            20% { transform: translate(-4px, 2px); }
+            40% { transform: translate(4px, -2px); }
+            60% { transform: translate(-2px, 4px); }
+            80% { transform: translate(2px, -4px); }
         }
 
         /* ── Warning Stripes ── */
         .warning-stripe {
             height: 4px;
-            background: repeating-linear-gradient(
-                45deg,
-                var(--accent),
-                var(--accent) 10px,
-                transparent 10px,
-                transparent 20px
-            );
+            background: repeating-linear-gradient(45deg, var(--accent), var(--accent) 10px, transparent 10px, transparent 20px);
             opacity: 0.3;
             margin-bottom: 1.5rem;
         }
 
         /* ── No Pet ── */
-        #no-pet-screen {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 80vh;
-            text-align: center;
-            padding: 2rem;
-        }
-
-        #no-pet-screen p {
-            color: var(--text-dim);
-            font-size: 1.2rem;
-            margin-bottom: 1.5rem;
-        }
+        #no-pet-screen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; text-align: center; padding: 2rem; }
+        #no-pet-screen p { color: var(--text-dim); font-size: 1.2rem; margin-bottom: 1.5rem; }
 
         .btn-back {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            color: var(--text-dim);
-            padding: 0.75rem 2rem;
-            font-size: 1rem;
-            border-radius: var(--radius);
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s;
+            background: var(--bg-card); border: 1px solid var(--border); color: var(--text-dim);
+            padding: 0.75rem 2rem; font-size: 1rem; border-radius: var(--radius);
+            cursor: pointer; text-decoration: none; transition: all 0.3s;
         }
 
-        .btn-back:hover {
-            border-color: var(--text-muted);
-            color: var(--text);
-        }
+        .btn-back:hover { border-color: var(--text-muted); color: var(--text); }
 
         /* ── Biohazard Watermark ── */
         .biohazard-bg {
@@ -857,14 +1064,19 @@
             bottom: -80px;
             right: -80px;
             font-size: 20rem;
-            opacity: 0.015;
+            opacity: 0.02;
             pointer-events: none;
             z-index: 0;
-            color: var(--accent);
+            user-select: none;
         }
 
-        /* ── Rolling state ── */
-        .rolling .btn-roll { pointer-events: none; opacity: 0.5; }
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .lab-header h1 { font-size: 1.3rem; }
+            .tiers-grid { grid-template-columns: 1fr; }
+            .codex-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+            .lab-tabs { flex-wrap: wrap; }
+        }
     </style>
 </head>
 <body>
@@ -904,6 +1116,7 @@
     </nav>
 
     <div class="biohazard-bg flicker">&#9762;</div>
+    <div class="glitch-overlay" id="glitch-overlay"></div>
 
     <!-- No Pet Screen -->
     <div id="no-pet-screen">
@@ -928,7 +1141,6 @@
         <div class="lab-header">
             <h1 class="flicker">The Forbidden Laboratory</h1>
             <div class="lab-subtitle">Experimental mutation facility &mdash; proceed with caution</div>
-            <button class="btn-view-odds" onclick="showOdds()">View Full Odds</button>
         </div>
 
         <div class="lab-pet-info">
@@ -937,44 +1149,99 @@
             <span id="lab-pet-level"></span>
         </div>
 
-        <!-- Current Mutations -->
-        <div class="lab-current-muts" id="lab-current-muts"></div>
-
-        <!-- Tier Columns -->
-        <div class="tiers-grid">
-            <!-- STABLE -->
-            <div class="tier-col tier-stable">
-                <div class="tier-name">Stable</div>
-                <div class="tier-meta">Side Effect: <span>0%</span></div>
-                <div class="tier-meta">Ultra-Rare: <span>0%</span></div>
-                <div class="tier-pool-count">10 mutations in pool</div>
-                <button class="btn-roll" onclick="rollMutation(1)">Roll</button>
+        <!-- Instability Meter -->
+        <div class="instability-section" id="instability-section">
+            <div class="instability-header">
+                <span class="instability-label">&#9762; Instability</span>
+                <span class="instability-value" id="instability-value">0%</span>
             </div>
-            <!-- VOLATILE -->
-            <div class="tier-col tier-volatile">
-                <div class="tier-name">Volatile</div>
-                <div class="tier-meta">Side Effect: <span>35%</span></div>
-                <div class="tier-meta">Ultra-Rare: <span>0%</span></div>
-                <div class="tier-pool-count">15 mutations in pool</div>
-                <button class="btn-roll pulse-subtle" onclick="rollMutation(2)">Roll</button>
+            <div class="instability-bar-bg">
+                <div class="instability-bar-fill safe" id="instability-bar" style="width:0%"></div>
             </div>
-            <!-- FORBIDDEN -->
-            <div class="tier-col tier-forbidden">
-                <div class="tier-name">Forbidden</div>
-                <div class="tier-meta">Side Effect: <span>70%</span></div>
-                <div class="tier-meta">Ultra-Rare: <span>2%</span></div>
-                <div class="tier-pool-count">10 mutations + 14 ultra-rares</div>
-                <button class="btn-roll pulse-intense" onclick="rollMutation(3)">Roll</button>
+            <div class="instability-zone" id="instability-zone" style="color:var(--green)">SAFE ZONE</div>
+            <div class="instability-death-chance" id="instability-death">Mortality risk: 0%</div>
+            <div class="stabilize-section">
+                <button class="btn-stabilize" id="btn-stabilize" onclick="stabilize()">Stabilize (-20)</button>
+                <span class="scar-display" id="scar-display"></span>
             </div>
         </div>
 
-        <!-- Codex -->
-        <div class="codex-section">
-            <div class="codex-header">
-                <h2>Mutation Codex</h2>
-                <div class="codex-count" id="codex-count">0 / 49 discovered</div>
+        <!-- Current Mutations -->
+        <div class="lab-current-muts" id="lab-current-muts"></div>
+
+        <!-- Tab Navigation -->
+        <div class="lab-tabs">
+            <button class="lab-tab active" onclick="switchTab('experiment')">Experiment</button>
+            <button class="lab-tab" onclick="switchTab('log')">Research Notes</button>
+            <button class="lab-tab" onclick="switchTab('codex')">Mutation Codex</button>
+        </div>
+
+        <!-- Tab: Experiment -->
+        <div class="lab-tab-content active" id="tab-experiment">
+            <div style="text-align:center;margin-bottom:1rem;">
+                <button class="btn-view-odds" onclick="showOdds()">View Full Odds</button>
             </div>
-            <div id="codex-container"></div>
+
+            <div class="tiers-grid">
+                <div class="tier-col tier-stable">
+                    <div class="tier-name">Stable</div>
+                    <div class="tier-meta">Side Effect: <span>0%</span></div>
+                    <div class="tier-meta">Ultra-Rare: <span>0%</span></div>
+                    <div class="tier-instability-gain">Instability: +4</div>
+                    <div class="tier-pool-count">10 mutations in pool</div>
+                    <button class="btn-roll" onclick="confirmRoll(1)">Roll</button>
+                </div>
+                <div class="tier-col tier-volatile">
+                    <div class="tier-name">Volatile</div>
+                    <div class="tier-meta">Side Effect: <span>35%</span></div>
+                    <div class="tier-meta">Ultra-Rare: <span>0%</span></div>
+                    <div class="tier-instability-gain">Instability: +9</div>
+                    <div class="tier-pool-count">15 mutations in pool</div>
+                    <button class="btn-roll pulse-subtle" onclick="confirmRoll(2)">Roll</button>
+                </div>
+                <div class="tier-col tier-forbidden">
+                    <div class="tier-name">Forbidden</div>
+                    <div class="tier-meta">Side Effect: <span>70%</span></div>
+                    <div class="tier-meta">Ultra-Rare: <span>2%</span></div>
+                    <div class="tier-instability-gain">Instability: +16</div>
+                    <div class="tier-pool-count">10 mutations + 14 ultra-rares</div>
+                    <button class="btn-roll pulse-intense" onclick="confirmRoll(3)">Roll</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Research Notes (Experiment Log) -->
+        <div class="lab-tab-content" id="tab-log">
+            <div class="log-section" id="log-section">
+                <div class="log-empty">No experiments recorded yet. Begin your research.</div>
+            </div>
+        </div>
+
+        <!-- Tab: Mutation Codex -->
+        <div class="lab-tab-content" id="tab-codex">
+            <div class="codex-section">
+                <div class="codex-header">
+                    <h2>Mutation Codex</h2>
+                    <div class="codex-count" id="codex-count">0 / 49 discovered</div>
+                </div>
+                <div id="codex-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-overlay">
+        <div class="confirm-card">
+            <h3 id="confirm-title">Confirm Experiment</h3>
+            <div class="confirm-risk-display" id="confirm-risk-display">
+                <div class="risk-label">Mortality Risk</div>
+                <div class="risk-pct" id="confirm-risk-pct">0%</div>
+            </div>
+            <div class="confirm-instability-change" id="confirm-instability-change"></div>
+            <div class="confirm-actions">
+                <button class="btn-confirm-roll" id="btn-confirm-roll">Proceed</button>
+                <button class="btn-confirm-cancel" onclick="cancelConfirm()">Abort</button>
+            </div>
         </div>
     </div>
 
@@ -1013,6 +1280,20 @@
         </div>
     </div>
 
+    <!-- Death Overlay -->
+    <div id="death-overlay">
+        <svg class="death-ekg" viewBox="0 0 600 80">
+            <polyline class="death-ekg-line" points="0,40 100,40 120,40 130,10 140,70 150,20 160,60 170,40 200,40 250,40 260,10 270,70 280,20 290,60 300,40 350,40" />
+            <line class="death-ekg-flat" x1="350" y1="40" x2="600" y2="40" />
+        </svg>
+        <div class="death-title">Experiment Failed &mdash; Subject Lost</div>
+        <div class="death-name" id="death-name"></div>
+        <div class="death-notes" id="death-notes"></div>
+        <div class="death-btn">
+            <button onclick="closeDeath()">Return to The Kennels</button>
+        </div>
+    </div>
+
     <!-- Odds Modal -->
     <div id="odds-modal" onclick="if(event.target===this)closeOdds()">
         <div class="odds-content" id="odds-content"></div>
@@ -1024,58 +1305,58 @@
     // ══════════════════════════════════════════════
 
     const EMOJI_MAP = {
-        fox:'&#129418;', tiger:'&#128005;', bear:'&#128059;', wolf:'&#128058;',
-        scorpion:'&#129410;', eagle:'&#129413;', porcupine:'&#129428;', rhino:'&#129423;',
-        viper:'&#128013;', vulture:'&#129413;', monkey:'&#128018;', buffalo:'&#129452;',
-        panther:'&#128008;', boar:'&#128023;'
+        fox:'\u{1F98A}', tiger:'\u{1F405}', bear:'\u{1F43B}', wolf:'\u{1F43A}',
+        scorpion:'\u{1F982}', eagle:'\u{1F985}', porcupine:'\u{1F994}', rhino:'\u{1F98F}',
+        viper:'\u{1F40D}', vulture:'\u{1F985}', monkey:'\u{1F412}', buffalo:'\u{1F9AC}',
+        panther:'\u{1F408}', boar:'\u{1F417}'
     };
 
     const TIER1 = [
-        { id:'t1_tough_skin',       name:'Tough Skin',         desc:'+2 HP — thickened dermal layer',                    stats:{hp:2} },
-        { id:'t1_sharp_claws',      name:'Sharp Claws',        desc:'+1 ATK — keratin-reinforced strike surfaces',       stats:{atk:1} },
-        { id:'t1_quick_feet',       name:'Quick Feet',         desc:'+1 SPD — neural fast-twitch enhancement',           stats:{spd:1} },
-        { id:'t1_iron_will',        name:'Iron Will',          desc:'+1 WIL — cortical resilience boost',                stats:{wil:1} },
-        { id:'t1_keen_eyes',        name:'Keen Eyes',          desc:'+3% accuracy — retinal focus implant',              stats:{accuracy:3}, unit:'%' },
-        { id:'t1_thick_hide',       name:'Thick Hide',         desc:'+5% damage reduction — subdermal plating',          stats:{dmg_red:5}, unit:'%' },
-        { id:'t1_swift_reflexes',   name:'Swift Reflexes',     desc:'+3% dodge — reflex arc shortening',                 stats:{dodge:3}, unit:'%' },
-        { id:'t1_battle_scars',     name:'Battle Scars',       desc:'+3 HP — scarified regenerative tissue',             stats:{hp:3} },
-        { id:'t1_predator_instinct',name:'Predator Instinct',  desc:'+2% crit chance — killer instinct amplifier',       stats:{crit:2}, unit:'%' },
-        { id:'t1_survival_instinct',name:'Survival Instinct',  desc:'+1 HP, +1 WIL — fight-or-flight optimization',     stats:{hp:1, wil:1} },
+        { id:'t1_tough_skin',       name:'Tough Skin',         desc:'+2 HP \u2014 thickened dermal layer',                    stats:{hp:2} },
+        { id:'t1_sharp_claws',      name:'Sharp Claws',        desc:'+1 ATK \u2014 keratin-reinforced strike surfaces',       stats:{atk:1} },
+        { id:'t1_quick_feet',       name:'Quick Feet',         desc:'+1 SPD \u2014 neural fast-twitch enhancement',           stats:{spd:1} },
+        { id:'t1_iron_will',        name:'Iron Will',          desc:'+1 WIL \u2014 cortical resilience boost',                stats:{wil:1} },
+        { id:'t1_keen_eyes',        name:'Keen Eyes',          desc:'+3% accuracy \u2014 retinal focus implant',              stats:{accuracy:3}, unit:'%' },
+        { id:'t1_thick_hide',       name:'Thick Hide',         desc:'+5% damage reduction \u2014 subdermal plating',          stats:{dmg_red:5}, unit:'%' },
+        { id:'t1_swift_reflexes',   name:'Swift Reflexes',     desc:'+3% dodge \u2014 reflex arc shortening',                 stats:{dodge:3}, unit:'%' },
+        { id:'t1_battle_scars',     name:'Battle Scars',       desc:'+3 HP \u2014 scarified regenerative tissue',             stats:{hp:3} },
+        { id:'t1_predator_instinct',name:'Predator Instinct',  desc:'+2% crit chance \u2014 killer instinct amplifier',       stats:{crit:2}, unit:'%' },
+        { id:'t1_survival_instinct',name:'Survival Instinct',  desc:'+1 HP, +1 WIL \u2014 fight-or-flight optimization',     stats:{hp:1, wil:1} },
     ];
 
     const TIER2 = [
-        { id:'t2_fleet_tendons',    name:'Fleet Tendons',      desc:'+3 SPD, +5% dodge — elastic myofiber replacement',            stats:{spd:3, dodge:5} },
-        { id:'t2_barbed_blood',     name:'Barbed Blood',       desc:'15% reflect damage on hit — hemolytic defense system',         stats:{reflect:15}, unit:'%', special:true },
-        { id:'t2_adrenaline_surge', name:'Adrenaline Surge',   desc:'+20% ATK for first 3 ticks — adrenal gland overclocking',     stats:{atk_boost:20}, unit:'%', special:true },
-        { id:'t2_shadow_step',      name:'Shadow Step',        desc:'+8% dodge, +2 SPD — photon-bending muscle fibers',             stats:{dodge:8, spd:2} },
-        { id:'t2_venom_glands',     name:'Venom Glands',       desc:'Attacks apply 3-tick poison — toxin sac implantation',         stats:{}, special:true },
-        { id:'t2_berserker_gene',   name:'Berserker Gene',     desc:'+4 ATK, -1 WIL — limbic system override',                     stats:{atk:4, wil:-1} },
-        { id:'t2_regeneration',     name:'Regeneration',        desc:'Heal 2% max HP per tick — cellular mitosis accelerant',        stats:{}, special:true },
-        { id:'t2_hardened_bones',   name:'Hardened Bones',     desc:'+4 HP, +10% damage reduction — calcium-carbide infusion',      stats:{hp:4, dmg_red:10} },
-        { id:'t2_feral_senses',     name:'Feral Senses',       desc:'+5% crit, +3% accuracy — sensory cortex expansion',            stats:{crit:5, accuracy:3} },
-        { id:'t2_ambush_wiring',    name:'Ambush Wiring',      desc:'+30% first-strike damage — pre-synaptic trigger loop',         stats:{first_strike:30}, unit:'%', special:true },
-        { id:'t2_symbiotic_armor',  name:'Symbiotic Armor',    desc:'+3 HP, +1 ATK — parasitic exoskeleton bonding',                stats:{hp:3, atk:1} },
-        { id:'t2_neural_boost',     name:'Neural Boost',       desc:'+3 WIL, ability power +10% — prefrontal amplifier',            stats:{wil:3, ability_power:10} },
-        { id:'t2_kinetic_absorber', name:'Kinetic Absorber',   desc:'10% chance to negate hit — inertial dampening field',           stats:{negate:10}, unit:'%', special:true },
-        { id:'t2_bloodlust',        name:'Bloodlust',          desc:'+2% ATK per hit landed (stacks to 5) — dopamine combat loop',  stats:{}, special:true },
-        { id:'t2_territorial_rage', name:'Territorial Rage',   desc:'+15% ATK on home terrain — territorial pheromone reactor',      stats:{terrain_atk:15}, unit:'%', special:true },
+        { id:'t2_fleet_tendons',    name:'Fleet Tendons',      desc:'+3 SPD, +5% dodge \u2014 elastic myofiber replacement',            stats:{spd:3, dodge:5} },
+        { id:'t2_barbed_blood',     name:'Barbed Blood',       desc:'15% reflect damage on hit \u2014 hemolytic defense system',         stats:{reflect:15}, unit:'%', special:true },
+        { id:'t2_adrenaline_surge', name:'Adrenaline Surge',   desc:'+20% ATK for first 3 ticks \u2014 adrenal gland overclocking',     stats:{atk_boost:20}, unit:'%', special:true },
+        { id:'t2_shadow_step',      name:'Shadow Step',        desc:'+8% dodge, +2 SPD \u2014 photon-bending muscle fibers',             stats:{dodge:8, spd:2} },
+        { id:'t2_venom_glands',     name:'Venom Glands',       desc:'Attacks apply 3-tick poison \u2014 toxin sac implantation',         stats:{}, special:true },
+        { id:'t2_berserker_gene',   name:'Berserker Gene',     desc:'+4 ATK, -1 WIL \u2014 limbic system override',                     stats:{atk:4, wil:-1} },
+        { id:'t2_regeneration',     name:'Regeneration',       desc:'Heal 2% max HP per tick \u2014 cellular mitosis accelerant',        stats:{}, special:true },
+        { id:'t2_hardened_bones',   name:'Hardened Bones',     desc:'+4 HP, +10% damage reduction \u2014 calcium-carbide infusion',      stats:{hp:4, dmg_red:10} },
+        { id:'t2_feral_senses',     name:'Feral Senses',       desc:'+5% crit, +3% accuracy \u2014 sensory cortex expansion',            stats:{crit:5, accuracy:3} },
+        { id:'t2_ambush_wiring',    name:'Ambush Wiring',      desc:'+30% first-strike damage \u2014 pre-synaptic trigger loop',         stats:{first_strike:30}, unit:'%', special:true },
+        { id:'t2_symbiotic_armor',  name:'Symbiotic Armor',    desc:'+3 HP, +1 ATK \u2014 parasitic exoskeleton bonding',                stats:{hp:3, atk:1} },
+        { id:'t2_neural_boost',     name:'Neural Boost',       desc:'+3 WIL, ability power +10% \u2014 prefrontal amplifier',            stats:{wil:3, ability_power:10} },
+        { id:'t2_kinetic_absorber', name:'Kinetic Absorber',   desc:'10% chance to negate hit \u2014 inertial dampening field',           stats:{negate:10}, unit:'%', special:true },
+        { id:'t2_bloodlust',        name:'Bloodlust',          desc:'+2% ATK per hit landed (stacks to 5) \u2014 dopamine combat loop',  stats:{}, special:true },
+        { id:'t2_territorial_rage', name:'Territorial Rage',   desc:'+15% ATK on home terrain \u2014 territorial pheromone reactor',      stats:{terrain_atk:15}, unit:'%', special:true },
     ];
 
     const TIER3 = [
-        { id:'t3_apex_predator',    name:'Apex Predator',      desc:'+5 ATK, +3 SPD — apex genome splice',                          stats:{atk:5, spd:3} },
-        { id:'t3_unkillable',       name:'Unkillable',         desc:'Survive lethal hit once at 1 HP — death-refusal gene',          stats:{}, special:true },
-        { id:'t3_phase_shift',      name:'Phase Shift',        desc:'20% chance to completely dodge any attack — quantum instability',stats:{phase_dodge:20}, unit:'%', special:true },
-        { id:'t3_doom_bloom',       name:'Doom Bloom',         desc:'Every 4th tick: massive buff OR self-hex (50/50) — chaos bloom', stats:{}, special:true },
+        { id:'t3_apex_predator',    name:'Apex Predator',      desc:'+5 ATK, +3 SPD \u2014 apex genome splice',                          stats:{atk:5, spd:3} },
+        { id:'t3_unkillable',       name:'Unkillable',         desc:'Survive lethal hit once at 1 HP \u2014 death-refusal gene',          stats:{}, special:true },
+        { id:'t3_phase_shift',      name:'Phase Shift',        desc:'20% chance to completely dodge any attack \u2014 quantum instability',stats:{phase_dodge:20}, unit:'%', special:true },
+        { id:'t3_doom_bloom',       name:'Doom Bloom',         desc:'Every 4th tick: massive buff OR self-hex (50/50) \u2014 chaos bloom', stats:{}, special:true },
         { id:'t3_chimera_heart',    name:'Chimera Heart',      desc:'Gain 1 random trait from another species each fight',            stats:{}, special:true },
         { id:'t3_gene_overload',    name:'Gene Overload',      desc:'All stats +2, but 10% chance to lose a turn each tick',          stats:{hp:2, atk:2, spd:2, wil:2}, special:true },
-        { id:'t3_perfect_form',     name:'Perfect Form',       desc:'+2 to all stats — flawless genetic recombination',               stats:{hp:2, atk:2, spd:2, wil:2} },
-        { id:'t3_unstoppable_force',name:'Unstoppable Force',  desc:'Ignore all defensive abilities for 2 ticks — barrier breaker',   stats:{}, special:true },
-        { id:'t3_shadow_clone',     name:'Shadow Clone',       desc:'First attack each fight hits twice — mitotic echo',               stats:{}, special:true },
-        { id:'t3_evolutions_edge',  name:"Evolution's Edge",   desc:'+3 to highest stat, +1 to lowest stat — adaptive optimizer',     stats:{}, special:true },
+        { id:'t3_perfect_form',     name:'Perfect Form',       desc:'+2 to all stats \u2014 flawless genetic recombination',               stats:{hp:2, atk:2, spd:2, wil:2} },
+        { id:'t3_unstoppable_force',name:'Unstoppable Force',  desc:'Ignore all defensive abilities for 2 ticks \u2014 barrier breaker',   stats:{}, special:true },
+        { id:'t3_shadow_clone',     name:'Shadow Clone',       desc:'First attack each fight hits twice \u2014 mitotic echo',               stats:{}, special:true },
+        { id:'t3_evolutions_edge',  name:"Evolution's Edge",   desc:'+3 to highest stat, +1 to lowest stat \u2014 adaptive optimizer',     stats:{}, special:true },
     ];
 
     const ULTRA_RARES = [
-        { id:'ur_fox',       animal:'fox',       name:"Moreau's Briefcase",   desc:'Copy opponent\'s passive before fight starts' },
+        { id:'ur_fox',       animal:'fox',       name:"Moreau's Briefcase",   desc:"Copy opponent's passive before fight starts" },
         { id:'ur_tiger',     animal:'tiger',     name:'Echolocation',         desc:'Nullify accuracy penalties, double dodge' },
         { id:'ur_bear',      animal:'bear',      name:'Ursine Apotheosis',    desc:'Below 30% HP: all stats +25% for 3 ticks' },
         { id:'ur_wolf',      animal:'wolf',      name:'Pack Echo',            desc:'Clone your last successful ability on next tick' },
@@ -1130,7 +1411,6 @@
         ],
     };
 
-    // Category weights: Symbiotic 35%, Cosmetic 25%, Corruption 20%, Cascade 15%, Personality 5%
     const SE_WEIGHTS = [
         { cat:'symbiotic',   weight:35 },
         { cat:'cosmetic',    weight:25 },
@@ -1139,16 +1419,28 @@
         { cat:'personality',  weight:5 },
     ];
 
+    const INSTABILITY_GAIN = { 1: 4, 2: 9, 3: 16 };
+
+    const DEATH_NOTES = [
+        "The subject's cellular structure could not withstand the recombination. Tissue integrity failed at the molecular level.",
+        "Catastrophic rejection of the mutagen. The organism's immune system turned against itself.",
+        "Neural cascade failure. The brain could not process the genetic rewrite. Consciousness ceased.",
+        "The mutation took hold too aggressively. The subject's body was consumed by its own evolution.",
+        "Organ failure across all systems. The price of pushing beyond nature's boundaries.",
+        "The experiment succeeded. The subject did not. Some transformations demand everything.",
+    ];
+
     // ══════════════════════════════════════════════
     //  STATE
     // ══════════════════════════════════════════════
 
     let pet = null;
-    let currentResult = null;   // { mutation, tier, sideEffect, isUltra, cascadeResult }
+    let currentResult = null;
     let isRolling = false;
+    let pendingTier = null;
 
     // ══════════════════════════════════════════════
-    //  PET STORAGE (same pattern as other pet pages)
+    //  PET STORAGE
     // ══════════════════════════════════════════════
 
     function migrateAndLoadPet() {
@@ -1179,6 +1471,172 @@
     }
 
     // ══════════════════════════════════════════════
+    //  INSTABILITY SYSTEM
+    // ══════════════════════════════════════════════
+
+    function getInstability() {
+        return pet.instability || 0;
+    }
+
+    function getScars() {
+        return pet.scars || 0;
+    }
+
+    function getInstabilityFloor() {
+        return getScars() * 3;
+    }
+
+    function calcInstabilityGain(tier) {
+        const base = INSTABILITY_GAIN[tier] || 4;
+        const mutCount = Object.keys(pet.lab_mutations || {}).length;
+        return base + mutCount * 2;
+    }
+
+    function calcDeathChance(instability) {
+        if (instability < 40) return 0;
+        if (instability < 60) return Math.round(2 + (instability - 40) * 0.3);
+        if (instability < 80) return Math.round(10 + (instability - 60) * 0.75);
+        if (instability < 95) return Math.round(30 + (instability - 80) * 1.67);
+        return Math.round(70 + (instability - 95) * 3);
+    }
+
+    function getInstabilityZone(instability) {
+        if (instability < 40) return { label: 'SAFE ZONE', color: 'var(--green)', cls: 'safe' };
+        if (instability < 60) return { label: 'CAUTION', color: 'var(--gold)', cls: 'caution' };
+        if (instability < 80) return { label: 'DANGER', color: 'var(--orange)', cls: 'danger' };
+        return { label: 'CRITICAL', color: 'var(--accent)', cls: 'critical' };
+    }
+
+    function updateInstabilityDisplay() {
+        const inst = getInstability();
+        const zone = getInstabilityZone(inst);
+        const deathPct = calcDeathChance(inst);
+
+        document.getElementById('instability-value').textContent = inst + '%';
+        document.getElementById('instability-value').style.color = zone.color;
+
+        const bar = document.getElementById('instability-bar');
+        bar.style.width = inst + '%';
+        bar.className = 'instability-bar-fill ' + zone.cls;
+
+        const zoneEl = document.getElementById('instability-zone');
+        zoneEl.textContent = zone.label;
+        zoneEl.style.color = zone.color;
+
+        const deathEl = document.getElementById('instability-death');
+        deathEl.textContent = 'Mortality risk: ' + deathPct + '%';
+        deathEl.style.color = deathPct > 0 ? 'var(--accent)' : 'var(--text-muted)';
+
+        // Stabilize button
+        const btn = document.getElementById('btn-stabilize');
+        const floor = getInstabilityFloor();
+        btn.disabled = inst <= floor || inst === 0;
+
+        // Scar display
+        const scarEl = document.getElementById('scar-display');
+        const scars = getScars();
+        let scarHTML = '';
+        for (let i = 0; i < 5; i++) {
+            scarHTML += '<span class="scar-dot ' + (i < scars ? 'filled' : 'empty') + '"></span>';
+        }
+        scarEl.innerHTML = scarHTML;
+
+        // Glitch overlay
+        const glitch = document.getElementById('glitch-overlay');
+        if (inst >= 60) {
+            glitch.classList.add('active');
+            glitch.style.opacity = Math.min(1, (inst - 60) / 80);
+        } else {
+            glitch.classList.remove('active');
+        }
+    }
+
+    function stabilize() {
+        const inst = getInstability();
+        const floor = getInstabilityFloor();
+        if (inst <= floor) return;
+
+        const reduction = Math.min(20, inst - floor);
+        pet.instability = inst - reduction;
+
+        // Add a scar if we stabilized from high instability
+        if (inst >= 40 && getScars() < 5) {
+            pet.scars = getScars() + 1;
+        }
+
+        addLogEntry({
+            tier: 0,
+            mutation: 'Stabilization Procedure',
+            applied: true,
+            instability: pet.instability,
+            note: 'Instability reduced by ' + reduction + '. Scar tissue formed.'
+        });
+
+        saveActivePet(pet);
+        updateInstabilityDisplay();
+        renderLog();
+    }
+
+    // ══════════════════════════════════════════════
+    //  EXPERIMENT LOG
+    // ══════════════════════════════════════════════
+
+    function addLogEntry(entry) {
+        if (!pet.lab_log) pet.lab_log = [];
+        entry.timestamp = Date.now();
+        pet.lab_log.push(entry);
+        // Cap at 30 entries per pet
+        if (pet.lab_log.length > 30) {
+            pet.lab_log = pet.lab_log.slice(-30);
+        }
+    }
+
+    function renderLog() {
+        const section = document.getElementById('log-section');
+        const log = (pet.lab_log || []).slice().reverse();
+
+        if (log.length === 0) {
+            section.innerHTML = '<div class="log-empty">No experiments recorded yet. Begin your research.</div>';
+            return;
+        }
+
+        const tierNames = ['Stabilize', 'Stable', 'Volatile', 'Forbidden'];
+
+        section.innerHTML = log.map(entry => {
+            const isDeath = entry.death;
+            const isDiscard = !entry.applied && !entry.death;
+            let cls = 'log-entry';
+            if (isDeath) cls += ' death-entry';
+            if (isDiscard) cls += ' discarded';
+
+            const dot = '<span class="log-tier-dot t' + (entry.tier || 0) + '"></span>';
+            const time = entry.timestamp ? relativeTime(entry.timestamp) : '';
+
+            let details = '';
+            if (entry.side_effect) details += 'Side effect: ' + entry.side_effect + '. ';
+            if (entry.note) details += entry.note;
+
+            return '<div class="' + cls + '">' +
+                '<div class="log-header">' +
+                    dot +
+                    '<span class="log-mutation">' + (entry.mutation || '?') + '</span>' +
+                    '<span class="log-time">' + time + '</span>' +
+                '</div>' +
+                (details ? '<div class="log-details">' + details + '</div>' : '') +
+                '<div class="log-instability">Instability: ' + (entry.instability != null ? entry.instability + '%' : '?') + '</div>' +
+                '</div>';
+        }).join('');
+    }
+
+    function relativeTime(ts) {
+        const diff = Math.floor((Date.now() - ts) / 1000);
+        if (diff < 60) return 'just now';
+        if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+        if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+        return Math.floor(diff / 86400) + 'd ago';
+    }
+
+    // ══════════════════════════════════════════════
     //  CODEX
     // ══════════════════════════════════════════════
 
@@ -1197,8 +1655,18 @@
         saveCodex(codex);
     }
 
+    function getEquippedIds() {
+        const ids = new Set();
+        const muts = pet.lab_mutations || {};
+        for (const slot of Object.values(muts)) {
+            if (slot && slot.id) ids.add(slot.id);
+        }
+        return ids;
+    }
+
     function renderCodex() {
         const codex = loadCodex();
+        const equipped = getEquippedIds();
         const container = document.getElementById('codex-container');
         const allMutations = [
             { label:'Stable', cls:'stable', items:TIER1 },
@@ -1211,23 +1679,44 @@
         let html = '';
 
         allMutations.forEach(group => {
-            html += `<div class="codex-tier-label ${group.cls}">${group.label}</div>`;
+            html += '<div class="codex-tier-label ' + group.cls + '">' + group.label + '</div>';
             html += '<div class="codex-grid">';
             group.items.forEach(m => {
                 const found = codex[m.id];
                 if (found) totalDiscovered++;
-                const colorMap = { stable:'var(--green)', volatile:'#f4a261', forbidden:'var(--accent)', ultra:'var(--gold)' };
-                if (found) {
-                    html += `<div class="codex-tile discovered" style="--tile-color:${colorMap[group.cls]}">${m.name}</div>`;
+                const colorMap = { stable:'var(--green)', volatile:'var(--orange)', forbidden:'var(--accent)', ultra:'var(--gold)' };
+                if (found && equipped.has(m.id)) {
+                    html += '<div class="codex-tile equipped">' + m.name + '</div>';
+                } else if (found) {
+                    html += '<div class="codex-tile discovered" style="--tile-color:' + colorMap[group.cls] + '">' + m.name + '</div>';
                 } else {
-                    html += `<div class="codex-tile undiscovered">???</div>`;
+                    html += '<div class="codex-tile undiscovered">???</div>';
                 }
             });
             html += '</div>';
         });
 
         container.innerHTML = html;
-        document.getElementById('codex-count').textContent = `${totalDiscovered} / 49 discovered`;
+        document.getElementById('codex-count').textContent = totalDiscovered + ' / 49 discovered';
+    }
+
+    // ══════════════════════════════════════════════
+    //  TAB NAVIGATION
+    // ══════════════════════════════════════════════
+
+    function switchTab(tab) {
+        document.querySelectorAll('.lab-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.lab-tab-content').forEach(t => t.classList.remove('active'));
+
+        const tabMap = { experiment: 'tab-experiment', log: 'tab-log', codex: 'tab-codex' };
+        document.getElementById(tabMap[tab]).classList.add('active');
+
+        const btns = document.querySelectorAll('.lab-tab');
+        const tabNames = ['experiment', 'log', 'codex'];
+        btns[tabNames.indexOf(tab)].classList.add('active');
+
+        if (tab === 'codex') renderCodex();
+        if (tab === 'log') renderLog();
     }
 
     // ══════════════════════════════════════════════
@@ -1240,30 +1729,39 @@
 
         let html = '<h2>Full Probability Tables</h2>';
 
+        // Instability & Death
+        html += '<h3>Instability &amp; Mortality Risk</h3>';
+        html += '<table class="odds-table"><tr><th>Instability</th><th>Death Chance</th><th>Zone</th></tr>';
+        [[0,'0%','Safe'],[40,'2-8%','Caution'],[60,'10-25%','Danger'],[80,'30-55%','Critical'],[95,'70-85%','Critical']].forEach(r => {
+            html += '<tr><td>' + r[0] + '+</td><td>' + r[1] + '</td><td>' + r[2] + '</td></tr>';
+        });
+        html += '</table>';
+        html += '<p style="font-size:0.75rem;color:var(--text-muted);margin:0.5rem 0;">Instability gain per roll: Stable +4, Volatile +9, Forbidden +16. Each existing mutation adds +2.</p>';
+
         // Side effects
         html += '<h3>Side Effect Categories (when triggered)</h3>';
         html += '<table class="odds-table"><tr><th>Category</th><th>Chance</th></tr>';
         SE_WEIGHTS.forEach(w => {
-            html += `<tr><td>${w.cat.charAt(0).toUpperCase() + w.cat.slice(1)}</td><td>${w.weight}%</td></tr>`;
+            html += '<tr><td>' + w.cat.charAt(0).toUpperCase() + w.cat.slice(1) + '</td><td>' + w.weight + '%</td></tr>';
         });
         html += '</table>';
 
         // Tier pools
         const pools = [
-            { name:'Tier 1 — Stable', items:TIER1, se:'0%', ur:'0%' },
-            { name:'Tier 2 — Volatile', items:TIER2, se:'35%', ur:'0%' },
-            { name:'Tier 3 — Forbidden (base pool)', items:TIER3, se:'70%', ur:'N/A' },
-            { name:'Tier 3 — Ultra-Rares (2% chance)', items:ULTRA_RARES, se:'70%', ur:'2%' },
+            { name:'Tier 1 \u2014 Stable', items:TIER1, se:'0%', ur:'0%' },
+            { name:'Tier 2 \u2014 Volatile', items:TIER2, se:'35%', ur:'0%' },
+            { name:'Tier 3 \u2014 Forbidden (base pool)', items:TIER3, se:'70%', ur:'N/A' },
+            { name:'Tier 3 \u2014 Ultra-Rares (2% chance)', items:ULTRA_RARES, se:'70%', ur:'2%' },
         ];
 
         pools.forEach(pool => {
-            html += `<h3>${pool.name}</h3>`;
+            html += '<h3>' + pool.name + '</h3>';
             const chance = pool.items === ULTRA_RARES ? (2 / ULTRA_RARES.length).toFixed(2) :
                            pool.items === TIER3 ? ((100 - 2) / TIER3.length).toFixed(1) :
                            (100 / pool.items.length).toFixed(1);
             html += '<table class="odds-table"><tr><th>Mutation</th><th>Each</th></tr>';
             pool.items.forEach(m => {
-                html += `<tr><td>${m.name}</td><td>${chance}%</td></tr>`;
+                html += '<tr><td>' + m.name + '</td><td>' + chance + '%</td></tr>';
             });
             html += '</table>';
         });
@@ -1285,6 +1783,50 @@
         document.getElementById('entry-screen').style.display = 'none';
         document.getElementById('lab-main').style.display = 'block';
         renderCodex();
+        renderLog();
+        updateInstabilityDisplay();
+    }
+
+    // ══════════════════════════════════════════════
+    //  CONFIRMATION MODAL
+    // ══════════════════════════════════════════════
+
+    function confirmRoll(tier) {
+        if (isRolling || !pet || pet.deceased) return;
+
+        const inst = getInstability();
+        const gain = calcInstabilityGain(tier);
+        const newInst = Math.min(100, inst + gain);
+        const deathPct = calcDeathChance(newInst);
+
+        pendingTier = tier;
+
+        const tierNames = ['', 'Stable', 'Volatile', 'Forbidden'];
+        const tierColors = ['', 'var(--green)', 'var(--orange)', 'var(--accent)'];
+
+        document.getElementById('confirm-title').textContent = 'Confirm ' + tierNames[tier] + ' Experiment';
+
+        const riskDisplay = document.getElementById('confirm-risk-display');
+        riskDisplay.style.background = deathPct === 0 ? 'rgba(78,204,163,0.1)' : deathPct < 15 ? 'rgba(212,160,23,0.1)' : 'rgba(230,57,70,0.1)';
+        riskDisplay.style.border = '1px solid ' + (deathPct === 0 ? 'rgba(78,204,163,0.3)' : deathPct < 15 ? 'rgba(212,160,23,0.3)' : 'rgba(230,57,70,0.3)');
+
+        document.getElementById('confirm-risk-pct').textContent = deathPct + '%';
+        document.getElementById('confirm-risk-pct').style.color = deathPct === 0 ? 'var(--green)' : deathPct < 15 ? 'var(--gold)' : 'var(--accent)';
+
+        document.getElementById('confirm-instability-change').textContent = 'Instability: ' + inst + '% \u2192 ' + newInst + '% (+' + gain + ')';
+
+        const rollBtn = document.getElementById('btn-confirm-roll');
+        rollBtn.textContent = deathPct > 20 ? 'I Accept the Risk' : 'Proceed';
+        rollBtn.style.borderColor = tierColors[tier];
+        rollBtn.style.color = tierColors[tier];
+        rollBtn.onclick = () => executeRoll(tier);
+
+        document.getElementById('confirm-overlay').style.display = 'flex';
+    }
+
+    function cancelConfirm() {
+        document.getElementById('confirm-overlay').style.display = 'none';
+        pendingTier = null;
     }
 
     // ══════════════════════════════════════════════
@@ -1311,42 +1853,66 @@
         return { category: cat, ...effect };
     }
 
-    async function rollMutation(tier) {
-        if (isRolling) return;
+    async function executeRoll(tier) {
+        cancelConfirm();
+        if (isRolling || !pet || pet.deceased) return;
         isRolling = true;
         document.body.classList.add('rolling');
 
+        // Apply instability gain FIRST
+        const gain = calcInstabilityGain(tier);
+        pet.instability = Math.min(100, getInstability() + gain);
+        saveActivePet(pet);
+        updateInstabilityDisplay();
+
+        // Death check
+        const deathPct = calcDeathChance(pet.instability);
+        const deathRoll = Math.random() * 100;
+        const isDead = deathPct > 0 && deathRoll < deathPct;
+
+        // Mercy: first death prevention
+        let mercySaved = false;
+        if (isDead && !pet.mercy_used) {
+            pet.mercy_used = true;
+            mercySaved = true;
+        }
+
+        if (isDead && !mercySaved) {
+            // PET DIES
+            await runDeathSequence(tier);
+            return;
+        }
+
+        // If mercy saved, show a dramatic near-miss
+        if (mercySaved) {
+            pet.instability = Math.min(100, pet.instability + 10); // extra instability from the near-death
+            saveActivePet(pet);
+            updateInstabilityDisplay();
+        }
+
+        // Normal roll proceeds
         let mutation, isUltra = false, sideEffect = null, cascadeResult = null;
 
         if (tier === 1) {
             mutation = pickRandom(TIER1);
         } else if (tier === 2) {
             mutation = pickRandom(TIER2);
-            if (Math.random() < 0.35) {
-                sideEffect = rollSideEffect();
-            }
+            if (Math.random() < 0.35) sideEffect = rollSideEffect();
         } else {
-            // Tier 3: 2% ultra-rare
             if (Math.random() < 0.02) {
                 mutation = pickRandom(ULTRA_RARES);
                 isUltra = true;
             } else {
                 mutation = pickRandom(TIER3);
             }
-            if (Math.random() < 0.70) {
-                sideEffect = rollSideEffect();
-            }
+            if (Math.random() < 0.70) sideEffect = rollSideEffect();
         }
 
-        // Handle cascade
         if (sideEffect && sideEffect.category === 'cascade') {
             cascadeResult = pickRandom(TIER1);
         }
 
-        // Store result
         currentResult = { mutation, tier, sideEffect, isUltra, cascadeResult };
-
-        // Discover in codex
         discoverMutation(mutation.id);
         if (cascadeResult) discoverMutation(cascadeResult.id);
 
@@ -1355,18 +1921,51 @@
         setTimeout(() => document.body.classList.remove('screen-shake'), 400);
 
         if (isUltra) {
-            // Ultra-rare path
             await runSlotAnimation(tier, mutation);
             showUltraRare(mutation);
         } else {
-            // Normal path
             await runSlotAnimation(tier, mutation);
-            showNormalResult(tier, mutation, sideEffect, cascadeResult);
+            showNormalResult(tier, mutation, sideEffect, cascadeResult, mercySaved);
         }
 
         renderCodex();
         isRolling = false;
         document.body.classList.remove('rolling');
+    }
+
+    // ══════════════════════════════════════════════
+    //  DEATH SEQUENCE
+    // ══════════════════════════════════════════════
+
+    async function runDeathSequence(tier) {
+        // Log the death
+        addLogEntry({
+            tier: tier,
+            mutation: 'FATAL EXPERIMENT',
+            applied: false,
+            death: true,
+            instability: pet.instability,
+            note: 'Subject did not survive the procedure.'
+        });
+
+        // Mark pet as deceased
+        pet.deceased = true;
+        saveActivePet(pet);
+
+        // Show death overlay
+        const overlay = document.getElementById('death-overlay');
+        document.getElementById('death-name').textContent = (pet.name || 'Unknown') + ' the ' + (pet.animal || 'Creature');
+        document.getElementById('death-notes').textContent = '"' + pickRandom(DEATH_NOTES) + '" \u2014 Dr. Moreau\'s notes';
+
+        overlay.style.display = 'flex';
+
+        isRolling = false;
+        document.body.classList.remove('rolling');
+    }
+
+    function closeDeath() {
+        document.getElementById('death-overlay').style.display = 'none';
+        window.location.href = '/pets';
     }
 
     // ══════════════════════════════════════════════
@@ -1391,7 +1990,6 @@
             const slotText = document.getElementById('slot-text');
             const badge = document.getElementById('result-tier-badge');
 
-            // Reset result card
             document.getElementById('result-name').style.display = 'none';
             document.getElementById('result-desc').style.display = 'none';
             document.getElementById('result-stats').style.display = 'none';
@@ -1399,7 +1997,6 @@
             document.getElementById('side-effect-card').style.display = 'none';
             slotMachine.style.display = 'block';
 
-            // Set tier badge
             const tierNames = ['', 'stable', 'volatile', 'forbidden'];
             const tierLabels = ['', 'Stable', 'Volatile', 'Forbidden'];
             badge.className = 'tier-badge ' + tierNames[tier];
@@ -1410,7 +2007,6 @@
             const names = getAllNames(tier);
             let iteration = 0;
             const totalIterations = 30;
-            let interval = 50;
 
             function tick() {
                 iteration++;
@@ -1420,9 +2016,8 @@
                     return;
                 }
                 slotText.textContent = names[Math.floor(Math.random() * names.length)];
-                // Slow down over time
                 const progress = iteration / totalIterations;
-                interval = 50 + progress * progress * 200;
+                const interval = 50 + progress * progress * 200;
                 setTimeout(tick, interval);
             }
             tick();
@@ -1433,33 +2028,33 @@
     //  RESULT DISPLAY
     // ══════════════════════════════════════════════
 
-    function showNormalResult(tier, mutation, sideEffect, cascadeResult) {
+    function showNormalResult(tier, mutation, sideEffect, cascadeResult, mercySaved) {
         const slotMachine = document.getElementById('slot-machine');
         slotMachine.style.display = 'none';
 
-        // Mutation name
         const nameEl = document.getElementById('result-name');
-        const tierColors = ['', 'var(--green)', '#f4a261', 'var(--accent)'];
+        const tierColors = ['', 'var(--green)', 'var(--orange)', 'var(--accent)'];
         nameEl.textContent = mutation.name;
         nameEl.style.color = tierColors[tier];
         nameEl.style.display = 'block';
 
-        // Description
         const descEl = document.getElementById('result-desc');
-        descEl.textContent = mutation.desc;
+        let descText = mutation.desc;
+        if (mercySaved) {
+            descText = '\u26a0\ufe0f NEAR-DEATH EXPERIENCE \u2014 Emergency protocols saved your pet. This mercy will not happen again.\n\n' + descText;
+        }
+        descEl.textContent = descText;
         descEl.style.display = 'block';
 
-        // Stats
         const statsEl = document.getElementById('result-stats');
         statsEl.innerHTML = '';
         if (mutation.stats && Object.keys(mutation.stats).length > 0) {
             for (const [stat, val] of Object.entries(mutation.stats)) {
                 const pill = document.createElement('span');
-                const isNeg = val < 0;
-                pill.className = 'stat-pill ' + (isNeg ? 'negative' : 'positive');
+                pill.className = 'stat-pill ' + (val < 0 ? 'negative' : 'positive');
                 const sign = val > 0 ? '+' : '';
                 const unitStr = (mutation.unit || stat.includes('dodge') || stat.includes('crit') || stat.includes('accuracy') || stat.includes('dmg_red') || stat.includes('reflect') || stat.includes('negate') || stat.includes('phase')) ? '%' : '';
-                pill.textContent = `${sign}${val}${unitStr} ${stat.toUpperCase().replace('_',' ')}`;
+                pill.textContent = sign + val + unitStr + ' ' + stat.toUpperCase().replace('_', ' ');
                 statsEl.appendChild(pill);
             }
         } else if (mutation.special) {
@@ -1470,29 +2065,25 @@
         }
         statsEl.style.display = 'flex';
 
-        // Apply button
         const applyBtn = document.getElementById('btn-apply');
-        applyBtn.textContent = pet ? `Apply to ${pet.name || 'Pet'}` : 'Apply to Pet';
+        applyBtn.textContent = pet ? 'Apply to ' + (pet.name || 'Pet') : 'Apply to Pet';
         document.getElementById('result-actions').style.display = 'flex';
 
-        // Side effect
         if (sideEffect) {
             setTimeout(() => {
                 const seCard = document.getElementById('side-effect-card');
                 const seNameEl = document.getElementById('se-name');
                 const seDescEl = document.getElementById('se-desc');
-
                 if (sideEffect.category === 'cascade') {
                     seCard.classList.add('cascade-flash');
                     seNameEl.textContent = 'CASCADE! Free bonus roll!';
-                    seDescEl.textContent = cascadeResult ? `Bonus: ${cascadeResult.name} — ${cascadeResult.desc}` : 'Bonus Tier 1 mutation triggered!';
+                    seDescEl.textContent = cascadeResult ? 'Bonus: ' + cascadeResult.name + ' \u2014 ' + cascadeResult.desc : 'Bonus Tier 1 mutation triggered!';
                     seCard.querySelector('.se-label').textContent = 'Cascade';
                 } else {
                     seCard.classList.remove('cascade-flash');
                     seNameEl.textContent = sideEffect.name;
                     seDescEl.textContent = sideEffect.desc;
-                    const catLabel = sideEffect.category.charAt(0).toUpperCase() + sideEffect.category.slice(1);
-                    seCard.querySelector('.se-label').textContent = `Side Effect — ${catLabel}`;
+                    seCard.querySelector('.se-label').textContent = 'Side Effect \u2014 ' + sideEffect.category.charAt(0).toUpperCase() + sideEffect.category.slice(1);
                 }
                 seCard.style.display = 'block';
             }, 600);
@@ -1500,10 +2091,7 @@
     }
 
     function showUltraRare(mutation) {
-        // Close the normal overlay
         document.getElementById('result-overlay').style.display = 'none';
-
-        // Show ultra overlay
         const overlay = document.getElementById('ultra-overlay');
         overlay.style.display = 'flex';
         overlay.classList.add('ultra-flash');
@@ -1514,19 +2102,15 @@
         document.getElementById('ultra-desc').textContent = mutation.desc;
 
         const applyBtn = document.getElementById('btn-ultra-apply');
-        applyBtn.textContent = pet ? `Apply to ${pet.name || 'Pet'}` : 'Apply to Pet';
+        applyBtn.textContent = pet ? 'Apply to ' + (pet.name || 'Pet') : 'Apply to Pet';
 
-        // Save for moreddit
         localStorage.setItem('moreau_ultra_rare_post', JSON.stringify({
             animal: mutation.animal,
             mutation: mutation.name,
             timestamp: Date.now()
         }));
 
-        // Confetti
         spawnConfetti();
-
-        // Screen shake
         document.body.classList.add('screen-shake');
         setTimeout(() => document.body.classList.remove('screen-shake'), 400);
     }
@@ -1559,13 +2143,11 @@
         const m = currentResult.mutation;
         const level = pet.level || 1;
 
-        // Determine mutation slot based on level
         if (!pet.lab_mutations) pet.lab_mutations = {};
         let slot;
         if (level >= 9) slot = 'L9';
         else if (level >= 6) slot = 'L6';
-        else if (level >= 3) slot = 'L3';
-        else slot = 'L3'; // allow even low-level pets to use L3 slot
+        else slot = 'L3';
 
         pet.lab_mutations[slot] = {
             id: m.id,
@@ -1577,7 +2159,6 @@
             animal: m.animal || null,
         };
 
-        // Apply stat changes to base_stats
         if (!pet.base_stats) pet.base_stats = { hp:5, atk:5, spd:5 };
         if (m.stats) {
             for (const [stat, val] of Object.entries(m.stats)) {
@@ -1587,7 +2168,6 @@
             }
         }
 
-        // Side effects
         if (currentResult.sideEffect && currentResult.sideEffect.category !== 'cascade') {
             if (!pet.side_effects) pet.side_effects = [];
             pet.side_effects.push({
@@ -1596,7 +2176,6 @@
                 category: currentResult.sideEffect.category,
                 stats: currentResult.sideEffect.stats || {},
             });
-            // Apply side effect stats
             if (currentResult.sideEffect.stats) {
                 for (const [stat, val] of Object.entries(currentResult.sideEffect.stats)) {
                     if (['hp','atk','spd','wil'].includes(stat)) {
@@ -1606,7 +2185,6 @@
             }
         }
 
-        // Cascade bonus
         if (currentResult.cascadeResult) {
             if (!pet.mutations) pet.mutations = [];
             pet.mutations.push(currentResult.cascadeResult.id);
@@ -1619,12 +2197,32 @@
             }
         }
 
+        // Log
+        addLogEntry({
+            tier: currentResult.tier,
+            mutation: m.name,
+            applied: true,
+            instability: pet.instability,
+            side_effect: currentResult.sideEffect ? currentResult.sideEffect.name : null,
+        });
+
         saveActivePet(pet);
         closeAllOverlays();
         updatePetDisplay();
+        updateInstabilityDisplay();
+        renderCurrentMuts();
     }
 
     function discardResult() {
+        if (currentResult) {
+            addLogEntry({
+                tier: currentResult.tier,
+                mutation: currentResult.mutation.name,
+                applied: false,
+                instability: pet.instability,
+            });
+            saveActivePet(pet);
+        }
         currentResult = null;
         closeAllOverlays();
     }
@@ -1636,7 +2234,7 @@
     }
 
     // ══════════════════════════════════════════════
-    //  PET DISPLAY
+    //  PET DISPLAY & CURRENT MUTATIONS
     // ══════════════════════════════════════════════
 
     function updatePetDisplay() {
@@ -1645,19 +2243,9 @@
         const nameEl = document.getElementById('lab-pet-name');
         const levelEl = document.getElementById('lab-pet-level');
 
-        const emojiMap = {
-            fox:'\u{1F98A}', tiger:'\u{1F405}', bear:'\u{1F43B}', wolf:'\u{1F43A}',
-            scorpion:'\u{1F982}', eagle:'\u{1F985}', porcupine:'\u{1F994}', rhino:'\u{1F98F}',
-            viper:'\u{1F40D}', vulture:'\u{1F985}', monkey:'\u{1F412}', buffalo:'\u{1F9AC}',
-            panther:'\u{1F408}', boar:'\u{1F417}'
-        };
-
-        emojiEl.textContent = emojiMap[pet.animal] || '\u2753';
+        emojiEl.textContent = EMOJI_MAP[pet.animal] || '\u2753';
         nameEl.textContent = pet.name || 'Your Pet';
-        levelEl.textContent = `Lv.${pet.level || 1}`;
-
-        // Render current mutations panel
-        renderCurrentMuts();
+        levelEl.textContent = ' Lv.' + (pet.level || 1);
     }
 
     function renderCurrentMuts() {
@@ -1708,7 +2296,19 @@
             document.getElementById('no-pet-screen').style.display = 'flex';
             return;
         }
+        if (pet.deceased) {
+            document.getElementById('entry-screen').style.display = 'none';
+            document.getElementById('no-pet-screen').querySelector('p').textContent = 'This subject is deceased. Select another pet.';
+            document.getElementById('no-pet-screen').style.display = 'flex';
+            return;
+        }
+        // Initialize instability if not present
+        if (pet.instability == null) pet.instability = 0;
+        if (pet.scars == null) pet.scars = 0;
+        if (pet.lab_log == null) pet.lab_log = [];
+
         updatePetDisplay();
+        renderCurrentMuts();
     })();
     </script>
 </body>

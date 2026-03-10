@@ -437,6 +437,44 @@
             padding: 0.6rem;
         }
 
+        .instability-mini {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.6rem;
+            padding: 0.4rem 0.6rem;
+            background: var(--bg-code);
+            border-radius: 6px;
+            font-size: 0.7rem;
+        }
+
+        .instability-mini-label {
+            color: var(--text-muted);
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .instability-mini-bar {
+            flex: 1;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .instability-mini-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.5s;
+        }
+
+        .instability-mini-val {
+            color: var(--text-dim);
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
         /* ── Fight History ── */
         .fight-history {
             margin-top: 1.5rem;
@@ -747,6 +785,9 @@
         if (!pet) {
             window.location.href = '/pets';
         }
+        if (pet && pet.deceased) {
+            window.location.href = '/pets';
+        }
 
         function canMutate(p) {
             const m = (p.mutations || []).length;
@@ -864,7 +905,8 @@
             const seEl = document.getElementById('labSideEffects');
             const muts = pet.lab_mutations || {};
             const sideEffects = pet.side_effects || [];
-            const hasAny = Object.keys(muts).length > 0 || sideEffects.length > 0;
+            const inst = pet.instability || 0;
+            const hasAny = Object.keys(muts).length > 0 || sideEffects.length > 0 || inst > 0;
 
             if (!hasAny) {
                 section.style.display = 'none';
@@ -888,6 +930,17 @@
                     '</div>';
             });
             slotsEl.innerHTML = slotsHTML || '<div class="lab-empty">No mutations applied yet</div>';
+
+            // Instability mini-bar
+            const inst = pet.instability || 0;
+            if (inst > 0) {
+                const color = inst < 40 ? 'var(--green)' : inst < 60 ? 'var(--gold)' : inst < 80 ? '#f4a261' : 'var(--accent)';
+                slotsHTML += '<div class="instability-mini">' +
+                    '<span class="instability-mini-label">&#9762; Instability</span>' +
+                    '<div class="instability-mini-bar"><div class="instability-mini-fill" style="width:' + inst + '%;background:' + color + '"></div></div>' +
+                    '<span class="instability-mini-val" style="color:' + color + '">' + inst + '%</span>' +
+                    '</div>';
+            }
 
             // Render side effects
             if (sideEffects.length > 0) {

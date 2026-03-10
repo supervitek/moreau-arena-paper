@@ -158,6 +158,35 @@
             border-color: var(--accent);
         }
 
+        .pet-card.deceased {
+            opacity: 0.5;
+            filter: grayscale(0.8);
+            border-color: var(--border);
+        }
+
+        .pet-card.deceased:hover {
+            transform: none;
+            border-color: var(--border);
+            box-shadow: none;
+            background: var(--bg-card);
+            cursor: default;
+        }
+
+        .pet-card .memorial-badge {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.5rem;
+            font-weight: 700;
+            padding: 0.15rem 0.5rem;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
         /* New Pet Card */
         .new-pet-card {
             background: var(--bg-code);
@@ -413,15 +442,19 @@
                 const emoji = ANIMAL_EMOJIS[animal] || '\u{1F43E}';
                 const isActive = idx === activeIdx;
 
-                html += '<div class="pet-card' + (isActive ? ' active-pet' : '') + '" onclick="selectPet(' + idx + ')">';
-                if (isActive) {
+                const isDeceased = pet.deceased === true;
+                const cardCls = 'pet-card' + (isActive ? ' active-pet' : '') + (isDeceased ? ' deceased' : '');
+                html += '<div class="' + cardCls + '"' + (isDeceased ? '' : ' onclick="selectPet(' + idx + ')"') + '>';
+                if (isDeceased) {
+                    html += '<span class="memorial-badge">In Memoriam</span>';
+                } else if (isActive) {
                     html += '<span class="active-badge">Active</span>';
                 }
                 html += '<div class="pet-card-emoji">' + emoji + '</div>';
                 html += '<div class="pet-card-name">' + (pet.name || 'Unknown') + '</div>';
                 html += '<div class="pet-card-info">' + (pet.animal || 'Creature') + '</div>';
-                html += '<div class="pet-card-level">Level ' + (pet.level || 1) + '</div>';
-                html += '<button class="pet-card-release" onclick="event.stopPropagation(); showReleaseModal(' + idx + ')">Release</button>';
+                html += '<div class="pet-card-level">' + (isDeceased ? 'Deceased' : 'Level ' + (pet.level || 1)) + '</div>';
+                html += '<button class="pet-card-release" onclick="event.stopPropagation(); showReleaseModal(' + idx + ')">' + (isDeceased ? 'Remove' : 'Release') + '</button>';
                 html += '</div>';
             });
 
