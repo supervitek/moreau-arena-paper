@@ -979,6 +979,141 @@
             50% { box-shadow: 0 0 12px rgba(212,160,23,0.5); }
         }
 
+        /* ── Mutation Map (Radial Web) ── */
+        .mutation-map-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 520px;
+            margin: 0 auto 1.5rem;
+            aspect-ratio: 1;
+        }
+
+        .mutation-map-wrap svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .mutation-map-wrap svg text {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            pointer-events: none;
+        }
+
+        .map-node {
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .map-node:hover circle {
+            filter: brightness(1.4);
+        }
+
+        .map-info-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .map-info-panel.visible { display: block; }
+
+        .map-info-name {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .map-info-desc {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 0.5rem;
+        }
+
+        .map-info-tier {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+        }
+
+        .map-info-status {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .map-legend {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 0.75rem;
+        }
+
+        .map-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        .map-legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .map-view-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .map-view-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.3rem 0.8rem;
+            font-size: 0.7rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .map-view-btn.active {
+            border-color: var(--text-dim);
+            color: var(--text);
+            background: var(--bg-code);
+        }
+
+        .map-view-btn:hover { border-color: var(--text-dim); }
+
+        /* ── Ambient Visual Escalation ── */
+        .ambient-caution .biohazard-bg { opacity: 0.04 !important; }
+
+        .ambient-danger {
+            background: linear-gradient(180deg, var(--bg) 0%, #0f0a0a 100%) !important;
+        }
+        .ambient-danger .biohazard-bg { opacity: 0.06 !important; }
+        .ambient-danger .lab-header h1 { text-shadow: 0 0 20px rgba(230,57,70,0.3); }
+
+        .ambient-critical {
+            background: linear-gradient(180deg, #0f0808 0%, #0a0505 100%) !important;
+        }
+        .ambient-critical .biohazard-bg { opacity: 0.08 !important; animation: bioPulse 3s ease-in-out infinite !important; }
+        .ambient-critical .lab-header h1 { text-shadow: 0 0 30px rgba(230,57,70,0.5); }
+        .ambient-critical .warning-stripe { opacity: 0.6; }
+
+        @keyframes bioPulse {
+            0%, 100% { opacity: 0.06; }
+            50% { opacity: 0.12; }
+        }
+
         /* ── Odds Modal ── */
         #odds-modal {
             display: none;
@@ -1076,6 +1211,9 @@
             .tiers-grid { grid-template-columns: 1fr; }
             .codex-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
             .lab-tabs { flex-wrap: wrap; }
+            .mutation-map-wrap { max-width: 100%; }
+            .map-legend { gap: 0.5rem; }
+            .map-legend-item { font-size: 0.6rem; }
         }
     </style>
 </head>
@@ -1173,7 +1311,8 @@
         <div class="lab-tabs">
             <button class="lab-tab active" onclick="switchTab('experiment')">Experiment</button>
             <button class="lab-tab" onclick="switchTab('log')">Research Notes</button>
-            <button class="lab-tab" onclick="switchTab('codex')">Mutation Codex</button>
+            <button class="lab-tab" onclick="switchTab('map')">Mutation Map</button>
+            <button class="lab-tab" onclick="switchTab('codex')">Codex</button>
         </div>
 
         <!-- Tab: Experiment -->
@@ -1214,6 +1353,24 @@
         <div class="lab-tab-content" id="tab-log">
             <div class="log-section" id="log-section">
                 <div class="log-empty">No experiments recorded yet. Begin your research.</div>
+            </div>
+        </div>
+
+        <!-- Tab: Mutation Map (Radial Web) -->
+        <div class="lab-tab-content" id="tab-map">
+            <div class="mutation-map-wrap" id="mutation-map"></div>
+            <div class="map-legend">
+                <span class="map-legend-item"><span class="map-legend-dot" style="background:var(--text-muted);opacity:0.3"></span> Undiscovered</span>
+                <span class="map-legend-item"><span class="map-legend-dot" style="background:var(--green)"></span> Stable</span>
+                <span class="map-legend-item"><span class="map-legend-dot" style="background:var(--orange)"></span> Volatile</span>
+                <span class="map-legend-item"><span class="map-legend-dot" style="background:var(--accent)"></span> Forbidden</span>
+                <span class="map-legend-item"><span class="map-legend-dot" style="background:var(--gold)"></span> Ultra-Rare / Equipped</span>
+            </div>
+            <div class="map-info-panel" id="map-info-panel">
+                <div class="map-info-tier" id="map-info-tier"></div>
+                <div class="map-info-name" id="map-info-name"></div>
+                <div class="map-info-desc" id="map-info-desc"></div>
+                <div class="map-info-status" id="map-info-status"></div>
             </div>
         </div>
 
@@ -1549,6 +1706,16 @@
         } else {
             glitch.classList.remove('active');
         }
+
+        // Ambient visual escalation
+        document.body.classList.remove('ambient-caution', 'ambient-danger', 'ambient-critical');
+        if (inst >= 80) {
+            document.body.classList.add('ambient-critical');
+        } else if (inst >= 60) {
+            document.body.classList.add('ambient-danger');
+        } else if (inst >= 40) {
+            document.body.classList.add('ambient-caution');
+        }
     }
 
     function stabilize() {
@@ -1637,6 +1804,172 @@
     }
 
     // ══════════════════════════════════════════════
+    //  MUTATION MAP (Radial Web Visualization)
+    // ══════════════════════════════════════════════
+
+    function renderMutationMap() {
+        const container = document.getElementById('mutation-map');
+        if (!container || !pet) return;
+
+        const codex = loadCodex();
+        const equipped = getEquippedIds();
+
+        const cx = 250, cy = 250;
+        const rings = [
+            { items: TIER1, radius: 75, color: '#4ecca3', label: 'Stable', tierNum: 1 },
+            { items: TIER2, radius: 138, color: '#f4a261', label: 'Volatile', tierNum: 2 },
+            { items: TIER3, radius: 195, color: '#e63946', label: 'Forbidden', tierNum: 3 },
+            { items: ULTRA_RARES, radius: 232, color: '#d4a017', label: 'Ultra-Rare', tierNum: 4 },
+        ];
+
+        let totalDiscovered = 0;
+        const allMuts = [...TIER1, ...TIER2, ...TIER3, ...ULTRA_RARES];
+        allMuts.forEach(m => { if (codex[m.id]) totalDiscovered++; });
+
+        let svg = '<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">';
+
+        // Background: concentric ring guides
+        rings.forEach(ring => {
+            svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + ring.radius +
+                '" fill="none" stroke="' + ring.color + '" stroke-opacity="0.08" stroke-width="1" stroke-dasharray="3 6"/>';
+        });
+
+        // Connection lines (draw first, behind nodes)
+        rings.forEach(ring => {
+            const count = ring.items.length;
+            ring.items.forEach((m, i) => {
+                const angle = (2 * Math.PI * i / count) - Math.PI / 2;
+                const x = cx + ring.radius * Math.cos(angle);
+                const y = cy + ring.radius * Math.sin(angle);
+                const found = codex[m.id];
+                const isEq = equipped.has(m.id);
+
+                const opacity = isEq ? 0.35 : found ? 0.12 : 0.03;
+                const strokeColor = isEq ? '#d4a017' : ring.color;
+                const strokeW = isEq ? 1.5 : 0.5;
+
+                svg += '<line x1="' + cx + '" y1="' + cy + '" x2="' + x + '" y2="' + y +
+                    '" stroke="' + strokeColor + '" stroke-opacity="' + opacity + '" stroke-width="' + strokeW + '"/>';
+            });
+        });
+
+        // Center node (pet)
+        svg += '<circle cx="' + cx + '" cy="' + cy + '" r="22" fill="#12121a" stroke="#d4a017" stroke-width="1.5" stroke-opacity="0.5"/>';
+        const petEmoji = EMOJI_MAP[pet.animal] || '\u2753';
+        svg += '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dy="0.35em" font-size="18">' + petEmoji + '</text>';
+
+        // Stats summary under pet
+        svg += '<text x="' + cx + '" y="' + (cy + 36) + '" text-anchor="middle" font-size="7" fill="#a8a8b8">' +
+            totalDiscovered + '/49 discovered</text>';
+
+        // Ring labels
+        const labelPositions = [
+            { ring: rings[0], angle: -Math.PI * 0.15 },
+            { ring: rings[1], angle: -Math.PI * 0.12 },
+            { ring: rings[2], angle: -Math.PI * 0.10 },
+            { ring: rings[3], angle: -Math.PI * 0.08 },
+        ];
+        labelPositions.forEach(lp => {
+            const lx = cx + (lp.ring.radius + 2) * Math.cos(lp.angle);
+            const ly = cy + (lp.ring.radius + 2) * Math.sin(lp.angle);
+            svg += '<text x="' + lx + '" y="' + ly + '" text-anchor="start" font-size="6" ' +
+                'fill="' + lp.ring.color + '" opacity="0.5" font-weight="600" ' +
+                'letter-spacing="0.05em">' + lp.ring.label.toUpperCase() + '</text>';
+        });
+
+        // Mutation nodes
+        rings.forEach(ring => {
+            const count = ring.items.length;
+            ring.items.forEach((m, i) => {
+                const angle = (2 * Math.PI * i / count) - Math.PI / 2;
+                const x = cx + ring.radius * Math.cos(angle);
+                const y = cy + ring.radius * Math.sin(angle);
+                const found = codex[m.id];
+                const isEq = equipped.has(m.id);
+
+                // Group for click handling
+                svg += '<g class="map-node" onclick="selectMapNode(\'' + m.id + '\',' + ring.tierNum + ')">';
+
+                if (isEq) {
+                    // Equipped: pulsing gold glow
+                    svg += '<circle cx="' + x + '" cy="' + y + '" r="14" fill="' + ring.color + '" fill-opacity="0.08">' +
+                        '<animate attributeName="r" values="14;18;14" dur="3s" repeatCount="indefinite"/>' +
+                        '<animate attributeName="fill-opacity" values="0.08;0.02;0.08" dur="3s" repeatCount="indefinite"/>' +
+                        '</circle>';
+                    svg += '<circle cx="' + x + '" cy="' + y + '" r="7" fill="#d4a017" stroke="#d4a017" stroke-width="1.5"/>';
+                    // Label for equipped
+                    const labelR = ring.radius + 14;
+                    const lx = cx + labelR * Math.cos(angle);
+                    const ly = cy + labelR * Math.sin(angle);
+                    const anchor = (angle > -0.3 && angle < 0.3) ? 'middle' :
+                                   (Math.cos(angle) > 0) ? 'start' : 'end';
+                    const shortName = m.name.length > 16 ? m.name.slice(0, 14) + '..' : m.name;
+                    svg += '<text x="' + lx + '" y="' + ly + '" text-anchor="' + anchor +
+                        '" dy="0.35em" font-size="6.5" fill="#d4a017" font-weight="600">' + shortName + '</text>';
+                } else if (found) {
+                    // Discovered: colored dot
+                    svg += '<circle cx="' + x + '" cy="' + y + '" r="5" fill="' + ring.color + '" opacity="0.75"/>';
+                } else {
+                    // Undiscovered: dim dot
+                    svg += '<circle cx="' + x + '" cy="' + y + '" r="3" fill="#2a2a3a" opacity="0.4"/>';
+                }
+
+                // Invisible hitbox for clicking
+                svg += '<circle cx="' + x + '" cy="' + y + '" r="12" fill="transparent"/>';
+                svg += '</g>';
+            });
+        });
+
+        svg += '</svg>';
+        container.innerHTML = svg;
+    }
+
+    function selectMapNode(mutId, tierNum) {
+        const codex = loadCodex();
+        const equipped = getEquippedIds();
+        const allPools = [
+            { items: TIER1, tier: 1, label: 'Stable', color: 'var(--green)' },
+            { items: TIER2, tier: 2, label: 'Volatile', color: 'var(--orange)' },
+            { items: TIER3, tier: 3, label: 'Forbidden', color: 'var(--accent)' },
+            { items: ULTRA_RARES, tier: 4, label: 'Ultra-Rare', color: 'var(--gold)' },
+        ];
+
+        let mutation = null, pool = null;
+        for (const p of allPools) {
+            const found = p.items.find(m => m.id === mutId);
+            if (found) { mutation = found; pool = p; break; }
+        }
+
+        if (!mutation) return;
+
+        const panel = document.getElementById('map-info-panel');
+        const tierEl = document.getElementById('map-info-tier');
+        const nameEl = document.getElementById('map-info-name');
+        const descEl = document.getElementById('map-info-desc');
+        const statusEl = document.getElementById('map-info-status');
+
+        const isDiscovered = codex[mutId];
+        const isEquipped = equipped.has(mutId);
+
+        tierEl.textContent = pool.label;
+        tierEl.style.color = pool.color;
+
+        if (isDiscovered) {
+            nameEl.textContent = mutation.name;
+            nameEl.style.color = isEquipped ? 'var(--gold)' : pool.color;
+            descEl.textContent = mutation.desc;
+            statusEl.textContent = isEquipped ? 'Currently equipped' : 'Discovered \u2014 not equipped';
+        } else {
+            nameEl.textContent = '???';
+            nameEl.style.color = 'var(--text-muted)';
+            descEl.textContent = 'Not yet discovered. Roll ' + pool.label + ' tier experiments to reveal.';
+            statusEl.textContent = '';
+        }
+
+        panel.classList.add('visible');
+    }
+
+    // ══════════════════════════════════════════════
     //  CODEX
     // ══════════════════════════════════════════════
 
@@ -1708,13 +2041,14 @@
         document.querySelectorAll('.lab-tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.lab-tab-content').forEach(t => t.classList.remove('active'));
 
-        const tabMap = { experiment: 'tab-experiment', log: 'tab-log', codex: 'tab-codex' };
+        const tabMap = { experiment: 'tab-experiment', log: 'tab-log', map: 'tab-map', codex: 'tab-codex' };
         document.getElementById(tabMap[tab]).classList.add('active');
 
         const btns = document.querySelectorAll('.lab-tab');
-        const tabNames = ['experiment', 'log', 'codex'];
+        const tabNames = ['experiment', 'log', 'map', 'codex'];
         btns[tabNames.indexOf(tab)].classList.add('active');
 
+        if (tab === 'map') renderMutationMap();
         if (tab === 'codex') renderCodex();
         if (tab === 'log') renderLog();
     }
