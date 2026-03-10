@@ -907,6 +907,16 @@
                 }
             });
         }
+        // Secret: triple-click title → forbidden lab
+        let _labClicks = 0, _labTimer = null;
+        document.querySelectorAll('.intro-line').forEach(el => {
+            el.addEventListener('click', () => {
+                _labClicks++;
+                clearTimeout(_labTimer);
+                _labTimer = setTimeout(() => { _labClicks = 0; }, 1500);
+                if (_labClicks >= 3) { window.location.href = '/pets/forbidden-lab'; }
+            });
+        });
     </script>
 </body>
 </html>

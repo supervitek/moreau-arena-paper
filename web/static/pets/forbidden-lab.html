@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Forbidden Laboratory — Moreau Arena</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <meta property="og:title" content="The Forbidden Laboratory — Moreau Arena">
+    <meta property="og:description" content="Dr. Moreau's sealed experiments. Enter at your own risk.">
+    <meta name="twitter:card" content="summary">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --bg-card: #12121a;
+            --bg-card-hover: #1a1a26;
+            --border: #2a2a3a;
+            --accent: #e63946;
+            --text: #f1faee;
+            --text-dim: #a8a8b8;
+            --text-muted: #6a6a7a;
+            --gold: #d4a017;
+            --green: #4ecca3;
+            --blue: #457b9d;
+            --radius: 8px;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* ── Entry Screen ── */
+        #entry-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 90vh;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .entry-line {
+            font-size: 1.3rem;
+            color: var(--text-dim);
+            opacity: 0;
+            font-style: italic;
+            line-height: 1.7;
+            max-width: 600px;
+            animation: entryFade 2.5s ease forwards;
+        }
+
+        .entry-line:nth-child(2) {
+            animation-delay: 2.5s;
+            margin-top: 1.5rem;
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        .entry-line:nth-child(3) {
+            animation-delay: 4.5s;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--accent);
+        }
+
+        #entry-btn-wrap {
+            opacity: 0;
+            animation: entryFade 1.5s ease forwards;
+            animation-delay: 6.5s;
+            margin-top: 3rem;
+        }
+
+        .btn-enter {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: redGlow 2s ease-in-out infinite;
+        }
+
+        .btn-enter:hover {
+            background: var(--accent);
+            color: var(--text);
+            box-shadow: 0 0 60px rgba(230, 57, 70, 0.6);
+        }
+
+        @keyframes entryFade {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes redGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(230, 57, 70, 0.3); }
+            50% { box-shadow: 0 0 35px rgba(230, 57, 70, 0.6); }
+        }
+
+        /* ── Flicker Effect (ambient) ── */
+        .flicker {
+            animation: flicker 4s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 93%, 95%, 97%, 100% { opacity: 1; }
+            94% { opacity: 0.6; }
+            96% { opacity: 0.8; }
+        }
+
+        /* ── Main Lab ── */
+        #lab-main {
+            display: none;
+            padding: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .lab-header {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .lab-header h1 {
+            font-size: 1.8rem;
+            color: var(--accent);
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            margin: 0 0 0.25rem;
+        }
+
+        .lab-header .lab-subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .lab-pet-info {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            color: var(--text-dim);
+        }
+
+        .lab-pet-info .pet-emoji { font-size: 2rem; }
+        .lab-pet-info .pet-name { color: var(--gold); font-weight: 700; }
+
+        .btn-view-odds {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.4rem 1rem;
+            font-size: 0.8rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-view-odds:hover {
+            border-color: var(--text-dim);
+            color: var(--text);
+        }
+
+        /* ── Tier Columns ── */
+        .tiers-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
+        }
+
+        @media (max-width: 800px) {
+            .tiers-grid {
+                grid-template-columns: 1fr;
+                max-width: 420px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+
+        .tier-col {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .tier-col:hover {
+            transform: translateY(-4px);
+        }
+
+        .tier-col::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--tier-color);
+        }
+
+        .tier-col.tier-stable { --tier-color: var(--green); border-color: rgba(78, 204, 163, 0.3); }
+        .tier-col.tier-volatile { --tier-color: #f4a261; border-color: rgba(244, 162, 97, 0.3); }
+        .tier-col.tier-forbidden {
+            --tier-color: var(--accent);
+            border-color: rgba(230, 57, 70, 0.4);
+            animation: forbiddenPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes forbiddenPulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(230, 57, 70, 0.1); }
+            50% { box-shadow: 0 0 30px rgba(230, 57, 70, 0.25); }
+        }
+
+        .tier-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--tier-color);
+            margin-bottom: 0.75rem;
+        }
+
+        .tier-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .tier-meta span {
+            color: var(--tier-color);
+            font-weight: 600;
+        }
+
+        .tier-pool-count {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 1.25rem;
+        }
+
+        .btn-roll {
+            display: inline-block;
+            padding: 0.75rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border: 2px solid var(--tier-color);
+            color: var(--tier-color);
+            background: transparent;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .btn-roll:hover {
+            background: var(--tier-color);
+            color: var(--bg);
+            box-shadow: 0 0 30px color-mix(in srgb, var(--tier-color) 40%, transparent);
+        }
+
+        .btn-roll:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .btn-roll.pulse-subtle {
+            animation: pulseSubtle 2s ease-in-out infinite;
+        }
+
+        .btn-roll.pulse-intense {
+            animation: pulseIntense 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulseSubtle {
+            0%, 100% { box-shadow: 0 0 8px color-mix(in srgb, var(--tier-color) 20%, transparent); }
+            50% { box-shadow: 0 0 25px color-mix(in srgb, var(--tier-color) 45%, transparent); }
+        }
+
+        @keyframes pulseIntense {
+            0%, 100% { box-shadow: 0 0 12px color-mix(in srgb, var(--tier-color) 30%, transparent); transform: scale(1); }
+            50% { box-shadow: 0 0 40px color-mix(in srgb, var(--tier-color) 60%, transparent); transform: scale(1.03); }
+        }
+
+        /* ── Roll Result Card ── */
+        #result-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .result-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 2.5rem 2rem;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-card .tier-badge {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .result-card .tier-badge.stable { background: rgba(78,204,163,0.15); color: var(--green); }
+        .result-card .tier-badge.volatile { background: rgba(244,162,97,0.15); color: #f4a261; }
+        .result-card .tier-badge.forbidden { background: rgba(230,57,70,0.15); color: var(--accent); }
+
+        .slot-machine {
+            font-size: 1.5rem;
+            font-weight: 700;
+            height: 2.2rem;
+            overflow: hidden;
+            margin-bottom: 1.25rem;
+            position: relative;
+        }
+
+        .slot-machine .slot-text {
+            position: absolute;
+            width: 100%;
+            left: 0;
+            transition: none;
+        }
+
+        .result-mutation-name {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-description {
+            font-size: 0.95rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .result-stats {
+            display: flex;
+            gap: 0.6rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-stats .stat-pill {
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 0.25rem 0.7rem;
+            border-radius: 4px;
+        }
+
+        .stat-pill.positive { color: var(--green); background: rgba(78,204,163,0.12); }
+        .stat-pill.negative { color: var(--accent); background: rgba(230,57,70,0.12); }
+        .stat-pill.special { color: var(--gold); background: rgba(212,160,23,0.12); }
+
+        /* Side Effect Card */
+        .side-effect-card {
+            display: none;
+            background: #1a0a0a;
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-width: 420px;
+            width: 100%;
+            margin-top: 1rem;
+            text-align: center;
+            animation: slideUpSide 0.5s ease forwards;
+        }
+
+        @keyframes slideUpSide {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .side-effect-card .se-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .side-effect-card .se-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.4rem;
+        }
+
+        .side-effect-card .se-desc {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        .cascade-flash {
+            color: var(--gold) !important;
+            border-color: var(--gold) !important;
+            animation: cascadeGlow 0.8s ease-in-out 3;
+        }
+
+        @keyframes cascadeGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(212,160,23,0.2); }
+            50% { box-shadow: 0 0 40px rgba(212,160,23,0.6); }
+        }
+
+        /* Action buttons in result */
+        .result-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 1.25rem;
+        }
+
+        .btn-apply {
+            background: var(--green);
+            color: var(--bg);
+            border: none;
+            padding: 0.65rem 1.8rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-apply:hover {
+            box-shadow: 0 0 20px rgba(78,204,163,0.4);
+            transform: scale(1.03);
+        }
+
+        .btn-discard {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.65rem 1.8rem;
+            font-size: 0.95rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-discard:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* ── Screen Shake ── */
+        .screen-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10% { transform: translateX(-8px) rotate(-0.5deg); }
+            20% { transform: translateX(8px) rotate(0.5deg); }
+            30% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            50% { transform: translateX(-4px); }
+            60% { transform: translateX(4px); }
+            70% { transform: translateX(-2px); }
+            80% { transform: translateX(2px); }
+        }
+
+        /* ── Ultra-Rare Overlay ── */
+        #ultra-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(0,0,0,0.95);
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .ultra-flash {
+            animation: ultraFlash 0.5s ease;
+        }
+
+        @keyframes ultraFlash {
+            0% { background: rgba(212,160,23,0.8); }
+            100% { background: rgba(0,0,0,0.95); }
+        }
+
+        .ultra-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: ultraFade 1s ease forwards 0.5s;
+        }
+
+        .ultra-name {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--gold);
+            text-shadow: 0 0 40px rgba(212,160,23,0.6);
+            margin-bottom: 0.5rem;
+            opacity: 0;
+            animation: ultraFade 1s ease forwards 1s;
+        }
+
+        .ultra-animal {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            margin-bottom: 0.75rem;
+            opacity: 0;
+            animation: ultraFade 1s ease forwards 1.5s;
+        }
+
+        .ultra-desc {
+            font-size: 1rem;
+            color: var(--text);
+            max-width: 500px;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: ultraFade 1s ease forwards 2s;
+        }
+
+        .ultra-actions {
+            opacity: 0;
+            animation: ultraFade 1s ease forwards 2.5s;
+            display: flex;
+            gap: 1rem;
+        }
+
+        @keyframes ultraFade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Confetti */
+        .confetti-container {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 2001;
+            overflow: hidden;
+        }
+
+        .confetti-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            top: -10px;
+            animation: confettiFall linear forwards;
+        }
+
+        @keyframes confettiFall {
+            to { top: 110vh; transform: rotate(720deg); }
+        }
+
+        /* ── Odds Modal ── */
+        #odds-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 900;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .odds-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 700px;
+            width: 100%;
+            margin-top: 3rem;
+        }
+
+        .odds-content h2 {
+            color: var(--text);
+            margin: 0 0 1.5rem;
+            font-size: 1.3rem;
+        }
+
+        .odds-content h3 {
+            color: var(--text-dim);
+            font-size: 1rem;
+            margin: 1.5rem 0 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .odds-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .odds-table th {
+            text-align: left;
+            color: var(--text-muted);
+            padding: 0.4rem 0.6rem;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+        }
+
+        .odds-table td {
+            padding: 0.35rem 0.6rem;
+            border-bottom: 1px solid rgba(42,42,58,0.4);
+            color: var(--text-dim);
+        }
+
+        .odds-table td:last-child {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .btn-close-modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 0.5rem 1.5rem;
+            font-size: 0.9rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            margin-top: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .btn-close-modal:hover {
+            border-color: var(--text-muted);
+            color: var(--text);
+        }
+
+        /* ── Codex ── */
+        .codex-section {
+            margin-top: 1rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .codex-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .codex-header h2 {
+            font-size: 1.3rem;
+            color: var(--text-dim);
+            margin: 0 0 0.25rem;
+        }
+
+        .codex-header .codex-count {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .codex-tier-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            margin: 1.25rem 0 0.5rem;
+            padding-left: 0.25rem;
+        }
+
+        .codex-tier-label.stable { color: var(--green); }
+        .codex-tier-label.volatile { color: #f4a261; }
+        .codex-tier-label.forbidden { color: var(--accent); }
+        .codex-tier-label.ultra { color: var(--gold); }
+
+        .codex-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .codex-tile {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.5rem;
+            text-align: center;
+            font-size: 0.75rem;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .codex-tile.discovered {
+            border-color: var(--tile-color, var(--border));
+            color: var(--text-dim);
+        }
+
+        .codex-tile.undiscovered {
+            color: var(--text-muted);
+            opacity: 0.4;
+        }
+
+        /* ── Warning Stripes ── */
+        .warning-stripe {
+            height: 4px;
+            background: repeating-linear-gradient(
+                45deg,
+                var(--accent),
+                var(--accent) 10px,
+                transparent 10px,
+                transparent 20px
+            );
+            opacity: 0.3;
+            margin-bottom: 1.5rem;
+        }
+
+        /* ── No Pet ── */
+        #no-pet-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        #no-pet-screen p {
+            color: var(--text-dim);
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-back {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-back:hover {
+            border-color: var(--text-muted);
+            color: var(--text);
+        }
+
+        /* ── Biohazard Watermark ── */
+        .biohazard-bg {
+            position: fixed;
+            bottom: -80px;
+            right: -80px;
+            font-size: 20rem;
+            opacity: 0.015;
+            pointer-events: none;
+            z-index: 0;
+            color: var(--accent);
+        }
+
+        /* ── Rolling state ── */
+        .rolling .btn-roll { pointer-events: none; opacity: 0.5; }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li class="nav-dropdown">
+                    <a href="/tournaments">Benchmark &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/tournaments">Tournaments</a></li>
+                        <li><a href="/leaderboard">Leaderboard</a></li>
+                        <li><a href="/methodology">Methodology</a></li>
+                        <li><a href="/match-log">Match Log</a></li>
+                        <li><a href="/compare">Compare</a></li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="/s1-leaderboard">Seasons &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/s1-leaderboard">S1 Leaderboard</a></li>
+                        <li><a href="/s1-fighters">Meet the Fighters</a></li>
+                        <li><a href="/s1-matchups">Matchup Explorer</a></li>
+                        <li><a href="/play">S1 Quick Fight</a></li>
+                        <li><a href="/s1-compare">Benchmark vs S1</a></li>
+                        <li><a href="/moreddit">The Moreddit</a></li>
+                    </ul>
+                </li>
+                <li><a href="/pets" class="active">Pets</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="biohazard-bg flicker">&#9762;</div>
+
+    <!-- No Pet Screen -->
+    <div id="no-pet-screen">
+        <p>You need a pet to enter the laboratory.</p>
+        <a href="/pets" class="btn-back">Adopt a Pet</a>
+    </div>
+
+    <!-- Entry Screen -->
+    <div id="entry-screen">
+        <div class="entry-line">You shouldn't be here.<br>Dr. Moreau's forbidden experiments were sealed for a reason...</div>
+        <div class="entry-line">The files were classified. The lab was locked. The key was destroyed.</div>
+        <div class="entry-line">Or so they said.</div>
+        <div id="entry-btn-wrap">
+            <button class="btn-enter" onclick="enterLab()">Enter Anyway</button>
+        </div>
+    </div>
+
+    <!-- Main Lab -->
+    <div id="lab-main">
+        <div class="warning-stripe"></div>
+
+        <div class="lab-header">
+            <h1 class="flicker">The Forbidden Laboratory</h1>
+            <div class="lab-subtitle">Experimental mutation facility &mdash; proceed with caution</div>
+            <button class="btn-view-odds" onclick="showOdds()">View Full Odds</button>
+        </div>
+
+        <div class="lab-pet-info">
+            <span class="pet-emoji" id="lab-pet-emoji"></span>
+            <span class="pet-name" id="lab-pet-name"></span>
+            <span id="lab-pet-level"></span>
+        </div>
+
+        <!-- Tier Columns -->
+        <div class="tiers-grid">
+            <!-- STABLE -->
+            <div class="tier-col tier-stable">
+                <div class="tier-name">Stable</div>
+                <div class="tier-meta">Side Effect: <span>0%</span></div>
+                <div class="tier-meta">Ultra-Rare: <span>0%</span></div>
+                <div class="tier-pool-count">10 mutations in pool</div>
+                <button class="btn-roll" onclick="rollMutation(1)">Roll</button>
+            </div>
+            <!-- VOLATILE -->
+            <div class="tier-col tier-volatile">
+                <div class="tier-name">Volatile</div>
+                <div class="tier-meta">Side Effect: <span>35%</span></div>
+                <div class="tier-meta">Ultra-Rare: <span>0%</span></div>
+                <div class="tier-pool-count">15 mutations in pool</div>
+                <button class="btn-roll pulse-subtle" onclick="rollMutation(2)">Roll</button>
+            </div>
+            <!-- FORBIDDEN -->
+            <div class="tier-col tier-forbidden">
+                <div class="tier-name">Forbidden</div>
+                <div class="tier-meta">Side Effect: <span>70%</span></div>
+                <div class="tier-meta">Ultra-Rare: <span>2%</span></div>
+                <div class="tier-pool-count">10 mutations + 14 ultra-rares</div>
+                <button class="btn-roll pulse-intense" onclick="rollMutation(3)">Roll</button>
+            </div>
+        </div>
+
+        <!-- Codex -->
+        <div class="codex-section">
+            <div class="codex-header">
+                <h2>Mutation Codex</h2>
+                <div class="codex-count" id="codex-count">0 / 49 discovered</div>
+            </div>
+            <div id="codex-container"></div>
+        </div>
+    </div>
+
+    <!-- Result Overlay -->
+    <div id="result-overlay">
+        <div class="result-card" id="result-card">
+            <div class="tier-badge" id="result-tier-badge"></div>
+            <div class="slot-machine" id="slot-machine">
+                <span class="slot-text" id="slot-text"></span>
+            </div>
+            <div class="result-mutation-name" id="result-name" style="display:none;"></div>
+            <div class="result-description" id="result-desc" style="display:none;"></div>
+            <div class="result-stats" id="result-stats" style="display:none;"></div>
+            <div class="result-actions" id="result-actions" style="display:none;">
+                <button class="btn-apply" id="btn-apply" onclick="applyResult()">Apply to Pet</button>
+                <button class="btn-discard" onclick="discardResult()">Discard</button>
+            </div>
+        </div>
+        <div class="side-effect-card" id="side-effect-card">
+            <div class="se-label">Side Effect</div>
+            <div class="se-name" id="se-name"></div>
+            <div class="se-desc" id="se-desc"></div>
+        </div>
+    </div>
+
+    <!-- Ultra-Rare Overlay -->
+    <div id="ultra-overlay">
+        <div class="confetti-container" id="confetti-container"></div>
+        <div class="ultra-title">Ultra-Rare Mutation Unlocked</div>
+        <div class="ultra-name" id="ultra-name"></div>
+        <div class="ultra-animal" id="ultra-animal"></div>
+        <div class="ultra-desc" id="ultra-desc"></div>
+        <div class="ultra-actions">
+            <button class="btn-apply" id="btn-ultra-apply" onclick="applyResult()">Apply to Pet</button>
+            <button class="btn-discard" onclick="discardResult()">Discard</button>
+        </div>
+    </div>
+
+    <!-- Odds Modal -->
+    <div id="odds-modal" onclick="if(event.target===this)closeOdds()">
+        <div class="odds-content" id="odds-content"></div>
+    </div>
+
+    <script>
+    // ══════════════════════════════════════════════
+    //  MUTATION DATA
+    // ══════════════════════════════════════════════
+
+    const EMOJI_MAP = {
+        fox:'&#129418;', tiger:'&#128005;', bear:'&#128059;', wolf:'&#128058;',
+        scorpion:'&#129410;', eagle:'&#129413;', porcupine:'&#129428;', rhino:'&#129423;',
+        viper:'&#128013;', vulture:'&#129413;', monkey:'&#128018;', buffalo:'&#129452;',
+        panther:'&#128008;', boar:'&#128023;'
+    };
+
+    const TIER1 = [
+        { id:'t1_tough_skin',       name:'Tough Skin',         desc:'+2 HP — thickened dermal layer',                    stats:{hp:2} },
+        { id:'t1_sharp_claws',      name:'Sharp Claws',        desc:'+1 ATK — keratin-reinforced strike surfaces',       stats:{atk:1} },
+        { id:'t1_quick_feet',       name:'Quick Feet',         desc:'+1 SPD — neural fast-twitch enhancement',           stats:{spd:1} },
+        { id:'t1_iron_will',        name:'Iron Will',          desc:'+1 WIL — cortical resilience boost',                stats:{wil:1} },
+        { id:'t1_keen_eyes',        name:'Keen Eyes',          desc:'+3% accuracy — retinal focus implant',              stats:{accuracy:3}, unit:'%' },
+        { id:'t1_thick_hide',       name:'Thick Hide',         desc:'+5% damage reduction — subdermal plating',          stats:{dmg_red:5}, unit:'%' },
+        { id:'t1_swift_reflexes',   name:'Swift Reflexes',     desc:'+3% dodge — reflex arc shortening',                 stats:{dodge:3}, unit:'%' },
+        { id:'t1_battle_scars',     name:'Battle Scars',       desc:'+3 HP — scarified regenerative tissue',             stats:{hp:3} },
+        { id:'t1_predator_instinct',name:'Predator Instinct',  desc:'+2% crit chance — killer instinct amplifier',       stats:{crit:2}, unit:'%' },
+        { id:'t1_survival_instinct',name:'Survival Instinct',  desc:'+1 HP, +1 WIL — fight-or-flight optimization',     stats:{hp:1, wil:1} },
+    ];
+
+    const TIER2 = [
+        { id:'t2_fleet_tendons',    name:'Fleet Tendons',      desc:'+3 SPD, +5% dodge — elastic myofiber replacement',            stats:{spd:3, dodge:5} },
+        { id:'t2_barbed_blood',     name:'Barbed Blood',       desc:'15% reflect damage on hit — hemolytic defense system',         stats:{reflect:15}, unit:'%', special:true },
+        { id:'t2_adrenaline_surge', name:'Adrenaline Surge',   desc:'+20% ATK for first 3 ticks — adrenal gland overclocking',     stats:{atk_boost:20}, unit:'%', special:true },
+        { id:'t2_shadow_step',      name:'Shadow Step',        desc:'+8% dodge, +2 SPD — photon-bending muscle fibers',             stats:{dodge:8, spd:2} },
+        { id:'t2_venom_glands',     name:'Venom Glands',       desc:'Attacks apply 3-tick poison — toxin sac implantation',         stats:{}, special:true },
+        { id:'t2_berserker_gene',   name:'Berserker Gene',     desc:'+4 ATK, -1 WIL — limbic system override',                     stats:{atk:4, wil:-1} },
+        { id:'t2_regeneration',     name:'Regeneration',        desc:'Heal 2% max HP per tick — cellular mitosis accelerant',        stats:{}, special:true },
+        { id:'t2_hardened_bones',   name:'Hardened Bones',     desc:'+4 HP, +10% damage reduction — calcium-carbide infusion',      stats:{hp:4, dmg_red:10} },
+        { id:'t2_feral_senses',     name:'Feral Senses',       desc:'+5% crit, +3% accuracy — sensory cortex expansion',            stats:{crit:5, accuracy:3} },
+        { id:'t2_ambush_wiring',    name:'Ambush Wiring',      desc:'+30% first-strike damage — pre-synaptic trigger loop',         stats:{first_strike:30}, unit:'%', special:true },
+        { id:'t2_symbiotic_armor',  name:'Symbiotic Armor',    desc:'+3 HP, +1 ATK — parasitic exoskeleton bonding',                stats:{hp:3, atk:1} },
+        { id:'t2_neural_boost',     name:'Neural Boost',       desc:'+3 WIL, ability power +10% — prefrontal amplifier',            stats:{wil:3, ability_power:10} },
+        { id:'t2_kinetic_absorber', name:'Kinetic Absorber',   desc:'10% chance to negate hit — inertial dampening field',           stats:{negate:10}, unit:'%', special:true },
+        { id:'t2_bloodlust',        name:'Bloodlust',          desc:'+2% ATK per hit landed (stacks to 5) — dopamine combat loop',  stats:{}, special:true },
+        { id:'t2_territorial_rage', name:'Territorial Rage',   desc:'+15% ATK on home terrain — territorial pheromone reactor',      stats:{terrain_atk:15}, unit:'%', special:true },
+    ];
+
+    const TIER3 = [
+        { id:'t3_apex_predator',    name:'Apex Predator',      desc:'+5 ATK, +3 SPD — apex genome splice',                          stats:{atk:5, spd:3} },
+        { id:'t3_unkillable',       name:'Unkillable',         desc:'Survive lethal hit once at 1 HP — death-refusal gene',          stats:{}, special:true },
+        { id:'t3_phase_shift',      name:'Phase Shift',        desc:'20% chance to completely dodge any attack — quantum instability',stats:{phase_dodge:20}, unit:'%', special:true },
+        { id:'t3_doom_bloom',       name:'Doom Bloom',         desc:'Every 4th tick: massive buff OR self-hex (50/50) — chaos bloom', stats:{}, special:true },
+        { id:'t3_chimera_heart',    name:'Chimera Heart',      desc:'Gain 1 random trait from another species each fight',            stats:{}, special:true },
+        { id:'t3_gene_overload',    name:'Gene Overload',      desc:'All stats +2, but 10% chance to lose a turn each tick',          stats:{hp:2, atk:2, spd:2, wil:2}, special:true },
+        { id:'t3_perfect_form',     name:'Perfect Form',       desc:'+2 to all stats — flawless genetic recombination',               stats:{hp:2, atk:2, spd:2, wil:2} },
+        { id:'t3_unstoppable_force',name:'Unstoppable Force',  desc:'Ignore all defensive abilities for 2 ticks — barrier breaker',   stats:{}, special:true },
+        { id:'t3_shadow_clone',     name:'Shadow Clone',       desc:'First attack each fight hits twice — mitotic echo',               stats:{}, special:true },
+        { id:'t3_evolutions_edge',  name:"Evolution's Edge",   desc:'+3 to highest stat, +1 to lowest stat — adaptive optimizer',     stats:{}, special:true },
+    ];
+
+    const ULTRA_RARES = [
+        { id:'ur_fox',       animal:'fox',       name:"Moreau's Briefcase",   desc:'Copy opponent\'s passive before fight starts' },
+        { id:'ur_tiger',     animal:'tiger',     name:'Echolocation',         desc:'Nullify accuracy penalties, double dodge' },
+        { id:'ur_bear',      animal:'bear',      name:'Ursine Apotheosis',    desc:'Below 30% HP: all stats +25% for 3 ticks' },
+        { id:'ur_wolf',      animal:'wolf',      name:'Pack Echo',            desc:'Clone your last successful ability on next tick' },
+        { id:'ur_scorpion',  animal:'scorpion',  name:'Neurotoxin Cascade',   desc:'All DOTs spread to adjacent hexes' },
+        { id:'ur_eagle',     animal:'eagle',     name:'Stratospheric Dive',   desc:'First strike from max range does 3x damage' },
+        { id:'ur_porcupine', animal:'porcupine', name:'Living Fortress',      desc:'Reflect 100% damage for 1 tick (10-tick CD)' },
+        { id:'ur_rhino',     animal:'rhino',     name:'Tectonic Charge',      desc:'Movement creates blocking rubble' },
+        { id:'ur_viper',     animal:'viper',     name:'Hemotoxin Bloom',      desc:'Poison stacks convert to healing on kill' },
+        { id:'ur_vulture',   animal:'vulture',   name:'Carrion Authority',    desc:'+5% all stats per dead unit on field' },
+        { id:'ur_monkey',    animal:'monkey',    name:'Chaos Theory',         desc:'Randomize one opponent stat each tick' },
+        { id:'ur_buffalo',   animal:'buffalo',   name:'Immovable Object',     desc:'Cannot be moved or displaced; immune to knockback' },
+        { id:'ur_panther',   animal:'panther',   name:'Void Step',            desc:'Teleport behind target before each attack' },
+        { id:'ur_boar',      animal:'boar',      name:'Blood Frenzy',         desc:'Each hit +3% ATK (stacks infinitely)' },
+    ];
+
+    const SIDE_EFFECTS = {
+        symbiotic: [
+            { name:'Brittle Frame',        desc:'-2 HP, +10% crit chance',           stats:{hp:-2, crit:10} },
+            { name:'Sluggish Nerves',       desc:'-2 SPD, +15% reflect damage',       stats:{spd:-2, reflect:15} },
+            { name:'Dulled Claws',          desc:'-1 ATK, poison immunity',            stats:{atk:-1} },
+            { name:'Glass Cannon',          desc:'-3 HP, +3 ATK',                     stats:{hp:-3, atk:3} },
+            { name:'Heavy Bones',           desc:'-1 SPD, +3 HP',                     stats:{spd:-1, hp:3} },
+            { name:'Feral Trade',           desc:'-2 WIL, +2 ATK',                    stats:{wil:-2, atk:2} },
+            { name:'Hypermetabolism',       desc:'-1 HP per tick, +2 SPD',             stats:{spd:2} },
+            { name:'Tunnel Vision',         desc:'-3% dodge, +5% crit',               stats:{crit:5} },
+        ],
+        cosmetic: [
+            { name:'Glowing Eyes',          desc:'Eyes emit a faint bioluminescent glow' },
+            { name:'Iridescent Fur',        desc:'Fur shimmers with shifting colors in light' },
+            { name:'Crystalline Claws',     desc:'Claws take on a translucent, crystal-like texture' },
+            { name:'Shadow Aura',           desc:'A faint dark mist trails behind during movement' },
+            { name:'Scarlet Veins',         desc:'Visible red veins pulse beneath the skin' },
+            { name:'Frost Breath',          desc:'Breath mists visibly, even in warm air' },
+            { name:'Starfield Pupils',      desc:'Pupils appear to contain tiny points of light' },
+            { name:'Chitinous Patches',     desc:'Small sections of exoskeletal plating appear on limbs' },
+        ],
+        corruption: [
+            { name:'Inverted Healing',      desc:'Healing abilities deal damage instead, damage abilities heal allies' },
+            { name:'Delayed Strike',        desc:'Attacks land 1 tick late but deal 25% more damage' },
+            { name:'Chaotic Targeting',      desc:'Abilities hit random targets but trigger twice' },
+            { name:'Overcharged',           desc:'Ability power +30% but 15% chance to backfire' },
+            { name:'Echo Effect',           desc:'Every ability repeats at 50% power next tick' },
+        ],
+        cascade: [
+            { name:'Cascade!', desc:'A secondary reaction triggers a free Tier 1 bonus roll!' },
+        ],
+        personality: [
+            { name:'Aggressive Drift',      desc:'Soul voice shifts to aggressive, confrontational tone' },
+            { name:'Serene Drift',          desc:'Soul voice becomes calm and philosophical' },
+            { name:'Manic Drift',           desc:'Soul voice becomes excitable and unpredictable' },
+            { name:'Ancient Drift',         desc:'Soul voice takes on an archaic, wise cadence' },
+        ],
+    };
+
+    // Category weights: Symbiotic 35%, Cosmetic 25%, Corruption 20%, Cascade 15%, Personality 5%
+    const SE_WEIGHTS = [
+        { cat:'symbiotic',   weight:35 },
+        { cat:'cosmetic',    weight:25 },
+        { cat:'corruption',  weight:20 },
+        { cat:'cascade',     weight:15 },
+        { cat:'personality',  weight:5 },
+    ];
+
+    // ══════════════════════════════════════════════
+    //  STATE
+    // ══════════════════════════════════════════════
+
+    let pet = null;
+    let currentResult = null;   // { mutation, tier, sideEffect, isUltra, cascadeResult }
+    let isRolling = false;
+
+    // ══════════════════════════════════════════════
+    //  PET STORAGE (same pattern as other pet pages)
+    // ══════════════════════════════════════════════
+
+    function migrateAndLoadPet() {
+        const oldRaw = localStorage.getItem('moreau_pet');
+        if (oldRaw) {
+            try {
+                const oldPet = JSON.parse(oldRaw);
+                const existing = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                if (existing.length < 6) existing.push(oldPet);
+                localStorage.setItem('moreau_pets', JSON.stringify(existing));
+                localStorage.setItem('moreau_active_pet', String(existing.length - 1));
+                localStorage.removeItem('moreau_pet');
+            } catch(e) { localStorage.removeItem('moreau_pet'); }
+        }
+        const pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+        if (pets.length === 0) return null;
+        let idx = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
+        if (idx < 0 || idx >= pets.length) idx = 0;
+        return pets[idx];
+    }
+
+    function saveActivePet(p) {
+        const pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+        let idx = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
+        if (idx < 0 || idx >= pets.length) idx = 0;
+        pets[idx] = p;
+        localStorage.setItem('moreau_pets', JSON.stringify(pets));
+    }
+
+    // ══════════════════════════════════════════════
+    //  CODEX
+    // ══════════════════════════════════════════════
+
+    function loadCodex() {
+        try { return JSON.parse(localStorage.getItem('moreau_codex') || '{}'); }
+        catch { return {}; }
+    }
+
+    function saveCodex(codex) {
+        localStorage.setItem('moreau_codex', JSON.stringify(codex));
+    }
+
+    function discoverMutation(id) {
+        const codex = loadCodex();
+        codex[id] = true;
+        saveCodex(codex);
+    }
+
+    function renderCodex() {
+        const codex = loadCodex();
+        const container = document.getElementById('codex-container');
+        const allMutations = [
+            { label:'Stable', cls:'stable', items:TIER1 },
+            { label:'Volatile', cls:'volatile', items:TIER2 },
+            { label:'Forbidden', cls:'forbidden', items:TIER3 },
+            { label:'Ultra-Rare', cls:'ultra', items:ULTRA_RARES },
+        ];
+
+        let totalDiscovered = 0;
+        let html = '';
+
+        allMutations.forEach(group => {
+            html += `<div class="codex-tier-label ${group.cls}">${group.label}</div>`;
+            html += '<div class="codex-grid">';
+            group.items.forEach(m => {
+                const found = codex[m.id];
+                if (found) totalDiscovered++;
+                const colorMap = { stable:'var(--green)', volatile:'#f4a261', forbidden:'var(--accent)', ultra:'var(--gold)' };
+                if (found) {
+                    html += `<div class="codex-tile discovered" style="--tile-color:${colorMap[group.cls]}">${m.name}</div>`;
+                } else {
+                    html += `<div class="codex-tile undiscovered">???</div>`;
+                }
+            });
+            html += '</div>';
+        });
+
+        container.innerHTML = html;
+        document.getElementById('codex-count').textContent = `${totalDiscovered} / 49 discovered`;
+    }
+
+    // ══════════════════════════════════════════════
+    //  ODDS MODAL
+    // ══════════════════════════════════════════════
+
+    function showOdds() {
+        const modal = document.getElementById('odds-modal');
+        const content = document.getElementById('odds-content');
+
+        let html = '<h2>Full Probability Tables</h2>';
+
+        // Side effects
+        html += '<h3>Side Effect Categories (when triggered)</h3>';
+        html += '<table class="odds-table"><tr><th>Category</th><th>Chance</th></tr>';
+        SE_WEIGHTS.forEach(w => {
+            html += `<tr><td>${w.cat.charAt(0).toUpperCase() + w.cat.slice(1)}</td><td>${w.weight}%</td></tr>`;
+        });
+        html += '</table>';
+
+        // Tier pools
+        const pools = [
+            { name:'Tier 1 — Stable', items:TIER1, se:'0%', ur:'0%' },
+            { name:'Tier 2 — Volatile', items:TIER2, se:'35%', ur:'0%' },
+            { name:'Tier 3 — Forbidden (base pool)', items:TIER3, se:'70%', ur:'N/A' },
+            { name:'Tier 3 — Ultra-Rares (2% chance)', items:ULTRA_RARES, se:'70%', ur:'2%' },
+        ];
+
+        pools.forEach(pool => {
+            html += `<h3>${pool.name}</h3>`;
+            const chance = pool.items === ULTRA_RARES ? (2 / ULTRA_RARES.length).toFixed(2) :
+                           pool.items === TIER3 ? ((100 - 2) / TIER3.length).toFixed(1) :
+                           (100 / pool.items.length).toFixed(1);
+            html += '<table class="odds-table"><tr><th>Mutation</th><th>Each</th></tr>';
+            pool.items.forEach(m => {
+                html += `<tr><td>${m.name}</td><td>${chance}%</td></tr>`;
+            });
+            html += '</table>';
+        });
+
+        html += '<button class="btn-close-modal" onclick="closeOdds()">Close</button>';
+        content.innerHTML = html;
+        modal.style.display = 'flex';
+    }
+
+    function closeOdds() {
+        document.getElementById('odds-modal').style.display = 'none';
+    }
+
+    // ══════════════════════════════════════════════
+    //  ENTRY
+    // ══════════════════════════════════════════════
+
+    function enterLab() {
+        document.getElementById('entry-screen').style.display = 'none';
+        document.getElementById('lab-main').style.display = 'block';
+        renderCodex();
+    }
+
+    // ══════════════════════════════════════════════
+    //  ROLLING ENGINE
+    // ══════════════════════════════════════════════
+
+    function pickRandom(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function rollSideEffectCategory() {
+        const roll = Math.random() * 100;
+        let cumulative = 0;
+        for (const w of SE_WEIGHTS) {
+            cumulative += w.weight;
+            if (roll < cumulative) return w.cat;
+        }
+        return 'symbiotic';
+    }
+
+    function rollSideEffect() {
+        const cat = rollSideEffectCategory();
+        const effect = pickRandom(SIDE_EFFECTS[cat]);
+        return { category: cat, ...effect };
+    }
+
+    async function rollMutation(tier) {
+        if (isRolling) return;
+        isRolling = true;
+        document.body.classList.add('rolling');
+
+        let mutation, isUltra = false, sideEffect = null, cascadeResult = null;
+
+        if (tier === 1) {
+            mutation = pickRandom(TIER1);
+        } else if (tier === 2) {
+            mutation = pickRandom(TIER2);
+            if (Math.random() < 0.35) {
+                sideEffect = rollSideEffect();
+            }
+        } else {
+            // Tier 3: 2% ultra-rare
+            if (Math.random() < 0.02) {
+                mutation = pickRandom(ULTRA_RARES);
+                isUltra = true;
+            } else {
+                mutation = pickRandom(TIER3);
+            }
+            if (Math.random() < 0.70) {
+                sideEffect = rollSideEffect();
+            }
+        }
+
+        // Handle cascade
+        if (sideEffect && sideEffect.category === 'cascade') {
+            cascadeResult = pickRandom(TIER1);
+        }
+
+        // Store result
+        currentResult = { mutation, tier, sideEffect, isUltra, cascadeResult };
+
+        // Discover in codex
+        discoverMutation(mutation.id);
+        if (cascadeResult) discoverMutation(cascadeResult.id);
+
+        // Screen shake
+        document.body.classList.add('screen-shake');
+        setTimeout(() => document.body.classList.remove('screen-shake'), 400);
+
+        if (isUltra) {
+            // Ultra-rare path
+            await runSlotAnimation(tier, mutation);
+            showUltraRare(mutation);
+        } else {
+            // Normal path
+            await runSlotAnimation(tier, mutation);
+            showNormalResult(tier, mutation, sideEffect, cascadeResult);
+        }
+
+        renderCodex();
+        isRolling = false;
+        document.body.classList.remove('rolling');
+    }
+
+    // ══════════════════════════════════════════════
+    //  SLOT MACHINE ANIMATION
+    // ══════════════════════════════════════════════
+
+    function getAllNames(tier) {
+        const names = [];
+        TIER1.forEach(m => names.push(m.name));
+        if (tier >= 2) TIER2.forEach(m => names.push(m.name));
+        if (tier >= 3) {
+            TIER3.forEach(m => names.push(m.name));
+            ULTRA_RARES.forEach(m => names.push(m.name));
+        }
+        return names;
+    }
+
+    function runSlotAnimation(tier, finalMutation) {
+        return new Promise(resolve => {
+            const overlay = document.getElementById('result-overlay');
+            const slotMachine = document.getElementById('slot-machine');
+            const slotText = document.getElementById('slot-text');
+            const badge = document.getElementById('result-tier-badge');
+
+            // Reset result card
+            document.getElementById('result-name').style.display = 'none';
+            document.getElementById('result-desc').style.display = 'none';
+            document.getElementById('result-stats').style.display = 'none';
+            document.getElementById('result-actions').style.display = 'none';
+            document.getElementById('side-effect-card').style.display = 'none';
+            slotMachine.style.display = 'block';
+
+            // Set tier badge
+            const tierNames = ['', 'stable', 'volatile', 'forbidden'];
+            const tierLabels = ['', 'Stable', 'Volatile', 'Forbidden'];
+            badge.className = 'tier-badge ' + tierNames[tier];
+            badge.textContent = tierLabels[tier];
+
+            overlay.style.display = 'flex';
+
+            const names = getAllNames(tier);
+            let iteration = 0;
+            const totalIterations = 30;
+            let interval = 50;
+
+            function tick() {
+                iteration++;
+                if (iteration >= totalIterations) {
+                    slotText.textContent = finalMutation.name;
+                    setTimeout(resolve, 300);
+                    return;
+                }
+                slotText.textContent = names[Math.floor(Math.random() * names.length)];
+                // Slow down over time
+                const progress = iteration / totalIterations;
+                interval = 50 + progress * progress * 200;
+                setTimeout(tick, interval);
+            }
+            tick();
+        });
+    }
+
+    // ══════════════════════════════════════════════
+    //  RESULT DISPLAY
+    // ══════════════════════════════════════════════
+
+    function showNormalResult(tier, mutation, sideEffect, cascadeResult) {
+        const slotMachine = document.getElementById('slot-machine');
+        slotMachine.style.display = 'none';
+
+        // Mutation name
+        const nameEl = document.getElementById('result-name');
+        const tierColors = ['', 'var(--green)', '#f4a261', 'var(--accent)'];
+        nameEl.textContent = mutation.name;
+        nameEl.style.color = tierColors[tier];
+        nameEl.style.display = 'block';
+
+        // Description
+        const descEl = document.getElementById('result-desc');
+        descEl.textContent = mutation.desc;
+        descEl.style.display = 'block';
+
+        // Stats
+        const statsEl = document.getElementById('result-stats');
+        statsEl.innerHTML = '';
+        if (mutation.stats && Object.keys(mutation.stats).length > 0) {
+            for (const [stat, val] of Object.entries(mutation.stats)) {
+                const pill = document.createElement('span');
+                const isNeg = val < 0;
+                pill.className = 'stat-pill ' + (isNeg ? 'negative' : 'positive');
+                const sign = val > 0 ? '+' : '';
+                const unitStr = (mutation.unit || stat.includes('dodge') || stat.includes('crit') || stat.includes('accuracy') || stat.includes('dmg_red') || stat.includes('reflect') || stat.includes('negate') || stat.includes('phase')) ? '%' : '';
+                pill.textContent = `${sign}${val}${unitStr} ${stat.toUpperCase().replace('_',' ')}`;
+                statsEl.appendChild(pill);
+            }
+        } else if (mutation.special) {
+            const pill = document.createElement('span');
+            pill.className = 'stat-pill special';
+            pill.textContent = 'Special Ability';
+            statsEl.appendChild(pill);
+        }
+        statsEl.style.display = 'flex';
+
+        // Apply button
+        const applyBtn = document.getElementById('btn-apply');
+        applyBtn.textContent = pet ? `Apply to ${pet.name || 'Pet'}` : 'Apply to Pet';
+        document.getElementById('result-actions').style.display = 'flex';
+
+        // Side effect
+        if (sideEffect) {
+            setTimeout(() => {
+                const seCard = document.getElementById('side-effect-card');
+                const seNameEl = document.getElementById('se-name');
+                const seDescEl = document.getElementById('se-desc');
+
+                if (sideEffect.category === 'cascade') {
+                    seCard.classList.add('cascade-flash');
+                    seNameEl.textContent = 'CASCADE! Free bonus roll!';
+                    seDescEl.textContent = cascadeResult ? `Bonus: ${cascadeResult.name} — ${cascadeResult.desc}` : 'Bonus Tier 1 mutation triggered!';
+                    seCard.querySelector('.se-label').textContent = 'Cascade';
+                } else {
+                    seCard.classList.remove('cascade-flash');
+                    seNameEl.textContent = sideEffect.name;
+                    seDescEl.textContent = sideEffect.desc;
+                    const catLabel = sideEffect.category.charAt(0).toUpperCase() + sideEffect.category.slice(1);
+                    seCard.querySelector('.se-label').textContent = `Side Effect — ${catLabel}`;
+                }
+                seCard.style.display = 'block';
+            }, 600);
+        }
+    }
+
+    function showUltraRare(mutation) {
+        // Close the normal overlay
+        document.getElementById('result-overlay').style.display = 'none';
+
+        // Show ultra overlay
+        const overlay = document.getElementById('ultra-overlay');
+        overlay.style.display = 'flex';
+        overlay.classList.add('ultra-flash');
+        setTimeout(() => overlay.classList.remove('ultra-flash'), 500);
+
+        document.getElementById('ultra-name').textContent = mutation.name;
+        document.getElementById('ultra-animal').textContent = mutation.animal ? mutation.animal.charAt(0).toUpperCase() + mutation.animal.slice(1) + ' Exclusive' : '';
+        document.getElementById('ultra-desc').textContent = mutation.desc;
+
+        const applyBtn = document.getElementById('btn-ultra-apply');
+        applyBtn.textContent = pet ? `Apply to ${pet.name || 'Pet'}` : 'Apply to Pet';
+
+        // Save for moreddit
+        localStorage.setItem('moreau_ultra_rare_post', JSON.stringify({
+            animal: mutation.animal,
+            mutation: mutation.name,
+            timestamp: Date.now()
+        }));
+
+        // Confetti
+        spawnConfetti();
+
+        // Screen shake
+        document.body.classList.add('screen-shake');
+        setTimeout(() => document.body.classList.remove('screen-shake'), 400);
+    }
+
+    function spawnConfetti() {
+        const container = document.getElementById('confetti-container');
+        container.innerHTML = '';
+        const colors = ['var(--gold)', '#e63946', '#4ecca3', '#f4a261', '#457b9d', '#f1faee'];
+        for (let i = 0; i < 80; i++) {
+            const p = document.createElement('div');
+            p.className = 'confetti-particle';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            p.style.width = (4 + Math.random() * 8) + 'px';
+            p.style.height = (4 + Math.random() * 8) + 'px';
+            p.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+            p.style.animationDuration = (2 + Math.random() * 3) + 's';
+            p.style.animationDelay = (Math.random() * 1.5) + 's';
+            container.appendChild(p);
+        }
+    }
+
+    // ══════════════════════════════════════════════
+    //  APPLY / DISCARD
+    // ══════════════════════════════════════════════
+
+    function applyResult() {
+        if (!currentResult || !pet) return;
+
+        const m = currentResult.mutation;
+        const level = pet.level || 1;
+
+        // Determine mutation slot based on level
+        if (!pet.lab_mutations) pet.lab_mutations = {};
+        let slot;
+        if (level >= 9) slot = 'L9';
+        else if (level >= 6) slot = 'L6';
+        else if (level >= 3) slot = 'L3';
+        else slot = 'L3'; // allow even low-level pets to use L3 slot
+
+        pet.lab_mutations[slot] = {
+            id: m.id,
+            name: m.name,
+            desc: m.desc,
+            stats: m.stats || {},
+            tier: currentResult.tier,
+            isUltra: currentResult.isUltra,
+            animal: m.animal || null,
+        };
+
+        // Apply stat changes to base_stats
+        if (!pet.base_stats) pet.base_stats = { hp:5, atk:5, spd:5 };
+        if (m.stats) {
+            for (const [stat, val] of Object.entries(m.stats)) {
+                if (['hp','atk','spd','wil'].includes(stat)) {
+                    pet.base_stats[stat] = (pet.base_stats[stat] || 0) + val;
+                }
+            }
+        }
+
+        // Side effects
+        if (currentResult.sideEffect && currentResult.sideEffect.category !== 'cascade') {
+            if (!pet.side_effects) pet.side_effects = [];
+            pet.side_effects.push({
+                name: currentResult.sideEffect.name,
+                desc: currentResult.sideEffect.desc,
+                category: currentResult.sideEffect.category,
+                stats: currentResult.sideEffect.stats || {},
+            });
+            // Apply side effect stats
+            if (currentResult.sideEffect.stats) {
+                for (const [stat, val] of Object.entries(currentResult.sideEffect.stats)) {
+                    if (['hp','atk','spd','wil'].includes(stat)) {
+                        pet.base_stats[stat] = (pet.base_stats[stat] || 0) + val;
+                    }
+                }
+            }
+        }
+
+        // Cascade bonus
+        if (currentResult.cascadeResult) {
+            if (!pet.mutations) pet.mutations = [];
+            pet.mutations.push(currentResult.cascadeResult.id);
+            if (currentResult.cascadeResult.stats) {
+                for (const [stat, val] of Object.entries(currentResult.cascadeResult.stats)) {
+                    if (['hp','atk','spd','wil'].includes(stat)) {
+                        pet.base_stats[stat] = (pet.base_stats[stat] || 0) + val;
+                    }
+                }
+            }
+        }
+
+        saveActivePet(pet);
+        closeAllOverlays();
+        updatePetDisplay();
+    }
+
+    function discardResult() {
+        currentResult = null;
+        closeAllOverlays();
+    }
+
+    function closeAllOverlays() {
+        document.getElementById('result-overlay').style.display = 'none';
+        document.getElementById('ultra-overlay').style.display = 'none';
+        currentResult = null;
+    }
+
+    // ══════════════════════════════════════════════
+    //  PET DISPLAY
+    // ══════════════════════════════════════════════
+
+    function updatePetDisplay() {
+        if (!pet) return;
+        const emojiEl = document.getElementById('lab-pet-emoji');
+        const nameEl = document.getElementById('lab-pet-name');
+        const levelEl = document.getElementById('lab-pet-level');
+
+        const emojiMap = {
+            fox:'\u{1F98A}', tiger:'\u{1F405}', bear:'\u{1F43B}', wolf:'\u{1F43A}',
+            scorpion:'\u{1F982}', eagle:'\u{1F985}', porcupine:'\u{1F994}', rhino:'\u{1F98F}',
+            viper:'\u{1F40D}', vulture:'\u{1F985}', monkey:'\u{1F412}', buffalo:'\u{1F9AC}',
+            panther:'\u{1F408}', boar:'\u{1F417}'
+        };
+
+        emojiEl.textContent = emojiMap[pet.animal] || '\u2753';
+        nameEl.textContent = pet.name || 'Your Pet';
+        levelEl.textContent = `Lv.${pet.level || 1}`;
+    }
+
+    // ══════════════════════════════════════════════
+    //  INIT
+    // ══════════════════════════════════════════════
+
+    (function init() {
+        pet = migrateAndLoadPet();
+        if (!pet) {
+            document.getElementById('entry-screen').style.display = 'none';
+            document.getElementById('no-pet-screen').style.display = 'flex';
+            return;
+        }
+        updatePetDisplay();
+    })();
+    </script>
+</body>
+</html>
