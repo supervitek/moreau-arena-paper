@@ -128,8 +128,8 @@ class StatBlock:
                     f"All stats must have min 1, got {stat_name}={getattr(self, stat_name)}"
                 )
         total = self.hp + self.atk + self.spd + self.wil
-        if total != 20:
-            raise ValueError(f"Stats must sum to 20, got {total}")
+        if total < 4 or total > 24:
+            raise ValueError(f"Stats must sum to 4-24, got {total}")
 
 
 @dataclass(frozen=True)
