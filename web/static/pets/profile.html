@@ -582,6 +582,100 @@
             color: var(--text);
         }
 
+        /* ── Lab Mutations (Forbidden Lab) ── */
+        .lab-mut-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+        }
+
+        .lab-mut-slot {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0.8rem;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 0.4rem;
+        }
+
+        .lab-mut-slot-tag {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            flex-shrink: 0;
+        }
+
+        .lab-mut-slot-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .lab-mut-slot-desc {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .lab-mut-slot-stats {
+            font-size: 0.7rem;
+            color: var(--gold);
+            margin-left: auto;
+            flex-shrink: 0;
+            font-family: var(--font-mono);
+        }
+
+        .lab-mut-slot.tier-1 { border-color: rgba(78, 204, 163, 0.3); }
+        .lab-mut-slot.tier-1 .lab-mut-slot-tag { background: rgba(78, 204, 163, 0.15); color: var(--green); }
+        .lab-mut-slot.tier-2 { border-color: rgba(244, 162, 97, 0.3); }
+        .lab-mut-slot.tier-2 .lab-mut-slot-tag { background: rgba(244, 162, 97, 0.15); color: #f4a261; }
+        .lab-mut-slot.tier-3 { border-color: rgba(230, 57, 70, 0.3); }
+        .lab-mut-slot.tier-3 .lab-mut-slot-tag { background: rgba(230, 57, 70, 0.15); color: var(--accent); }
+
+        .lab-mut-slot.empty-slot {
+            opacity: 0.3;
+            font-style: italic;
+        }
+
+        .lab-se-list {
+            margin-top: 0.8rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+        }
+
+        .lab-se-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.55rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: rgba(230, 57, 70, 0.1);
+            border: 1px solid rgba(230, 57, 70, 0.2);
+            color: var(--accent);
+        }
+
+        .lab-se-pill.cosmetic { background: rgba(155, 89, 182, 0.1); border-color: rgba(155, 89, 182, 0.2); color: #9b59b6; }
+        .lab-se-pill.behavioral { background: rgba(244, 162, 97, 0.1); border-color: rgba(244, 162, 97, 0.2); color: #f4a261; }
+
+        .lab-none {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-family: var(--font-mono);
+            text-align: center;
+            padding: 1rem;
+        }
+
         /* ── Responsive ── */
         @media (max-width: 600px) {
             .subject-card {
@@ -849,7 +943,7 @@
         function renderDossier() {
             const el = document.getElementById('dossier');
             const level = pet.level || 1;
-            const stats = pet.stats || {};
+            const stats = pet.base_stats || pet.stats || {};
             const mutations = pet.mutations || [];
             const animal = (pet.animal || '').toLowerCase();
             const emoji = ANIMAL_EMOJIS[animal] || '\u{1F43E}';
@@ -967,6 +1061,9 @@
             html += `<div class="mutation-tree">`;
             html += renderMutationTree(activePath, level);
             html += `</div>`;
+
+            // Lab Mutations (Forbidden Laboratory)
+            html += renderLabMutations();
 
             // Combat Record
             html += `<div class="section-header">Combat Record</div>`;
@@ -1132,6 +1229,52 @@
             }
             html += `</div></div>`;
 
+            return html;
+        }
+
+        function renderLabMutations() {
+            const muts = pet.lab_mutations || {};
+            const sideEffects = pet.side_effects || [];
+            const hasAny = Object.keys(muts).length > 0 || sideEffects.length > 0;
+
+            if (!hasAny) return '';
+
+            const tierNames = {1: 'Stable', 2: 'Volatile', 3: 'Forbidden'};
+            let html = `<div class="section-header">&#9762; Forbidden Laboratory Modifications</div>`;
+            html += `<div class="lab-mut-section">`;
+
+            ['L3', 'L6', 'L9'].forEach(slot => {
+                const m = muts[slot];
+                if (m) {
+                    const tier = m.tier || 1;
+                    const statsStr = m.stats ? Object.entries(m.stats).map(([k,v]) => (v > 0 ? '+' : '') + v + ' ' + k.toUpperCase()).join('  ') : '';
+                    html += `<div class="lab-mut-slot tier-${tier}">
+                        <span class="lab-mut-slot-tag">${slot}</span>
+                        <div>
+                            <div class="lab-mut-slot-name">${m.name || '?'}${m.isUltra ? ' \u2605' : ''}</div>
+                            <div class="lab-mut-slot-desc">${m.desc || ''}</div>
+                        </div>
+                        ${statsStr ? `<span class="lab-mut-slot-stats">${statsStr}</span>` : ''}
+                    </div>`;
+                } else {
+                    html += `<div class="lab-mut-slot empty-slot">
+                        <span class="lab-mut-slot-tag">${slot}</span>
+                        <span style="color:var(--text-muted);font-size:0.8rem;">Empty</span>
+                    </div>`;
+                }
+            });
+
+            if (sideEffects.length > 0) {
+                html += `<div class="lab-se-list">`;
+                html += `<span style="font-size:0.7rem;color:var(--text-muted);width:100%;margin-bottom:0.2rem;">Side Effects:</span>`;
+                sideEffects.forEach(se => {
+                    const cat = se.category || se.type || 'stat';
+                    html += `<span class="lab-se-pill ${cat}">${se.name || '?'}</span>`;
+                });
+                html += `</div>`;
+            }
+
+            html += `</div>`;
             return html;
         }
 
