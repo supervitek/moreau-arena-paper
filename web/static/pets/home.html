@@ -804,8 +804,7 @@
 
         function canMutate(p) {
             const m = (p.mutations || []).length;
-            const xp = p.xp || 0;
-            return (p.level >= 3 && xp >= 100 && m === 0) || (p.level >= 6 && xp >= 300 && m === 1) || (p.level >= 9 && xp >= 600 && m === 2);
+            return (p.level >= 3 && m === 0) || (p.level >= 6 && m === 1) || (p.level >= 9 && m === 2);
         }
 
         function nextMutationLevel(p) {

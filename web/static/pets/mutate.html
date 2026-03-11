@@ -639,6 +639,11 @@
     </div>
 
     <script>
+        const EMOJI_MAP = {
+            bear:'\u{1F43B}', buffalo:'\u{1F9AC}', boar:'\u{1F417}', tiger:'\u{1F405}', wolf:'\u{1F43A}', monkey:'\u{1F412}',
+            porcupine:'\u{1F994}', scorpion:'\u{1F982}', vulture:'\u{1F985}', rhino:'\u{1F98F}', viper:'\u{1F40D}',
+            fox:'\u{1F98A}', eagle:'\u{1F985}', panther:'\u{1F408}'
+        };
         const MUTATIONS = {
             blood_rage: { name:"Bloodrage", level:3, parent:null, stats:{atk:2,spd:-1}, effect:"+2 ATK, -1 SPD", flavor:"The rage builds. Your muscles swell. Speed is a luxury you no longer need.", color:"#e63946" },
             thick_hide: { name:"Thick Hide", level:3, parent:null, stats:{hp:2,atk:-1}, effect:"+2 HP, -1 ATK", flavor:"Your skin hardens. Blows that once hurt now feel like rain.", color:"#457b9d" },
@@ -709,7 +714,7 @@
             if (!pet) { window.location.href = '/pets'; return; }
             forkLevel = canMutate(pet);
 
-            document.getElementById('intro-emoji').textContent = pet.emoji || '';
+            document.getElementById('intro-emoji').textContent = EMOJI_MAP[pet.animal] || '\u{1F43E}';
             document.getElementById('intro-name').textContent = pet.name || 'Unknown';
             document.getElementById('intro-level').textContent = 'Level ' + pet.level;
 
