@@ -1343,7 +1343,7 @@ def pets_landing_page() -> FileResponse:
 
 @app.get("/pets/{page}")
 def pets_page(page: str) -> FileResponse:
-    allowed = {"index", "create", "hub", "home", "train", "mutate", "profile", "forbidden-lab"}
+    allowed = {"index", "create", "hub", "home", "train", "mutate", "profile", "pvp", "forbidden-lab"}
     if page not in allowed:
         raise HTTPException(404, f"Unknown pets page: {page}")
     # "create" is served from index.html (the creation wizard)

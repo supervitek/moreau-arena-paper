@@ -258,10 +258,19 @@
         /* ── Action Buttons ── */
         .actions {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
             gap: 0.75rem;
             margin-top: 1.5rem;
         }
+        @media (max-width: 500px) {
+            .actions { grid-template-columns: 1fr 1fr; }
+        }
+
+        .action-pit { border-color: var(--purple, #9b59b6); }
+        .action-pit:hover { border-color: #b06ec6; }
+        .action-pit .action-icon { color: var(--purple, #9b59b6); }
+        .action-pit.disabled { opacity: 0.4; pointer-events: none; border-color: var(--border); }
+        .action-pit .pit-req { font-size: 0.6rem; color: var(--text-muted); font-weight: 400; }
 
         .action-btn {
             display: flex;
@@ -705,6 +714,10 @@
                 <span class="action-icon">&#9876;</span>
                 TRAIN
             </a>
+            <a href="/pets/pvp" class="action-btn action-pit" id="pitBtn">
+                <span class="action-icon">&#9876;&#65039;</span>
+                THE PIT
+            </a>
             <a href="/pets/mutate" class="action-btn action-mutate" id="mutateBtn">
                 <span class="action-icon">&#9850;</span>
                 MUTATE
@@ -869,6 +882,16 @@
                 const reqLvl = nextMutationLevel(pet);
                 mutBtn.innerHTML = '<span class="action-icon">&#9850;</span>MUTATE<span class="mutate-req">Level ' + reqLvl + ' required</span>';
                 mutBtn.removeAttribute('href');
+            }
+
+            // Pit button — requires 2+ living pets
+            const pitBtn = document.getElementById('pitBtn');
+            const allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            const livingCount = allPets.filter(function(p) { return !p.deceased; }).length;
+            if (livingCount < 2) {
+                pitBtn.classList.add('disabled');
+                pitBtn.innerHTML = '<span class="action-icon">&#9876;&#65039;</span>THE PIT<span class="pit-req">2+ pets needed</span>';
+                pitBtn.removeAttribute('href');
             }
 
             // Soul mood badge
