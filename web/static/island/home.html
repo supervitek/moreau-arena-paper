@@ -505,6 +505,24 @@
         .action-shrine:hover { border-color: #e8b830; box-shadow: 0 4px 16px rgba(212,160,23,0.2); }
         .action-shrine .action-icon { color: var(--gold); }
 
+        .action-bloodlines { border-color: #8b0000; }
+        .action-bloodlines:hover { border-color: #cc0000; box-shadow: 0 4px 16px rgba(139,0,0,0.3); }
+        .action-bloodlines .action-icon { color: #8b0000; }
+
+        .action-market { border-color: #ff6600; }
+        .action-market:hover { border-color: #ff8833; box-shadow: 0 4px 16px rgba(255,102,0,0.25); }
+        .action-market .action-icon { color: #ff6600; }
+        .market-lantern {
+            animation: lanternFlicker 2s ease-in-out infinite;
+        }
+        @keyframes lanternFlicker {
+            0%, 100% { opacity: 1; text-shadow: 0 0 8px rgba(255,102,0,0.6); }
+            30% { opacity: 0.7; text-shadow: 0 0 4px rgba(255,102,0,0.3); }
+            50% { opacity: 1; text-shadow: 0 0 12px rgba(255,102,0,0.8); }
+            70% { opacity: 0.5; text-shadow: 0 0 3px rgba(255,102,0,0.2); }
+            85% { opacity: 1; text-shadow: 0 0 10px rgba(255,102,0,0.7); }
+        }
+
         .action-btn.rival-available {
             animation: rivalPulse 2.5s ease-in-out infinite;
         }
@@ -1238,6 +1256,9 @@
             // Check for Apex Form discovery banner
             checkApexPending();
 
+            // Check for Bloodline Deepened notification
+            checkBloodlineDeepened();
+
             // Render everything
             renderActivePet();
             renderActions();
@@ -1290,6 +1311,32 @@
             localStorage.removeItem('moreau_apex_pending');
             var banner = btn.closest('.apex-banner');
             if (banner) banner.remove();
+        }
+
+        function checkBloodlineDeepened() {
+            var raw = localStorage.getItem('moreau_bloodline_deepened');
+            if (!raw) return;
+            try {
+                var data = JSON.parse(raw);
+                if (!data || !data.species) return;
+                var capitalSpecies = data.species.charAt(0).toUpperCase() + data.species.slice(1);
+
+                var area = document.getElementById('bannerArea');
+                var banner = document.createElement('div');
+                banner.className = 'apex-banner';
+                banner.style.borderColor = '#8b0000';
+                banner.style.background = 'linear-gradient(135deg, rgba(139,0,0,0.15) 0%, rgba(10,5,5,0.95) 100%)';
+                var romanGen = (function(n) {
+                    var rn = [[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
+                    var r = '';
+                    for (var i = 0; i < rn.length; i++) { while (n >= rn[i][0]) { r += rn[i][1]; n -= rn[i][0]; } }
+                    return r;
+                })(data.generation);
+                banner.innerHTML =
+                    '<div class="apex-banner-text" style="color:#cc0000;">\u{1F9EC} BLOODLINE DEEPENED: ' + escHtml(data.petName) + ' joins the ' + capitalSpecies + ' lineage \u2014 Gen ' + romanGen + '</div>' +
+                    '<a href="/island/succession" class="apex-banner-dismiss" style="color:#8b0000;border-color:#8b0000;" onclick="localStorage.removeItem(\'moreau_bloodline_deepened\')">View Bloodlines</a>';
+                area.insertBefore(banner, area.firstChild);
+            } catch(e) {}
         }
 
         function checkLocalStorageMigration() {
@@ -1533,6 +1580,19 @@
             html += '<a href="/island/shrine" class="action-btn action-shrine">' +
                 '<span class="action-icon">&#9962;</span>SHRINE</a>';
 
+            // BLOODLINES
+            var _blData = null;
+            try { _blData = JSON.parse(localStorage.getItem('moreau_bloodlines') || '{}'); } catch(e) {}
+            var _blCount = _blData ? Object.keys(_blData).filter(function(k) { return _blData[k].generation > 0; }).length : 0;
+            html += '<a href="/island/succession" class="action-btn action-bloodlines">' +
+                (_blCount > 0 ? '<span class="ready-badge" style="background:#8b0000;">' + _blCount + '</span>' : '') +
+                '<span class="action-icon">&#129516;</span>BLOODLINES' +
+                (_blCount > 0 ? '<span class="action-sub">' + _blCount + ' lineage' + (_blCount !== 1 ? 's' : '') + '</span>' : '') + '</a>';
+
+            // DEEP TIDE
+            html += '<a href="' + (hasPet ? '/island/deep-tide' : '#') + '" class="action-btn action-deep-tide' + (hasPet ? '' : ' disabled') + '" style="' + (hasPet ? 'border-color:rgba(0,255,247,0.3);' : '') + '">' +
+                '<span class="action-icon" style="color:#00fff7;">&#127754;</span>DEEP TIDE</a>';
+
             // MENAGERIE
             var _deadCount = allPets.filter(function(p) { return p.deceased || p.is_alive === false; }).length;
             var _bondData = null;
@@ -1542,6 +1602,14 @@
                 (_bondCount > 0 ? '<span class="ready-badge" style="background:#6ba3d6;">' + _bondCount + '</span>' : '') +
                 '<span class="action-icon">&#128123;</span>MENAGERIE' +
                 (_deadCount > 0 ? '<span class="action-sub">' + _deadCount + ' spirit' + (_deadCount !== 1 ? 's' : '') + '</span>' : '') + '</a>';
+
+            // BLACK MARKET (only visible 22:00 - 04:00)
+            var _bmHour = new Date().getHours();
+            if (_bmHour >= 22 || _bmHour < 4) {
+                html += '<a href="/island/black-market" class="action-btn action-market">' +
+                    '<span class="action-icon market-lantern">&#128294;</span>BLACK MARKET' +
+                    '<span class="action-sub" style="color:#ff6600;">Open now</span></a>';
+            }
 
             grid.innerHTML = html;
         }

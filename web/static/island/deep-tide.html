@@ -1,0 +1,2238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Tide — The Island — Moreau Arena</title>
+    <meta property="og:title" content="Deep Tide — The Island">
+    <meta property="og:description" content="7 chambers. No healing. Permanent death. The deep awaits.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Deep Tide — The Island">
+    <meta name="twitter:description" content="7 chambers. No healing. Permanent death. The deep awaits.">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --bg-primary: #050a14;
+            --bg-secondary: #0a0e1a;
+            --bg-card: #0e1525;
+            --bg-card-hover: #121a30;
+            --border: #1a2a4a;
+            --accent: #00fff7;
+            --accent-glow: rgba(0, 255, 247, 0.4);
+            --accent-dim: rgba(0, 255, 247, 0.15);
+            --text: #e0f0ff;
+            --text-dim: #8aa0b8;
+            --text-muted: #4a6080;
+            --green: #4ecca3;
+            --red: #e63946;
+            --red-glow: rgba(230, 57, 70, 0.4);
+            --gold: #d4a017;
+            --purple: #9b59b6;
+            --blue: #457b9d;
+            --deep-blue: #0a0a2e;
+            --abyss: #030310;
+            --biolume: #00fff7;
+            --radius: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(180deg, var(--bg-primary) 0%, var(--deep-blue) 40%, var(--abyss) 100%);
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ── Bubbles particle effect ── */
+        .bubbles {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -20px;
+            background: radial-gradient(circle, rgba(0,255,247,0.15) 0%, transparent 70%);
+            border: 1px solid rgba(0,255,247,0.1);
+            border-radius: 50%;
+            animation: bubbleRise linear infinite;
+        }
+
+        @keyframes bubbleRise {
+            0% { transform: translateY(0) translateX(0); opacity: 0.6; }
+            25% { transform: translateY(-25vh) translateX(15px); opacity: 0.8; }
+            50% { transform: translateY(-50vh) translateX(-10px); opacity: 0.6; }
+            75% { transform: translateY(-75vh) translateX(20px); opacity: 0.4; }
+            100% { transform: translateY(-105vh) translateX(-5px); opacity: 0; }
+        }
+
+        /* ── Layout ── */
+        .island-page {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        /* ── Loading state ── */
+        .loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 1rem;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* ── Phase: Entry ── */
+        .entry-screen { text-align: center; padding: 2rem 0; }
+
+        .entry-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            text-shadow: 0 0 40px rgba(0,255,247,0.3), 0 0 80px rgba(0,255,247,0.1);
+            margin-bottom: 0.25rem;
+        }
+
+        .entry-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .warning-box {
+            background: rgba(230, 57, 70, 0.08);
+            border: 1px solid rgba(230, 57, 70, 0.3);
+            border-radius: var(--radius);
+            padding: 1.25rem 1.5rem;
+            margin: 1.5rem auto;
+            max-width: 500px;
+            text-align: left;
+        }
+
+        .warning-box h3 {
+            color: var(--red);
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .warning-box ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .warning-box li {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            padding: 0.2rem 0;
+        }
+
+        .warning-box li::before {
+            content: '\26A0';
+            margin-right: 0.5rem;
+            color: var(--red);
+        }
+
+        /* Pet selector */
+        .pet-selector {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 1.5rem 0;
+        }
+
+        .pet-select-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .pet-select-card:hover {
+            border-color: var(--accent);
+            background: var(--bg-card-hover);
+        }
+
+        .pet-select-card.selected {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(0,255,247,0.2);
+        }
+
+        .pet-select-card .ps-emoji { font-size: 2rem; }
+        .pet-select-card .ps-name { font-size: 0.85rem; font-weight: 700; margin-top: 0.25rem; }
+        .pet-select-card .ps-level { font-size: 0.75rem; color: var(--text-muted); }
+        .pet-select-card .ps-hp { font-size: 0.75rem; color: var(--accent); margin-top: 0.15rem; }
+
+        .descend-btn {
+            background: linear-gradient(135deg, #001a33, #003366);
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            font-size: 1.4rem;
+            font-weight: 900;
+            padding: 1rem 3rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            letter-spacing: 0.1em;
+            margin-top: 1.5rem;
+            transition: all 0.3s;
+            animation: descendPulse 2s ease-in-out infinite;
+            display: none;
+        }
+
+        .descend-btn.visible { display: inline-block; }
+        .descend-btn:hover { background: linear-gradient(135deg, #002244, #004488); transform: scale(1.05); }
+        .descend-btn:disabled { opacity: 0.3; cursor: not-allowed; animation: none; }
+
+        @keyframes descendPulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(0,255,247,0.2); }
+            50% { box-shadow: 0 0 35px rgba(0,255,247,0.5), 0 0 60px rgba(0,255,247,0.15); }
+        }
+
+        /* ── Expedition HUD ── */
+        .expedition-hud {
+            background: rgba(10, 15, 30, 0.9);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(8px);
+        }
+
+        .hud-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .hud-pet-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .hud-pet-emoji { font-size: 1.5rem; }
+        .hud-pet-name { font-weight: 700; font-size: 1rem; }
+
+        .hud-depth {
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .hud-hp-track {
+            width: 100%;
+            height: 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 0.5rem;
+        }
+
+        .hud-hp-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.8s ease;
+            position: relative;
+        }
+
+        .hud-hp-fill.hp-high { background: linear-gradient(90deg, #1a6b4a, var(--green)); }
+        .hud-hp-fill.hp-mid { background: linear-gradient(90deg, #8a6b00, #d4a017); }
+        .hud-hp-fill.hp-low { background: linear-gradient(90deg, #6b1a1a, var(--red)); }
+        .hud-hp-fill.hp-critical { background: linear-gradient(90deg, #6b1a1a, var(--red)); animation: hpCriticalPulse 0.8s ease-in-out infinite; }
+
+        @keyframes hpCriticalPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .hud-hp-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            z-index: 1;
+        }
+
+        .hud-items {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hud-item {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.85rem;
+        }
+
+        .hud-item .item-icon { font-size: 1.1rem; }
+        .hud-item .item-count { font-weight: 700; color: var(--accent); }
+        .hud-item .item-label { color: var(--text-muted); font-size: 0.75rem; }
+
+        /* ── Pressure gauge ── */
+        .pressure-gauge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            justify-content: center;
+        }
+
+        .pressure-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .pressure-bar {
+            flex: 1;
+            max-width: 200px;
+            height: 6px;
+            background: var(--bg-card);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .pressure-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #ff6b6b);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .pressure-value {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        /* ── Active modifiers ── */
+        .modifiers-bar {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modifier-rune {
+            background: rgba(0, 255, 247, 0.06);
+            border: 1px solid rgba(0, 255, 247, 0.2);
+            border-radius: 4px;
+            padding: 0.25rem 0.6rem;
+            font-size: 0.75rem;
+            color: var(--accent);
+            animation: runeGlow 3s ease-in-out infinite;
+        }
+
+        .modifier-rune.stacked {
+            border-color: rgba(230, 57, 70, 0.4);
+            color: var(--red);
+            background: rgba(230, 57, 70, 0.06);
+        }
+
+        @keyframes runeGlow {
+            0%, 100% { box-shadow: 0 0 4px rgba(0,255,247,0.1); }
+            50% { box-shadow: 0 0 12px rgba(0,255,247,0.3); }
+        }
+
+        /* ── Chamber view ── */
+        .chamber-screen { text-align: center; }
+
+        .chamber-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            margin-bottom: 0.25rem;
+        }
+
+        .chamber-title.leviathan {
+            color: var(--red);
+            text-shadow: 0 0 30px rgba(230,57,70,0.5);
+        }
+
+        .chamber-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Enemy preview */
+        .enemy-preview {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin: 1rem auto;
+            max-width: 350px;
+        }
+
+        .enemy-emoji { font-size: 3rem; margin-bottom: 0.5rem; }
+
+        .enemy-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--red);
+            margin-bottom: 0.25rem;
+        }
+
+        .enemy-stats-hidden {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .enemy-stats-visible {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+        }
+
+        .enemy-stats-visible span { color: var(--accent); font-weight: 700; }
+
+        .new-modifier {
+            background: rgba(0, 255, 247, 0.05);
+            border: 1px dashed rgba(0, 255, 247, 0.3);
+            border-radius: var(--radius);
+            padding: 0.75rem 1rem;
+            margin: 1rem auto;
+            max-width: 400px;
+        }
+
+        .new-modifier-title {
+            font-size: 0.75rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .new-modifier-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text);
+            margin-bottom: 0.15rem;
+        }
+
+        .new-modifier-desc {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        /* ── Pre-fight flare option ── */
+        .flare-option {
+            margin: 1.25rem auto;
+            max-width: 400px;
+        }
+
+        .flare-btn {
+            background: linear-gradient(135deg, #2a1a00, #4a2a00);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            padding: 0.6rem 1.5rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 700;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .flare-btn:hover { background: linear-gradient(135deg, #3a2500, #5a3500); box-shadow: 0 0 15px rgba(212,160,23,0.3); }
+        .flare-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .flare-count {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Fight button */
+        .fight-chamber-btn {
+            background: var(--red);
+            color: #fff;
+            border: none;
+            font-size: 1.3rem;
+            font-weight: 900;
+            padding: 0.8rem 2.5rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            letter-spacing: 0.06em;
+            margin-top: 1rem;
+            animation: fightPulse 1.5s ease-in-out infinite;
+            transition: transform 0.1s;
+        }
+
+        .fight-chamber-btn:hover { transform: scale(1.05); }
+        .fight-chamber-btn:active { transform: scale(0.97); }
+
+        @keyframes fightPulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(230,57,70,0.3); }
+            50% { box-shadow: 0 0 25px rgba(230,57,70,0.6); }
+        }
+
+        /* ── Fight Arena ── */
+        .fight-arena { text-align: center; }
+
+        .arena-status {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px; height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .hp-bars {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 500px) {
+            .hp-bars { flex-direction: column; align-items: center; }
+        }
+
+        .hp-fighter { flex: 1; max-width: 280px; text-align: center; }
+        .hp-fighter-name { font-weight: 700; font-size: 1rem; margin-bottom: 0.3rem; }
+        .hp-fighter-emoji { font-size: 2rem; margin-bottom: 0.25rem; }
+
+        .hp-bar-track {
+            width: 100%;
+            height: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 0.25rem;
+        }
+
+        .hp-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .hp-bar-fill.pet-bar { background: var(--green); }
+        .hp-bar-fill.opp-bar { background: var(--red); }
+
+        .hp-value {
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .tick-counter {
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        /* ── Post-fight choice ── */
+        .choice-screen { text-align: center; padding: 2rem 0; }
+
+        .choice-result {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--green);
+            text-shadow: 0 0 20px rgba(78,204,163,0.4);
+            margin-bottom: 0.25rem;
+        }
+
+        .choice-sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .choice-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        .choice-cards {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .choice-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+            min-width: 200px;
+            max-width: 280px;
+        }
+
+        .choice-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .choice-card.shard-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 25px rgba(0,255,247,0.2);
+        }
+
+        .choice-card.flare-card:hover {
+            border-color: var(--gold);
+            box-shadow: 0 0 25px rgba(212,160,23,0.2);
+        }
+
+        .choice-card.flare-card.disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .choice-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .choice-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; }
+        .choice-desc { font-size: 0.8rem; color: var(--text-dim); }
+
+        .shard-card .choice-name { color: var(--accent); }
+        .flare-card .choice-name { color: var(--gold); }
+
+        /* ── Death sequence ── */
+        .death-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--abyss);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1.5s ease;
+        }
+
+        .death-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .water-rise {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 0;
+            background: linear-gradient(180deg, rgba(0,30,60,0.0) 0%, rgba(0,20,50,0.6) 30%, rgba(0,10,30,0.9) 100%);
+            transition: height 4s ease-in;
+        }
+
+        .water-rise.rising { height: 100%; }
+
+        .death-text {
+            z-index: 1;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 1s ease 1.5s;
+        }
+
+        .death-overlay.active .death-text { opacity: 1; }
+
+        .death-msg {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--accent);
+            text-shadow: 0 0 30px rgba(0,255,247,0.5);
+            margin-bottom: 0.5rem;
+        }
+
+        .death-pet-name {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        .death-redirect {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 2rem;
+            opacity: 0;
+            transition: opacity 1s ease 3s;
+        }
+
+        .death-overlay.active .death-redirect { opacity: 1; }
+
+        /* ── Completion / Relic screen ── */
+        .completion-screen {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .completion-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--gold);
+            text-shadow: 0 0 40px rgba(212,160,23,0.4);
+            margin-bottom: 0.5rem;
+        }
+
+        .completion-sub {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .relic-reveal {
+            background: linear-gradient(135deg, #1a1400 0%, #0f0a00 100%);
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1.5rem auto;
+            max-width: 400px;
+            position: relative;
+            overflow: hidden;
+            animation: relicGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes relicGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(212,160,23,0.2); }
+            50% { box-shadow: 0 0 50px rgba(212,160,23,0.5), 0 0 80px rgba(212,160,23,0.15); }
+        }
+
+        .relic-reveal::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(212,160,23,0.08) 0%, transparent 60%);
+            animation: relicSpin 10s linear infinite;
+        }
+
+        @keyframes relicSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        .relic-icon { font-size: 3rem; position: relative; z-index: 1; }
+
+        .relic-name {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: var(--gold);
+            margin: 0.5rem 0 0.25rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .relic-desc {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            position: relative;
+            z-index: 1;
+            margin-bottom: 0.75rem;
+        }
+
+        .relic-stats {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .relic-stat {
+            background: rgba(212,160,23,0.1);
+            border: 1px solid rgba(212,160,23,0.3);
+            border-radius: 4px;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .relic-stat.negative { color: var(--red); border-color: rgba(230,57,70,0.3); background: rgba(230,57,70,0.06); }
+
+        /* ── Records tab ── */
+        .records-screen { padding: 1rem 0; }
+
+        .records-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--accent);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .records-section { margin-bottom: 2rem; }
+        .records-section h3 {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .record-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-card);
+            border-radius: 4px;
+            margin-bottom: 0.35rem;
+            font-size: 0.85rem;
+        }
+
+        .record-row .rec-pet { font-weight: 700; }
+        .record-row .rec-depth { color: var(--accent); font-family: monospace; font-weight: 700; }
+        .record-row .rec-date { color: var(--text-muted); font-size: 0.75rem; }
+
+        .relic-collection {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .relic-mini {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+        .relic-mini.owned {
+            border-color: rgba(212,160,23,0.4);
+            background: rgba(26,20,0,0.5);
+        }
+
+        .relic-mini.locked { opacity: 0.35; }
+        .relic-mini .rm-icon { font-size: 1.5rem; }
+        .relic-mini .rm-name { font-size: 0.7rem; font-weight: 700; color: var(--text-dim); margin-top: 0.25rem; }
+        .relic-mini.owned .rm-name { color: var(--gold); }
+
+        /* ── Navigation tabs ── */
+        .tide-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tide-tab {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 0.75rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tide-tab:hover { color: var(--text-dim); }
+        .tide-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        /* ── Descend transition ── */
+        .descend-anim {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--abyss);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .descend-anim.active { opacity: 1; pointer-events: all; }
+
+        .descend-depth-text {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--accent);
+            text-shadow: 0 0 40px rgba(0,255,247,0.5);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease 0.3s, transform 0.6s ease 0.3s;
+        }
+
+        .descend-anim.active .descend-depth-text {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── Buttons ── */
+        .btn-primary {
+            background: var(--accent);
+            color: var(--abyss);
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover { filter: brightness(1.1); transform: scale(1.02); }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 0.6rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.15s;
+        }
+
+        .btn-secondary:hover { background: var(--bg-card-hover); color: var(--text); }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        /* ── Resume banner ── */
+        .resume-banner {
+            background: rgba(0,255,247,0.06);
+            border: 1px solid rgba(0,255,247,0.25);
+            border-radius: var(--radius);
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .resume-info { flex: 1; }
+        .resume-info .ri-title { font-weight: 700; color: var(--accent); font-size: 0.9rem; }
+        .resume-info .ri-detail { font-size: 0.8rem; color: var(--text-dim); }
+
+        .resume-btns { display: flex; gap: 0.5rem; }
+
+        .resume-btn {
+            background: linear-gradient(135deg, #001a33, #003366);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 0.4rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .resume-btn:hover { background: linear-gradient(135deg, #002244, #004488); }
+
+        .abandon-btn {
+            background: transparent;
+            border: 1px solid rgba(230,57,70,0.3);
+            color: var(--red);
+            padding: 0.4rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: all 0.15s;
+        }
+
+        .abandon-btn:hover { background: rgba(230,57,70,0.08); }
+
+        /* ── Continue descend btn ── */
+        .continue-btn {
+            background: linear-gradient(135deg, #001a33, #003366);
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            font-size: 1.1rem;
+            font-weight: 900;
+            padding: 0.7rem 2rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            letter-spacing: 0.06em;
+            margin-top: 1.5rem;
+            transition: all 0.2s;
+            animation: descendPulse 2s ease-in-out infinite;
+        }
+
+        .continue-btn:hover { transform: scale(1.05); }
+
+        /* ── Replay lines ── */
+        .replay-section {
+            max-width: 500px;
+            margin: 1.5rem auto;
+            text-align: left;
+        }
+
+        .replay-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            width: 100%;
+            text-align: left;
+            transition: background 0.15s;
+        }
+
+        .replay-toggle:hover { background: var(--bg-card-hover); }
+
+        .replay-container {
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 0.5rem;
+        }
+
+        .replay-container.open { display: block; }
+        .replay-container::-webkit-scrollbar { width: 4px; }
+        .replay-container::-webkit-scrollbar-track { background: var(--bg-card); }
+        .replay-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        .replay-line {
+            background: var(--bg-card);
+            border-left: 3px solid var(--border);
+            padding: 0.35rem 0.7rem;
+            margin-bottom: 0.2rem;
+            font-size: 0.78rem;
+            line-height: 1.4;
+            color: var(--text-dim);
+            border-radius: 0 var(--radius) var(--radius) 0;
+        }
+
+        .replay-line.pet-action { border-left-color: var(--green); }
+        .replay-line.opp-action { border-left-color: var(--red); }
+        .replay-line.critical { border-left-color: var(--gold); }
+        .replay-line.finale { border-left-color: var(--purple); font-weight: 600; }
+
+        .replay-line .tick-num {
+            color: var(--text-muted);
+            font-family: monospace;
+            font-size: 0.72rem;
+            margin-right: 0.3rem;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .entry-title { font-size: 1.8rem; }
+            .choice-cards { flex-direction: column; align-items: center; }
+            .choice-card { max-width: 100%; }
+            .hud-top { flex-direction: column; gap: 0.5rem; text-align: center; }
+        }
+
+        /* ── Hidden helper ── */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <!-- Bubbles -->
+    <div class="bubbles" id="bubblesContainer"></div>
+
+    <!-- Descend transition overlay -->
+    <div class="descend-anim" id="descendAnim">
+        <div class="descend-depth-text" id="descendDepthText">CHAMBER 1</div>
+    </div>
+
+    <!-- Death overlay -->
+    <div class="death-overlay" id="deathOverlay">
+        <div class="water-rise" id="waterRise"></div>
+        <div class="death-text">
+            <div class="death-msg" id="deathMsg">The deep claims...</div>
+            <div class="death-pet-name" id="deathPetName"></div>
+        </div>
+        <div class="death-redirect">Returning to the surface...</div>
+    </div>
+
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li class="nav-dropdown">
+                    <a href="/tournaments">Benchmark &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/tournaments">Tournaments</a></li>
+                        <li><a href="/leaderboard">Leaderboard</a></li>
+                        <li><a href="/methodology">Methodology</a></li>
+                        <li><a href="/match-log">Match Log</a></li>
+                        <li><a href="/compare">Compare</a></li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="/s1-leaderboard">Seasons &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/s1-leaderboard">S1 Leaderboard</a></li>
+                        <li><a href="/s1-fighters">Meet the Fighters</a></li>
+                        <li><a href="/s1-matchups">Matchup Explorer</a></li>
+                        <li><a href="/play">S1 Quick Fight</a></li>
+                        <li><a href="/s1-compare">Benchmark vs S1</a></li>
+                        <li><a href="/moreddit">The Moreddit</a></li>
+                    </ul>
+                </li>
+                <li><a href="/pets">Pets</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+                <li class="nav-fight"><a href="/island" class="active">FIGHT!</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="island-page">
+        <!-- Loading -->
+        <div id="loadingScreen" class="loading-screen">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Sounding the depths...</div>
+        </div>
+
+        <!-- All phases rendered dynamically into this container -->
+        <div id="mainContent" style="display:none;"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/static/island/supabase-client.js"></script>
+    <script>
+    // =====================================================
+    //  THE DEEP TIDE — 7-Chamber Roguelike Expedition
+    // =====================================================
+
+    const EMOJI_MAP = {
+        bear:'\u{1F43B}', buffalo:'\u{1F9AC}', boar:'\u{1F417}', tiger:'\u{1F405}',
+        wolf:'\u{1F43A}', monkey:'\u{1F412}', porcupine:'\u{1F994}', scorpion:'\u{1F982}',
+        vulture:'\u{1F985}', rhino:'\u{1F98F}', viper:'\u{1F40D}', fox:'\u{1F98A}',
+        eagle:'\u{1F985}', panther:'\u{1F408}', hawk:'\u{1F985}', snake:'\u{1F40D}',
+        shark:'\u{1F988}', croc:'\u{1F40A}', mantis:'\u{1F997}', chameleon:'\u{1F98E}'
+    };
+    const ANIMALS = Object.keys(EMOJI_MAP);
+    const LEVIATHAN_ANIMALS = ['shark', 'croc'];
+    const TOTAL_CHAMBERS = 7;
+
+    // ── Room Modifiers (33) ──
+
+    const MODIFIERS = [
+        { id:'poison_fog', name:'Poison Fog', desc:'-1 HP per chamber going forward', icon:'\u2620', apply:'ongoing_hp', value:-1 },
+        { id:'mirror_chamber', name:'Mirror Chamber', desc:'Enemy is a clone of your pet', icon:'\u{1FA9E}', apply:'mirror' },
+        { id:'time_pressure', name:'Time Pressure', desc:'Fight >40 ticks = take 10 damage', icon:'\u23F1', apply:'time_penalty', value:40 },
+        { id:'darkness', name:'Darkness', desc:'Your SPD stat halved for this fight', icon:'\u{1F311}', apply:'stat_halve', stat:'spd' },
+        { id:'blood_frenzy', name:'Blood Frenzy', desc:'Both fighters deal +50% damage (shorter fights)', icon:'\u{1FA78}', apply:'flavor' },
+        { id:'crushing_depth', name:'Crushing Depth', desc:'Your max expedition HP reduced by 20%', icon:'\u{1F30A}', apply:'crush_hp', value:0.2 },
+        { id:'predators_den', name:"Predator's Den", desc:'Enemy gets +3 ATK', icon:'\u{1F43E}', apply:'enemy_buff', stat:'atk', value:3 },
+        { id:'whirlpool', name:'Whirlpool', desc:'Your WIL stat halved for this fight', icon:'\u{1F300}', apply:'stat_halve', stat:'wil' },
+        { id:'bone_garden', name:'Bone Garden', desc:'Enemy starts with +2 to all stats', icon:'\u{1F9B4}', apply:'enemy_all_buff', value:2 },
+        { id:'echo_chamber', name:'Echo Chamber', desc:'Previous modifier applies again (double stack)', icon:'\u{1F50A}', apply:'echo' },
+        { id:'thermal_vent', name:'Thermal Vent', desc:'Your ATK halved for this fight', icon:'\u{1F525}', apply:'stat_halve', stat:'atk' },
+        { id:'siren_call', name:"Siren's Call", desc:'Your HP stat halved for this fight', icon:'\u{1F3B6}', apply:'stat_halve', stat:'hp' },
+        { id:'pressure_spike', name:'Pressure Spike', desc:'-15 expedition HP before fight', icon:'\u{26A1}', apply:'pre_damage', value:15 },
+        { id:'ink_cloud', name:'Ink Cloud', desc:'Enemy SPD doubled', icon:'\u{1F419}', apply:'enemy_double', stat:'spd' },
+        { id:'coral_maze', name:'Coral Maze', desc:'Your pet takes 5 extra damage after fight', icon:'\u{1FAB8}', apply:'post_damage', value:5 },
+        { id:'abyssal_chill', name:'Abyssal Chill', desc:'Your SPD and ATK reduced by 1', icon:'\u{2744}', apply:'stat_reduce', stats:{spd:-1,atk:-1} },
+        { id:'biolume_lure', name:'Bioluminescent Lure', desc:'Enemy WIL doubled', icon:'\u{2728}', apply:'enemy_double', stat:'wil' },
+        { id:'riptide', name:'Riptide', desc:'If fight lasts >30 ticks, enemy heals to full', icon:'\u{1F32A}', apply:'flavor' },
+        { id:'dead_zone', name:'Dead Zone', desc:'No healing from Tide Flares this chamber', icon:'\u{1F480}', apply:'no_flare' },
+        { id:'trench_walls', name:'Trench Walls', desc:'Your HP reduced by 2 for this fight', icon:'\u{1FAA8}', apply:'stat_reduce', stats:{hp:-2} },
+        { id:'leviathan_shadow', name:"Leviathan's Shadow", desc:'Enemy HP doubled', icon:'\u{1F9CA}', apply:'enemy_double', stat:'hp' },
+        { id:'toxic_bloom', name:'Toxic Bloom', desc:'-2 to all your stats for this fight', icon:'\u{1F9EA}', apply:'stat_reduce', stats:{hp:-2,atk:-2,spd:-2,wil:-2} },
+        { id:'phantom_tide', name:'Phantom Tide', desc:'You take damage equal to 10% of your max HP', icon:'\u{1F47B}', apply:'pre_damage_pct', value:0.1 },
+        { id:'volcanic_fissure', name:'Volcanic Fissure', desc:'Both fighters -2 HP stat', icon:'\u{1F30B}', apply:'both_reduce', stat:'hp', value:2 },
+        { id:'kraken_wake', name:"Kraken's Wake", desc:'Enemy gets +2 ATK, +2 SPD', icon:'\u{1F419}', apply:'enemy_multi_buff', stats:{atk:2,spd:2} },
+        { id:'null_field', name:'Null Field', desc:'Your WIL set to 1 for this fight', icon:'\u{1F6AB}', apply:'stat_set', stat:'wil', value:1 },
+        { id:'deep_hunger', name:'Deep Hunger', desc:'Lose 5 expedition HP per tick over 25', icon:'\u{1F608}', apply:'tick_penalty', value:25 },
+        { id:'glass_floor', name:'Glass Floor', desc:'If you win, take double tick-damage', icon:'\u{1FA9F}', apply:'double_tick_damage' },
+        { id:'ancient_current', name:'Ancient Current', desc:'Enemy ATK and WIL +3', icon:'\u{1F4A8}', apply:'enemy_multi_buff', stats:{atk:3,wil:3} },
+        { id:'drowning_pressure', name:'Drowning Pressure', desc:'Max expedition HP permanently reduced by 10', icon:'\u{1F4A7}', apply:'max_hp_reduce', value:10 },
+        { id:'spectral_reef', name:'Spectral Reef', desc:'Enemy is 1 level higher than normal', icon:'\u{1FAB8}', apply:'enemy_level_up' },
+        { id:'the_abyss_stares', name:'The Abyss Stares', desc:'Your ATK reduced by 3 for this fight', icon:'\u{1F441}', apply:'stat_reduce', stats:{atk:-3} },
+        { id:'tidal_lock', name:'Tidal Lock', desc:'Your SPD set to 1 for this fight', icon:'\u{1F512}', apply:'stat_set', stat:'spd', value:1 },
+    ];
+
+    // ── Drowned Relics (12) ──
+
+    const RELICS = [
+        { id:'leviathans_tooth', name:"Leviathan's Tooth", icon:'\u{1F9B7}', desc:'First hit always crits', stats:{atk:3}, special:'first_crit' },
+        { id:'abyssal_lantern', name:'Abyssal Lantern', icon:'\u{1F3EE}', desc:'See enemy stats before fights', stats:{wil:2,spd:2}, special:'enemy_reveal' },
+        { id:'pressure_crown', name:'Pressure Crown', icon:'\u{1F451}', desc:'Survive one killing blow at 1 HP', stats:{hp:4}, special:'last_stand' },
+        { id:'tidecallers_horn', name:"Tidecaller's Horn", icon:'\u{1F4EF}', desc:'+10 instability', stats:{hp:2,atk:2,spd:2,wil:2}, special:'instability', instability:10 },
+        { id:'drowned_kings_signet', name:"Drowned King's Signet", icon:'\u{1F48D}', desc:'Prophecy bets pay 2x', stats:{wil:3}, special:'prophecy_2x' },
+        { id:'mariana_plate', name:'Mariana Plate', icon:'\u{1F6E1}', desc:'Heavy but protective', stats:{hp:5,spd:-1}, special:null },
+        { id:'biolume_serum', name:'Biolume Serum', icon:'\u{1F489}', desc:'Pet glows (cosmetic)', stats:{spd:3}, special:'glow', cosmetic:'glow' },
+        { id:'coral_exoskeleton', name:'Coral Exoskeleton', icon:'\u{1FAB8}', desc:'Immune to first room modifier', stats:{hp:2,atk:2}, special:'mod_immune' },
+        { id:'deep_current_valve', name:'Deep Current Valve', icon:'\u{2699}', desc:'Speed at a cost', stats:{spd:4,hp:-1}, special:null },
+        { id:'kraken_ink', name:'Kraken Ink', icon:'\u{1F58B}', desc:'+10% crit chance in all fights', stats:{atk:3}, special:'crit_10' },
+        { id:'void_pearl', name:'Void Pearl', icon:'\u{26AB}', desc:'Corruption +15', stats:{hp:2,atk:2,spd:2,wil:2}, special:'corruption', corruption:15 },
+        { id:'the_last_breath', name:'The Last Breath', icon:'\u{1F4A8}', desc:'Dreams become prophetic', stats:{wil:5}, special:'prophetic_dreams' },
+    ];
+
+    // ── State ──
+
+    let allPets = [];
+    let activePetIndex = 0;
+    let selectedPetIndex = -1;
+    let run = null; // current run state
+    let offlineMode = false;
+    let currentTab = 'expedition'; // expedition | records
+
+    // ── Init ──
+
+    async function init() {
+        createBubbles();
+
+        await initSupabase();
+        const user = await getUser();
+
+        if (isOnlineMode()) {
+            offlineMode = false;
+            allPets = await dbGetPets(user.id);
+        } else if (hasLocalPets()) {
+            offlineMode = true;
+            allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+        } else {
+            window.location.href = '/island';
+            return;
+        }
+
+        // Check for active run
+        run = loadRun();
+
+        document.getElementById('loadingScreen').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+
+        if (run) {
+            // Verify pet still alive
+            var pet = findPetByName(run.petName);
+            if (!pet || pet.deceased || pet.is_alive === false) {
+                clearRun();
+                run = null;
+            }
+        }
+
+        renderPage();
+    }
+
+    function createBubbles() {
+        var container = document.getElementById('bubblesContainer');
+        for (var i = 0; i < 15; i++) {
+            var b = document.createElement('div');
+            b.className = 'bubble';
+            var size = 4 + Math.random() * 12;
+            b.style.width = size + 'px';
+            b.style.height = size + 'px';
+            b.style.left = Math.random() * 100 + '%';
+            b.style.animationDuration = (8 + Math.random() * 15) + 's';
+            b.style.animationDelay = (Math.random() * 10) + 's';
+            container.appendChild(b);
+        }
+    }
+
+    // ── localStorage helpers ──
+
+    function hasLocalPets() {
+        try {
+            var raw = localStorage.getItem('moreau_pets');
+            if (raw) { var p = JSON.parse(raw); return Array.isArray(p) && p.length > 0; }
+            return false;
+        } catch(e) { return false; }
+    }
+
+    function loadRun() {
+        try {
+            var raw = localStorage.getItem('moreau_tide_run');
+            return raw ? JSON.parse(raw) : null;
+        } catch(e) { return null; }
+    }
+
+    function saveRun(r) {
+        localStorage.setItem('moreau_tide_run', JSON.stringify(r));
+        run = r;
+    }
+
+    function clearRun() {
+        localStorage.removeItem('moreau_tide_run');
+        run = null;
+    }
+
+    function findPetByName(name) {
+        return allPets.find(function(p) { return p.name === name; }) || null;
+    }
+
+    function getLivingPets() {
+        return allPets.filter(function(p) { return !p.deceased && p.is_alive !== false; });
+    }
+
+    function savePetData(pet) {
+        if (offlineMode) {
+            var idx = allPets.findIndex(function(p) { return p.name === pet.name; });
+            if (idx >= 0) { allPets[idx] = pet; }
+            localStorage.setItem('moreau_pets', JSON.stringify(allPets));
+        } else {
+            // Online mode — update via supabase
+            if (pet.id) { dbUpdatePet(pet.id, pet); }
+        }
+    }
+
+    function loadRecords() {
+        try {
+            return JSON.parse(localStorage.getItem('moreau_tide_records') || '{"runs":[],"relics":[]}');
+        } catch(e) { return {runs:[], relics:[]}; }
+    }
+
+    function saveRecords(rec) {
+        localStorage.setItem('moreau_tide_records', JSON.stringify(rec));
+    }
+
+    function getWeekStart() {
+        var now = new Date();
+        var d = new Date(now);
+        d.setHours(0,0,0,0);
+        d.setDate(d.getDate() - d.getDay()); // Sunday
+        return d.getTime();
+    }
+
+    // ── Render ──
+
+    function renderPage() {
+        var mc = document.getElementById('mainContent');
+
+        // Tab bar
+        var html = '<div class="tide-tabs">';
+        html += '<button class="tide-tab' + (currentTab === 'expedition' ? ' active' : '') + '" onclick="switchTab(\'expedition\')">Expedition</button>';
+        html += '<button class="tide-tab' + (currentTab === 'records' ? ' active' : '') + '" onclick="switchTab(\'records\')">Records</button>';
+        html += '</div>';
+
+        if (currentTab === 'records') {
+            html += renderRecordsTab();
+        } else if (run) {
+            html += renderRunInProgress();
+        } else {
+            html += renderEntryScreen();
+        }
+
+        mc.innerHTML = html;
+    }
+
+    function switchTab(tab) {
+        currentTab = tab;
+        renderPage();
+    }
+
+    // ── Entry Screen ──
+
+    function renderEntryScreen() {
+        var living = getLivingPets();
+        var html = '<div class="entry-screen">';
+        html += '<div class="entry-title">DEEP TIDE</div>';
+        html += '<div class="entry-subtitle">7 chambers. No healing. Permanent death.</div>';
+
+        html += '<div class="warning-box">';
+        html += '<h3>EXPEDITION PROTOCOL</h3>';
+        html += '<ul>';
+        html += '<li>Your pet enters with HP \u00D7 10 as expedition health</li>';
+        html += '<li>No natural healing between chambers</li>';
+        html += '<li>Losing a fight means PERMANENT DEATH</li>';
+        html += '<li>Room modifiers stack as you descend deeper</li>';
+        html += '<li>Collect 7 Tide Shards to forge a Drowned Relic</li>';
+        html += '<li>Chamber 7: The Leviathan awaits</li>';
+        html += '</ul>';
+        html += '</div>';
+
+        if (living.length === 0) {
+            html += '<div style="color:var(--text-muted);margin-top:2rem;">No living pets. Create one first.</div>';
+            html += '<div class="action-buttons"><a href="/island/home" class="btn-secondary">Return Home</a></div>';
+        } else {
+            html += '<div style="color:var(--text-dim);font-size:0.85rem;margin:1.5rem 0 0.75rem;font-weight:600;">SELECT YOUR EXPEDITION PET</div>';
+            html += '<div class="pet-selector">';
+            living.forEach(function(p, i) {
+                var realIdx = allPets.indexOf(p);
+                var animal = (p.animal || '').toLowerCase();
+                var emoji = EMOJI_MAP[animal] || '\u{1F43E}';
+                var bs = p.base_stats || p.stats || {};
+                var hpStat = bs.hp || 5;
+                var sel = selectedPetIndex === realIdx ? ' selected' : '';
+                html += '<div class="pet-select-card' + sel + '" onclick="selectPetForRun(' + realIdx + ')">';
+                html += '<div class="ps-emoji">' + emoji + '</div>';
+                html += '<div class="ps-name">' + (p.name || 'Pet') + '</div>';
+                html += '<div class="ps-level">Lv.' + (p.level || 1) + '</div>';
+                html += '<div class="ps-hp">' + (hpStat * 10) + ' EHP</div>';
+                html += '</div>';
+            });
+            html += '</div>';
+
+            html += '<button class="descend-btn' + (selectedPetIndex >= 0 ? ' visible' : '') + '" id="descendBtn" onclick="startExpedition()">DESCEND</button>';
+        }
+
+        html += '</div>';
+        return html;
+    }
+
+    function selectPetForRun(idx) {
+        selectedPetIndex = idx;
+        renderPage();
+    }
+
+    // ── Start Expedition ──
+
+    function startExpedition() {
+        if (selectedPetIndex < 0) return;
+        var pet = allPets[selectedPetIndex];
+        if (!pet || pet.deceased || pet.is_alive === false) return;
+
+        var bs = pet.base_stats || pet.stats || {};
+        var hpStat = bs.hp || 5;
+        var maxHP = hpStat * 10;
+
+        run = {
+            petName: pet.name,
+            petSnapshot: JSON.parse(JSON.stringify(pet)),
+            currentChamber: 1,
+            expeditionHP: maxHP,
+            maxHP: maxHP,
+            shards: 0,
+            flares: 0,
+            maxFlares: 2,
+            modifiers: [],
+            chambers: [],
+            startedAt: new Date().toISOString(),
+            pendingChoice: false,
+            pendingFight: false,
+            currentEnemy: null,
+            currentModifier: null,
+        };
+
+        saveRun(run);
+        prepareChamber();
+    }
+
+    // ── Prepare Chamber ──
+
+    function prepareChamber() {
+        // Apply ongoing damage from modifiers
+        var ongoingDmg = 0;
+        run.modifiers.forEach(function(modId) {
+            var mod = MODIFIERS.find(function(m) { return m.id === modId; });
+            if (mod && mod.apply === 'ongoing_hp') ongoingDmg += Math.abs(mod.value);
+        });
+        if (ongoingDmg > 0 && run.currentChamber > 1) {
+            run.expeditionHP = Math.max(1, run.expeditionHP - ongoingDmg);
+        }
+
+        // Pick modifier
+        var mod = pickModifier();
+        run.currentModifier = mod;
+
+        // Handle echo
+        if (mod.id === 'echo_chamber' && run.modifiers.length > 0) {
+            var prevId = run.modifiers[run.modifiers.length - 1];
+            run.modifiers.push(prevId); // double stack
+        }
+        run.modifiers.push(mod.id);
+
+        // Apply max HP reduction modifiers
+        if (mod.apply === 'crush_hp') {
+            run.maxHP = Math.max(10, Math.floor(run.maxHP * (1 - mod.value)));
+            if (run.expeditionHP > run.maxHP) run.expeditionHP = run.maxHP;
+        }
+        if (mod.apply === 'max_hp_reduce') {
+            run.maxHP = Math.max(10, run.maxHP - mod.value);
+            if (run.expeditionHP > run.maxHP) run.expeditionHP = run.maxHP;
+        }
+
+        // Pre-fight damage modifiers
+        if (mod.apply === 'pre_damage') {
+            run.expeditionHP = Math.max(1, run.expeditionHP - mod.value);
+        }
+        if (mod.apply === 'pre_damage_pct') {
+            run.expeditionHP = Math.max(1, run.expeditionHP - Math.floor(run.maxHP * mod.value));
+        }
+
+        // Generate enemy
+        var enemy = generateEnemy(run.currentChamber, mod);
+        run.currentEnemy = enemy;
+        run.pendingFight = true;
+        run.pendingChoice = false;
+
+        saveRun(run);
+        showDescendAnimation(function() { renderPage(); });
+    }
+
+    function pickModifier() {
+        // Filter out already-used modifiers (except echo)
+        var used = {};
+        run.modifiers.forEach(function(id) { used[id] = true; });
+        var pool = MODIFIERS.filter(function(m) {
+            if (m.id === 'echo_chamber') return run.modifiers.length > 0 && !used['echo_chamber'];
+            return !used[m.id];
+        });
+        if (pool.length === 0) pool = MODIFIERS.filter(function(m) { return m.id !== 'echo_chamber'; });
+        return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function generateEnemy(chamber, mod) {
+        var petLevel = run.petSnapshot.level || 1;
+        var multiplier;
+        if (chamber <= 2) multiplier = 1.5;
+        else if (chamber <= 4) multiplier = 2.0;
+        else if (chamber <= 6) multiplier = 2.5;
+        else multiplier = 3.0;
+
+        var totalStats = Math.max(8, Math.floor(petLevel * multiplier * 5));
+
+        // Level up modifier
+        if (mod && mod.apply === 'enemy_level_up') {
+            totalStats = Math.floor(totalStats * 1.3);
+        }
+
+        // Distribute stats randomly
+        var stats = distributeStats(totalStats);
+
+        // Pick animal
+        var animal;
+        if (chamber === 7) {
+            animal = LEVIATHAN_ANIMALS[Math.floor(Math.random() * LEVIATHAN_ANIMALS.length)];
+        } else {
+            animal = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+        }
+
+        var name;
+        if (chamber === 7) {
+            name = 'The Leviathan';
+        } else {
+            var prefixes = ['Abyssal','Deep','Drowned','Spectral','Ancient','Feral','Mutant','Shadowed','Corrupted','Lurking','Sunken','Blind'];
+            name = prefixes[Math.floor(Math.random() * prefixes.length)] + ' ' + animal.charAt(0).toUpperCase() + animal.slice(1);
+        }
+
+        // Apply enemy buff modifiers
+        if (mod) {
+            if (mod.apply === 'enemy_buff') stats[mod.stat] = (stats[mod.stat] || 5) + mod.value;
+            if (mod.apply === 'enemy_all_buff') { stats.hp += mod.value; stats.atk += mod.value; stats.spd += mod.value; stats.wil += mod.value; }
+            if (mod.apply === 'enemy_double') stats[mod.stat] = (stats[mod.stat] || 5) * 2;
+            if (mod.apply === 'enemy_multi_buff') {
+                Object.keys(mod.stats).forEach(function(k) { stats[k] = (stats[k] || 5) + mod.stats[k]; });
+            }
+            if (mod.apply === 'both_reduce') stats[mod.stat] = Math.max(1, (stats[mod.stat] || 5) - mod.value);
+        }
+
+        return { name: name, animal: animal, stats: stats };
+    }
+
+    function distributeStats(total) {
+        var keys = ['hp','atk','spd','wil'];
+        var stats = {hp:1, atk:1, spd:1, wil:1};
+        var remaining = total - 4;
+        for (var i = 0; i < remaining; i++) {
+            var k = keys[Math.floor(Math.random() * keys.length)];
+            stats[k]++;
+        }
+        return stats;
+    }
+
+    // ── Render Run In Progress ──
+
+    function renderRunInProgress() {
+        var html = '';
+        html += renderHUD();
+
+        if (run.pendingChoice) {
+            html += renderChoiceScreen();
+        } else if (run.pendingFight) {
+            html += renderChamberPreview();
+        } else {
+            // Should not happen, but fallback
+            html += '<div style="text-align:center;color:var(--text-muted);padding:2rem;">Loading chamber...</div>';
+        }
+
+        return html;
+    }
+
+    function renderHUD() {
+        var pet = run.petSnapshot;
+        var animal = (pet.animal || '').toLowerCase();
+        var emoji = EMOJI_MAP[animal] || '\u{1F43E}';
+        var hpPct = Math.max(0, (run.expeditionHP / run.maxHP) * 100);
+        var hpClass = hpPct > 60 ? 'hp-high' : hpPct > 30 ? 'hp-mid' : hpPct > 15 ? 'hp-low' : 'hp-critical';
+        var pressurePct = Math.min(100, (run.currentChamber / TOTAL_CHAMBERS) * 100);
+
+        var html = '<div class="expedition-hud">';
+        html += '<div class="hud-top">';
+        html += '<div class="hud-pet-info"><span class="hud-pet-emoji">' + emoji + '</span><span class="hud-pet-name">' + (pet.name || 'Pet') + '</span></div>';
+        html += '<div class="hud-depth">DEPTH ' + run.currentChamber + ' / ' + TOTAL_CHAMBERS + '</div>';
+        html += '</div>';
+
+        html += '<div class="hud-hp-track"><div class="hud-hp-fill ' + hpClass + '" style="width:' + hpPct + '%"></div>';
+        html += '<div class="hud-hp-text">' + run.expeditionHP + ' / ' + run.maxHP + ' EHP</div></div>';
+
+        html += '<div class="hud-items">';
+        html += '<div class="hud-item"><span class="item-icon">\u{1F48E}</span><span class="item-count">' + run.shards + '</span><span class="item-label">Shards</span></div>';
+        html += '<div class="hud-item"><span class="item-icon">\u{1F525}</span><span class="item-count">' + run.flares + '</span><span class="item-label">/ ' + run.maxFlares + ' Flares</span></div>';
+        html += '</div>';
+
+        html += '<div class="pressure-gauge">';
+        html += '<span class="pressure-label">Pressure</span>';
+        html += '<div class="pressure-bar"><div class="pressure-fill" style="width:' + pressurePct + '%"></div></div>';
+        html += '<span class="pressure-value">' + Math.round(pressurePct) + '%</span>';
+        html += '</div>';
+
+        html += '</div>';
+
+        // Active modifiers
+        if (run.modifiers.length > 0) {
+            html += '<div class="modifiers-bar">';
+            var counts = {};
+            run.modifiers.forEach(function(id) { counts[id] = (counts[id] || 0) + 1; });
+            Object.keys(counts).forEach(function(id) {
+                var mod = MODIFIERS.find(function(m) { return m.id === id; });
+                if (!mod) return;
+                var stacked = counts[id] > 1;
+                html += '<div class="modifier-rune' + (stacked ? ' stacked' : '') + '" title="' + mod.desc + '">';
+                html += mod.icon + ' ' + mod.name;
+                if (stacked) html += ' x' + counts[id];
+                html += '</div>';
+            });
+            html += '</div>';
+        }
+
+        return html;
+    }
+
+    // ── Chamber Preview ──
+
+    function renderChamberPreview() {
+        var enemy = run.currentEnemy;
+        var mod = run.currentModifier;
+        var emoji = EMOJI_MAP[(enemy.animal || '').toLowerCase()] || '\u{2753}';
+        var isLeviathan = run.currentChamber === 7;
+
+        // Check if player has Abyssal Lantern relic
+        var hasLantern = playerHasRelic('abyssal_lantern');
+
+        var html = '<div class="chamber-screen">';
+        html += '<div class="chamber-title' + (isLeviathan ? ' leviathan' : '') + '">';
+        html += isLeviathan ? 'THE LEVIATHAN' : 'CHAMBER ' + run.currentChamber;
+        html += '</div>';
+        html += '<div class="chamber-subtitle">' + (isLeviathan ? 'The lord of the deep awaits' : 'Something stirs in the darkness...') + '</div>';
+
+        // New modifier
+        if (mod) {
+            html += '<div class="new-modifier">';
+            html += '<div class="new-modifier-title">' + mod.icon + ' NEW MODIFIER</div>';
+            html += '<div class="new-modifier-name">' + mod.name + '</div>';
+            html += '<div class="new-modifier-desc">' + mod.desc + '</div>';
+            html += '</div>';
+        }
+
+        // Enemy preview
+        html += '<div class="enemy-preview">';
+        html += '<div class="enemy-emoji">' + emoji + '</div>';
+        html += '<div class="enemy-name">' + enemy.name + '</div>';
+        if (hasLantern) {
+            html += '<div class="enemy-stats-visible">';
+            html += 'HP:<span>' + enemy.stats.hp + '</span> ';
+            html += 'ATK:<span>' + enemy.stats.atk + '</span> ';
+            html += 'SPD:<span>' + enemy.stats.spd + '</span> ';
+            html += 'WIL:<span>' + enemy.stats.wil + '</span>';
+            html += '</div>';
+        } else {
+            html += '<div class="enemy-stats-hidden">Stats unknown. The abyss hides its own.</div>';
+        }
+        html += '</div>';
+
+        // Flare option (before fight)
+        var canFlare = run.flares > 0 && run.expeditionHP < run.maxHP;
+        var isDeadZone = run.modifiers.indexOf('dead_zone') >= 0 && run.currentModifier && run.currentModifier.id === 'dead_zone';
+        if (isDeadZone) canFlare = false;
+
+        html += '<div class="flare-option">';
+        if (canFlare) {
+            html += '<button class="flare-btn" onclick="useFlarePreFight()">\u{1F525} USE TIDE FLARE \u2014 Full Heal</button>';
+            html += '<div class="flare-count">' + run.flares + ' / ' + run.maxFlares + ' remaining</div>';
+        } else if (run.flares > 0 && run.expeditionHP >= run.maxHP) {
+            html += '<div style="font-size:0.8rem;color:var(--text-muted);">Tide Flare available but HP is full</div>';
+        } else if (isDeadZone) {
+            html += '<div style="font-size:0.8rem;color:var(--red);">Dead Zone \u2014 Flares disabled this chamber</div>';
+        }
+        html += '</div>';
+
+        html += '<button class="fight-chamber-btn" onclick="startChamberFight()">ENGAGE</button>';
+        html += '</div>';
+        return html;
+    }
+
+    function useFlarePreFight() {
+        if (run.flares <= 0 || run.expeditionHP >= run.maxHP) return;
+        run.flares--;
+        run.expeditionHP = run.maxHP;
+        saveRun(run);
+        renderPage();
+    }
+
+    function playerHasRelic(relicId) {
+        var pet = findPetByName(run.petName);
+        if (!pet) return false;
+        var relics = pet.drowned_relics || [];
+        return relics.indexOf(relicId) >= 0;
+    }
+
+    // ── Fight ──
+
+    async function startChamberFight() {
+        var enemy = run.currentEnemy;
+        var mod = run.currentModifier;
+        var pet = run.petSnapshot;
+        var bs = JSON.parse(JSON.stringify(pet.base_stats || pet.stats || {}));
+
+        // Apply player stat modifiers from current modifier
+        if (mod) {
+            if (mod.apply === 'stat_halve') bs[mod.stat] = Math.max(1, Math.floor((bs[mod.stat] || 5) / 2));
+            if (mod.apply === 'stat_reduce' && mod.stats) {
+                Object.keys(mod.stats).forEach(function(k) { bs[k] = Math.max(1, (bs[k] || 5) + mod.stats[k]); });
+            }
+            if (mod.apply === 'stat_set') bs[mod.stat] = mod.value;
+            if (mod.apply === 'both_reduce') bs[mod.stat] = Math.max(1, (bs[mod.stat] || 5) - mod.value);
+        }
+
+        // Apply stacked modifiers from previous chambers
+        run.modifiers.forEach(function(modId) {
+            if (modId === mod.id) return; // current already applied
+            var m = MODIFIERS.find(function(x) { return x.id === modId; });
+            if (!m) return;
+            // Only re-apply ongoing stat mods if they are persistent types
+            if (m.apply === 'stat_reduce' && m.stats) {
+                // These are per-fight, only apply current chamber's
+            }
+        });
+
+        // Mirror chamber: enemy is a clone
+        var enemyStats = enemy.stats;
+        if (mod && mod.apply === 'mirror') {
+            enemyStats = JSON.parse(JSON.stringify(bs));
+        }
+
+        var petBuild = (pet.animal || 'fox') + ' ' + (bs.hp || 5) + ' ' + (bs.atk || 5) + ' ' + (bs.spd || 5) + ' ' + (bs.wil || 5);
+        var enemyBuild = enemy.animal + ' ' + (enemyStats.hp || 5) + ' ' + (enemyStats.atk || 5) + ' ' + (enemyStats.spd || 5) + ' ' + (enemyStats.wil || 5);
+
+        // Show fight UI
+        var mc = document.getElementById('mainContent');
+        var html = renderHUD();
+        html += '<div class="fight-arena" id="fightArena">';
+        html += '<div class="arena-status" id="arenaStatus"><div class="spinner"></div><div>COMBAT IN PROGRESS...</div></div>';
+        html += '<div class="hp-bars" id="hpBars" style="display:none;">';
+        html += '<div class="hp-fighter"><div class="hp-fighter-emoji" id="petFightEmoji"></div><div class="hp-fighter-name" id="petFightName"></div>';
+        html += '<div class="hp-bar-track"><div class="hp-bar-fill pet-bar" id="petHpBar" style="width:100%"></div></div>';
+        html += '<div class="hp-value" id="petHpVal"></div></div>';
+        html += '<div style="font-size:1.5rem;font-weight:800;color:var(--text-muted);padding-top:1.5rem;">VS</div>';
+        html += '<div class="hp-fighter"><div class="hp-fighter-emoji" id="oppFightEmoji"></div><div class="hp-fighter-name" id="oppFightName"></div>';
+        html += '<div class="hp-bar-track"><div class="hp-bar-fill opp-bar" id="oppHpBar" style="width:100%"></div></div>';
+        html += '<div class="hp-value" id="oppHpVal"></div></div>';
+        html += '</div>';
+        html += '<div class="tick-counter" id="tickCounter"></div>';
+        html += '</div>';
+        mc.innerHTML = html;
+
+        try {
+            var resp = await fetch('/api/v1/fight/s1', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ build1: petBuild, build2: enemyBuild, games: 1 })
+            });
+            if (!resp.ok) {
+                var err = await resp.json().catch(function() { return {}; });
+                throw new Error(err.detail || 'Server error ' + resp.status);
+            }
+            var data = await resp.json();
+            await animateChamberFight(data);
+            processFightResult(data);
+        } catch(e) {
+            mc.innerHTML = renderHUD() +
+                '<div style="text-align:center;color:var(--red);padding:2rem;">' +
+                'Fight failed: ' + (e.message || 'Network error') +
+                '<br><button class="btn-secondary" style="margin-top:1rem" onclick="renderPage()">Retry</button></div>';
+        }
+    }
+
+    async function animateChamberFight(data) {
+        var result = data.results ? data.results[0] : null;
+        var hpA = result ? result.hp_a_history : null;
+        var hpB = result ? result.hp_b_history : null;
+        if (!hpA || !hpB) return;
+
+        document.getElementById('arenaStatus').style.display = 'none';
+        document.getElementById('hpBars').style.display = 'flex';
+
+        var pet = run.petSnapshot;
+        var enemy = run.currentEnemy;
+        var petEmoji = EMOJI_MAP[(pet.animal || '').toLowerCase()] || '\u{2753}';
+        var oppEmoji = EMOJI_MAP[(enemy.animal || '').toLowerCase()] || '\u{2753}';
+
+        document.getElementById('petFightEmoji').textContent = petEmoji;
+        document.getElementById('petFightName').textContent = pet.name || 'Your Pet';
+        document.getElementById('oppFightEmoji').textContent = oppEmoji;
+        document.getElementById('oppFightName').textContent = enemy.name;
+
+        var maxA = hpA[0], maxB = hpB[0];
+        var petBar = document.getElementById('petHpBar');
+        var oppBar = document.getElementById('oppHpBar');
+        var petVal = document.getElementById('petHpVal');
+        var oppVal = document.getElementById('oppHpVal');
+        var tickEl = document.getElementById('tickCounter');
+
+        var totalTicks = hpA.length;
+        var delay = Math.max(30, Math.min(150, 3000 / totalTicks));
+
+        for (var i = 0; i < totalTicks; i++) {
+            var pctA = Math.max(0, (hpA[i] / maxA) * 100);
+            var pctB = Math.max(0, (hpB[i] / maxB) * 100);
+            petBar.style.width = pctA + '%';
+            oppBar.style.width = pctB + '%';
+            petVal.textContent = Math.max(0, Math.round(hpA[i])) + ' / ' + maxA;
+            oppVal.textContent = Math.max(0, Math.round(hpB[i])) + ' / ' + maxB;
+            tickEl.textContent = 'Tick ' + (i + 1) + ' / ' + totalTicks;
+            await sleep(delay);
+        }
+        await sleep(500);
+    }
+
+    function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+    // ── Process Result ──
+
+    function processFightResult(data) {
+        var won = data.build1_wins > 0;
+        var ticks = (data.results && data.results[0]) ? data.results[0].ticks : 50;
+        var mod = run.currentModifier;
+
+        // Record chamber
+        var chamberRecord = {
+            chamber: run.currentChamber,
+            modifier: mod ? mod.id : null,
+            enemy: run.currentEnemy,
+            result: won ? 'win' : 'loss',
+            ticks: ticks,
+            hpLost: 0,
+        };
+
+        if (won) {
+            // Calculate HP cost
+            var hpCost = Math.ceil(ticks / 5);
+
+            // Double tick damage modifier
+            if (mod && mod.apply === 'double_tick_damage') hpCost *= 2;
+
+            // Post damage modifier
+            if (mod && mod.apply === 'post_damage') hpCost += mod.value;
+
+            // Time pressure penalty
+            if (mod && mod.apply === 'time_penalty' && ticks > mod.value) hpCost += 10;
+
+            // Tick penalty (deep hunger)
+            if (mod && mod.apply === 'tick_penalty' && ticks > mod.value) {
+                hpCost += (ticks - mod.value) * 5;
+            }
+
+            // Coral maze
+            run.modifiers.forEach(function(modId) {
+                var m = MODIFIERS.find(function(x) { return x.id === modId; });
+                if (m && m.apply === 'post_damage' && m.id !== (mod ? mod.id : '')) hpCost += m.value;
+            });
+
+            chamberRecord.hpLost = hpCost;
+            run.expeditionHP = Math.max(0, run.expeditionHP - hpCost);
+            run.chambers.push(chamberRecord);
+
+            if (run.currentChamber >= TOTAL_CHAMBERS) {
+                // COMPLETED!
+                run.pendingFight = false;
+                run.pendingChoice = false;
+                saveRun(run);
+                showCompletionScreen();
+            } else {
+                // Show choice: shard or flare
+                run.pendingFight = false;
+                run.pendingChoice = true;
+                saveRun(run);
+                renderPage();
+            }
+        } else {
+            // DEATH
+            chamberRecord.hpLost = run.expeditionHP;
+            run.chambers.push(chamberRecord);
+            saveRun(run);
+
+            // Save record
+            var rec = loadRecords();
+            rec.runs.push({
+                pet: run.petName,
+                depth: run.currentChamber,
+                shards: run.shards,
+                date: new Date().toISOString(),
+                weekStart: getWeekStart(),
+                result: 'death'
+            });
+            saveRecords(rec);
+
+            // Kill the pet
+            killPet(run.petName, run.currentChamber);
+            showDeathSequence(run.petName, run.currentChamber);
+        }
+    }
+
+    // ── Choice Screen ──
+
+    function renderChoiceScreen() {
+        var lastChamber = run.chambers[run.chambers.length - 1];
+        var html = '<div class="choice-screen">';
+        html += '<div class="choice-result">VICTORY</div>';
+        html += '<div class="choice-sub">Chamber ' + run.currentChamber + ' conquered. Lost ' + (lastChamber ? lastChamber.hpLost : 0) + ' EHP (' + (lastChamber ? lastChamber.ticks : '?') + ' ticks)</div>';
+
+        html += '<div class="choice-title">CHOOSE YOUR REWARD</div>';
+        html += '<div class="choice-cards">';
+
+        // Shard
+        html += '<div class="choice-card shard-card" onclick="chooseShard()">';
+        html += '<div class="choice-icon">\u{1F48E}</div>';
+        html += '<div class="choice-name">Tide Shard</div>';
+        html += '<div class="choice-desc">Collect to forge a Drowned Relic. Need 7 total. Currently: ' + run.shards + '/7</div>';
+        html += '</div>';
+
+        // Flare
+        var flareDisabled = run.flares >= run.maxFlares;
+        html += '<div class="choice-card flare-card' + (flareDisabled ? ' disabled' : '') + '" onclick="' + (flareDisabled ? '' : 'chooseFlare()') + '">';
+        html += '<div class="choice-icon">\u{1F525}</div>';
+        html += '<div class="choice-name">Tide Flare</div>';
+        html += '<div class="choice-desc">Emergency full heal. ' + (flareDisabled ? 'MAX REACHED (' + run.maxFlares + ')' : 'Currently: ' + run.flares + '/' + run.maxFlares) + '</div>';
+        html += '</div>';
+
+        html += '</div>';
+
+        // Replay
+        html += '<div class="replay-section">';
+        html += '<button class="replay-toggle" onclick="toggleReplay()">Fight Replay</button>';
+        html += '<div class="replay-container" id="replayContainer"></div>';
+        html += '</div>';
+
+        html += '</div>';
+        return html;
+    }
+
+    function chooseShard() {
+        run.shards++;
+        advanceChamber();
+    }
+
+    function chooseFlare() {
+        if (run.flares >= run.maxFlares) return;
+        run.flares++;
+        advanceChamber();
+    }
+
+    function advanceChamber() {
+        run.currentChamber++;
+        run.pendingChoice = false;
+        run.pendingFight = false;
+        saveRun(run);
+        prepareChamber();
+    }
+
+    function toggleReplay() {
+        var c = document.getElementById('replayContainer');
+        if (!c) return;
+        c.classList.toggle('open');
+    }
+
+    // ── Descend Animation ──
+
+    function showDescendAnimation(callback) {
+        var overlay = document.getElementById('descendAnim');
+        var text = document.getElementById('descendDepthText');
+        text.textContent = run.currentChamber === 7 ? 'THE LEVIATHAN' : 'CHAMBER ' + run.currentChamber;
+        overlay.classList.add('active');
+
+        setTimeout(function() {
+            overlay.classList.remove('active');
+            setTimeout(callback, 300);
+        }, 1500);
+    }
+
+    // ── Death Sequence ──
+
+    function showDeathSequence(petName, chamber) {
+        var overlay = document.getElementById('deathOverlay');
+        var water = document.getElementById('waterRise');
+        document.getElementById('deathMsg').textContent = 'The deep claims ' + petName + '...';
+        document.getElementById('deathPetName').textContent = 'Lost in Chamber ' + chamber;
+
+        overlay.classList.add('active');
+        setTimeout(function() { water.classList.add('rising'); }, 200);
+
+        setTimeout(function() {
+            clearRun();
+            window.location.href = '/island/graveyard';
+        }, 5500);
+    }
+
+    function killPet(petName, chamber) {
+        var pet = findPetByName(petName);
+        if (!pet) return;
+        pet.deceased = true;
+        pet.is_alive = false;
+        pet.died_at = new Date().toISOString();
+        pet.cause_of_death = 'Deep Tide Chamber ' + chamber;
+        savePetData(pet);
+    }
+
+    // ── Completion Screen ──
+
+    function showCompletionScreen() {
+        // Award relic
+        var relic = awardRelic();
+
+        // Save record
+        var rec = loadRecords();
+        rec.runs.push({
+            pet: run.petName,
+            depth: TOTAL_CHAMBERS,
+            shards: run.shards,
+            date: new Date().toISOString(),
+            weekStart: getWeekStart(),
+            result: 'complete',
+            relic: relic ? relic.id : null,
+        });
+        if (relic && rec.relics.indexOf(relic.id) < 0) {
+            rec.relics.push(relic.id);
+        }
+        saveRecords(rec);
+
+        // Apply relic to pet if 7 shards
+        if (run.shards >= 7 && relic) {
+            applyRelicToPet(relic);
+        }
+
+        clearRun();
+
+        // Render
+        var mc = document.getElementById('mainContent');
+        var html = '<div class="completion-screen">';
+        html += '<div class="completion-title">THE DEEP YIELDS</div>';
+        html += '<div class="completion-sub">All 7 chambers conquered. You have surfaced.</div>';
+
+        if (run === null && relic && run === null) {
+            // We cleared run, use local vars
+        }
+
+        if (relic) {
+            html += '<div class="relic-reveal">';
+            html += '<div class="relic-icon">' + relic.icon + '</div>';
+            html += '<div class="relic-name">' + relic.name + '</div>';
+            html += '<div class="relic-desc">' + relic.desc + '</div>';
+            html += '<div class="relic-stats">';
+            Object.keys(relic.stats).forEach(function(k) {
+                var v = relic.stats[k];
+                var cls = v < 0 ? 'relic-stat negative' : 'relic-stat';
+                html += '<span class="' + cls + '">' + (v > 0 ? '+' : '') + v + ' ' + k.toUpperCase() + '</span>';
+            });
+            html += '</div>';
+            html += '</div>';
+        } else {
+            html += '<div style="color:var(--text-muted);margin:2rem 0;">You did not collect enough shards for a Drowned Relic.</div>';
+        }
+
+        html += '<div class="action-buttons">';
+        html += '<button class="btn-primary" onclick="currentTab=\'expedition\';run=null;renderPage();">New Expedition</button>';
+        html += '<a href="/island/home" class="btn-secondary">Return Home</a>';
+        html += '</div>';
+        html += '</div>';
+
+        mc.innerHTML = html;
+    }
+
+    function awardRelic() {
+        // Only if 7 shards collected
+        // Actually shards are choices — may not have 7. Award relic regardless for completing all 7 chambers
+        var owned = loadRecords().relics || [];
+        var available = RELICS.filter(function(r) { return owned.indexOf(r.id) < 0; });
+        if (available.length === 0) available = RELICS; // all owned, can get duplicates
+        return available[Math.floor(Math.random() * available.length)];
+    }
+
+    function applyRelicToPet(relic) {
+        // Save the relic to the pet
+        var petName = run ? run.petName : null;
+        if (!petName) return;
+        var pet = findPetByName(petName);
+        if (!pet) return;
+
+        if (!pet.drowned_relics) pet.drowned_relics = [];
+        pet.drowned_relics.push(relic.id);
+
+        // Apply stat bonuses
+        var bs = pet.base_stats || pet.stats || {};
+        Object.keys(relic.stats).forEach(function(k) {
+            bs[k] = Math.max(1, (bs[k] || 5) + relic.stats[k]);
+        });
+        pet.base_stats = bs;
+
+        // Special effects
+        if (relic.instability) pet.instability = (pet.instability || 0) + relic.instability;
+        if (relic.corruption) pet.corruption = (pet.corruption || 0) + relic.corruption;
+        if (relic.cosmetic) {
+            if (!pet.cosmetics) pet.cosmetics = [];
+            pet.cosmetics.push(relic.cosmetic);
+        }
+
+        savePetData(pet);
+    }
+
+    // ── Records Tab ──
+
+    function renderRecordsTab() {
+        var rec = loadRecords();
+        var weekStart = getWeekStart();
+
+        var html = '<div class="records-screen">';
+        html += '<div class="records-title">Deep Tide Records</div>';
+
+        // Weekly Leaderboard
+        var weeklyRuns = rec.runs.filter(function(r) { return r.weekStart >= weekStart; });
+        weeklyRuns.sort(function(a, b) { return b.depth - a.depth; });
+
+        html += '<div class="records-section">';
+        html += '<h3>Weekly Leaderboard</h3>';
+        if (weeklyRuns.length === 0) {
+            html += '<div style="color:var(--text-muted);font-size:0.85rem;text-align:center;padding:1rem;">No expeditions this week.</div>';
+        } else {
+            weeklyRuns.slice(0, 10).forEach(function(r, i) {
+                html += '<div class="record-row">';
+                html += '<span class="rec-pet">' + (i + 1) + '. ' + r.pet + '</span>';
+                html += '<span class="rec-depth">' + (r.result === 'complete' ? 'COMPLETE' : 'Depth ' + r.depth) + '</span>';
+                html += '<span class="rec-date">' + new Date(r.date).toLocaleDateString() + '</span>';
+                html += '</div>';
+            });
+        }
+        html += '</div>';
+
+        // All-time best
+        var allRuns = rec.runs.slice().sort(function(a, b) { return b.depth - a.depth; });
+        html += '<div class="records-section">';
+        html += '<h3>All-Time Best</h3>';
+        if (allRuns.length === 0) {
+            html += '<div style="color:var(--text-muted);font-size:0.85rem;text-align:center;padding:1rem;">No expeditions yet. Brave the deep.</div>';
+        } else {
+            allRuns.slice(0, 10).forEach(function(r, i) {
+                html += '<div class="record-row">';
+                html += '<span class="rec-pet">' + (i + 1) + '. ' + r.pet + '</span>';
+                html += '<span class="rec-depth">' + (r.result === 'complete' ? 'COMPLETE \u{1F48E}' : 'Depth ' + r.depth) + '</span>';
+                html += '<span class="rec-date">' + new Date(r.date).toLocaleDateString() + '</span>';
+                html += '</div>';
+            });
+        }
+        html += '</div>';
+
+        // Relic Collection
+        html += '<div class="records-section">';
+        html += '<h3>Drowned Relics (' + (rec.relics || []).length + ' / ' + RELICS.length + ')</h3>';
+        html += '<div class="relic-collection">';
+        RELICS.forEach(function(relic) {
+            var owned = (rec.relics || []).indexOf(relic.id) >= 0;
+            html += '<div class="relic-mini ' + (owned ? 'owned' : 'locked') + '">';
+            html += '<div class="rm-icon">' + (owned ? relic.icon : '\u{2753}') + '</div>';
+            html += '<div class="rm-name">' + (owned ? relic.name : '???') + '</div>';
+            html += '</div>';
+        });
+        html += '</div>';
+        html += '</div>';
+
+        html += '<div class="action-buttons">';
+        html += '<button class="btn-primary" onclick="switchTab(\'expedition\')">Start Expedition</button>';
+        html += '<a href="/island/home" class="btn-secondary">Return Home</a>';
+        html += '</div>';
+
+        html += '</div>';
+        return html;
+    }
+
+    // ── Initialize ──
+
+    document.addEventListener('DOMContentLoaded', init);
+
+    </script>
+</body>
+</html>

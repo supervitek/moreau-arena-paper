@@ -589,6 +589,20 @@
                             <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.3rem;font-style:italic;">Link this pet to a fallen ancestor's legacy.</div>
                         </div>
 
+                        <div id="successionSection" style="margin-top: 1.5rem; display:none;">
+                            <div class="section-label">Bloodline Succession</div>
+                            <div style="background:rgba(139,0,0,0.1);border:1px solid rgba(139,0,0,0.3);border-radius:var(--radius);padding:0.8rem 1rem;">
+                                <label style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;">
+                                    <input type="checkbox" id="successionToggle" checked style="width:18px;height:18px;accent-color:#8b0000;">
+                                    <div>
+                                        <div style="font-weight:600;font-size:0.9rem;">Claim Succession</div>
+                                        <div id="successionDesc" style="font-size:0.72rem;color:var(--text-muted);margin-top:0.15rem;"></div>
+                                    </div>
+                                </label>
+                                <div id="successionBonuses" style="margin-top:0.6rem;display:flex;flex-wrap:wrap;gap:0.35rem;"></div>
+                            </div>
+                        </div>
+
                         <div class="stats-section" style="margin-top: 2rem;">
                             <div class="section-label">Stats <span style="font-weight:400; text-transform:none; letter-spacing:0;">(20 points)</span></div>
                             <div class="stat-row">
@@ -732,6 +746,61 @@
             buildAnimalGrid();
         })();
 
+        // ── Succession / Bloodline Check ──
+        function checkSuccession(animalId) {
+            var section = document.getElementById('successionSection');
+            var blRaw = localStorage.getItem('moreau_bloodlines');
+            if (!blRaw) { section.style.display = 'none'; return; }
+            try {
+                var bloodlines = JSON.parse(blRaw);
+                var bl = bloodlines[animalId];
+                if (!bl || bl.generation < 1) { section.style.display = 'none'; return; }
+
+                section.style.display = 'block';
+                var gen = bl.generation;
+                var desc = document.getElementById('successionDesc');
+                desc.textContent = 'Generation ' + toRomanSucc(gen + 1) + '. Death strengthens the next.';
+
+                var bonusesEl = document.getElementById('successionBonuses');
+                var bonusHtml = '';
+
+                // Gen 1+: stat bonus
+                if (gen >= 1 && bl.ancestors && bl.ancestors.length > 0) {
+                    var last = bl.ancestors[bl.ancestors.length - 1];
+                    var ps = last.peakStats || {};
+                    var highest = 'hp';
+                    var highestVal = 0;
+                    ['hp','atk','spd','wil'].forEach(function(k) {
+                        if ((ps[k]||0) > highestVal) { highestVal = ps[k]||0; highest = k; }
+                    });
+                    bonusHtml += '<span style="font-size:0.68rem;padding:0.2rem 0.5rem;border-radius:10px;background:rgba(78,204,163,0.15);color:#4ecca3;border:1px solid rgba(78,204,163,0.3);">+1 ' + highest.toUpperCase() + '</span>';
+                }
+                if (gen >= 3) {
+                    bonusHtml += '<span style="font-size:0.68rem;padding:0.2rem 0.5rem;border-radius:10px;background:rgba(155,89,182,0.15);color:#9b59b6;border:1px solid rgba(155,89,182,0.3);">Passive Unlocked</span>';
+                }
+                if (gen >= 5) {
+                    bonusHtml += '<span style="font-size:0.68rem;padding:0.2rem 0.5rem;border-radius:10px;background:rgba(69,123,157,0.15);color:#457b9d;border:1px solid rgba(69,123,157,0.3);">Start Lv.2</span>';
+                }
+                if (gen >= 7) {
+                    bonusHtml += '<span style="font-size:0.68rem;padding:0.2rem 0.5rem;border-radius:10px;background:rgba(212,160,23,0.15);color:#d4a017;border:1px solid rgba(212,160,23,0.3);">Bloodline Mutation</span>';
+                }
+                if (gen >= 10) {
+                    bonusHtml += '<span style="font-size:0.68rem;padding:0.2rem 0.5rem;border-radius:10px;background:rgba(255,215,0,0.15);color:#ffd700;border:1px solid rgba(255,215,0,0.3);">PROGENITOR +3 all</span>';
+                }
+                bonusesEl.innerHTML = bonusHtml;
+            } catch(e) {
+                section.style.display = 'none';
+            }
+        }
+
+        function toRomanSucc(num) {
+            if (num <= 0) return '0';
+            var rn = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
+            var r = '';
+            for (var i = 0; i < rn.length; i++) { while (num >= rn[i][0]) { r += rn[i][1]; num -= rn[i][0]; } }
+            return r;
+        }
+
         // ── Build animal grid ──
         function buildAnimalGrid() {
             var grid = document.getElementById('animalGrid');
@@ -765,6 +834,7 @@
                 document.getElementById('previewAnimal').textContent = selectedAnimal.id;
                 updatePreview();
                 validateStep2();
+                checkSuccession(selectedAnimal.id);
             }
             if (n === 3) { buildConfirm(); }
         }
@@ -905,6 +975,46 @@
 
                 if (inspiredBy) {
                     pet.inspired_by = inspiredBy;
+                }
+
+                // ── Apply Bloodline Succession Bonuses ──
+                var succToggle = document.getElementById('successionToggle');
+                if (succToggle && succToggle.checked) {
+                    try {
+                        var blData = JSON.parse(localStorage.getItem('moreau_bloodlines') || '{}');
+                        var blSpecies = blData[selectedAnimal.id];
+                        if (blSpecies && blSpecies.generation >= 1) {
+                            pet.bloodline_successor = true;
+                            pet.bloodline_generation = blSpecies.generation + 1;
+
+                            // Gen 1+: +1 to predecessor's highest stat
+                            if (blSpecies.ancestors && blSpecies.ancestors.length > 0) {
+                                var lastAnc = blSpecies.ancestors[blSpecies.ancestors.length - 1];
+                                var ps = lastAnc.peakStats || {};
+                                var highest = 'hp';
+                                var highestVal = 0;
+                                ['hp','atk','spd','wil'].forEach(function(k) {
+                                    if ((ps[k]||0) > highestVal) { highestVal = ps[k]||0; highest = k; }
+                                });
+                                pet.base_stats[highest] = (pet.base_stats[highest] || 0) + 1;
+                            }
+
+                            // Gen 5+: start at level 2
+                            if (blSpecies.generation >= 5) {
+                                pet.level = 2;
+                            }
+
+                            // Gen 10+: Progenitor (+3 all stats, +20 instability)
+                            if (blSpecies.generation >= 10) {
+                                pet.base_stats.hp += 3;
+                                pet.base_stats.atk += 3;
+                                pet.base_stats.spd += 3;
+                                pet.base_stats.wil += 3;
+                                pet.instability = 20;
+                                pet.is_progenitor = true;
+                            }
+                        }
+                    } catch(e) {}
                 }
 
                 // Try Supabase first, fall back to localStorage

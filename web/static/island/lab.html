@@ -367,6 +367,9 @@
                     // Dream: DEATH
                     generateDream('death', lp2);
 
+                    // ── Bloodline Succession Update ──
+                    updateBloodlineOnLabDeath(lp2, 'lab');
+
                     // Artifact inheritance: one random equipped artifact becomes a Scar Keepsake
                     var _deathEquip = lp2.equipment || {};
                     var _deathEquipped = [_deathEquip.slot1, _deathEquip.slot2, _deathEquip.slot3].filter(Boolean);
@@ -695,6 +698,53 @@
             if (feed.length > 50) feed = feed.slice(0, 50);
             localStorage.setItem('moreau_moreddit_feed', JSON.stringify(feed));
             return post;
+        }
+
+        // ── Bloodline Succession on Death ──
+        function updateBloodlineOnLabDeath(pet, cause) {
+            if (!pet || !pet.animal) return;
+            var level = pet.level || 1;
+            if (level < 5) return;
+
+            var bloodlines = {};
+            try { bloodlines = JSON.parse(localStorage.getItem('moreau_bloodlines') || '{}'); } catch(e) { bloodlines = {}; }
+
+            var species = (pet.animal || '').toLowerCase();
+            if (!bloodlines[species]) {
+                bloodlines[species] = { generation: 0, ancestors: [], masteryXP: 0, unlocks: [] };
+            }
+            var bl = bloodlines[species];
+            var stats = pet.base_stats || pet.stats || {};
+
+            bl.ancestors.push({
+                name: pet.name || 'Unknown',
+                level: level,
+                wins: pet.fights_won || 0,
+                diedAt: new Date().toISOString(),
+                cause: cause || 'lab',
+                peakStats: { hp: stats.hp||0, atk: stats.atk||0, spd: stats.spd||0, wil: stats.wil||0 }
+            });
+
+            bl.generation++;
+
+            // Check milestone unlocks
+            var MILESTONES = [1, 3, 5, 7, 10];
+            MILESTONES.forEach(function(g) {
+                if (bl.generation === g) {
+                    var key = 'gen' + g;
+                    if (bl.unlocks.indexOf(key) === -1) bl.unlocks.push(key);
+                }
+            });
+
+            localStorage.setItem('moreau_bloodlines', JSON.stringify(bloodlines));
+
+            // Set a flag so home.html can show "Bloodline Deepened" notification
+            localStorage.setItem('moreau_bloodline_deepened', JSON.stringify({
+                species: species,
+                generation: bl.generation,
+                petName: pet.name || 'Unknown',
+                timestamp: Date.now()
+            }));
         }
 
         // ── Start ──
