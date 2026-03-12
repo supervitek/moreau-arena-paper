@@ -366,6 +366,20 @@
                     saveMoredditLabPost('death', lp2, {});
                     // Dream: DEATH
                     generateDream('death', lp2);
+
+                    // Artifact inheritance: one random equipped artifact becomes a Scar Keepsake
+                    var _deathEquip = lp2.equipment || {};
+                    var _deathEquipped = [_deathEquip.slot1, _deathEquip.slot2, _deathEquip.slot3].filter(Boolean);
+                    if (_deathEquipped.length > 0) {
+                        var _keepsakeId = _deathEquipped[Math.floor(Math.random() * _deathEquipped.length)];
+                        try {
+                            var _scarKeepsakes = JSON.parse(localStorage.getItem('moreau_scar_keepsakes') || '[]');
+                            if (_scarKeepsakes.indexOf(_keepsakeId) === -1) {
+                                _scarKeepsakes.push(_keepsakeId);
+                                localStorage.setItem('moreau_scar_keepsakes', JSON.stringify(_scarKeepsakes));
+                            }
+                        } catch(e) {}
+                    }
                 }
             }
 

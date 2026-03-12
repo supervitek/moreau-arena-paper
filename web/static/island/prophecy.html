@@ -1,0 +1,2068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Prophecy Machine — The Island — Moreau Arena</title>
+    <meta property="og:title" content="The Prophecy Machine — The Island">
+    <meta property="og:description" content="The Oracle sees all. Bet your Essence on the outcome of fate.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="The Prophecy Machine — The Island">
+    <meta name="twitter:description" content="The Oracle sees all. Bet your Essence on the outcome of fate.">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --bg-primary: #0d0520;
+            --bg-secondary: #1a0a2e;
+            --bg-card: #1e1040;
+            --bg-card-hover: #2a1555;
+            --bg-code: #1a0e30;
+            --border: #3a1a6a;
+            --accent: #d4af37;
+            --accent-glow: rgba(212, 175, 55, 0.4);
+            --accent-dim: #a08628;
+            --text: #f0e8ff;
+            --text-dim: #b0a0c8;
+            --text-muted: #6a5a8a;
+            --green: #4ecca3;
+            --blue: #7b68ee;
+            --red: #e63946;
+            --purple: #9b59b6;
+            --purple-bright: #c77dff;
+            --essence: #b388ff;
+            --radius: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(170deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #0a0318 100%);
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ── Mystical particle background ── */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                radial-gradient(1px 1px at 10% 20%, rgba(212,175,55,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 30% 60%, rgba(179,136,255,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 50% 10%, rgba(212,175,55,0.15) 0%, transparent 100%),
+                radial-gradient(1px 1px at 70% 80%, rgba(199,125,255,0.25) 0%, transparent 100%),
+                radial-gradient(1px 1px at 90% 40%, rgba(212,175,55,0.1) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 15% 85%, rgba(179,136,255,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 85% 15%, rgba(212,175,55,0.15) 0%, transparent 100%),
+                radial-gradient(1px 1px at 45% 45%, rgba(179,136,255,0.12) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 65% 30%, rgba(212,175,55,0.18) 0%, transparent 100%),
+                radial-gradient(1px 1px at 25% 70%, rgba(199,125,255,0.1) 0%, transparent 100%);
+            animation: particleDrift 20s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes particleDrift {
+            0% { transform: translateY(0) translateX(0); opacity: 0.6; }
+            33% { transform: translateY(-15px) translateX(8px); opacity: 0.8; }
+            66% { transform: translateY(10px) translateX(-5px); opacity: 0.5; }
+            100% { transform: translateY(-8px) translateX(12px); opacity: 0.7; }
+        }
+
+        /* ── Layout ── */
+        .island-page {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        /* ── Loading state ── */
+        .loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 1rem;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-text { color: var(--text-dim); font-size: 0.85rem; }
+
+        /* ── Page Header ── */
+        .page-header {
+            text-align: center;
+            padding: 2rem 0 1.5rem;
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-shadow: 0 0 30px rgba(212,175,55,0.3);
+            margin-bottom: 0.3rem;
+        }
+
+        .page-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        /* ── Essence Counter ── */
+        .essence-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(135deg, rgba(179,136,255,0.15), rgba(212,175,55,0.1));
+            border: 1px solid rgba(179,136,255,0.3);
+            border-radius: var(--radius);
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .essence-bar::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at center, rgba(179,136,255,0.08) 0%, transparent 60%);
+            animation: essencePulse 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes essencePulse {
+            0%, 100% { opacity: 0.5; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        .essence-icon { font-size: 1.2rem; }
+
+        .essence-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .essence-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--essence);
+            text-shadow: 0 0 10px rgba(179,136,255,0.4);
+        }
+
+        .oracle-rank {
+            font-size: 0.7rem;
+            color: var(--accent);
+            background: rgba(212,175,55,0.15);
+            padding: 0.15rem 0.5rem;
+            border-radius: 10px;
+            border: 1px solid rgba(212,175,55,0.3);
+        }
+
+        .mercy-timer {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: -1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* ── Oracle Crystal Ball ── */
+        .oracle-section {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .crystal-ball {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, rgba(199,125,255,0.4), rgba(30,16,64,0.9) 60%, rgba(10,5,32,0.95));
+            border: 2px solid rgba(212,175,55,0.4);
+            box-shadow:
+                0 0 30px rgba(179,136,255,0.2),
+                0 0 60px rgba(179,136,255,0.1),
+                inset 0 0 30px rgba(199,125,255,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            animation: crystalGlow 4s ease-in-out infinite;
+            position: relative;
+        }
+
+        .crystal-ball.active {
+            animation: crystalSpin 1.5s ease-in-out;
+        }
+
+        @keyframes crystalGlow {
+            0%, 100% { box-shadow: 0 0 30px rgba(179,136,255,0.2), 0 0 60px rgba(179,136,255,0.1), inset 0 0 30px rgba(199,125,255,0.15); }
+            50% { box-shadow: 0 0 40px rgba(179,136,255,0.35), 0 0 80px rgba(179,136,255,0.15), inset 0 0 40px rgba(199,125,255,0.25); }
+        }
+
+        @keyframes crystalSpin {
+            0% { transform: scale(1); box-shadow: 0 0 30px rgba(179,136,255,0.2); }
+            50% { transform: scale(1.1); box-shadow: 0 0 60px rgba(212,175,55,0.5), 0 0 100px rgba(179,136,255,0.3); }
+            100% { transform: scale(1); box-shadow: 0 0 30px rgba(179,136,255,0.2); }
+        }
+
+        /* ── Matchup Display ── */
+        .matchup-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .matchup-fighters {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .fighter-display {
+            text-align: center;
+            flex: 1;
+            max-width: 180px;
+        }
+
+        .fighter-emoji {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+
+        .fighter-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.2rem;
+        }
+
+        .fighter-animal {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: capitalize;
+        }
+
+        .fighter-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.3rem;
+            margin-top: 0.4rem;
+        }
+
+        .fighter-stat {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .fighter-stat-val {
+            font-weight: 700;
+            color: var(--text-dim);
+            display: block;
+        }
+
+        .vs-divider {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        /* ── Prophecy Text ── */
+        .prophecy-text {
+            background: linear-gradient(135deg, rgba(212,175,55,0.08), rgba(179,136,255,0.05));
+            border: 1px solid rgba(212,175,55,0.25);
+            border-radius: var(--radius);
+            padding: 1.2rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .prophecy-line {
+            font-style: italic;
+            font-size: 0.95rem;
+            color: var(--accent);
+            line-height: 1.6;
+            text-shadow: 0 0 15px rgba(212,175,55,0.2);
+        }
+
+        .prophecy-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        /* ── Betting Panel ── */
+        .bet-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .bet-panel-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .bet-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+        }
+
+        .bet-option {
+            background: rgba(30,16,64,0.6);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .bet-option:hover {
+            border-color: var(--accent);
+            background: rgba(212,175,55,0.08);
+        }
+
+        .bet-option.selected {
+            border-color: var(--accent);
+            background: rgba(212,175,55,0.12);
+            box-shadow: 0 0 15px rgba(212,175,55,0.15);
+        }
+
+        .bet-option.locked {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .bet-type-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.3rem;
+        }
+
+        .bet-type-desc {
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            line-height: 1.4;
+        }
+
+        .bet-multiplier {
+            position: absolute;
+            top: 0.4rem;
+            right: 0.5rem;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .bet-choices {
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .bet-option.selected .bet-choices {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .bet-choice-btn {
+            font-size: 0.65rem;
+            padding: 0.3rem 0.6rem;
+            background: rgba(179,136,255,0.15);
+            border: 1px solid rgba(179,136,255,0.3);
+            border-radius: 4px;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .bet-choice-btn:hover {
+            background: rgba(179,136,255,0.25);
+            color: var(--text);
+        }
+
+        .bet-choice-btn.chosen {
+            background: rgba(212,175,55,0.2);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* ── Wager Input ── */
+        .wager-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            margin: 1.2rem 0;
+        }
+
+        .wager-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .wager-input {
+            width: 80px;
+            padding: 0.4rem 0.6rem;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text);
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .wager-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .wager-quick {
+            display: flex;
+            gap: 0.3rem;
+        }
+
+        .wager-quick button {
+            font-size: 0.6rem;
+            padding: 0.2rem 0.5rem;
+            background: rgba(179,136,255,0.1);
+            border: 1px solid rgba(179,136,255,0.2);
+            border-radius: 3px;
+            color: var(--text-dim);
+            cursor: pointer;
+        }
+
+        .wager-quick button:hover {
+            background: rgba(179,136,255,0.2);
+            color: var(--text);
+        }
+
+        /* ── Consult Button ── */
+        .consult-btn {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(212,175,55,0.25), rgba(179,136,255,0.2));
+            border: 2px solid var(--accent);
+            border-radius: var(--radius);
+            color: var(--accent);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+            text-shadow: 0 0 10px rgba(212,175,55,0.3);
+            margin-bottom: 1.5rem;
+        }
+
+        .consult-btn:hover {
+            background: linear-gradient(135deg, rgba(212,175,55,0.35), rgba(179,136,255,0.3));
+            box-shadow: 0 0 25px rgba(212,175,55,0.3);
+            transform: translateY(-1px);
+        }
+
+        .consult-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .reroll-btn {
+            display: block;
+            width: 100%;
+            padding: 0.6rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .reroll-btn:hover {
+            border-color: var(--text-dim);
+            color: var(--text);
+        }
+
+        /* ── Results Reveal ── */
+        .result-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(10,5,32,0.95);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 2rem;
+        }
+
+        .result-overlay.visible {
+            display: flex;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .result-box {
+            background: var(--bg-card);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(212,175,55,0.15);
+        }
+
+        .result-fight-outcome {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .result-fight-outcome.win { color: var(--green); }
+        .result-fight-outcome.loss { color: var(--red); }
+
+        .result-ticks {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+
+        .result-prophecy-reveal {
+            background: linear-gradient(135deg, rgba(212,175,55,0.1), rgba(179,136,255,0.05));
+            border: 1px solid rgba(212,175,55,0.2);
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-prophecy-label {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.4rem;
+        }
+
+        .result-prophecy-meaning {
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-style: italic;
+        }
+
+        .result-bets {
+            text-align: left;
+            margin-bottom: 1.2rem;
+        }
+
+        .result-bet-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid rgba(58,26,106,0.5);
+            font-size: 0.8rem;
+        }
+
+        .result-bet-name { color: var(--text-dim); }
+
+        .result-bet-outcome {
+            font-weight: 600;
+        }
+
+        .result-bet-outcome.correct {
+            color: var(--green);
+        }
+
+        .result-bet-outcome.wrong {
+            color: var(--red);
+        }
+
+        .result-essence-total {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .result-essence-total.positive { color: var(--green); }
+        .result-essence-total.negative { color: var(--red); }
+
+        .result-essence-label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+
+        .result-close-btn {
+            padding: 0.6rem 2rem;
+            background: linear-gradient(135deg, rgba(212,175,55,0.2), rgba(179,136,255,0.15));
+            border: 1px solid var(--accent);
+            border-radius: var(--radius);
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .result-close-btn:hover {
+            background: linear-gradient(135deg, rgba(212,175,55,0.3), rgba(179,136,255,0.25));
+        }
+
+        /* ── Essence change flyup ── */
+        .essence-flyup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: 700;
+            pointer-events: none;
+            z-index: 200;
+            animation: flyUp 1.5s ease-out forwards;
+            text-shadow: 0 0 30px currentColor;
+        }
+
+        .essence-flyup.positive { color: var(--green); }
+        .essence-flyup.negative { color: var(--red); }
+
+        @keyframes flyUp {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            30% { opacity: 1; transform: translate(-50%, -60%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -120%) scale(0.8); }
+        }
+
+        /* ── Leaderboard / History ── */
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 1rem;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.6rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tab-btn:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+        .tab-btn:last-child { border-radius: 0 var(--radius) var(--radius) 0; }
+
+        .tab-btn.active {
+            background: rgba(212,175,55,0.15);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .history-entry {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+        }
+
+        .history-matchup { color: var(--text-dim); }
+
+        .history-result {
+            font-weight: 600;
+        }
+
+        .history-result.positive { color: var(--green); }
+        .history-result.negative { color: var(--red); }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-card-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-card-label {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 0.2rem;
+        }
+
+        .rank-display {
+            text-align: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(212,175,55,0.1), rgba(179,136,255,0.08));
+            border: 1px solid rgba(212,175,55,0.25);
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+        }
+
+        .rank-title {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.4rem;
+        }
+
+        .rank-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-shadow: 0 0 20px rgba(212,175,55,0.3);
+        }
+
+        .rank-progress {
+            margin-top: 0.6rem;
+        }
+
+        .rank-progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(30,16,64,0.8);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .rank-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--purple-bright), var(--accent));
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .rank-progress-text {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            margin-top: 0.3rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* ── Back link ── */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: var(--accent); }
+
+        /* ── Responsive ── */
+        @media (max-width: 500px) {
+            .bet-options { grid-template-columns: 1fr; }
+            .matchup-fighters { gap: 0.8rem; }
+            .fighter-emoji { font-size: 2rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Nav -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">MOREAU ARENA</a>
+            <ul class="nav-links">
+                <li class="nav-dropdown">
+                    <a href="/">Benchmark &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/">Dashboard</a></li>
+                        <li><a href="/track-a">Track A</a></li>
+                        <li><a href="/track-b">Track B</a></li>
+                        <li><a href="/track-c">Track C</a></li>
+                        <li><a href="/about">About</a></li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="/s1-leaderboard">Seasons &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/s1-leaderboard">S1 Leaderboard</a></li>
+                        <li><a href="/s1-fighters">Meet the Fighters</a></li>
+                        <li><a href="/s1-matchups">Matchup Explorer</a></li>
+                        <li><a href="/play">S1 Quick Fight</a></li>
+                        <li><a href="/s1-compare">Benchmark vs S1</a></li>
+                        <li><a href="/moreddit">The Moreddit</a></li>
+                    </ul>
+                </li>
+                <li><a href="/pets">Pets</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+                <li class="nav-fight"><a href="/island" class="active">FIGHT!</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="island-page">
+        <!-- Loading -->
+        <div id="loadingScreen" class="loading-screen">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">The Oracle awakens...</div>
+        </div>
+
+        <!-- Main content -->
+        <div id="mainContent" style="display:none;">
+            <a href="/island/home" class="back-link">&#8592; Back to Dashboard</a>
+
+            <div class="page-header">
+                <div class="page-title">&#128302; The Prophecy Machine</div>
+                <div class="page-subtitle">"The future is written in blood and code"</div>
+            </div>
+
+            <!-- Essence bar -->
+            <div class="essence-bar">
+                <span class="essence-icon">&#10024;</span>
+                <span class="essence-label">Essence</span>
+                <span class="essence-value" id="essenceDisplay">100</span>
+                <span class="oracle-rank" id="oracleRankBadge">Diviner</span>
+            </div>
+            <div class="mercy-timer" id="mercyTimer" style="display:none;"></div>
+
+            <!-- Phase 1: Oracle matchup -->
+            <div id="phaseOracle">
+                <div class="oracle-section">
+                    <div class="crystal-ball" id="crystalBall">&#128302;</div>
+                </div>
+
+                <!-- Matchup card -->
+                <div class="matchup-card" id="matchupCard">
+                    <div class="matchup-fighters">
+                        <div class="fighter-display">
+                            <span class="fighter-emoji" id="fighter1Emoji"></span>
+                            <div class="fighter-name" id="fighter1Name"></div>
+                            <div class="fighter-animal" id="fighter1Animal"></div>
+                            <div class="fighter-stats" id="fighter1Stats"></div>
+                        </div>
+                        <div class="vs-divider">VS</div>
+                        <div class="fighter-display">
+                            <span class="fighter-emoji" id="fighter2Emoji"></span>
+                            <div class="fighter-name" id="fighter2Name"></div>
+                            <div class="fighter-animal" id="fighter2Animal"></div>
+                            <div class="fighter-stats" id="fighter2Stats"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prophecy -->
+                <div class="prophecy-text" id="prophecyBox">
+                    <div class="prophecy-label">The Oracle Speaks</div>
+                    <div class="prophecy-line" id="prophecyLine1"></div>
+                    <div class="prophecy-line" id="prophecyLine2"></div>
+                </div>
+
+                <!-- Bet panel -->
+                <div class="bet-panel">
+                    <div class="bet-panel-title">Place Your Bets</div>
+                    <div class="bet-options" id="betOptions">
+                        <!-- Outcome Bet -->
+                        <div class="bet-option" data-bet="outcome" onclick="toggleBet(this)">
+                            <div class="bet-type-name">&#9876; Outcome</div>
+                            <div class="bet-type-desc">Who wins?</div>
+                            <div class="bet-multiplier">2x</div>
+                            <div class="bet-choices">
+                                <button class="bet-choice-btn" data-choice="fighter1" onclick="event.stopPropagation(); chooseBet(this)"></button>
+                                <button class="bet-choice-btn" data-choice="fighter2" onclick="event.stopPropagation(); chooseBet(this)"></button>
+                            </div>
+                        </div>
+                        <!-- Time Bet -->
+                        <div class="bet-option" data-bet="time" onclick="toggleBet(this)">
+                            <div class="bet-type-name">&#9202; Duration</div>
+                            <div class="bet-type-desc">Quick or long fight?</div>
+                            <div class="bet-multiplier">3x</div>
+                            <div class="bet-choices">
+                                <button class="bet-choice-btn" data-choice="quick" onclick="event.stopPropagation(); chooseBet(this)">&#9889; Quick (&lt;30)</button>
+                                <button class="bet-choice-btn" data-choice="long" onclick="event.stopPropagation(); chooseBet(this)">&#9203; Long (30+)</button>
+                            </div>
+                        </div>
+                        <!-- Critical Event -->
+                        <div class="bet-option" data-bet="critical" onclick="toggleBet(this)">
+                            <div class="bet-type-name">&#128165; Critical Hit</div>
+                            <div class="bet-type-desc">Will a critical hit land?</div>
+                            <div class="bet-multiplier">2.5x</div>
+                            <div class="bet-choices">
+                                <button class="bet-choice-btn" data-choice="yes" onclick="event.stopPropagation(); chooseBet(this)">Yes</button>
+                                <button class="bet-choice-btn" data-choice="no" onclick="event.stopPropagation(); chooseBet(this)">No</button>
+                            </div>
+                        </div>
+                        <!-- Prophecy Reading -->
+                        <div class="bet-option" data-bet="prophecy" onclick="toggleBet(this)">
+                            <div class="bet-type-name">&#128302; Prophecy</div>
+                            <div class="bet-type-desc">Decode the Oracle's vision</div>
+                            <div class="bet-multiplier">4x</div>
+                            <div class="bet-choices" id="prophecyChoices">
+                                <!-- Filled dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wager -->
+                <div class="wager-section">
+                    <span class="wager-label">Wager:</span>
+                    <input type="number" class="wager-input" id="wagerInput" min="5" value="10">
+                    <div class="wager-quick">
+                        <button onclick="setWager(5)">5</button>
+                        <button onclick="setWager(10)">10</button>
+                        <button onclick="setWager(25)">25</button>
+                        <button onclick="setWager(50)">50</button>
+                    </div>
+                </div>
+
+                <!-- Consult button -->
+                <button class="consult-btn" id="consultBtn" onclick="consultOracle()">&#128302; Consult the Oracle</button>
+                <button class="reroll-btn" onclick="rerollMatchup()">&#9858; New matchup</button>
+            </div>
+
+            <!-- Tabs: History / Stats -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('history')">History</button>
+                <button class="tab-btn" onclick="switchTab('stats')">Oracle Stats</button>
+            </div>
+
+            <div class="tab-content active" id="tabHistory">
+                <div id="historyList" class="empty-state">No prophecies yet. The Oracle awaits.</div>
+            </div>
+
+            <div class="tab-content" id="tabStats">
+                <div class="rank-display">
+                    <div class="rank-title">Oracle Rank</div>
+                    <div class="rank-name" id="rankName">Diviner</div>
+                    <div class="rank-progress">
+                        <div class="rank-progress-bar">
+                            <div class="rank-progress-fill" id="rankProgressFill" style="width:0%"></div>
+                        </div>
+                        <div class="rank-progress-text" id="rankProgressText">0 / 100 Essence to next rank</div>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-value" id="statTotal">0</div>
+                        <div class="stat-card-label">Total Predictions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-value" id="statAccuracy">0%</div>
+                        <div class="stat-card-label">Accuracy</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-value" id="statEarned">0</div>
+                        <div class="stat-card-label">Essence Earned</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-value" id="statStreak">0</div>
+                        <div class="stat-card-label">Best Streak</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result overlay -->
+    <div class="result-overlay" id="resultOverlay">
+        <div class="result-box">
+            <div class="result-fight-outcome" id="resultOutcome"></div>
+            <div class="result-ticks" id="resultTicks"></div>
+
+            <div class="result-prophecy-reveal">
+                <div class="result-prophecy-label">The Oracle Meant</div>
+                <div class="result-prophecy-meaning" id="resultProphecyMeaning"></div>
+            </div>
+
+            <div class="result-bets" id="resultBets"></div>
+
+            <div class="result-essence-total" id="resultEssenceTotal"></div>
+            <div class="result-essence-label" id="resultEssenceLabel"></div>
+
+            <button class="result-close-btn" onclick="closeResult()">Continue</button>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        'use strict';
+
+        // ── Constants ──
+        var EMOJI_MAP = {
+            wolf:'\u{1F43A}', bear:'\u{1F43B}', fox:'\u{1F98A}', hawk:'\u{1F985}',
+            snake:'\u{1F40D}', panther:'\u{1F406}', shark:'\u{1F988}', eagle:'\u{1F985}',
+            tiger:'\u{1F405}', croc:'\u{1F40A}', rhino:'\u{1F98F}', mantis:'\u{1F997}',
+            scorpion:'\u{1F982}', chameleon:'\u{1F98E}'
+        };
+        var ANIMALS = Object.keys(EMOJI_MAP);
+
+        var RANK_THRESHOLDS = [
+            { name: 'Diviner',  min: 0,    icon: '\u{1F52E}' },
+            { name: 'Mystic',   min: 100,  icon: '\u{2728}' },
+            { name: 'Seer',     min: 250,  icon: '\u{1F441}' },
+            { name: 'Sage',     min: 500,  icon: '\u{1F9D9}' },
+            { name: 'Oracle',   min: 1000, icon: '\u{1F3C6}' }
+        ];
+
+        var ANIMAL_TITLES = {
+            wolf: 'the Pack Hunter', bear: 'the Ironhide', fox: 'the Trickster',
+            hawk: 'the Sky Fury', snake: 'the Coiled Shadow', panther: 'the Silent Death',
+            shark: 'the Deep Terror', eagle: 'the Apex', tiger: 'the Burning Stripe',
+            croc: 'the Ancient Jaw', rhino: 'the Unstoppable', mantis: 'the Blade Dancer',
+            scorpion: 'the Venomous', chameleon: 'the Unseen'
+        };
+
+        // ── Prophecy Templates ──
+        // Each template has: lines (2 lines of prophecy), key (what it predicts),
+        // answer (function returning the decoded meaning after fight)
+        var PROPHECY_TEMPLATES = [
+            // Winner hints - favor fighter 1
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'The ' + ANIMAL_TITLES[f1.animal] + ' rises where embers glow,',
+                        'And ' + ANIMAL_TITLES[f2.animal] + ' finds only ash below.'
+                    ];
+                },
+                key: 'winner', favors: 1,
+                meaning: function(f1, f2, won1) {
+                    return won1 ? 'The Oracle foresaw ' + f1.name + '\'s triumph — the embers were theirs.' :
+                        'The Oracle\'s vision was clouded — the ash consumed the wrong fighter.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'Iron will bends the weaker flame,',
+                        'The arena remembers only one name.'
+                    ];
+                },
+                key: 'winner', favors: 1,
+                meaning: function(f1, f2, won1) {
+                    return won1 ? 'The arena speaks: ' + f1.name + ' is the name it remembers.' :
+                        'The flame was stronger than iron — the Oracle miscalculated.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'Blood calls to blood in the crimson sand,',
+                        ANIMAL_TITLES[f1.animal] + ' takes the final stand.'
+                    ];
+                },
+                key: 'winner', favors: 1,
+                meaning: function(f1, f2, won1) {
+                    return won1 ? 'The crimson sand drank deep — ' + f1.name + ' stood last.' :
+                        'The sand was treacherous — ' + f2.name + ' defied the prophecy.';
+                }
+            },
+            // Winner hints - favor fighter 2
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'The shadow swallows the boastful light,',
+                        ANIMAL_TITLES[f2.animal] + ' claims dominion of the night.'
+                    ];
+                },
+                key: 'winner', favors: 2,
+                meaning: function(f1, f2, won1) {
+                    return !won1 ? 'Darkness prevailed — ' + f2.name + ' rules the night.' :
+                        'The light refused to be swallowed — ' + f1.name + ' burned too bright.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'The old one stirs beneath the stone,',
+                        'A throne of bones is ' + ANIMAL_TITLES[f2.animal] + '\'s alone.'
+                    ];
+                },
+                key: 'winner', favors: 2,
+                meaning: function(f1, f2, won1) {
+                    return !won1 ? 'The throne was claimed as foretold by ' + f2.name + '.' :
+                        'The bones crumbled — the throne was stolen by ' + f1.name + '.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'When two storms meet only one sky remains,',
+                        ANIMAL_TITLES[f2.animal] + ' weathers all the pains.'
+                    ];
+                },
+                key: 'winner', favors: 2,
+                meaning: function(f1, f2, won1) {
+                    return !won1 ? f2.name + ' was the storm that endured.' :
+                        'Both storms raged but ' + f1.name + ' proved fiercer.';
+                }
+            },
+            // Quick fight hints
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'Swift as the cut that severs fate,',
+                        'One breath between life and the gate.'
+                    ];
+                },
+                key: 'quick', favors: null,
+                meaning: function(f1, f2, won1, ticks) {
+                    return ticks < 30 ? 'The Oracle saw true — death came in ' + ticks + ' heartbeats.' :
+                        'The gate was further than the Oracle foresaw — ' + ticks + ' heartbeats passed.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'A flash of steel, a gasp, then silence,',
+                        'The sand drinks fast from sudden violence.'
+                    ];
+                },
+                key: 'quick', favors: null,
+                meaning: function(f1, f2, won1, ticks) {
+                    return ticks < 30 ? 'Violence was indeed sudden — over in ' + ticks + ' ticks.' :
+                        'The violence was slow and deliberate — ' + ticks + ' ticks of suffering.';
+                }
+            },
+            // Long fight hints
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'The wheel turns slow through endless night,',
+                        'Two wills entwined refuse the light.'
+                    ];
+                },
+                key: 'long', favors: null,
+                meaning: function(f1, f2, won1, ticks) {
+                    return ticks >= 30 ? 'The wheel turned for ' + ticks + ' long ticks — patience rewarded.' :
+                        'The wheel spun faster than expected — only ' + ticks + ' ticks.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'Endurance writes its name in scars,',
+                        'This battle echoes past the stars.'
+                    ];
+                },
+                key: 'long', favors: null,
+                meaning: function(f1, f2, won1, ticks) {
+                    return ticks >= 30 ? 'Scars were earned over ' + ticks + ' brutal ticks.' :
+                        'The stars dimmed quickly — the fight lasted only ' + ticks + ' ticks.';
+                }
+            },
+            // Critical hit hints
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'The eye of fate blinks once and shatters,',
+                        'In that instant, nothing else matters.'
+                    ];
+                },
+                key: 'critical', favors: null,
+                meaning: function(f1, f2, won1, ticks, hadCrit) {
+                    return hadCrit ? 'Fate\'s eye shattered — a critical blow changed everything.' :
+                        'The eye remained steady — no critical blow was struck.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'One strike carries the weight of thunder,',
+                        'The arena splits asunder.'
+                    ];
+                },
+                key: 'critical', favors: null,
+                meaning: function(f1, f2, won1, ticks, hadCrit) {
+                    return hadCrit ? 'Thunder struck true — the critical hit landed.' :
+                        'The thunder was distant — no devastating blow this fight.';
+                }
+            },
+            // Ambiguous / general
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'The mirror shows two faces bleeding,',
+                        'Only silence knows who\'s leaving.'
+                    ];
+                },
+                key: 'ambiguous', favors: null,
+                meaning: function(f1, f2, won1) {
+                    return 'The mirror cracked — ' + (won1 ? f1.name : f2.name) + ' walked away from the glass.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'Dr. Moreau watches from his tower,',
+                        'Counting seconds to the final hour.'
+                    ];
+                },
+                key: 'ambiguous', favors: null,
+                meaning: function(f1, f2, won1, ticks) {
+                    return 'The Doctor counted ' + ticks + ' ticks. ' + (won1 ? f1.name : f2.name) + ' survived inspection.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'Fangs meet claws in the garden of beasts,',
+                        'The stronger soul inherits the feast.'
+                    ];
+                },
+                key: 'winner', favors: 0,
+                meaning: function(f1, f2, won1) {
+                    return (won1 ? f1.name : f2.name) + ' feasted. The weaker soul was devoured.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'In the coliseum of coded flesh,',
+                        'Algorithm and instinct mesh.'
+                    ];
+                },
+                key: 'ambiguous', favors: null,
+                meaning: function(f1, f2, won1, ticks) {
+                    return 'Code and instinct clashed for ' + ticks + ' ticks. ' + (won1 ? f1.name : f2.name) + ' was the superior algorithm.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'The island remembers every death,',
+                        'Tonight it holds its breath.'
+                    ];
+                },
+                key: 'ambiguous', favors: null,
+                meaning: function(f1, f2, won1) {
+                    return 'The island exhaled. ' + (won1 ? f2.name : f1.name) + '\'s death was added to its memory.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'Speed is nothing without purpose,',
+                        'Strength is nothing beneath the surface.'
+                    ];
+                },
+                key: 'stats', favors: null,
+                meaning: function(f1, f2, won1) {
+                    var winner = won1 ? f1 : f2;
+                    var ws = winner.stats;
+                    return winner.name + ' proved it: HP ' + ws.hp + ' / ATK ' + ws.atk + ' / SPD ' + ws.spd + ' / WIL ' + ws.wil + ' was the winning formula.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'When ' + ANIMAL_TITLES[f1.animal] + ' meets ' + ANIMAL_TITLES[f2.animal] + ',',
+                        'The prophecy writes itself in red.'
+                    ];
+                },
+                key: 'ambiguous', favors: null,
+                meaning: function(f1, f2, won1) {
+                    return 'Red ink for ' + (won1 ? f2.name : f1.name) + '. The prophecy is complete.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'The weaker vessel holds the deeper fire,',
+                        'Underestimate at your own desire.'
+                    ];
+                },
+                key: 'upset', favors: null,
+                meaning: function(f1, f2, won1) {
+                    var s1 = f1.stats.hp + f1.stats.atk + f1.stats.spd + f1.stats.wil;
+                    var s2 = f2.stats.hp + f2.stats.atk + f2.stats.spd + f2.stats.wil;
+                    var upset = (won1 && s1 < s2) || (!won1 && s2 < s1);
+                    return upset ? 'The underdog prevailed! The weaker vessel burned brightest.' :
+                        'No upset today — the stronger fighter held their ground.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'Three moons rise above the pit,',
+                        'By the third, the loser quits.'
+                    ];
+                },
+                key: 'ambiguous', favors: null,
+                meaning: function(f1, f2, won1, ticks) {
+                    return 'The third moon rose at tick ' + ticks + '. ' + (won1 ? f2.name : f1.name) + ' could fight no more.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'Venom drips from the Oracle\'s tongue,',
+                        'The song of death has just begun.'
+                    ];
+                },
+                key: 'ambiguous', favors: null,
+                meaning: function(f1, f2, won1) {
+                    return 'The death song played for ' + (won1 ? f2.name : f1.name) + '. The Oracle\'s venom was true.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'One carries scars, the other carries pride,',
+                        'Only one walks out alive.'
+                    ];
+                },
+                key: 'winner', favors: 0,
+                meaning: function(f1, f2, won1) {
+                    return (won1 ? f1.name : f2.name) + ' walked out. The other stayed behind forever.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'The cage descends, the lights go dim,',
+                        'Dr. Moreau hums his favorite hymn.'
+                    ];
+                },
+                key: 'ambiguous', favors: null,
+                meaning: function(f1, f2, won1, ticks) {
+                    return 'The hymn lasted ' + ticks + ' ticks. The Doctor applauded ' + (won1 ? f1.name : f2.name) + '.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'Nature wrote the rules in bone,',
+                        'But here those rules are overthrown.'
+                    ];
+                },
+                key: 'upset', favors: null,
+                meaning: function(f1, f2, won1) {
+                    return 'Nature\'s rules ' + ((won1 ? f1.stats.atk : f2.stats.atk) > 7 ? 'held — raw power triumphed.' : 'were overthrown — cunning beat brute force.');
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'The constellation of the ' + f1.animal + ' fades,',
+                        'As ' + f2.animal + '\'s star ascends the blades.'
+                    ];
+                },
+                key: 'winner', favors: 2,
+                meaning: function(f1, f2, won1) {
+                    return !won1 ? 'The stars aligned — ' + f2.name + '\'s constellation blazes.' :
+                        'The stars lied — ' + f1.name + '\'s constellation refused to fade.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'Between the first blow and the last breath,',
+                        'The Oracle counts the steps to death.'
+                    ];
+                },
+                key: 'ambiguous', favors: null,
+                meaning: function(f1, f2, won1, ticks) {
+                    return 'The Oracle counted ' + ticks + ' steps. ' + (won1 ? f2.name : f1.name) + ' reached the end.';
+                }
+            },
+            {
+                lines: function(f1, f2) {
+                    return [
+                        'The stronger spirit drinks from a deeper well,',
+                        'The weaker spirit rings a smaller bell.'
+                    ];
+                },
+                key: 'winner', favors: 0,
+                meaning: function(f1, f2, won1) {
+                    var winner = won1 ? f1 : f2;
+                    return winner.name + '\'s spirit (WIL ' + winner.stats.wil + ') drank deep and prevailed.';
+                }
+            }
+        ];
+
+        // ── State ──
+        var essence = parseInt(localStorage.getItem('moreau_essence') || '0', 10);
+        if (!essence && !localStorage.getItem('moreau_essence')) {
+            essence = 100;
+            localStorage.setItem('moreau_essence', '100');
+        }
+        var totalEarned = parseInt(localStorage.getItem('moreau_oracle_total_earned') || '0', 10);
+        var history = JSON.parse(localStorage.getItem('moreau_oracle_history') || '[]');
+        var currentMatchup = null;
+        var currentProphecy = null;
+        var activeBets = {};
+        var fightInProgress = false;
+
+        // ── Fighter Generation ──
+        function randomStats() {
+            // Generate random stats summing to 20
+            var stats = { hp: 3, atk: 3, spd: 3, wil: 3 };
+            var remaining = 8; // 20 - 12 base
+            var keys = ['hp', 'atk', 'spd', 'wil'];
+            for (var i = 0; i < remaining; i++) {
+                var k = keys[Math.floor(Math.random() * keys.length)];
+                if (stats[k] < 14) stats[k]++;
+            }
+            return stats;
+        }
+
+        function generateFighter(name, animal, stats) {
+            return {
+                name: name,
+                animal: animal,
+                stats: stats,
+                emoji: EMOJI_MAP[animal] || '\u{2753}',
+                build: animal + ' ' + stats.hp + ' ' + stats.atk + ' ' + stats.spd + ' ' + stats.wil
+            };
+        }
+
+        function generateMatchup() {
+            var allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            var activeIdx = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
+            var pet = allPets[activeIdx];
+            var fighters = [];
+
+            // Fighter 1: player's pet or random AI
+            if (pet && !pet.deceased && pet.is_alive !== false) {
+                var bs = pet.base_stats || pet.stats || {};
+                fighters.push(generateFighter(
+                    pet.name || 'Your Pet',
+                    (pet.animal || 'fox').toLowerCase(),
+                    { hp: bs.hp || 5, atk: bs.atk || 5, spd: bs.spd || 5, wil: bs.wil || 5 }
+                ));
+            } else {
+                var a1 = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+                fighters.push(generateFighter(randomName(), a1, randomStats()));
+            }
+
+            // Fighter 2: always random AI
+            var a2 = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+            fighters.push(generateFighter(randomName(), a2, randomStats()));
+
+            return { fighter1: fighters[0], fighter2: fighters[1] };
+        }
+
+        var AI_NAMES = [
+            'ShadowFang', 'IronClaw', 'BloodMaw', 'NightStalker', 'VenomStrike',
+            'GhostHunter', 'SteelJaw', 'DeathWhisper', 'BoneBreaker', 'StormFury',
+            'DarkProwler', 'FleshRend', 'SilentKill', 'WildHeart', 'GrimFang',
+            'ThunderBeast', 'VoidWalker', 'CrimsonEye', 'FrostBite', 'ScaleThorn',
+            'MoonHowl', 'DuskHunter', 'AshClaw', 'EmberFang', 'RazorWing'
+        ];
+
+        function randomName() {
+            return AI_NAMES[Math.floor(Math.random() * AI_NAMES.length)];
+        }
+
+        // ── Display ──
+        function displayMatchup(matchup) {
+            currentMatchup = matchup;
+            var f1 = matchup.fighter1;
+            var f2 = matchup.fighter2;
+
+            document.getElementById('fighter1Emoji').textContent = f1.emoji;
+            document.getElementById('fighter1Name').textContent = f1.name;
+            document.getElementById('fighter1Animal').textContent = f1.animal;
+            document.getElementById('fighter1Stats').innerHTML =
+                '<div class="fighter-stat"><span class="fighter-stat-val">' + f1.stats.hp + '</span>HP</div>' +
+                '<div class="fighter-stat"><span class="fighter-stat-val">' + f1.stats.atk + '</span>ATK</div>' +
+                '<div class="fighter-stat"><span class="fighter-stat-val">' + f1.stats.spd + '</span>SPD</div>' +
+                '<div class="fighter-stat"><span class="fighter-stat-val">' + f1.stats.wil + '</span>WIL</div>';
+
+            document.getElementById('fighter2Emoji').textContent = f2.emoji;
+            document.getElementById('fighter2Name').textContent = f2.name;
+            document.getElementById('fighter2Animal').textContent = f2.animal;
+            document.getElementById('fighter2Stats').innerHTML =
+                '<div class="fighter-stat"><span class="fighter-stat-val">' + f2.stats.hp + '</span>HP</div>' +
+                '<div class="fighter-stat"><span class="fighter-stat-val">' + f2.stats.atk + '</span>ATK</div>' +
+                '<div class="fighter-stat"><span class="fighter-stat-val">' + f2.stats.spd + '</span>SPD</div>' +
+                '<div class="fighter-stat"><span class="fighter-stat-val">' + f2.stats.wil + '</span>WIL</div>';
+
+            // Update outcome bet choice labels
+            var outcomeChoices = document.querySelector('[data-bet="outcome"] .bet-choices');
+            if (outcomeChoices) {
+                var btns = outcomeChoices.querySelectorAll('.bet-choice-btn');
+                btns[0].textContent = f1.emoji + ' ' + f1.name;
+                btns[1].textContent = f2.emoji + ' ' + f2.name;
+            }
+
+            // Generate prophecy
+            generateProphecy(f1, f2);
+        }
+
+        function generateProphecy(f1, f2) {
+            var template = PROPHECY_TEMPLATES[Math.floor(Math.random() * PROPHECY_TEMPLATES.length)];
+            var lines = template.lines(f1, f2);
+            currentProphecy = {
+                template: template,
+                lines: lines,
+                fighter1: f1,
+                fighter2: f2
+            };
+
+            document.getElementById('prophecyLine1').textContent = '"' + lines[0];
+            document.getElementById('prophecyLine2').textContent = lines[1] + '"';
+
+            // Prophecy reading choices
+            var choicesEl = document.getElementById('prophecyChoices');
+            var choices = generateProphecyChoices(template, f1, f2);
+            choicesEl.innerHTML = '';
+            choices.forEach(function(c) {
+                var btn = document.createElement('button');
+                btn.className = 'bet-choice-btn';
+                btn.dataset.choice = c.id;
+                btn.textContent = c.label;
+                btn.onclick = function(e) { e.stopPropagation(); chooseBet(btn); };
+                choicesEl.appendChild(btn);
+            });
+        }
+
+        function generateProphecyChoices(template, f1, f2) {
+            var choices = [];
+            if (template.key === 'winner' || template.key === 'ambiguous' || template.key === 'upset' || template.key === 'stats') {
+                choices.push({ id: 'f1_wins', label: f1.name + ' wins' });
+                choices.push({ id: 'f2_wins', label: f2.name + ' wins' });
+            }
+            if (template.key === 'quick') {
+                choices.push({ id: 'under_20', label: 'Under 20 ticks' });
+                choices.push({ id: 'over_20', label: '20+ ticks' });
+            }
+            if (template.key === 'long') {
+                choices.push({ id: 'over_40', label: 'Over 40 ticks' });
+                choices.push({ id: 'under_40', label: 'Under 40 ticks' });
+            }
+            if (template.key === 'critical') {
+                choices.push({ id: 'crit_yes', label: 'Critical will land' });
+                choices.push({ id: 'crit_no', label: 'No critical hits' });
+            }
+            // Always offer a winner choice if nothing else
+            if (choices.length === 0) {
+                choices.push({ id: 'f1_wins', label: f1.name + ' wins' });
+                choices.push({ id: 'f2_wins', label: f2.name + ' wins' });
+            }
+            return choices;
+        }
+
+        // ── Betting Logic ──
+        window.toggleBet = function(el) {
+            var betType = el.dataset.bet;
+            if (el.classList.contains('selected')) {
+                el.classList.remove('selected');
+                delete activeBets[betType];
+            } else {
+                el.classList.add('selected');
+                // Don't set bet value until a choice is made
+            }
+            updateConsultBtn();
+        };
+
+        window.chooseBet = function(btn) {
+            var option = btn.closest('.bet-option');
+            var betType = option.dataset.bet;
+            // Deselect siblings
+            option.querySelectorAll('.bet-choice-btn').forEach(function(b) { b.classList.remove('chosen'); });
+            btn.classList.add('chosen');
+            activeBets[betType] = btn.dataset.choice;
+            updateConsultBtn();
+        };
+
+        function updateConsultBtn() {
+            var btn = document.getElementById('consultBtn');
+            var hasBets = Object.keys(activeBets).length > 0;
+            var allChosen = true;
+            document.querySelectorAll('.bet-option.selected').forEach(function(opt) {
+                var betType = opt.dataset.bet;
+                if (!activeBets[betType]) allChosen = false;
+            });
+            var wager = parseInt(document.getElementById('wagerInput').value || '0', 10);
+            btn.disabled = !hasBets || !allChosen || wager < 5 || wager > essence || fightInProgress;
+        }
+
+        window.setWager = function(val) {
+            document.getElementById('wagerInput').value = val;
+            updateConsultBtn();
+        };
+
+        // ── Essence Management ──
+        function updateEssenceDisplay() {
+            document.getElementById('essenceDisplay').textContent = essence;
+            var rank = getOracleRank(totalEarned);
+            document.getElementById('oracleRankBadge').textContent = rank.icon + ' ' + rank.name;
+            // Mercy timer
+            checkMercy();
+        }
+
+        function getOracleRank(total) {
+            var rank = RANK_THRESHOLDS[0];
+            for (var i = RANK_THRESHOLDS.length - 1; i >= 0; i--) {
+                if (total >= RANK_THRESHOLDS[i].min) {
+                    rank = RANK_THRESHOLDS[i];
+                    break;
+                }
+            }
+            return rank;
+        }
+
+        function getNextRank(total) {
+            for (var i = 0; i < RANK_THRESHOLDS.length; i++) {
+                if (total < RANK_THRESHOLDS[i].min) return RANK_THRESHOLDS[i];
+            }
+            return null;
+        }
+
+        function checkMercy() {
+            var timerEl = document.getElementById('mercyTimer');
+            if (essence > 0) {
+                timerEl.style.display = 'none';
+                return;
+            }
+            var lastMercy = parseInt(localStorage.getItem('moreau_mercy_time') || '0', 10);
+            var sixHours = 6 * 60 * 60 * 1000;
+            var now = Date.now();
+            if (now - lastMercy >= sixHours) {
+                essence = 10;
+                localStorage.setItem('moreau_essence', '10');
+                localStorage.setItem('moreau_mercy_time', '' + now);
+                updateEssenceDisplay();
+                timerEl.style.display = 'none';
+            } else {
+                var remaining = sixHours - (now - lastMercy);
+                var h = Math.floor(remaining / 3600000);
+                var m = Math.floor((remaining % 3600000) / 60000);
+                timerEl.textContent = 'Mercy essence in ' + h + 'h ' + m + 'm';
+                timerEl.style.display = 'block';
+            }
+        }
+
+        // ── Oracle Consultation (Fight) ──
+        window.consultOracle = async function() {
+            if (fightInProgress) return;
+            var wager = parseInt(document.getElementById('wagerInput').value || '0', 10);
+            if (wager < 5 || wager > essence) return;
+            if (Object.keys(activeBets).length === 0) return;
+
+            fightInProgress = true;
+            var btn = document.getElementById('consultBtn');
+            btn.disabled = true;
+            btn.textContent = '\u{1F52E} The Oracle gazes...';
+
+            // Animate crystal ball
+            document.getElementById('crystalBall').classList.add('active');
+
+            var f1 = currentMatchup.fighter1;
+            var f2 = currentMatchup.fighter2;
+
+            try {
+                var resp = await fetch('/api/v1/fight/s1', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ build1: f1.build, build2: f2.build, games: 1 })
+                });
+
+                if (!resp.ok) {
+                    var err = await resp.json().catch(function() { return {}; });
+                    throw new Error(err.detail || 'Server error ' + resp.status);
+                }
+
+                var data = await resp.json();
+                var won1 = data.build1_wins > 0;
+                var ticks = Math.round(data.avg_ticks);
+                // Determine critical hit: high ATK + quick fight heuristic
+                var maxAtk = Math.max(f1.stats.atk, f2.stats.atk);
+                var hadCrit = maxAtk >= 8 && ticks < 25 ? true : (Math.random() < 0.3);
+
+                // Wait for dramatic effect
+                await sleep(1500);
+
+                // Evaluate bets
+                var results = evaluateBets(won1, ticks, hadCrit, wager);
+                showResults(won1, ticks, hadCrit, results, wager);
+
+            } catch (e) {
+                alert('Fight failed: ' + (e.message || 'Network error'));
+            }
+
+            document.getElementById('crystalBall').classList.remove('active');
+            fightInProgress = false;
+            btn.textContent = '\u{1F52E} Consult the Oracle';
+            updateConsultBtn();
+        };
+
+        function evaluateBets(won1, ticks, hadCrit, wager) {
+            var results = [];
+            var totalGain = 0;
+            var totalBets = 0;
+            var correct = 0;
+
+            var betTypes = {
+                outcome: { multiplier: 2, check: function(choice) {
+                    if (choice === 'fighter1') return won1;
+                    if (choice === 'fighter2') return !won1;
+                    return false;
+                }},
+                time: { multiplier: 3, check: function(choice) {
+                    if (choice === 'quick') return ticks < 30;
+                    if (choice === 'long') return ticks >= 30;
+                    return false;
+                }},
+                critical: { multiplier: 2.5, check: function(choice) {
+                    if (choice === 'yes') return hadCrit;
+                    if (choice === 'no') return !hadCrit;
+                    return false;
+                }},
+                prophecy: { multiplier: 4, check: function(choice) {
+                    if (choice === 'f1_wins') return won1;
+                    if (choice === 'f2_wins') return !won1;
+                    if (choice === 'under_20') return ticks < 20;
+                    if (choice === 'over_20') return ticks >= 20;
+                    if (choice === 'over_40') return ticks > 40;
+                    if (choice === 'under_40') return ticks <= 40;
+                    if (choice === 'crit_yes') return hadCrit;
+                    if (choice === 'crit_no') return !hadCrit;
+                    return false;
+                }}
+            };
+
+            for (var betType in activeBets) {
+                var choice = activeBets[betType];
+                var info = betTypes[betType];
+                if (!info) continue;
+                totalBets++;
+                var isCorrect = info.check(choice);
+                if (isCorrect) {
+                    correct++;
+                    totalGain += Math.floor(wager * info.multiplier);
+                }
+                results.push({
+                    type: betType,
+                    choice: choice,
+                    correct: isCorrect,
+                    payout: isCorrect ? Math.floor(wager * info.multiplier) : 0,
+                    multiplier: info.multiplier
+                });
+            }
+
+            // Subtract wager for each bet placed
+            var totalCost = wager * totalBets;
+            var net = totalGain - totalCost;
+
+            return { results: results, totalGain: totalGain, totalCost: totalCost, net: net, correct: correct, total: totalBets };
+        }
+
+        function showResults(won1, ticks, hadCrit, evalResult, wager) {
+            var f1 = currentMatchup.fighter1;
+            var f2 = currentMatchup.fighter2;
+            var winner = won1 ? f1 : f2;
+            var loser = won1 ? f2 : f1;
+
+            // Fight outcome
+            var outcomeEl = document.getElementById('resultOutcome');
+            outcomeEl.textContent = winner.emoji + ' ' + winner.name + ' WINS';
+            outcomeEl.className = 'result-fight-outcome';
+
+            document.getElementById('resultTicks').textContent =
+                'Fight lasted ' + ticks + ' ticks' + (hadCrit ? ' \u{26A1} Critical hit!' : '');
+
+            // Prophecy meaning
+            var meaning = currentProphecy.template.meaning(f1, f2, won1, ticks, hadCrit);
+            document.getElementById('resultProphecyMeaning').textContent = meaning;
+
+            // Bet results
+            var betsHtml = '';
+            var betNames = { outcome: '\u{2694} Outcome', time: '\u{23F2} Duration', critical: '\u{1F4A5} Critical', prophecy: '\u{1F52E} Prophecy' };
+            evalResult.results.forEach(function(r) {
+                betsHtml += '<div class="result-bet-line">' +
+                    '<span class="result-bet-name">' + (betNames[r.type] || r.type) + '</span>' +
+                    '<span class="result-bet-outcome ' + (r.correct ? 'correct' : 'wrong') + '">' +
+                    (r.correct ? '+' + r.payout : '-' + wager) + ' \u{2728}</span>' +
+                    '</div>';
+            });
+            document.getElementById('resultBets').innerHTML = betsHtml;
+
+            // Net essence change
+            var net = evalResult.net;
+            var totalEl = document.getElementById('resultEssenceTotal');
+            totalEl.textContent = (net >= 0 ? '+' : '') + net + ' Essence';
+            totalEl.className = 'result-essence-total ' + (net >= 0 ? 'positive' : 'negative');
+
+            document.getElementById('resultEssenceLabel').textContent =
+                evalResult.correct + '/' + evalResult.total + ' predictions correct';
+
+            // Update essence
+            essence = Math.max(0, essence + net);
+            localStorage.setItem('moreau_essence', '' + essence);
+            if (net > 0) {
+                totalEarned += net;
+                localStorage.setItem('moreau_oracle_total_earned', '' + totalEarned);
+            }
+
+            // Save history entry
+            var entry = {
+                timestamp: new Date().toISOString(),
+                fighter1: f1.name + ' (' + f1.animal + ')',
+                fighter2: f2.name + ' (' + f2.animal + ')',
+                winner: winner.name,
+                ticks: ticks,
+                bets: evalResult.total,
+                correct: evalResult.correct,
+                net: net
+            };
+            history.unshift(entry);
+            if (history.length > 50) history = history.slice(0, 50);
+            localStorage.setItem('moreau_oracle_history', JSON.stringify(history));
+
+            // Show overlay
+            document.getElementById('resultOverlay').classList.add('visible');
+
+            // Flyup animation
+            var flyup = document.createElement('div');
+            flyup.className = 'essence-flyup ' + (net >= 0 ? 'positive' : 'negative');
+            flyup.textContent = (net >= 0 ? '+' : '') + net;
+            document.body.appendChild(flyup);
+            setTimeout(function() { flyup.remove(); }, 1600);
+
+            // Update displays
+            updateEssenceDisplay();
+            renderHistory();
+            renderStats();
+
+            // Check for Oracle rank achievement
+            checkRankAchievement();
+        }
+
+        window.closeResult = function() {
+            document.getElementById('resultOverlay').classList.remove('visible');
+            // Reset bets and generate new matchup
+            activeBets = {};
+            document.querySelectorAll('.bet-option').forEach(function(el) {
+                el.classList.remove('selected');
+                el.querySelectorAll('.bet-choice-btn').forEach(function(b) { b.classList.remove('chosen'); });
+            });
+            rerollMatchup();
+        };
+
+        window.rerollMatchup = function() {
+            var matchup = generateMatchup();
+            displayMatchup(matchup);
+            activeBets = {};
+            document.querySelectorAll('.bet-option').forEach(function(el) {
+                el.classList.remove('selected');
+                el.querySelectorAll('.bet-choice-btn').forEach(function(b) { b.classList.remove('chosen'); });
+            });
+            updateConsultBtn();
+        };
+
+        // ── Tabs ──
+        window.switchTab = function(tab) {
+            document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+            document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+            if (tab === 'history') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('tabHistory').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('tabStats').classList.add('active');
+            }
+        };
+
+        function renderHistory() {
+            var container = document.getElementById('historyList');
+            if (history.length === 0) {
+                container.innerHTML = '<div class="empty-state">No prophecies yet. The Oracle awaits.</div>';
+                return;
+            }
+            var html = '';
+            history.slice(0, 20).forEach(function(h) {
+                var d = new Date(h.timestamp);
+                var timeStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                html += '<div class="history-entry">' +
+                    '<div><div class="history-matchup">' + h.fighter1 + ' vs ' + h.fighter2 + '</div>' +
+                    '<div style="font-size:0.6rem;color:var(--text-muted)">' + timeStr + ' \u{2022} ' + h.correct + '/' + h.bets + ' correct</div></div>' +
+                    '<div class="history-result ' + (h.net >= 0 ? 'positive' : 'negative') + '">' +
+                    (h.net >= 0 ? '+' : '') + h.net + '</div>' +
+                    '</div>';
+            });
+            container.innerHTML = html;
+        }
+
+        function renderStats() {
+            var totalPredictions = 0;
+            var totalCorrect = 0;
+            var bestStreak = 0;
+            var currentStreak = 0;
+
+            history.forEach(function(h) {
+                totalPredictions += h.bets;
+                totalCorrect += h.correct;
+                if (h.correct === h.bets && h.bets > 0) {
+                    currentStreak++;
+                    if (currentStreak > bestStreak) bestStreak = currentStreak;
+                } else {
+                    currentStreak = 0;
+                }
+            });
+
+            document.getElementById('statTotal').textContent = totalPredictions;
+            document.getElementById('statAccuracy').textContent = totalPredictions > 0 ?
+                Math.round(totalCorrect / totalPredictions * 100) + '%' : '0%';
+            document.getElementById('statEarned').textContent = totalEarned;
+            document.getElementById('statStreak').textContent = bestStreak;
+
+            // Rank display
+            var rank = getOracleRank(totalEarned);
+            var next = getNextRank(totalEarned);
+            document.getElementById('rankName').textContent = rank.icon + ' ' + rank.name;
+
+            var progressFill = document.getElementById('rankProgressFill');
+            var progressText = document.getElementById('rankProgressText');
+            if (next) {
+                var progress = ((totalEarned - rank.min) / (next.min - rank.min)) * 100;
+                progressFill.style.width = Math.min(100, progress) + '%';
+                progressText.textContent = totalEarned + ' / ' + next.min + ' Essence to ' + next.name;
+            } else {
+                progressFill.style.width = '100%';
+                progressText.textContent = 'Maximum rank achieved!';
+            }
+        }
+
+        function checkRankAchievement() {
+            // Check if player just reached a new rank
+            try {
+                var achievements = JSON.parse(localStorage.getItem('moreau_achievements') || '{}');
+                var rank = getOracleRank(totalEarned);
+                var achKey = 'oracle_' + rank.name.toLowerCase();
+                if (!achievements[achKey] && rank.min > 0) {
+                    achievements[achKey] = { unlocked: true, timestamp: new Date().toISOString() };
+                    localStorage.setItem('moreau_achievements', JSON.stringify(achievements));
+                }
+            } catch (e) { /* ignore */ }
+        }
+
+        function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+        // ── Init ──
+        function init() {
+            // Check mercy first
+            if (essence <= 0) {
+                var lastMercy = parseInt(localStorage.getItem('moreau_mercy_time') || '0', 10);
+                var sixHours = 6 * 60 * 60 * 1000;
+                if (!lastMercy || Date.now() - lastMercy >= sixHours) {
+                    essence = 10;
+                    localStorage.setItem('moreau_essence', '10');
+                    localStorage.setItem('moreau_mercy_time', '' + Date.now());
+                }
+            }
+
+            updateEssenceDisplay();
+            var matchup = generateMatchup();
+            displayMatchup(matchup);
+            renderHistory();
+            renderStats();
+
+            // Wager input change listener
+            document.getElementById('wagerInput').addEventListener('input', updateConsultBtn);
+
+            // Hide loading, show content
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+        }
+
+        init();
+
+    })();
+    </script>
+</body>
+</html>

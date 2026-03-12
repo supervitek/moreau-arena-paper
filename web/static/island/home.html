@@ -497,6 +497,14 @@
         .action-rivals:hover { border-color: #ff4d5a; box-shadow: 0 4px 16px rgba(230,57,70,0.15); }
         .action-rivals .action-icon { color: var(--accent); }
 
+        .action-prophecy { border-color: var(--purple); }
+        .action-prophecy:hover { border-color: #b07de8; box-shadow: 0 4px 16px rgba(155,89,182,0.2); }
+        .action-prophecy .action-icon { color: var(--purple); }
+
+        .action-shrine { border-color: var(--gold); }
+        .action-shrine:hover { border-color: #e8b830; box-shadow: 0 4px 16px rgba(212,160,23,0.2); }
+        .action-shrine .action-icon { color: var(--gold); }
+
         .action-btn.rival-available {
             animation: rivalPulse 2.5s ease-in-out infinite;
         }
@@ -1398,6 +1406,29 @@
                 if (isTainted) {
                     html += '<div class="tainted-badge">\u2620 TAINTED</div>';
                 }
+
+                // Equipped artifacts display
+                var _equip = pet.equipment || {};
+                var _equipIds = [_equip.slot1, _equip.slot2, _equip.slot3].filter(Boolean);
+                if (_equipIds.length > 0) {
+                    var _ARTIFACT_ICONS = {
+                        rusty_scalpel:'\u{1FA78}', cracked_vial:'\u{1F9EA}', bone_fragment:'\u{1F9B4}', faded_journal:'\u{1F4D3}',
+                        iron_shackle:'\u26D3', jungle_root:'\u{1FAB5}', claw_fossil:'\u{1F9A0}', strange_moss:'\u{1FAB4}',
+                        copper_syringe:'\u{1FA78}', tide_shell:'\u{1F41A}', raw_sinew:'\u{1F356}', quicksilver_drop:'\u{1F4A7}',
+                        moreaus_forceps:'\u2702', adrenaline_gland:'\u{1F9E0}', chitin_plate:'\u{1F6E1}', neural_cluster:'\u{1F9E0}',
+                        predator_fang:'\u{1F9B7}', shadow_membrane:'\u{1F31A}', volcanic_salt:'\u{1F525}', storm_feather:'\u{1FAB6}',
+                        venom_capsule:'\u2620', iron_marrow:'\u{1F9F2}', frost_lens:'\u2744', blood_coral:'\u{1FAB8}',
+                        heart_of_the_island:'\u{1F48E}', apex_serum:'\u2697', phantom_cloak:'\u{1F47B}', berserker_gland:'\u{1F4A2}',
+                        titans_vertebra:'\u{1F9B4}', storm_conductor:'\u26A1', void_pearl:'\u26AB', basilisk_eye:'\u{1F441}',
+                        infernal_core:'\u{1F525}', glacial_heart:'\u{1F9CA}', iron_crown:'\u{1F451}', echo_of_moreau:'\u{1F4DC}'
+                    };
+                    html += '<div style="display:flex;gap:0.4rem;justify-content:center;margin-top:0.5rem;flex-wrap:wrap;">';
+                    _equipIds.forEach(function(eid) {
+                        var icon = _ARTIFACT_ICONS[eid] || '\u{1F48E}';
+                        html += '<span title="' + eid.replace(/_/g, ' ') + '" style="font-size:1rem;background:var(--bg-code);border:1px solid var(--border);border-radius:4px;padding:0.15rem 0.3rem;">' + icon + '</span>';
+                    });
+                    html += '</div>';
+                }
             }
 
             html += '</div>';
@@ -1461,6 +1492,24 @@
             html += '<a href="' + (hasPet ? '/island/rivals' : '#') + '" class="action-btn action-rivals' + (hasPet ? '' : ' disabled') + (rivalAvailable ? ' rival-available' : '') + '">' +
                 (rivalAvailable ? '<span class="rival-badge">CHALLENGE!</span>' : '') +
                 '<span class="action-icon">&#9876;&#65039;</span>RIVALS</a>';
+
+            // PROPHECY
+            var oracleRank = '';
+            var oracleTotalEarned = parseInt(localStorage.getItem('moreau_oracle_total_earned') || '0', 10);
+            if (oracleTotalEarned > 0) {
+                var rankNames = [{n:'Diviner',m:0},{n:'Mystic',m:100},{n:'Seer',m:250},{n:'Sage',m:500},{n:'Oracle',m:1000}];
+                var rn = 'Diviner';
+                for (var ri = rankNames.length - 1; ri >= 0; ri--) {
+                    if (oracleTotalEarned >= rankNames[ri].m) { rn = rankNames[ri].n; break; }
+                }
+                oracleRank = '<span class="action-sub" style="color:var(--purple)">' + rn + '</span>';
+            }
+            html += '<a href="/island/prophecy" class="action-btn action-prophecy">' +
+                '<span class="action-icon">&#128302;</span>PROPHECY' + oracleRank + '</a>';
+
+            // SHRINE
+            html += '<a href="/island/shrine" class="action-btn action-shrine">' +
+                '<span class="action-icon">&#9962;</span>SHRINE</a>';
 
             grid.innerHTML = html;
         }

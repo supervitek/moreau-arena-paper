@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artifact Codex — The Island — Moreau Arena</title>
+    <meta property="og:title" content="Artifact Codex — The Island">
+    <meta property="og:description" content="36 relics of Dr. Moreau's legacy. How many have you found?">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Artifact Codex — The Island">
+    <meta name="twitter:description" content="36 relics of Dr. Moreau's legacy. How many have you found?">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --bg-primary: #0a0505;
+            --bg-secondary: #0f0a0a;
+            --bg-card: #1a1010;
+            --bg-card-hover: #221515;
+            --bg-code: #1e1218;
+            --border: #3a1a1a;
+            --accent: #e63946;
+            --accent-glow: rgba(230, 57, 70, 0.4);
+            --text: #f1faee;
+            --text-dim: #a8a0a0;
+            --text-muted: #6a5a5a;
+            --green: #4ecca3;
+            --blue: #457b9d;
+            --gold: #d4a017;
+            --purple: #9b59b6;
+            --radius: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(170deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #0d0707 100%);
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .island-page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            animation: fadeSlideIn 0.6s ease-out;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--accent), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-header .subtitle {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-top: 0.3rem;
+            font-style: italic;
+        }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Progress Bar ── */
+        .progress-section {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            animation: fadeSlideIn 0.6s ease-out 0.1s both;
+        }
+
+        .progress-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            max-width: 400px;
+            height: 8px;
+            background: var(--bg-card);
+            border-radius: 4px;
+            margin: 0 auto;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--gold));
+            border-radius: 4px;
+            transition: width 0.5s ease-out;
+        }
+
+        /* ── Filters ── */
+        .filters {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            animation: fadeSlideIn 0.6s ease-out 0.15s both;
+        }
+
+        .filter-btn {
+            padding: 0.4rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        /* ── Codex Grid ── */
+        .codex-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            animation: fadeSlideIn 0.6s ease-out 0.2s both;
+        }
+
+        .codex-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 0.75rem;
+            text-align: center;
+            transition: all 0.25s;
+            position: relative;
+        }
+
+        .codex-card.found {
+            cursor: pointer;
+        }
+
+        .codex-card.found:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+        }
+
+        .codex-card.found.rarity-rare {
+            border-color: rgba(69, 123, 157, 0.3);
+        }
+
+        .codex-card.found.rarity-rare:hover {
+            border-color: var(--blue);
+            box-shadow: 0 4px 16px rgba(69, 123, 157, 0.15);
+        }
+
+        .codex-card.found.rarity-epic {
+            border-color: rgba(155, 89, 182, 0.3);
+        }
+
+        .codex-card.found.rarity-epic:hover {
+            border-color: var(--purple);
+            box-shadow: 0 4px 16px rgba(155, 89, 182, 0.2);
+        }
+
+        .codex-card.undiscovered {
+            opacity: 0.4;
+            cursor: default;
+        }
+
+        .codex-card .card-icon { font-size: 2rem; margin-bottom: 0.4rem; }
+
+        .codex-card.undiscovered .card-icon {
+            filter: brightness(0) saturate(0);
+            opacity: 0.3;
+        }
+
+        .codex-card .card-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 0.2rem;
+        }
+
+        .codex-card .card-rarity {
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 700;
+        }
+
+        .card-rarity.common { color: var(--text-dim); }
+        .card-rarity.rare { color: var(--blue); }
+        .card-rarity.epic { color: var(--purple); }
+
+        .codex-card .card-stats {
+            font-size: 0.6rem;
+            color: var(--green);
+            margin-top: 0.2rem;
+        }
+
+        .codex-card .card-scar {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            font-size: 0.7rem;
+        }
+
+        /* ── Detail Modal ── */
+        .detail-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background: rgba(5, 2, 2, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .detail-modal.open { display: flex; }
+
+        .detail-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            animation: fadeSlideIn 0.3s ease-out;
+        }
+
+        .detail-content .d-icon { font-size: 3rem; margin-bottom: 0.75rem; }
+        .detail-content .d-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.2rem; }
+
+        .detail-content .d-rarity {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .detail-content .d-desc {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+        }
+
+        .detail-content .d-stats {
+            font-size: 0.9rem;
+            color: var(--green);
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+
+        .detail-content .d-synergy {
+            font-size: 0.75rem;
+            color: var(--gold);
+            font-style: italic;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-content .d-flavor {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-style: italic;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+        }
+
+        .detail-close {
+            padding: 0.5rem 2rem;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .detail-close:hover {
+            border-color: var(--accent);
+            background: var(--bg-card-hover);
+        }
+
+        /* ── Section title ── */
+        .section-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            margin: 1.5rem 0 0.75rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-label.common { color: var(--text-dim); }
+        .section-label.rare { color: var(--blue); }
+        .section-label.epic { color: var(--purple); }
+
+        /* ── Links / Footer ── */
+        .page-links {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .page-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.8rem;
+            margin: 0 0.5rem;
+            transition: color 0.2s;
+        }
+
+        .page-links a:hover { color: var(--accent); }
+
+        .footer {
+            margin-top: 3rem;
+            padding: 1.5rem 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .footer a {
+            color: var(--text-dim);
+            text-decoration: none;
+            margin: 0 0.75rem;
+        }
+
+        .footer a:hover { color: var(--text); }
+
+        .nav-fight a {
+            color: var(--accent) !important;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        @media (max-width: 600px) {
+            .island-page { padding: 1.5rem 1rem 3rem; }
+            .page-header h1 { font-size: 1.4rem; }
+            .codex-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li class="nav-dropdown">
+                    <a href="/tournaments">Benchmark &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/tournaments">Tournaments</a></li>
+                        <li><a href="/leaderboard">Leaderboard</a></li>
+                        <li><a href="/methodology">Methodology</a></li>
+                        <li><a href="/match-log">Match Log</a></li>
+                        <li><a href="/compare">Compare</a></li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="/s1-leaderboard">Seasons &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/s1-leaderboard">S1 Leaderboard</a></li>
+                        <li><a href="/s1-fighters">Meet the Fighters</a></li>
+                        <li><a href="/s1-matchups">Matchup Explorer</a></li>
+                        <li><a href="/play">S1 Quick Fight</a></li>
+                        <li><a href="/s1-compare">Benchmark vs S1</a></li>
+                    </ul>
+                </li>
+                <li><a href="/pets">Pets</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+                <li class="nav-fight"><a href="/island" class="active">FIGHT!</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="island-page">
+        <div class="page-header">
+            <h1>&#128214; Artifact Codex</h1>
+            <div class="subtitle">"A catalog of what the island has revealed — and what it still hides."</div>
+        </div>
+
+        <div id="progressSection" class="progress-section"></div>
+
+        <div class="filters">
+            <button class="filter-btn active" onclick="setFilter('all')">All</button>
+            <button class="filter-btn" onclick="setFilter('common')">Common</button>
+            <button class="filter-btn" onclick="setFilter('rare')">Rare</button>
+            <button class="filter-btn" onclick="setFilter('epic')">Epic</button>
+        </div>
+
+        <div id="codexContent"></div>
+
+        <div class="page-links">
+            <a href="/island/shrine">&#9962; Scavenger's Shrine</a>
+            <a href="/island/home">&#8592; Dashboard</a>
+        </div>
+
+        <div class="footer">
+            <a href="/island">The Island</a>
+            <a href="/island/home">Dashboard</a>
+            <a href="/">Moreau Arena</a>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" class="detail-modal" onclick="if(event.target===this)closeDetail()">
+        <div class="detail-content">
+            <div id="dIcon" class="d-icon"></div>
+            <div id="dName" class="d-name"></div>
+            <div id="dRarity" class="d-rarity"></div>
+            <div id="dDesc" class="d-desc"></div>
+            <div id="dStats" class="d-stats"></div>
+            <div id="dSynergy" class="d-synergy"></div>
+            <div id="dFlavor" class="d-flavor"></div>
+            <button class="detail-close" onclick="closeDetail()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // ══════════════════════════════════════
+        //  Artifact Codex — Collection View
+        // ══════════════════════════════════════
+
+        var ARTIFACTS = [
+            // COMMON (12)
+            { id: 'rusty_scalpel', name: 'Rusty Scalpel', icon: '\u{1FA78}', rarity: 'common', desc: 'A corroded surgical blade found half-buried in the compound floor. Still sharp enough to cut.', stats: { atk: 1 }, synergy: null, flavor: null },
+            { id: 'cracked_vial', name: 'Cracked Vial', icon: '\u{1F9EA}', rarity: 'common', desc: 'A glass container with residue of some unknown stimulant. The fumes alone make your heart race.', stats: { spd: 1 }, synergy: null, flavor: null },
+            { id: 'bone_fragment', name: 'Bone Fragment', icon: '\u{1F9B4}', rarity: 'common', desc: 'A piece of bone from something large. Too thick to be human. Reinforces your resolve.', stats: { hp: 1 }, synergy: null, flavor: null },
+            { id: 'faded_journal', name: 'Faded Journal', icon: '\u{1F4D3}', rarity: 'common', desc: 'Pages of cramped handwriting. Most is illegible, but the diagrams teach patience.', stats: { wil: 1 }, synergy: null, flavor: null },
+            { id: 'iron_shackle', name: 'Iron Shackle', icon: '\u26D3', rarity: 'common', desc: 'A broken restraint from the old cages. Wearing it reminds you what captivity felt like.', stats: { hp: 1 }, synergy: null, flavor: null },
+            { id: 'jungle_root', name: 'Jungle Root', icon: '\u{1FAB5}', rarity: 'common', desc: 'A gnarled root that pulses with strange warmth. Chewing it sharpens reflexes.', stats: { spd: 1 }, synergy: null, flavor: null },
+            { id: 'claw_fossil', name: 'Claw Fossil', icon: '\u{1F9A0}', rarity: 'common', desc: 'Petrified claw of a creature that no longer exists. Its rage lingers.', stats: { atk: 1 }, synergy: null, flavor: null },
+            { id: 'strange_moss', name: 'Strange Moss', icon: '\u{1FAB4}', rarity: 'common', desc: 'Bioluminescent moss that grows only in the deepest caves. Calms the mind.', stats: { wil: 1 }, synergy: null, flavor: null },
+            { id: 'copper_syringe', name: 'Copper Syringe', icon: '\u{1FA78}', rarity: 'common', desc: 'An antique injector with traces of green fluid. Your muscles tighten just holding it.', stats: { atk: 1 }, synergy: null, flavor: null },
+            { id: 'tide_shell', name: 'Tide Shell', icon: '\u{1F41A}', rarity: 'common', desc: 'A spiral shell from the black shore. Press it to your ear and hear something breathing.', stats: { wil: 1 }, synergy: null, flavor: null },
+            { id: 'raw_sinew', name: 'Raw Sinew', icon: '\u{1F356}', rarity: 'common', desc: 'Dried tendon from some escaped experiment. Surprisingly nutritious.', stats: { hp: 1 }, synergy: null, flavor: null },
+            { id: 'quicksilver_drop', name: 'Quicksilver Drop', icon: '\u{1F4A7}', rarity: 'common', desc: 'A bead of liquid metal that never settles. Rolls toward danger.', stats: { spd: 1 }, synergy: null, flavor: null },
+
+            // RARE (12)
+            { id: 'moreaus_forceps', name: "Moreau's Forceps", icon: '\u2702', rarity: 'rare', desc: 'Surgical forceps engraved with M.M. The grip is warm, as if recently used.', stats: { atk: 2 }, synergy: 'predator', flavor: null },
+            { id: 'adrenaline_gland', name: 'Adrenaline Gland', icon: '\u{1F9E0}', rarity: 'rare', desc: 'An organ harvested from a failed experiment. It still pulses when danger is near.', stats: { spd: 1, atk: 1 }, synergy: 'speed', flavor: null },
+            { id: 'chitin_plate', name: 'Chitin Plate', icon: '\u{1F6E1}', rarity: 'rare', desc: 'A section of hardened exoskeleton. Whatever grew this was built to survive.', stats: { hp: 2 }, synergy: 'tank', flavor: null },
+            { id: 'neural_cluster', name: 'Neural Cluster', icon: '\u{1F9E0}', rarity: 'rare', desc: 'A preserved brain fragment swimming in formaldehyde. Whispers battle strategies.', stats: { wil: 2 }, synergy: 'mystic', flavor: null },
+            { id: 'predator_fang', name: 'Predator Fang', icon: '\u{1F9B7}', rarity: 'rare', desc: 'A canine tooth the size of a dagger. From what species, no one can say.', stats: { atk: 1, spd: 1 }, synergy: 'predator', flavor: null },
+            { id: 'shadow_membrane', name: 'Shadow Membrane', icon: '\u{1F31A}', rarity: 'rare', desc: 'A translucent skin that absorbs light. Wrap it around yourself and disappear.', stats: { spd: 2 }, synergy: 'shadow', flavor: null },
+            { id: 'volcanic_salt', name: 'Volcanic Salt', icon: '\u{1F525}', rarity: 'rare', desc: "Crystals from the island's thermal vents. Burns to the touch but fortifies the body.", stats: { hp: 1, atk: 1 }, synergy: 'flame', flavor: null },
+            { id: 'storm_feather', name: 'Storm Feather', icon: '\u{1FAB6}', rarity: 'rare', desc: 'A feather that crackles with static. Found after every hurricane, never before.', stats: { spd: 1, wil: 1 }, synergy: 'storm', flavor: null },
+            { id: 'venom_capsule', name: 'Venom Capsule', icon: '\u2620', rarity: 'rare', desc: 'A sealed capsule of concentrated toxin. One scratch and the poison does the rest.', stats: { atk: 2 }, synergy: 'venom', flavor: null },
+            { id: 'iron_marrow', name: 'Iron Marrow', icon: '\u{1F9F2}', rarity: 'rare', desc: 'Metallic bone marrow extracted from Subject #37. Your skeleton feels heavier. Stronger.', stats: { hp: 1, wil: 1 }, synergy: 'iron', flavor: null },
+            { id: 'frost_lens', name: 'Frost Lens', icon: '\u2744', rarity: 'rare', desc: 'A lens carved from the ice caves beneath the island. Everything seen through it slows down.', stats: { wil: 1, spd: 1 }, synergy: 'frost', flavor: null },
+            { id: 'blood_coral', name: 'Blood Coral', icon: '\u{1FAB8}', rarity: 'rare', desc: 'Crimson coral that grows only where creatures have bled. It feeds on violence.', stats: { atk: 1, hp: 1 }, synergy: 'blood', flavor: null },
+
+            // EPIC (12)
+            { id: 'heart_of_the_island', name: 'Heart of the Island', icon: '\u{1F48E}', rarity: 'epic', desc: 'A pulsing crystal found in the deepest cavern. It beats in time with your own heart.', stats: { hp: 3 }, synergy: 'blood', flavor: '"Dr. Moreau\'s journal, final entry: The island is alive. I always suspected. Now I know."' },
+            { id: 'apex_serum', name: 'Apex Serum', icon: '\u2697', rarity: 'epic', desc: 'The prototype formula. The one Moreau never dared to use. Until now.', stats: { atk: 2, spd: 1 }, synergy: 'predator', flavor: '"Subject shows unprecedented aggression. Recommend immediate containment. Update: containment failed."' },
+            { id: 'phantom_cloak', name: 'Phantom Cloak', icon: '\u{1F47B}', rarity: 'epic', desc: 'A cloak sewn from the skin of chameleon hybrids. You flicker in and out of visibility.', stats: { spd: 2, wil: 1 }, synergy: 'shadow', flavor: '"They can\'t fight what they can\'t see. They can\'t fear what they don\'t know is there."' },
+            { id: 'berserker_gland', name: 'Berserker Gland', icon: '\u{1F4A2}', rarity: 'epic', desc: "Moreau's war-beast program adrenal implant. Pain becomes fuel.", stats: { atk: 3 }, synergy: 'blood', flavor: '"Pain is just the body\'s way of saying it hasn\'t given up yet."' },
+            { id: 'titans_vertebra', name: "Titan's Vertebra", icon: '\u{1F9B4}', rarity: 'epic', desc: 'A single spine bone from Subject Zero. Whatever it was, it was enormous.', stats: { hp: 2, wil: 1 }, synergy: 'tank', flavor: '"Subject Zero was the first. And the last of its kind. We made sure of that."' },
+            { id: 'storm_conductor', name: 'Storm Conductor', icon: '\u26A1', rarity: 'epic', desc: 'A metal rod that attracts lightning. Plant it in the ground and watch the sky obey.', stats: { spd: 2, atk: 1 }, synergy: 'storm', flavor: '"The storm doesn\'t care who you are. But if you hold this, the storm works for you."' },
+            { id: 'void_pearl', name: 'Void Pearl', icon: '\u26AB', rarity: 'epic', desc: 'A pearl that absorbs all light. Look into it and see... nothing. Absolutely nothing.', stats: { wil: 3 }, synergy: 'void', flavor: '"Moreau found it in the trench. He stopped sleeping after that. Said the dreams were too real."' },
+            { id: 'basilisk_eye', name: 'Basilisk Eye', icon: '\u{1F441}', rarity: 'epic', desc: "A preserved eye from Moreau's most dangerous hybrid. Enemies freeze when it opens.", stats: { wil: 2, atk: 1 }, synergy: 'venom', flavor: '"Don\'t look at it directly. Don\'t let it look at you. Don\'t \u2014 too late."' },
+            { id: 'infernal_core', name: 'Infernal Core', icon: '\u{1F525}', rarity: 'epic', desc: "A sphere of condensed thermal energy from the island's volcanic heart.", stats: { atk: 2, hp: 1 }, synergy: 'flame', flavor: '"Temperature: unmeasurable. Radiation: off the charts. Beauty: undeniable."' },
+            { id: 'glacial_heart', name: 'Glacial Heart', icon: '\u{1F9CA}', rarity: 'epic', desc: 'A shard of eternal ice that never melts. Your blood runs cold. Your mind runs clear.', stats: { wil: 2, spd: 1 }, synergy: 'frost', flavor: '"Sub-zero body temperature. Subject reports heightened awareness. And no fear."' },
+            { id: 'iron_crown', name: 'Iron Crown', icon: '\u{1F451}', rarity: 'epic', desc: 'A crude crown welded from cage bars. The first beast-king wore it. Now it chooses you.', stats: { hp: 2, atk: 1 }, synergy: 'iron', flavor: '"Every arena has a king. The crown doesn\'t care about species. Only strength."' },
+            { id: 'echo_of_moreau', name: 'Echo of Moreau', icon: '\u{1F4DC}', rarity: 'epic', desc: "A recording device with Moreau's last words. Listening to it changes something inside you.", stats: { wil: 2, hp: 1 }, synergy: 'mystic', flavor: '"I created them to be better than us. I succeeded. God help me, I succeeded."' },
+        ];
+
+        var ARTIFACT_MAP = {};
+        ARTIFACTS.forEach(function(a) { ARTIFACT_MAP[a.id] = a; });
+
+        var currentFilter = 'all';
+
+        function getFoundArtifacts() {
+            try { return JSON.parse(localStorage.getItem('moreau_artifacts') || '[]'); }
+            catch(e) { return []; }
+        }
+
+        function formatStats(stats) {
+            var parts = [];
+            if (stats.hp)  parts.push('+' + stats.hp + ' HP');
+            if (stats.atk) parts.push('+' + stats.atk + ' ATK');
+            if (stats.spd) parts.push('+' + stats.spd + ' SPD');
+            if (stats.wil) parts.push('+' + stats.wil + ' WIL');
+            return parts.join(', ');
+        }
+
+        function escHtml(s) {
+            var d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        function setFilter(f) {
+            currentFilter = f;
+            document.querySelectorAll('.filter-btn').forEach(function(btn) {
+                btn.classList.toggle('active', btn.textContent.toLowerCase() === f);
+            });
+            renderCodex();
+        }
+
+        function render() {
+            renderProgress();
+            renderCodex();
+        }
+
+        function renderProgress() {
+            var el = document.getElementById('progressSection');
+            var found = getFoundArtifacts();
+            var total = ARTIFACTS.length;
+            var pct = Math.round((found.length / total) * 100);
+
+            el.innerHTML =
+                '<div class="progress-label">' + found.length + ' / ' + total + ' Artifacts Discovered</div>' +
+                '<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:' + pct + '%"></div></div>';
+        }
+
+        function renderCodex() {
+            var el = document.getElementById('codexContent');
+            var found = getFoundArtifacts();
+            var scarKeepsakes = [];
+            try { scarKeepsakes = JSON.parse(localStorage.getItem('moreau_scar_keepsakes') || '[]'); } catch(e) {}
+
+            var filtered = ARTIFACTS;
+            if (currentFilter !== 'all') {
+                filtered = ARTIFACTS.filter(function(a) { return a.rarity === currentFilter; });
+            }
+
+            // Group by rarity
+            var groups = { common: [], rare: [], epic: [] };
+            filtered.forEach(function(a) { groups[a.rarity].push(a); });
+
+            var html = '';
+
+            ['epic', 'rare', 'common'].forEach(function(rarity) {
+                var items = groups[rarity];
+                if (items.length === 0) return;
+
+                if (currentFilter === 'all') {
+                    var label = rarity.charAt(0).toUpperCase() + rarity.slice(1);
+                    var foundInRarity = items.filter(function(a) { return found.indexOf(a.id) !== -1; }).length;
+                    html += '<div class="section-label ' + rarity + '">' + label + ' (' + foundInRarity + '/' + items.length + ')</div>';
+                }
+
+                html += '<div class="codex-grid">';
+                items.forEach(function(art) {
+                    var isFound = found.indexOf(art.id) !== -1;
+                    var isScar = scarKeepsakes.indexOf(art.id) !== -1;
+
+                    html += '<div class="codex-card ' + (isFound ? 'found rarity-' + art.rarity : 'undiscovered') + '"' +
+                        (isFound ? ' onclick="openDetail(\'' + art.id + '\')"' : '') + '>';
+
+                    if (isScar) html += '<span class="card-scar">\u{1FA79}</span>';
+                    html += '<div class="card-icon">' + (isFound ? art.icon : '?') + '</div>';
+                    html += '<div class="card-name">' + (isFound ? escHtml(art.name) : '???') + '</div>';
+                    html += '<div class="card-rarity ' + art.rarity + '">' + art.rarity + '</div>';
+
+                    if (isFound) {
+                        html += '<div class="card-stats">' + formatStats(art.stats) + '</div>';
+                    }
+
+                    html += '</div>';
+                });
+                html += '</div>';
+            });
+
+            el.innerHTML = html;
+        }
+
+        function openDetail(artId) {
+            var art = ARTIFACT_MAP[artId];
+            if (!art) return;
+
+            document.getElementById('dIcon').textContent = art.icon;
+            document.getElementById('dName').textContent = art.name;
+
+            var re = document.getElementById('dRarity');
+            re.textContent = art.rarity.toUpperCase();
+            re.style.color = art.rarity === 'epic' ? 'var(--purple)' : (art.rarity === 'rare' ? 'var(--blue)' : 'var(--text-dim)');
+
+            document.getElementById('dDesc').textContent = art.desc;
+            document.getElementById('dStats').textContent = formatStats(art.stats);
+            document.getElementById('dSynergy').textContent = art.synergy ? 'Synergy: ' + art.synergy : '';
+            document.getElementById('dFlavor').textContent = art.flavor || '';
+
+            document.getElementById('detailModal').classList.add('open');
+        }
+
+        function closeDetail() {
+            document.getElementById('detailModal').classList.remove('open');
+        }
+
+        render();
+    </script>
+</body>
+</html>
