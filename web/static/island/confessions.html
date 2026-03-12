@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confession Journal — The Island — Moreau Arena</title>
+    <meta property="og:title" content="Confession Journal — The Island">
+    <meta property="og:description" content="A record of observations. Some things cannot be unwritten.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Confession Journal — The Island">
+    <meta name="twitter:description" content="A record of observations. Some things cannot be unwritten.">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-terminal: #0d0d0d;
+            --bg-entry: #111111;
+            --border: #1a3a1a;
+            --border-dim: #0f1f0f;
+            --green: #00ff41;
+            --green-dim: #007a1f;
+            --green-muted: #1a3a1a;
+            --amber: #d4a017;
+            --steel: #6ba3be;
+            --pale-green: #7ddf7d;
+            --red: #ff4444;
+            --gold-glow: rgba(212, 160, 23, 0.4);
+            --text: #00ff41;
+            --text-dim: #338833;
+            --text-muted: #1a3a1a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text);
+            font-family: 'Courier New', Courier, monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Scanline overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                transparent, transparent 2px,
+                rgba(0,255,65,0.02) 2px, rgba(0,255,65,0.02) 4px
+            );
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .journal-page {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── Header ── */
+        .journal-header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .journal-title {
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--green-dim);
+            margin-bottom: 0.5rem;
+        }
+
+        .journal-subtitle {
+            font-size: 1.1rem;
+            color: var(--green);
+        }
+
+        .journal-back {
+            display: inline-block;
+            margin-top: 1rem;
+            color: var(--green-dim);
+            text-decoration: none;
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: color 0.2s;
+        }
+        .journal-back:hover { color: var(--green); }
+
+        /* ── Dominant sentiment ── */
+        .dominant-bar {
+            background: var(--bg-entry);
+            border: 1px solid var(--border-dim);
+            border-radius: 2px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            font-size: 0.75rem;
+            line-height: 1.6;
+        }
+        .dominant-bar .label { color: var(--green-dim); text-transform: uppercase; letter-spacing: 0.1em; }
+
+        /* ── Resurrection tracker ── */
+        .resurrection-tracker {
+            background: var(--bg-entry);
+            border: 1px solid var(--border-dim);
+            border-radius: 2px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            font-size: 0.75rem;
+        }
+        .resurrection-tracker .label {
+            color: var(--green-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+        .res-progress {
+            height: 4px;
+            background: var(--bg-primary);
+            border-radius: 2px;
+            margin: 0.5rem 0;
+            overflow: hidden;
+        }
+        .res-progress-fill {
+            height: 100%;
+            background: var(--amber);
+            transition: width 0.5s ease;
+            border-radius: 2px;
+        }
+        .res-status { color: var(--text-dim); margin-top: 0.3rem; }
+        .res-locked { color: var(--red); }
+
+        /* ── Resurrection token ── */
+        @keyframes goldenPulse {
+            0%, 100% { box-shadow: 0 0 8px var(--gold-glow), inset 0 0 8px rgba(212,160,23,0.1); }
+            50% { box-shadow: 0 0 20px var(--gold-glow), 0 0 40px rgba(212,160,23,0.2), inset 0 0 15px rgba(212,160,23,0.15); }
+        }
+
+        .resurrection-section {
+            background: var(--bg-entry);
+            border: 1px solid var(--amber);
+            border-radius: 2px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            animation: goldenPulse 3s ease-in-out infinite;
+        }
+        .resurrection-section .res-title {
+            color: var(--amber);
+            font-size: 0.8rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        .resurrection-section .res-desc {
+            color: var(--text-dim);
+            font-size: 0.7rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .pet-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        .pet-select-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.75rem;
+            padding: 0.4rem 0.8rem;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: all 0.2s;
+        }
+        .pet-select-btn:hover {
+            border-color: var(--amber);
+            color: var(--amber);
+        }
+        .pet-select-btn.selected {
+            border-color: var(--amber);
+            color: var(--amber);
+            background: rgba(212,160,23,0.1);
+        }
+
+        .resurrect-btn {
+            display: inline-block;
+            background: transparent;
+            border: 1px solid var(--amber);
+            color: var(--amber);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.6rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .resurrect-btn:hover {
+            background: rgba(212,160,23,0.15);
+            box-shadow: 0 0 15px var(--gold-glow);
+        }
+        .resurrect-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* ── Timeline ── */
+        .timeline { list-style: none; }
+
+        .timeline-entry {
+            background: var(--bg-entry);
+            border: 1px solid var(--border-dim);
+            border-left: 3px solid var(--green-dim);
+            border-radius: 2px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: border-color 0.2s;
+        }
+        .timeline-entry:hover { border-left-color: var(--green); }
+
+        .timeline-entry.path-hollow { border-left-color: var(--steel); }
+        .timeline-entry.path-haunted { border-left-color: var(--amber); }
+        .timeline-entry.path-unreadable { border-left-color: var(--pale-green); }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .entry-case {
+            font-size: 0.6rem;
+            color: var(--green-dim);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .entry-date {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+        }
+
+        .entry-subject {
+            font-size: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        .entry-subject .dead { color: var(--red); }
+        .entry-subject .killer { color: var(--green-dim); }
+
+        .entry-text {
+            font-size: 0.8rem;
+            color: var(--green);
+            line-height: 1.5;
+            padding: 0.5rem;
+            background: var(--bg-primary);
+            border-radius: 2px;
+            margin-bottom: 0.5rem;
+            word-break: break-word;
+        }
+
+        .entry-path {
+            font-size: 0.6rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .entry-path.hollow { color: var(--steel); }
+        .entry-path.haunted { color: var(--amber); }
+        .entry-path.unreadable { color: var(--pale-green); }
+
+        /* ── Empty state ── */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            line-height: 1.6;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .journal-page { padding: 1rem 1rem 3rem; }
+            .entry-header { flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/island">ISLAND</a></li>
+                <li><a href="/island/home">Dashboard</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="journal-page" id="journalPage">
+        <div class="journal-header">
+            <div class="journal-title">Moreau Research Facility &mdash; Observation Archive</div>
+            <div class="journal-subtitle">Confession Journal</div>
+            <a href="/island/home" class="journal-back">&larr; Return to Dashboard</a>
+        </div>
+        <div id="journalContent">
+            <div class="empty-state">
+                The booth is empty.<br>No observations have been recorded.
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/island/confession-engine.js"></script>
+    <script>
+        var EMOJI_MAP = {
+            bear:'\u{1F43B}', buffalo:'\u{1F9AC}', boar:'\u{1F417}', tiger:'\u{1F405}',
+            wolf:'\u{1F43A}', monkey:'\u{1F412}', porcupine:'\u{1F994}', scorpion:'\u{1F982}',
+            vulture:'\u{1F985}', rhino:'\u{1F98F}', viper:'\u{1F40D}', fox:'\u{1F98A}',
+            eagle:'\u{1F985}', panther:'\u{1F408}'
+        };
+
+        var selectedResurrectIdx = -1;
+
+        function init() {
+            var journal = ConfessionEngine.getJournal();
+
+            if (journal.length < 3) {
+                document.getElementById('journalContent').innerHTML =
+                    '<div class="empty-state">' +
+                    'The booth is empty.<br>Not enough observations have been recorded.' +
+                    '</div>';
+                return;
+            }
+
+            var html = '';
+
+            // ── Dominant sentiment ──
+            var counts = { hollow: 0, haunted: 0, unreadable: 0 };
+            for (var i = 0; i < journal.length; i++) {
+                var p = journal[i].path || 'unreadable';
+                if (counts[p] !== undefined) counts[p]++;
+            }
+            var dominant = 'Unreadable';
+            var dominantClass = 'path-unreadable';
+            if (counts.hollow > counts.haunted && counts.hollow > counts.unreadable) {
+                dominant = 'Hollow'; dominantClass = 'path-hollow';
+            } else if (counts.haunted > counts.hollow && counts.haunted > counts.unreadable) {
+                dominant = 'Haunted'; dominantClass = 'path-haunted';
+            }
+
+            html += '<div class="dominant-bar">' +
+                '<div class="label">Dominant Pattern</div>' +
+                'Your confessions are predominantly <span class="' + dominantClass + '">' + dominant + '</span>.' +
+                ' (' + counts.haunted + ' remorseful, ' + counts.hollow + ' cold, ' + counts.unreadable + ' unreadable)' +
+                '</div>';
+
+            // ── Resurrection tracker ──
+            var resStatus = ConfessionEngine.getResurrectionStatus();
+
+            if (resStatus.available) {
+                html += renderResurrectionSection();
+            } else if (!resStatus.locked) {
+                var pct = Math.min(100, Math.round((resStatus.hauntedCount / resStatus.needed) * 100));
+                html += '<div class="resurrection-tracker">' +
+                    '<div class="label">Path to Redemption</div>' +
+                    '<div class="res-progress"><div class="res-progress-fill" style="width:' + pct + '%"></div></div>' +
+                    '<div class="res-status">' + resStatus.hauntedCount + ' / ' + resStatus.needed + ' acts of remorse. The path remains open.</div>' +
+                    '</div>';
+            } else {
+                html += '<div class="resurrection-tracker">' +
+                    '<div class="label">Path to Redemption</div>' +
+                    '<div class="res-locked">The booth recognized empty words. The path to redemption is permanently closed.</div>' +
+                    '</div>';
+            }
+
+            // ── Timeline ──
+            html += '<ul class="timeline">';
+            // Reverse chronological
+            for (var j = journal.length - 1; j >= 0; j--) {
+                var entry = journal[j];
+                var caseNum = String(j + 1).padStart(3, '0');
+                var date = formatDate(entry.timestamp);
+                var pathClass = 'path-' + (entry.path || 'unreadable');
+                var pathLabel = (entry.path || 'unreadable').toUpperCase();
+
+                // Find dead pet emoji
+                var deadEmoji = findPetEmoji(entry.deadPet);
+
+                html += '<li class="timeline-entry ' + pathClass + '">' +
+                    '<div class="entry-header">' +
+                        '<span class="entry-case">CASE #' + caseNum + '</span>' +
+                        '<span class="entry-date">' + escHtml(date) + '</span>' +
+                    '</div>' +
+                    '<div class="entry-subject">' +
+                        deadEmoji + ' <span class="dead">' + escHtml(entry.deadPet || 'Unknown') + '</span>' +
+                        ' &mdash; observed by <span class="killer">' + escHtml(entry.killerPet || 'Unknown') + '</span>' +
+                        ' [' + escHtml(entry.cause || 'unknown') + ']' +
+                    '</div>' +
+                    '<div class="entry-text">&gt; ' + escHtml(entry.text || '') + '</div>' +
+                    '<div class="entry-path ' + (entry.path || 'unreadable') + '">' + pathLabel + '</div>' +
+                '</li>';
+            }
+            html += '</ul>';
+
+            document.getElementById('journalContent').innerHTML = html;
+        }
+
+        function renderResurrectionSection() {
+            var pets = [];
+            try { pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) {}
+
+            var deadPets = [];
+            for (var i = 0; i < pets.length; i++) {
+                if (pets[i].deceased || pets[i].is_alive === false) {
+                    deadPets.push({ idx: i, name: pets[i].name, animal: pets[i].animal });
+                }
+            }
+
+            var html = '<div class="resurrection-section">' +
+                '<div class="res-title">&#10022; Resurrection Token Available &#10022;</div>' +
+                '<div class="res-desc">Your remorse has opened a path. One soul may return from beyond.<br>Choose carefully. This can only be used once.</div>';
+
+            if (deadPets.length === 0) {
+                html += '<div class="res-desc" style="color:var(--green-dim);">No deceased pets to resurrect.</div>';
+            } else {
+                html += '<div class="pet-selector" id="petSelector">';
+                for (var j = 0; j < deadPets.length; j++) {
+                    var emoji = EMOJI_MAP[(deadPets[j].animal || '').toLowerCase()] || '\u{1F43E}';
+                    html += '<button class="pet-select-btn" onclick="selectResurrect(' + deadPets[j].idx + ', this)">' +
+                        emoji + ' ' + escHtml(deadPets[j].name) + '</button>';
+                }
+                html += '</div>';
+                html += '<button class="resurrect-btn" id="resurrectBtn" disabled onclick="doResurrect()">RESURRECT</button>';
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        function selectResurrect(idx, btn) {
+            selectedResurrectIdx = idx;
+            var btns = document.querySelectorAll('.pet-select-btn');
+            for (var i = 0; i < btns.length; i++) btns[i].classList.remove('selected');
+            btn.classList.add('selected');
+            var rb = document.getElementById('resurrectBtn');
+            if (rb) rb.disabled = false;
+        }
+
+        function doResurrect() {
+            if (selectedResurrectIdx < 0) return;
+            var success = ConfessionEngine.resurrectPet(selectedResurrectIdx);
+            if (success) {
+                var pets = [];
+                try { pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) {}
+                var name = pets[selectedResurrectIdx] ? pets[selectedResurrectIdx].name : 'the subject';
+                document.getElementById('journalContent').innerHTML =
+                    '<div style="text-align:center;padding:4rem 1rem;">' +
+                        '<div style="font-size:2rem;margin-bottom:1rem;color:var(--amber);animation:goldenPulse 2s ease-in-out infinite;">&#10022;</div>' +
+                        '<div style="color:var(--amber);font-size:1rem;margin-bottom:0.5rem;">' + escHtml(name) + ' breathes again.</div>' +
+                        '<div style="color:var(--text-dim);font-size:0.75rem;">The token is consumed. There will not be another.</div>' +
+                        '<a href="/island/home" style="display:inline-block;margin-top:2rem;color:var(--green-dim);font-size:0.7rem;text-decoration:none;letter-spacing:0.1em;">&larr; RETURN</a>' +
+                    '</div>';
+            }
+        }
+
+        function findPetEmoji(name) {
+            if (!name) return '';
+            var pets = [];
+            try { pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) {}
+            for (var i = 0; i < pets.length; i++) {
+                if (pets[i].name === name) {
+                    return EMOJI_MAP[(pets[i].animal || '').toLowerCase()] || '';
+                }
+            }
+            // Check graveyard / confessions for animal info
+            return '';
+        }
+
+        function formatDate(ts) {
+            if (!ts) return 'Unknown';
+            try {
+                var d = new Date(ts);
+                return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) +
+                    ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            } catch(e) { return ts; }
+        }
+
+        function escHtml(s) {
+            if (!s) return '';
+            var d = document.createElement('div');
+            d.appendChild(document.createTextNode(s));
+            return d.innerHTML;
+        }
+
+        init();
+    </script>
+</body>
+</html>

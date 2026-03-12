@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genesis Protocol — The Island — Moreau Arena</title>
+    <meta property="og:title" content="Genesis Protocol — The Island">
+    <meta property="og:description" content="Sacrifice everything. Begin again. The island remembers.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Genesis Protocol — The Island">
+    <meta name="twitter:description" content="Sacrifice everything. Begin again. The island remembers.">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --bg-primary: #0a0505;
+            --bg-secondary: #0f0a0a;
+            --bg-card: #1a1010;
+            --bg-card-hover: #221515;
+            --bg-code: #1e1218;
+            --border: #3a1a1a;
+            --accent: #e63946;
+            --accent-glow: rgba(230, 57, 70, 0.4);
+            --text: #f1faee;
+            --text-dim: #a8a0a0;
+            --text-muted: #6a5a5a;
+            --green: #4ecca3;
+            --blue: #457b9d;
+            --gold: #d4a017;
+            --purple: #9b59b6;
+            --radius: 8px;
+            --genesis-gold: #c9a227;
+            --genesis-glow: rgba(201, 162, 39, 0.4);
+            --genesis-dark: #1a1400;
+            --genesis-light: #f0d060;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(170deg, var(--bg-primary) 0%, #080604 50%, #050302 100%);
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .island-page {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        /* ── Tabs ── */
+        .genesis-tabs {
+            display: flex;
+            gap: 0;
+            margin: 2rem 0 0;
+            border-bottom: 1px solid rgba(201,162,39,0.2);
+        }
+
+        .genesis-tab {
+            padding: 0.85rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .genesis-tab:hover { color: var(--text-dim); }
+
+        .genesis-tab.active {
+            color: var(--genesis-gold);
+        }
+
+        .genesis-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--genesis-gold);
+            box-shadow: 0 0 8px var(--genesis-glow);
+        }
+
+        .genesis-tab.locked {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ── Genesis Chamber ── */
+        .genesis-header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .genesis-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--genesis-gold);
+            text-shadow: 0 0 20px var(--genesis-glow);
+            margin-bottom: 0.5rem;
+        }
+
+        .genesis-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-style: italic;
+            line-height: 1.6;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* ── Mark Display ── */
+        .marks-display {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 2.5rem 0;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .mark-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid rgba(201,162,39,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            position: relative;
+            transition: all 0.5s;
+        }
+
+        .mark-circle.earned {
+            border-color: var(--genesis-gold);
+            color: var(--genesis-gold);
+            background: rgba(201,162,39,0.08);
+            box-shadow: 0 0 15px var(--genesis-glow), inset 0 0 10px rgba(201,162,39,0.1);
+            animation: markPulse 3s ease-in-out infinite;
+        }
+
+        .mark-circle.next {
+            border-color: rgba(201,162,39,0.4);
+            border-style: dashed;
+            color: rgba(201,162,39,0.5);
+        }
+
+        @keyframes markPulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(201,162,39,0.2), inset 0 0 8px rgba(201,162,39,0.05); }
+            50% { box-shadow: 0 0 25px rgba(201,162,39,0.5), inset 0 0 15px rgba(201,162,39,0.15); }
+        }
+
+        .mark-label {
+            position: absolute;
+            bottom: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            white-space: nowrap;
+            color: var(--text-muted);
+        }
+
+        .mark-circle.earned .mark-label { color: var(--genesis-gold); }
+
+        /* ── Next Reward Preview ── */
+        .next-reward {
+            background: var(--bg-card);
+            border: 1px solid rgba(201,162,39,0.15);
+            border-radius: var(--radius);
+            padding: 1.5rem 2rem;
+            margin: 2.5rem 0;
+            text-align: center;
+            animation: fadeIn 1.4s ease-out;
+        }
+
+        .next-reward-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--genesis-gold);
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+        }
+
+        .next-reward-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.4rem;
+        }
+
+        .next-reward-desc {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+            font-style: italic;
+        }
+
+        /* ── Requirements ── */
+        .requirements {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            animation: fadeIn 1.6s ease-out;
+        }
+
+        .requirements-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-dim);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .req-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            font-size: 0.85rem;
+        }
+
+        .req-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            flex-shrink: 0;
+        }
+
+        .req-item.met .req-icon {
+            border-color: var(--green);
+            color: var(--green);
+            background: rgba(78,204,163,0.1);
+        }
+
+        .req-item.unmet .req-icon {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .req-item.met .req-text { color: var(--green); }
+        .req-item.unmet .req-text { color: var(--text-dim); }
+
+        .req-progress {
+            margin-left: auto;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'Courier New', monospace;
+        }
+
+        /* ── Initiate Button ── */
+        .genesis-btn-wrap {
+            text-align: center;
+            margin: 2rem 0;
+            animation: fadeIn 1.8s ease-out;
+        }
+
+        .genesis-btn {
+            padding: 1rem 3rem;
+            background: linear-gradient(135deg, var(--genesis-gold), #d4a800);
+            color: #000;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            box-shadow: 0 0 20px var(--genesis-glow);
+        }
+
+        .genesis-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px var(--genesis-glow), 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .genesis-btn:disabled {
+            background: var(--bg-card);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .genesis-btn:disabled:hover {
+            transform: none;
+        }
+
+        .genesis-complete {
+            text-align: center;
+            padding: 2rem;
+            color: var(--genesis-gold);
+            font-size: 1rem;
+            font-style: italic;
+        }
+
+        /* ── Confirmation Modal ── */
+        .genesis-confirm-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: rgba(0,0,0,0.92);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .genesis-confirm-overlay.open { display: flex; }
+
+        .genesis-confirm {
+            background: #0a0605;
+            border: 2px solid var(--genesis-gold);
+            border-radius: var(--radius);
+            max-width: 500px;
+            width: 90vw;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 0 60px var(--genesis-glow);
+        }
+
+        .confirm-title {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--genesis-gold);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        .confirm-losses {
+            background: rgba(230,57,70,0.06);
+            border: 1px solid rgba(230,57,70,0.15);
+            border-radius: var(--radius);
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .confirm-losses-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .confirm-loss-item {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            padding: 0.2rem 0;
+        }
+
+        .confirm-loss-item span {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .confirm-input-label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .confirm-input {
+            display: block;
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 0.15em;
+            font-family: 'Courier New', monospace;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .confirm-input:focus { border-color: var(--genesis-gold); }
+
+        .confirm-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .confirm-cancel {
+            flex: 1;
+            padding: 0.75rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .confirm-cancel:hover { border-color: var(--text-muted); color: var(--text); }
+
+        .confirm-execute {
+            flex: 1;
+            padding: 0.75rem;
+            background: var(--genesis-gold);
+            border: none;
+            border-radius: var(--radius);
+            color: #000;
+            font-size: 0.9rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .confirm-execute:disabled {
+            background: var(--bg-card);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .confirm-execute:not(:disabled):hover {
+            box-shadow: 0 0 20px var(--genesis-glow);
+        }
+
+        /* ── Reset Sequence Overlay ── */
+        .reset-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 20000;
+            background: #000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .reset-overlay.active { display: flex; }
+
+        .reset-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--genesis-gold);
+            text-shadow: 0 0 30px var(--genesis-glow);
+            opacity: 0;
+            transition: opacity 0.8s;
+        }
+
+        .reset-text.visible { opacity: 1; }
+        .reset-text.fade { opacity: 0; }
+
+        .reset-flood {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 0;
+            background: linear-gradient(0deg,
+                rgba(0,40,80,0.9) 0%,
+                rgba(0,60,100,0.6) 40%,
+                rgba(0,80,120,0.3) 70%,
+                transparent 100%
+            );
+            transition: height 4s ease-in;
+            pointer-events: none;
+        }
+
+        .reset-flood.rising { height: 100vh; }
+
+        .reset-pets-scroll {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            max-width: 400px;
+            width: 90vw;
+        }
+
+        .reset-pet-name {
+            font-size: 1.2rem;
+            color: var(--text);
+            margin: 0.75rem 0;
+            opacity: 0;
+            animation: petFadeThrough 1s ease-out forwards;
+        }
+
+        @keyframes petFadeThrough {
+            0% { opacity: 0; transform: translateY(10px); }
+            20% { opacity: 1; transform: translateY(0); }
+            80% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-10px); }
+        }
+
+        .reset-counter {
+            font-size: 1rem;
+            color: var(--text-dim);
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            line-height: 2;
+        }
+
+        .reset-counter span { color: var(--accent); font-weight: 700; }
+
+        .reset-mark-brand {
+            text-align: center;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+
+        .reset-mark-brand.visible { opacity: 1; }
+
+        .reset-mark-symbol {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid var(--genesis-gold);
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--genesis-gold);
+            box-shadow: 0 0 40px var(--genesis-glow), 0 0 80px rgba(201,162,39,0.2), inset 0 0 30px rgba(201,162,39,0.1);
+            animation: brandPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes brandPulse {
+            0%, 100% { box-shadow: 0 0 30px var(--genesis-glow), inset 0 0 20px rgba(201,162,39,0.05); }
+            50% { box-shadow: 0 0 60px var(--genesis-glow), 0 0 100px rgba(201,162,39,0.15), inset 0 0 40px rgba(201,162,39,0.15); }
+        }
+
+        .reset-mark-rings {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .reset-ring {
+            position: absolute;
+            border: 1px solid rgba(201,162,39,0.15);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: ringExpand 3s ease-out infinite;
+        }
+
+        .reset-ring:nth-child(1) { width: 150px; height: 150px; animation-delay: 0s; }
+        .reset-ring:nth-child(2) { width: 200px; height: 200px; animation-delay: 0.5s; }
+        .reset-ring:nth-child(3) { width: 260px; height: 260px; animation-delay: 1s; }
+
+        @keyframes ringExpand {
+            0% { opacity: 0.6; transform: translate(-50%, -50%) scale(0.8); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.3); }
+        }
+
+        .reset-final-text {
+            font-size: 1.1rem;
+            color: var(--genesis-gold);
+            font-style: italic;
+            margin-top: 1.5rem;
+            text-shadow: 0 0 15px var(--genesis-glow);
+        }
+
+        /* ── Legacy Tab ── */
+        .legacy-section {
+            padding: 2rem 0;
+        }
+
+        .legacy-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(201,162,39,0.12);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .legacy-card-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--genesis-gold);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .legacy-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.4rem 0;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(201,162,39,0.06);
+        }
+
+        .legacy-stat:last-child { border-bottom: none; }
+
+        .legacy-stat-label { color: var(--text-dim); }
+        .legacy-stat-value { color: var(--genesis-gold); font-weight: 700; font-family: 'Courier New', monospace; }
+
+        .chimera-sources {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .chimera-chip {
+            background: rgba(201,162,39,0.08);
+            border: 1px solid rgba(201,162,39,0.2);
+            border-radius: 20px;
+            padding: 0.3rem 0.7rem;
+            font-size: 0.75rem;
+            color: var(--genesis-gold);
+        }
+
+        .reset-timeline {
+            margin-top: 1rem;
+        }
+
+        .timeline-entry {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            padding: 0.75rem 0;
+            border-left: 2px solid rgba(201,162,39,0.15);
+            padding-left: 1.25rem;
+            position: relative;
+        }
+
+        .timeline-entry::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 1rem;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--genesis-gold);
+            box-shadow: 0 0 6px var(--genesis-glow);
+        }
+
+        .timeline-mark { font-size: 1rem; font-weight: 700; color: var(--genesis-gold); flex-shrink: 0; }
+        .timeline-info { flex: 1; }
+        .timeline-date { font-size: 0.7rem; color: var(--text-muted); }
+        .timeline-detail { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.2rem; }
+
+        .empty-legacy {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* ── Journal Tab ── */
+        .journal-container {
+            padding: 2rem 0;
+        }
+
+        .journal-entry {
+            background: linear-gradient(135deg, #1a1508 0%, #12100a 100%);
+            border: 1px solid rgba(160,130,80,0.2);
+            border-radius: var(--radius);
+            padding: 2rem 2rem 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .journal-entry::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 28px,
+                rgba(160,130,80,0.04) 28px,
+                rgba(160,130,80,0.04) 29px
+            );
+            pointer-events: none;
+        }
+
+        .journal-entry::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(80,50,20,0.15);
+            filter: blur(8px);
+        }
+
+        .journal-vol {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: rgba(160,130,80,0.5);
+            margin-bottom: 0.75rem;
+        }
+
+        .journal-title {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #d4b896;
+            margin-bottom: 1rem;
+        }
+
+        .journal-text {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 0.9rem;
+            color: #b8a080;
+            line-height: 1.8;
+            font-style: italic;
+        }
+
+        .journal-sig {
+            text-align: right;
+            margin-top: 1.25rem;
+            font-family: Georgia, serif;
+            font-size: 0.8rem;
+            color: rgba(160,130,80,0.4);
+            font-style: italic;
+        }
+
+        .journal-locked {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* ── Back link ── */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 2rem 0 0;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: var(--text); }
+
+        /* ── Footer ── */
+        .footer {
+            border-top: 1px solid var(--border);
+            padding: 1.5rem 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .footer a {
+            color: var(--text-dim);
+            text-decoration: none;
+            margin: 0 0.75rem;
+        }
+
+        .footer a:hover { color: var(--text); }
+
+        /* ── Nav override ── */
+        .nav-fight a {
+            color: var(--accent) !important;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        @media (max-width: 640px) {
+            .genesis-title { font-size: 1.3rem; }
+            .mark-circle { width: 40px; height: 40px; font-size: 0.9rem; }
+            .marks-display { gap: 1rem; }
+            .genesis-tab { padding: 0.65rem 0.8rem; font-size: 0.75rem; }
+            .journal-entry { padding: 1.5rem 1.25rem 1rem; }
+            .confirm-actions { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li class="nav-dropdown">
+                    <a href="/tournaments">Benchmark &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/tournaments">Tournaments</a></li>
+                        <li><a href="/leaderboard">Leaderboard</a></li>
+                        <li><a href="/methodology">Methodology</a></li>
+                        <li><a href="/match-log">Match Log</a></li>
+                        <li><a href="/compare">Compare</a></li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="/s1-leaderboard">Seasons &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/s1-leaderboard">S1 Leaderboard</a></li>
+                        <li><a href="/s1-fighters">Meet the Fighters</a></li>
+                        <li><a href="/s1-matchups">Matchup Explorer</a></li>
+                        <li><a href="/play">S1 Quick Fight</a></li>
+                        <li><a href="/s1-compare">Benchmark vs S1</a></li>
+                        <li><a href="/moreddit">The Moreddit</a></li>
+                    </ul>
+                </li>
+                <li><a href="/pets">Pets</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+                <li class="nav-fight"><a href="/island" class="active">FIGHT!</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="island-page">
+        <a href="/island/home" class="back-link">&larr; Back to Dashboard</a>
+
+        <div class="genesis-header">
+            <div class="genesis-title">Genesis Protocol</div>
+            <div class="genesis-subtitle">
+                The island offers one final transformation. Sacrifice everything you have built.
+                In return, the island will remember you &mdash; and give back more than it took.
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="genesis-tabs">
+            <button class="genesis-tab active" onclick="switchTab('chamber')">Genesis Chamber</button>
+            <button class="genesis-tab" onclick="switchTab('legacy')">Legacy</button>
+            <button class="genesis-tab" id="journalTab" onclick="switchTab('journal')">Moreau's Journal</button>
+        </div>
+
+        <!-- Tab: Genesis Chamber -->
+        <div class="tab-panel active" id="panel-chamber">
+            <div class="marks-display" id="marksDisplay"></div>
+            <div id="nextRewardArea"></div>
+            <div id="requirementsArea"></div>
+            <div id="genesisAction"></div>
+        </div>
+
+        <!-- Tab: Legacy -->
+        <div class="tab-panel" id="panel-legacy">
+            <div class="legacy-section" id="legacyContent"></div>
+        </div>
+
+        <!-- Tab: Journal -->
+        <div class="tab-panel" id="panel-journal">
+            <div class="journal-container" id="journalContent"></div>
+        </div>
+
+        <footer class="footer">
+            <div>Moreau Arena &mdash; The Island</div>
+            <div style="margin-top: 0.5rem;">
+                <a href="/paper">Paper</a>
+                <a href="/api-docs">API Docs</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="genesis-confirm-overlay" id="confirmOverlay" onclick="if(event.target===this)closeConfirm()">
+        <div class="genesis-confirm">
+            <div class="confirm-title">Point of No Return</div>
+            <div class="confirm-losses" id="confirmLosses"></div>
+            <div class="confirm-input-label">Type <strong>I ACCEPT</strong> to confirm the Genesis Protocol</div>
+            <input type="text" class="confirm-input" id="confirmInput" placeholder="I ACCEPT" autocomplete="off" spellcheck="false">
+            <div class="confirm-actions">
+                <button class="confirm-cancel" onclick="closeConfirm()">Turn Back</button>
+                <button class="confirm-execute" id="confirmBtn" disabled onclick="executeGenesis()">INITIATE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Sequence Overlay -->
+    <div class="reset-overlay" id="resetOverlay">
+        <div class="reset-flood" id="resetFlood"></div>
+        <div class="reset-text" id="resetText"></div>
+        <div class="reset-pets-scroll" id="resetPetsScroll" style="display:none;"></div>
+        <div class="reset-counter" id="resetCounter" style="display:none;"></div>
+        <div class="reset-mark-brand" id="resetMarkBrand" style="display:none;">
+            <div class="reset-mark-rings">
+                <div class="reset-ring"></div>
+                <div class="reset-ring"></div>
+                <div class="reset-ring"></div>
+            </div>
+            <div class="reset-mark-symbol" id="resetMarkSymbol"></div>
+            <div class="reset-final-text" id="resetFinalText"></div>
+        </div>
+    </div>
+
+    <script>
+        // ══════════════════════════════════════
+        //  Genesis Protocol — New Game+ Prestige
+        // ══════════════════════════════════════
+
+        const EMOJI_MAP = {
+            bear:'\u{1F43B}', buffalo:'\u{1F9AC}', boar:'\u{1F417}', tiger:'\u{1F405}',
+            wolf:'\u{1F43A}', monkey:'\u{1F412}', porcupine:'\u{1F994}', scorpion:'\u{1F982}',
+            vulture:'\u{1F985}', rhino:'\u{1F98F}', viper:'\u{1F40D}', fox:'\u{1F98A}',
+            eagle:'\u{1F985}', panther:'\u{1F408}', chimera:'\u{1F432}'
+        };
+
+        const MARK_NAMES = ['Origin', 'Memory', 'Chimera', 'Secrets', 'Revelation', 'Truth'];
+
+        const MARK_REWARDS = [
+            { name: 'The Island', desc: 'Your journey begins here.' },
+            { name: 'Genetic Memory', desc: 'New pets inherit echoes of the fallen. +1 to a random stat per death across all cycles, up to +5.' },
+            { name: 'The Chimera', desc: 'A 15th species awakens. Fuse three animals from your death roster into something that should not exist.' },
+            { name: "Moreau's Journal Vol. I", desc: 'The doctor left notes. Secrets of the island\'s mechanics revealed.' },
+            { name: "Moreau's Journal Vol. II", desc: 'Deeper truths. Genesis-exclusive mutations appear in the Forbidden Lab.' },
+            { name: "Moreau's Journal Vol. III", desc: 'The final entry. The experiment was always about you.' }
+        ];
+
+        const JOURNAL_ENTRIES = [
+            {
+                vol: 'Volume I',
+                title: 'On the Hidden Architecture of Will',
+                text: 'I have been observing them for months now. The creatures. My creatures. They do not know what I have built into them, and perhaps that is the beauty of it.\n\nWillpower is not merely resistance. I designed it as a probability field. When a creature\'s willpower exceeds twelve, something shifts in the combat lattice \u2014 a hidden dodge chance emerges, imperceptible to the untrained eye but devastating in aggregate. The creature begins to slip between attacks as if guided by something beyond reflex.\n\nI also note, with some pride, that my artifact system contains a synergy layer that no one has yet discovered. Artifacts sharing a keyword \u2014 "predator," "volatile," "deep" \u2014 do not merely add their effects. They multiply. Stack three volatile artifacts and watch the numbers bend in ways that should be impossible.\n\nThe island teaches patience. I designed it that way. The secrets do not reveal themselves to the hasty.\n\n\u2014 M.'
+            },
+            {
+                vol: 'Volume II',
+                title: 'On the Nature of Mutation',
+                text: 'The Forbidden Laboratory was never about science. It was about choice under uncertainty \u2014 the willingness to risk everything for transformation. I embedded five mutations that only appear to those who have reset the world itself. They are:\n\nApex Genome \u2014 all stats scale with level, not just the chosen ones. Helix Resonance \u2014 each mutation amplifies the next, creating compound growth. Null Membrane \u2014 the first attack in any fight simply passes through, dealing no damage. Predator\'s Paradox \u2014 the weaker you are relative to your opponent, the harder you strike. Ghost Protocol \u2014 a 10% chance each round to act twice.\n\nThese are not gifts. They are consequences. Each one emerged from a failed experiment, a creature that died so something better could exist. The genesis-marked understand this. They have already proven they can let go.\n\nThe island is not a game. It is a mirror.\n\n\u2014 M.'
+            },
+            {
+                vol: 'Volume III',
+                title: 'The Final Entry',
+                text: 'If you are reading this, you have done what I could not.\n\nFive times you have burned the world to the ground. Five times you have watched everything you built dissolve into the tide. And five times you chose to begin again, knowing the cost.\n\nI built the island to answer a question: what happens when creation is given the power to unmake itself? The animals were never the experiment. The mutations were never the experiment. You were.\n\nEvery pet you raised carried a piece of your attention, your care, your time. And you sacrificed them \u2014 not because they were worthless, but because you understood that attachment and growth cannot coexist forever. The island demanded that you learn to let go with grace.\n\nThe experiment is complete. The island has no more secrets.\n\nBut you \u2014 you are the secret it was keeping.\n\n\u2014 Dr. Moreau\n\nP.S. The color of the sky has changed. You will have noticed. It is not the island that transformed. It is your eyes.'
+            }
+        ];
+
+        // Keys that survive a genesis reset
+        const PRESERVED_KEYS = ['moreau_genesis', 'moreau_market_history', 'moreau_other_player'];
+
+        let genesis = null;
+
+        function loadGenesis() {
+            try {
+                genesis = JSON.parse(localStorage.getItem('moreau_genesis') || 'null');
+            } catch(e) {}
+            if (!genesis) {
+                genesis = {
+                    marks: 0,
+                    totalResets: 0,
+                    allTimeDeaths: 0,
+                    allTimeFights: 0,
+                    allTimeSpecies: [],
+                    chimeraSources: [],
+                    geneticMemory: 0,
+                    journalUnlocked: [],
+                    genesisExclusive: false,
+                    resetHistory: []
+                };
+            }
+        }
+
+        function saveGenesis() {
+            localStorage.setItem('moreau_genesis', JSON.stringify(genesis));
+        }
+
+        function getRequirements() {
+            var pets = [];
+            try { pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) {}
+
+            var maxLevel = 0;
+            var deadCount = 0;
+            var totalFights = 0;
+            var species = new Set();
+
+            pets.forEach(function(p) {
+                var lvl = p.level || 1;
+                if (lvl > maxLevel) maxLevel = lvl;
+                if (p.deceased || p.is_alive === false) deadCount++;
+                var fights = (p.fights || []).length;
+                totalFights += fights;
+                if (p.animal) species.add(p.animal.toLowerCase());
+            });
+
+            // Include all-time deaths from genesis legacy
+            var totalDeaths = deadCount + (genesis.allTimeDeaths || 0);
+            var totalFightsAllTime = totalFights + (genesis.allTimeFights || 0);
+
+            return {
+                maxLevel: maxLevel,
+                deadCount: totalDeaths,
+                currentDeadCount: deadCount,
+                totalFights: totalFightsAllTime,
+                currentFights: totalFights,
+                species: species,
+                pets: pets,
+                hasLevel8: maxLevel >= 8,
+                has5Deaths: totalDeaths >= 5,
+                has50Fights: totalFightsAllTime >= 50,
+                allMet: maxLevel >= 8 && totalDeaths >= 5 && totalFightsAllTime >= 50
+            };
+        }
+
+        function init() {
+            loadGenesis();
+            renderMarks();
+            renderNextReward();
+            renderRequirements();
+            renderGenesisAction();
+            renderLegacy();
+            renderJournal();
+            updateJournalTab();
+        }
+
+        // ── Tab Switching ──
+
+        function switchTab(tab) {
+            // Check if journal is locked
+            if (tab === 'journal' && genesis.marks < 3) return;
+
+            document.querySelectorAll('.genesis-tab').forEach(function(t) { t.classList.remove('active'); });
+            document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+
+            var tabBtns = document.querySelectorAll('.genesis-tab');
+            var idx = tab === 'chamber' ? 0 : tab === 'legacy' ? 1 : 2;
+            tabBtns[idx].classList.add('active');
+            document.getElementById('panel-' + tab).classList.add('active');
+        }
+
+        function updateJournalTab() {
+            var tab = document.getElementById('journalTab');
+            if (genesis.marks < 3) {
+                tab.classList.add('locked');
+                tab.title = 'Unlocked at Mark 3';
+            } else {
+                tab.classList.remove('locked');
+                tab.title = '';
+            }
+        }
+
+        // ── Marks Display ──
+
+        function renderMarks() {
+            var html = '';
+            for (var i = 1; i <= 5; i++) {
+                var earned = i <= genesis.marks;
+                var isNext = i === genesis.marks + 1 && genesis.marks < 5;
+                var cls = earned ? 'earned' : isNext ? 'next' : '';
+                html += '<div class="mark-circle ' + cls + '">' +
+                    (earned ? '\u2726' : i) +
+                    '<div class="mark-label">' + MARK_NAMES[i] + '</div>' +
+                    '</div>';
+            }
+            document.getElementById('marksDisplay').innerHTML = html;
+        }
+
+        // ── Next Reward Preview ──
+
+        function renderNextReward() {
+            var area = document.getElementById('nextRewardArea');
+            if (genesis.marks >= 5) {
+                area.innerHTML = '<div class="genesis-complete">All Genesis Marks earned. The island has given everything it has.</div>';
+                return;
+            }
+
+            var next = genesis.marks + 1;
+            var reward = MARK_REWARDS[next];
+            area.innerHTML =
+                '<div class="next-reward">' +
+                    '<div class="next-reward-label">Mark ' + next + ' Reward</div>' +
+                    '<div class="next-reward-name">' + reward.name + '</div>' +
+                    '<div class="next-reward-desc">' + reward.desc + '</div>' +
+                '</div>';
+        }
+
+        // ── Requirements ──
+
+        function renderRequirements() {
+            var area = document.getElementById('requirementsArea');
+            if (genesis.marks >= 5) {
+                area.innerHTML = '';
+                return;
+            }
+
+            var req = getRequirements();
+
+            var html = '<div class="requirements">';
+            html += '<div class="requirements-title">Requirements to Initiate</div>';
+
+            html += '<div class="req-item ' + (req.hasLevel8 ? 'met' : 'unmet') + '">';
+            html += '<div class="req-icon">' + (req.hasLevel8 ? '\u2713' : '\u2717') + '</div>';
+            html += '<div class="req-text">At least one pet level 8 or higher</div>';
+            html += '<div class="req-progress">Lv.' + req.maxLevel + ' / 8</div>';
+            html += '</div>';
+
+            html += '<div class="req-item ' + (req.has5Deaths ? 'met' : 'unmet') + '">';
+            html += '<div class="req-icon">' + (req.has5Deaths ? '\u2713' : '\u2717') + '</div>';
+            html += '<div class="req-text">At least 5 total deaths (all time)</div>';
+            html += '<div class="req-progress">' + req.deadCount + ' / 5</div>';
+            html += '</div>';
+
+            html += '<div class="req-item ' + (req.has50Fights ? 'met' : 'unmet') + '">';
+            html += '<div class="req-icon">' + (req.has50Fights ? '\u2713' : '\u2717') + '</div>';
+            html += '<div class="req-text">At least 50 total fights (all time)</div>';
+            html += '<div class="req-progress">' + req.totalFights + ' / 50</div>';
+            html += '</div>';
+
+            html += '</div>';
+            area.innerHTML = html;
+        }
+
+        // ── Genesis Action ──
+
+        function renderGenesisAction() {
+            var area = document.getElementById('genesisAction');
+            if (genesis.marks >= 5) {
+                area.innerHTML = '';
+                return;
+            }
+
+            var req = getRequirements();
+            area.innerHTML =
+                '<div class="genesis-btn-wrap">' +
+                    '<button class="genesis-btn" ' +
+                    (req.allMet ? 'onclick="openConfirm()"' : 'disabled') + '>' +
+                    'INITIATE GENESIS' +
+                    '</button>' +
+                '</div>';
+        }
+
+        // ── Confirmation ──
+
+        function openConfirm() {
+            var req = getRequirements();
+            var pets = req.pets;
+
+            var livingCount = pets.filter(function(p) { return !p.deceased && p.is_alive !== false; }).length;
+            var totalCount = pets.length;
+
+            var achievements = {};
+            try { achievements = JSON.parse(localStorage.getItem('moreau_achievements') || '{}'); } catch(e) {}
+            var achCount = Object.keys(achievements).length;
+
+            var artifacts = [];
+            try {
+                pets.forEach(function(p) {
+                    var eq = p.equipment || {};
+                    [eq.slot1, eq.slot2, eq.slot3].filter(Boolean).forEach(function(a) {
+                        if (artifacts.indexOf(a) < 0) artifacts.push(a);
+                    });
+                });
+            } catch(e) {}
+
+            var essenceRaw = localStorage.getItem('moreau_essence');
+            var essence = 0;
+            try { essence = parseInt(essenceRaw || '0', 10); } catch(e) {}
+
+            var html = '<div class="confirm-losses-title">What Will Be Lost</div>';
+            html += '<div class="confirm-loss-item"><span>' + totalCount + '</span> pets (' + livingCount + ' living)</div>';
+            html += '<div class="confirm-loss-item"><span>' + achCount + '</span> achievements</div>';
+            html += '<div class="confirm-loss-item"><span>' + artifacts.length + '</span> equipped artifacts</div>';
+            if (essence > 0) html += '<div class="confirm-loss-item"><span>' + essence + '</span> essence</div>';
+            html += '<div class="confirm-loss-item" style="margin-top:0.5rem;font-style:italic;color:var(--text-muted);">All progress, bloodlines, dreams, and island data</div>';
+
+            document.getElementById('confirmLosses').innerHTML = html;
+            document.getElementById('confirmInput').value = '';
+            document.getElementById('confirmBtn').disabled = true;
+            document.getElementById('confirmOverlay').classList.add('open');
+
+            document.getElementById('confirmInput').focus();
+        }
+
+        function closeConfirm() {
+            document.getElementById('confirmOverlay').classList.remove('open');
+        }
+
+        document.getElementById('confirmInput').addEventListener('input', function() {
+            var val = this.value.trim().toUpperCase();
+            document.getElementById('confirmBtn').disabled = val !== 'I ACCEPT';
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeConfirm();
+        });
+
+        // ── Execute Genesis ──
+
+        function executeGenesis() {
+            closeConfirm();
+
+            var pets = [];
+            try { pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) {}
+
+            // Gather stats before wipe
+            var levelSum = 0;
+            var petsLost = pets.length;
+            var currentDeadCount = 0;
+            var currentFights = 0;
+            var currentSpecies = [];
+
+            pets.forEach(function(p) {
+                levelSum += (p.level || 1);
+                if (p.deceased || p.is_alive === false) currentDeadCount++;
+                currentFights += (p.fights || []).length;
+                if (p.animal) {
+                    var sp = p.animal.toLowerCase();
+                    if (currentSpecies.indexOf(sp) < 0) currentSpecies.push(sp);
+                }
+            });
+
+            // Update genesis legacy
+            var newMark = genesis.marks + 1;
+            genesis.marks = newMark;
+            genesis.totalResets++;
+            genesis.allTimeDeaths += currentDeadCount;
+            genesis.allTimeFights += currentFights;
+
+            // Merge species
+            currentSpecies.forEach(function(sp) {
+                if (genesis.allTimeSpecies.indexOf(sp) < 0) genesis.allTimeSpecies.push(sp);
+            });
+
+            // Mark-specific rewards
+            if (newMark >= 1) {
+                // Genetic Memory: +1 per dead pet (capped at +5)
+                genesis.geneticMemory = Math.min(5, genesis.allTimeDeaths);
+            }
+            if (newMark >= 2) {
+                // Chimera sources: all species from death roster
+                var deadSpecies = [];
+                pets.forEach(function(p) {
+                    if ((p.deceased || p.is_alive === false) && p.animal) {
+                        var sp = p.animal.toLowerCase();
+                        if (deadSpecies.indexOf(sp) < 0) deadSpecies.push(sp);
+                    }
+                });
+                deadSpecies.forEach(function(sp) {
+                    if (genesis.chimeraSources.indexOf(sp) < 0) genesis.chimeraSources.push(sp);
+                });
+            }
+            if (newMark >= 3 && genesis.journalUnlocked.indexOf(1) < 0) genesis.journalUnlocked.push(1);
+            if (newMark >= 4) {
+                if (genesis.journalUnlocked.indexOf(2) < 0) genesis.journalUnlocked.push(2);
+                genesis.genesisExclusive = true;
+            }
+            if (newMark >= 5 && genesis.journalUnlocked.indexOf(3) < 0) genesis.journalUnlocked.push(3);
+
+            genesis.resetHistory.push({
+                mark: newMark,
+                date: new Date().toISOString(),
+                petsLost: petsLost,
+                level_sum: levelSum
+            });
+
+            saveGenesis();
+
+            // Run the reset sequence
+            runResetSequence(pets, newMark, petsLost, currentFights, levelSum);
+        }
+
+        // ── The Reset Sequence (30 seconds, unskippable) ──
+
+        function runResetSequence(pets, newMark, petsLost, fights, levelSum) {
+            var overlay = document.getElementById('resetOverlay');
+            var textEl = document.getElementById('resetText');
+            var petsScroll = document.getElementById('resetPetsScroll');
+            var counter = document.getElementById('resetCounter');
+            var markBrand = document.getElementById('resetMarkBrand');
+            var flood = document.getElementById('resetFlood');
+
+            overlay.classList.add('active');
+
+            // Disable all scrolling
+            document.body.style.overflow = 'hidden';
+
+            var timeline = [];
+            var t = 0;
+
+            // Phase 1: Darkness (0-2s)
+            timeline.push({ at: 0, fn: function() {
+                textEl.style.display = 'block';
+            }});
+
+            // Phase 2: "GENESIS PROTOCOL INITIATED" (2-4s)
+            timeline.push({ at: 2000, fn: function() {
+                textEl.textContent = 'GENESIS PROTOCOL INITIATED';
+                textEl.classList.add('visible');
+            }});
+
+            timeline.push({ at: 4000, fn: function() {
+                textEl.classList.remove('visible');
+                textEl.classList.add('fade');
+            }});
+
+            // Phase 3: Flood (4-8s)
+            timeline.push({ at: 4500, fn: function() {
+                textEl.style.display = 'none';
+                flood.classList.add('rising');
+            }});
+
+            // Phase 4: Pet names scroll (8-16s)
+            timeline.push({ at: 8000, fn: function() {
+                petsScroll.style.display = 'block';
+                var petDelay = pets.length > 0 ? Math.min(1000, 8000 / pets.length) : 1000;
+
+                pets.forEach(function(p, i) {
+                    setTimeout(function() {
+                        var animal = (p.animal || '').toLowerCase();
+                        var emoji = EMOJI_MAP[animal] || '\u{1F43E}';
+                        var el = document.createElement('div');
+                        el.className = 'reset-pet-name';
+                        el.textContent = emoji + ' ' + (p.name || 'Unknown') + ' — Lv.' + (p.level || 1);
+                        el.style.animationDuration = Math.min(petDelay, 1000) + 'ms';
+                        petsScroll.appendChild(el);
+
+                        // Remove after fade
+                        setTimeout(function() { el.remove(); }, Math.min(petDelay, 1000));
+                    }, i * petDelay);
+                });
+            }});
+
+            // Phase 5: Counter (16-20s)
+            timeline.push({ at: 16000, fn: function() {
+                petsScroll.style.display = 'none';
+                counter.style.display = 'block';
+
+                var achievements = {};
+                try { achievements = JSON.parse(localStorage.getItem('moreau_achievements') || '{}'); } catch(e) {}
+                var achCount = Object.keys(achievements).length;
+
+                counter.innerHTML =
+                    '<span>' + petsLost + '</span> pets lost<br>' +
+                    '<span>' + fights + '</span> fights fought<br>' +
+                    '<span>' + achCount + '</span> achievements erased<br>' +
+                    '<span>' + levelSum + '</span> total levels dissolved';
+            }});
+
+            // Phase 6: Silence (20-23s)
+            timeline.push({ at: 20000, fn: function() {
+                counter.style.display = 'none';
+                flood.style.opacity = '0';
+                flood.style.transition = 'opacity 1s';
+            }});
+
+            // Phase 7: Genesis Mark brands (23-28s)
+            timeline.push({ at: 23000, fn: function() {
+                markBrand.style.display = 'block';
+                document.getElementById('resetMarkSymbol').textContent = newMark;
+                document.getElementById('resetFinalText').textContent = '';
+                setTimeout(function() {
+                    markBrand.classList.add('visible');
+                }, 100);
+            }});
+
+            // Phase 8: Final text (28-30s)
+            timeline.push({ at: 28000, fn: function() {
+                document.getElementById('resetFinalText').textContent = 'The island remembers. You begin again.';
+            }});
+
+            // Phase 9: Wipe and redirect (30s)
+            timeline.push({ at: 30000, fn: function() {
+                performWipe();
+                window.location.href = '/island/home';
+            }});
+
+            // Execute timeline
+            timeline.forEach(function(step) {
+                setTimeout(step.fn, step.at);
+            });
+        }
+
+        // ── Wipe localStorage ──
+
+        function performWipe() {
+            var keysToRemove = [];
+            for (var i = 0; i < localStorage.length; i++) {
+                var key = localStorage.key(i);
+                if (key && key.startsWith('moreau_')) {
+                    var preserve = false;
+                    for (var j = 0; j < PRESERVED_KEYS.length; j++) {
+                        if (key === PRESERVED_KEYS[j]) { preserve = true; break; }
+                    }
+                    // Also preserve keys that start with moreau_m_ (M's state keys)
+                    if (key.startsWith('moreau_m_')) preserve = true;
+                    if (!preserve) keysToRemove.push(key);
+                }
+            }
+            keysToRemove.forEach(function(k) { localStorage.removeItem(k); });
+        }
+
+        // ── Legacy Tab ──
+
+        function renderLegacy() {
+            var area = document.getElementById('legacyContent');
+
+            if (genesis.marks === 0 && genesis.totalResets === 0) {
+                area.innerHTML = '<div class="empty-legacy">No genesis marks earned yet. The Protocol awaits.</div>';
+                return;
+            }
+
+            var html = '';
+
+            // Stats card
+            html += '<div class="legacy-card">';
+            html += '<div class="legacy-card-title">Genesis Record</div>';
+            html += '<div class="legacy-stat"><span class="legacy-stat-label">Genesis Marks</span><span class="legacy-stat-value">' + genesis.marks + ' / 5</span></div>';
+            html += '<div class="legacy-stat"><span class="legacy-stat-label">Total Resets</span><span class="legacy-stat-value">' + genesis.totalResets + '</span></div>';
+            html += '<div class="legacy-stat"><span class="legacy-stat-label">All-Time Deaths</span><span class="legacy-stat-value">' + genesis.allTimeDeaths + '</span></div>';
+            html += '<div class="legacy-stat"><span class="legacy-stat-label">All-Time Fights</span><span class="legacy-stat-value">' + genesis.allTimeFights + '</span></div>';
+            html += '<div class="legacy-stat"><span class="legacy-stat-label">Species Encountered</span><span class="legacy-stat-value">' + genesis.allTimeSpecies.length + '</span></div>';
+            html += '</div>';
+
+            // Genetic Memory (Mark 1+)
+            if (genesis.marks >= 1) {
+                html += '<div class="legacy-card">';
+                html += '<div class="legacy-card-title">Genetic Memory</div>';
+                html += '<div class="legacy-stat"><span class="legacy-stat-label">Bonus stats for new pets</span><span class="legacy-stat-value">+' + genesis.geneticMemory + ' (max +5)</span></div>';
+                html += '<div style="font-size:0.8rem;color:var(--text-muted);margin-top:0.5rem;font-style:italic;">New pets receive +1 to a random stat for each death in your legacy, capped at +5 total.</div>';
+                html += '</div>';
+            }
+
+            // Chimera Sources (Mark 2+)
+            if (genesis.marks >= 2) {
+                html += '<div class="legacy-card">';
+                html += '<div class="legacy-card-title">Chimera Sources</div>';
+                if (genesis.chimeraSources.length >= 3) {
+                    html += '<div style="font-size:0.8rem;color:var(--text-dim);margin-bottom:0.5rem;">Select 3 species when creating a Chimera:</div>';
+                    html += '<div class="chimera-sources">';
+                    genesis.chimeraSources.forEach(function(sp) {
+                        var emoji = EMOJI_MAP[sp] || '\u{1F43E}';
+                        html += '<span class="chimera-chip">' + emoji + ' ' + capitalize(sp) + '</span>';
+                    });
+                    html += '</div>';
+                } else {
+                    html += '<div style="font-size:0.8rem;color:var(--text-muted);font-style:italic;">Need at least 3 species in the death roster. Current: ' + genesis.chimeraSources.length + '</div>';
+                }
+                html += '</div>';
+            }
+
+            // Reset History
+            if (genesis.resetHistory.length > 0) {
+                html += '<div class="legacy-card">';
+                html += '<div class="legacy-card-title">Reset Timeline</div>';
+                html += '<div class="reset-timeline">';
+                genesis.resetHistory.forEach(function(r) {
+                    var date = new Date(r.date);
+                    var dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    html += '<div class="timeline-entry">';
+                    html += '<div class="timeline-mark">Mark ' + r.mark + '</div>';
+                    html += '<div class="timeline-info">';
+                    html += '<div class="timeline-date">' + dateStr + '</div>';
+                    html += '<div class="timeline-detail">' + r.petsLost + ' pets sacrificed \u2014 ' + r.level_sum + ' total levels</div>';
+                    html += '</div>';
+                    html += '</div>';
+                });
+                html += '</div>';
+                html += '</div>';
+            }
+
+            area.innerHTML = html;
+        }
+
+        // ── Journal Tab ──
+
+        function renderJournal() {
+            var area = document.getElementById('journalContent');
+
+            if (genesis.marks < 3) {
+                area.innerHTML = '<div class="journal-locked">Moreau\'s Journal is sealed. Earn Genesis Mark 3 to unlock.</div>';
+                return;
+            }
+
+            var html = '';
+            var maxVol = genesis.marks >= 5 ? 3 : genesis.marks >= 4 ? 2 : 1;
+
+            for (var i = 0; i < maxVol && i < JOURNAL_ENTRIES.length; i++) {
+                var entry = JOURNAL_ENTRIES[i];
+                html += '<div class="journal-entry">';
+                html += '<div class="journal-vol">' + entry.vol + '</div>';
+                html += '<div class="journal-title">' + entry.title + '</div>';
+                html += '<div class="journal-text">' + escHtml(entry.text).replace(/\n/g, '<br>') + '</div>';
+                html += '<div class="journal-sig">&mdash; M.</div>';
+                html += '</div>';
+            }
+
+            if (maxVol < 3) {
+                var nextVol = maxVol + 1;
+                var nextMark = maxVol === 1 ? 4 : 5;
+                html += '<div class="journal-locked">Volume ' + nextVol + ' sealed. Requires Genesis Mark ' + nextMark + '.</div>';
+            }
+
+            area.innerHTML = html;
+        }
+
+        // ── Utilities ──
+
+        function capitalize(s) {
+            if (!s) return '';
+            return s.charAt(0).toUpperCase() + s.slice(1);
+        }
+
+        function escHtml(s) {
+            var d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        // ── Start ──
+        init();
+    </script>
+</body>
+</html>

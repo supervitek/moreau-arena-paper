@@ -160,6 +160,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/static/island/supabase-client.js"></script>
     <script src="/static/island/dreams-engine.js"></script>
+    <script src="/static/island/confession-engine.js"></script>
     <script>
         // ══════════════════════════════════════════════════
         //  Lab Bridge — syncs DB pet → localStorage,
@@ -382,6 +383,15 @@
                                 localStorage.setItem('moreau_scar_keepsakes', JSON.stringify(_scarKeepsakes));
                             }
                         } catch(e) {}
+                    }
+
+                    // ── Confession Booth ──
+                    // Find the active pet (the one who was in the lab when death occurred)
+                    var _confActivePet = localPets[activeIdx];
+                    var _confKillerName = (_confActivePet && _confActivePet.name) ? _confActivePet.name : 'Unknown';
+                    var _confDeadName = lp2.name || 'Unknown';
+                    if (typeof ConfessionEngine !== 'undefined') {
+                        ConfessionEngine.trigger(_confKillerName, _confDeadName, 'lab');
                     }
                 }
             }

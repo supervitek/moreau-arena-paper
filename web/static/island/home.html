@@ -523,6 +523,31 @@
             85% { opacity: 1; text-shadow: 0 0 10px rgba(255,102,0,0.7); }
         }
 
+        .action-genesis { border-color: #c9a227; background: linear-gradient(135deg, rgba(26,20,0,0.6), var(--bg-card)); }
+        .action-genesis:hover { border-color: #f0d060; box-shadow: 0 4px 20px rgba(201,162,39,0.3); }
+        .action-genesis .action-icon { color: #c9a227; text-shadow: 0 0 8px rgba(201,162,39,0.4); }
+        .action-genesis .action-sub { color: #c9a227; }
+
+        .genesis-mark-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: linear-gradient(135deg, rgba(201,162,39,0.12), rgba(201,162,39,0.04));
+            border: 1px solid rgba(201,162,39,0.3);
+            border-radius: 4px;
+            padding: 0.15rem 0.5rem;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #c9a227;
+            margin-top: 0.35rem;
+            animation: genesisMarkGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes genesisMarkGlow {
+            0%, 100% { box-shadow: 0 0 4px rgba(201,162,39,0.15); }
+            50% { box-shadow: 0 0 12px rgba(201,162,39,0.35); }
+        }
+
         .action-pact { border-color: #6b0000; }
         .action-pact:hover { border-color: #8b0000; box-shadow: 0 4px 16px rgba(107,0,0,0.35); }
         .action-pact .action-icon { color: #8b0000; }
@@ -1413,6 +1438,7 @@
     <script src="/static/island/dreams-engine.js"></script>
     <script src="/static/island/tide-engine.js"></script>
     <script src="/static/island/m-engine.js"></script>
+    <script src="/static/island/confession-engine.js"></script>
     <script>
         // ══════════════════════════════════════
         //  Island Home — Player Dashboard
@@ -1706,6 +1732,15 @@
                 html += '<div class="apex-badge">\u26A1 ' + escHtml(petApex.apex_name) + '</div>';
             }
 
+            // Genesis Mark badge
+            var _gData = null;
+            try { _gData = JSON.parse(localStorage.getItem('moreau_genesis') || 'null'); } catch(e) {}
+            if (_gData && _gData.marks > 0) {
+                var _markDots = '';
+                for (var _mi = 0; _mi < _gData.marks; _mi++) _markDots += '\u2726';
+                html += '<div class="genesis-mark-badge">' + _markDots + ' Genesis Mark ' + _gData.marks + '</div>';
+            }
+
             html += '<div class="pet-mood">Mood: ' + mood + '</div>';
 
             if (deceased) {
@@ -1940,6 +1975,37 @@
                 html += '<a href="/island/black-market" class="action-btn action-market">' +
                     '<span class="action-icon market-lantern">&#128294;</span>BLACK MARKET' +
                     '<span class="action-sub" style="color:#ff6600;">Open now</span></a>';
+            }
+
+            // ── Confession link (hidden, only after 3+ confessions) ──
+            if (typeof ConfessionEngine !== 'undefined') {
+                var _confJournal = ConfessionEngine.getJournal();
+                if (_confJournal.length >= 3) {
+                    html += '<a href="/island/confessions" class="action-btn" style="opacity:0.35;border-color:#1a3a1a;font-size:0.65rem;">' +
+                        '<span class="action-icon" style="color:#00ff41;font-size:1rem;">&#9763;</span>CONFESSIONS</a>';
+                }
+                // Resurrection token glow notification
+                var _resStatus = ConfessionEngine.getResurrectionStatus();
+                if (_resStatus.available) {
+                    html += '<a href="/island/confessions" class="action-btn" style="border-color:#d4a017;box-shadow:0 0 12px rgba(212,160,23,0.4);animation:pulse 2s ease-in-out infinite;">' +
+                        '<span class="action-icon" style="color:#d4a017;">&#10022;</span><span style="color:#d4a017;">RESURRECTION</span>' +
+                        '<span class="action-sub" style="color:#d4a017;">Token available</span></a>';
+                }
+            }
+
+            // GENESIS PROTOCOL (visible if player has Lv.8+ pet AND 5+ total deaths)
+            var _genesisData = null;
+            try { _genesisData = JSON.parse(localStorage.getItem('moreau_genesis') || 'null'); } catch(e) {}
+            var _genesisMarks = _genesisData ? (_genesisData.marks || 0) : 0;
+            var _allTimeDeaths = _genesisData ? (_genesisData.allTimeDeaths || 0) : 0;
+            var _currentDeadCount = allPets.filter(function(p) { return p.deceased || p.is_alive === false; }).length;
+            var _totalDeaths = _currentDeadCount + _allTimeDeaths;
+            var _maxLvl = 0;
+            allPets.forEach(function(p) { if ((p.level || 1) > _maxLvl) _maxLvl = p.level || 1; });
+            if ((_maxLvl >= 8 && _totalDeaths >= 5) || _genesisMarks > 0) {
+                var _markSub = _genesisMarks > 0 ? '<span class="action-sub">Mark ' + _genesisMarks + '</span>' : '';
+                html += '<a href="/island/genesis" class="action-btn action-genesis">' +
+                    '<span class="action-icon">\u2726</span>GENESIS' + _markSub + '</a>';
             }
 
             grid.innerHTML = html;
