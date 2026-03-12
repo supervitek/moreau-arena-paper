@@ -300,6 +300,77 @@
 - [ ] Live matchmaking
 - [ ] Mobile app considerations
 
+### Phase 8 — The Deep Island (localStorage, no Supabase needed)
+
+**Priority order: build top-to-bottom. All work offline.**
+
+**8A. The Deep Tide** — Roguelike 7-chamber expedition
+- [ ] `/island/deep-tide` — Expedition page (chamber selection, run state, combat)
+- [ ] 30+ room templates with modifiers (poison fog, mirror clone, time pressure)
+- [ ] Shard vs Flare binary choice per chamber (greedy progress vs survival)
+- [ ] 12 Drowned Relics (4th equipment slot, bioluminescent visual)
+- [ ] Permanent pet death on failure — highest stakes content in game
+- [ ] Weekly depth leaderboard (local, date-math reset)
+- [ ] Tide Survivor cosmetic (glow effect on surviving pets)
+
+**8B. The Succession** — Bloodline mastery across pet deaths
+- [ ] `bloodlines` localStorage tracking per species (14 entries)
+- [ ] Generation milestones: Gen1 +1 stat, Gen3 passive ability, Gen5 start Lv2, Gen7 unique mutation
+- [ ] Gen 10: Progenitor Form — secret evolution beyond Apex (14 unique forms)
+- [ ] Species-specific passives (fox: First Strike, bear: Endure, etc.)
+- [ ] Mastery XP and cosmetic titles per bloodline
+- [ ] Integration with pet creation (claim succession option)
+- [ ] Progenitor pets draw stronger rivals + higher lab instability
+
+**8C. The Black Market** — Blind auctions for permanent sacrifice
+- [ ] `/island/black-market` — Night-only page (22:00-04:00 local time)
+- [ ] 3 daily offers with cryptic one-line clues (seeded random, 24h cycle)
+- [ ] Price = permanent stat points, levels, or mutations from a living pet
+- [ ] Mystery vial: 40% beneficial / 25% artifact / 20% instability spike / 10% rare / 5% poison
+- [ ] Purchase history log (clue patterns learnable over weeks)
+- [ ] Contraband mutations — 4th tier above Forbidden, market-exclusive
+
+**8D. The Tidal Clock** — 6-hour real-time island rhythm
+- [ ] 4 tide phases: rising/high/falling/low (90 min each, UTC-synced)
+- [ ] Low Tide: Bone Flats open (dead pet remains → stat shards with curse risk), Lab is deadlier, fights deal x2 damage
+- [ ] High Tide: Lab locked, Dreaming Pools open (healing x2), Driftwood Market (free artifact transfers)
+- [ ] Global CSS tide overlay (desaturated low / blue-tinted high)
+- [ ] Storm guard against clock manipulation
+- [ ] Tide state indicator on all island pages
+
+**8E. The Pact** — Symbiotic pet binding
+- [ ] `/island/pact` — Pact Altar page (binding ritual for 2 pets, Lv3+ each)
+- [ ] Shared HP pool (sum -20%), partner stat bonuses in fights
+- [ ] Feral state on partner death (48h, +40% stats, attacks your own kennel)
+- [ ] Scarred Bond trait after feral period (permanent stat redistribution)
+- [ ] One pact per pet lifetime, no re-pacting after partner loss
+
+**8F. The Other Player ("M")** — Phantom mirror presence
+- [ ] `other_player` localStorage entity generated from inverted player data
+- [ ] 40 handwritten-feeling notes, behavior-reactive selection
+- [ ] M's pets as unique rival encounters (inverted stat builds)
+- [ ] Artifact movement between sessions ("Someone moved this...")
+- [ ] M's arc: friendly → cryptic (session 15) → desperate (session 30) → death if ignored
+- [ ] M's Last Frequency artifact (best stats, glitch cosmetic effect)
+
+### Phase 9 — Prestige & Endgame
+
+**9A. The Genesis Protocol** — New Game+ prestige system
+- [ ] Full island reset: sacrifice all pets, artifacts, achievements
+- [ ] Genesis Marks (0-5): each unlocks new island layer
+- [ ] Mark 1: hidden genetic memory stats (+1 per dead pet from prior cycle, cap +5)
+- [ ] Mark 2: 15th animal — The Chimera (fused from 3 dead species)
+- [ ] Mark 3-5: Dr. Moreau's personal journal entries (lore + mechanical secrets)
+- [ ] 30-second unskippable reset sequence (flood, names scroll, silence, brand)
+- [ ] Genesis-exclusive Lab mutations (Mark 2+)
+
+**9B. The Confession Booth** — Post-kill moral reflection
+- [ ] Confession modal after causing pet death (text input, 10-500 chars)
+- [ ] Sentiment scoring via keyword dictionary (cold/remorseful/mixed)
+- [ ] Three paths: Hollow (+2 ATK, no dreams), Haunted (debuff → resurrection token after 20), Unreadable (random personality quirk)
+- [ ] Copy-paste detection (locks resurrection path permanently)
+- [ ] Confession journal (unlocks after 3rd confession)
+
 ---
 
 ## 5. TECH DECISIONS
