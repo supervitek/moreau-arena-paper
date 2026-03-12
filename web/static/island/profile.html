@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet Dossier — The Island — Moreau Arena</title>
+    <meta property="og:title" content="Pet Dossier — The Island">
+    <meta property="og:description" content="Classified subject file. Moreau Island experimental records.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Pet Dossier — The Island">
+    <meta name="twitter:description" content="Classified subject file. Moreau Island experimental records.">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --bg-primary: #0a0505;
+            --bg-secondary: #0f0a0a;
+            --bg-card: #1a1010;
+            --bg-card-hover: #221515;
+            --bg-code: #1e1218;
+            --border: #3a1a1a;
+            --accent: #e63946;
+            --accent-glow: rgba(230, 57, 70, 0.4);
+            --text: #f1faee;
+            --text-dim: #a8a0a0;
+            --text-muted: #6a5a5a;
+            --green: #4ecca3;
+            --blue: #457b9d;
+            --gold: #d4a017;
+            --purple: #9b59b6;
+            --radius: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(170deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #0d0707 100%);
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ── Particle background ── */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                radial-gradient(1px 1px at 10% 20%, rgba(230,57,70,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 30% 60%, rgba(230,57,70,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 50% 10%, rgba(255,180,180,0.15) 0%, transparent 100%),
+                radial-gradient(1px 1px at 70% 80%, rgba(230,57,70,0.25) 0%, transparent 100%),
+                radial-gradient(1px 1px at 90% 40%, rgba(255,200,200,0.1) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 15% 85%, rgba(230,57,70,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 85% 15%, rgba(230,57,70,0.15) 0%, transparent 100%),
+                radial-gradient(1px 1px at 45% 45%, rgba(255,150,150,0.12) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 65% 30%, rgba(230,57,70,0.18) 0%, transparent 100%),
+                radial-gradient(1px 1px at 25% 70%, rgba(255,100,100,0.1) 0%, transparent 100%);
+            animation: particleDrift 20s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes particleDrift {
+            0% { transform: translateY(0) translateX(0); opacity: 0.6; }
+            33% { transform: translateY(-15px) translateX(8px); opacity: 0.8; }
+            66% { transform: translateY(10px) translateX(-5px); opacity: 0.5; }
+            100% { transform: translateY(-8px) translateX(12px); opacity: 0.7; }
+        }
+
+        /* ── Scan lines overlay ── */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.03) 2px,
+                rgba(0, 0, 0, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* ── Layout ── */
+        .island-page {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        /* ── Loading state ── */
+        .loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 1rem;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Back link ── */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 3rem 0 1rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+            animation: fadeSlideIn 0.4s ease-out both;
+        }
+
+        .back-link:hover { color: var(--accent); }
+
+        /* ── Dossier Container ── */
+        .dossier {
+            animation: fadeSlideIn 0.5s ease-out 0.1s both;
+        }
+
+        /* ── Classified Header ── */
+        .dossier-header {
+            border: 3px double var(--accent);
+            padding: 1.25rem 1.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+            background: rgba(230, 57, 70, 0.04);
+        }
+
+        .dossier-header::before,
+        .dossier-header::after {
+            content: '';
+            position: absolute;
+            left: 6px; right: 6px;
+            height: 1px;
+            background: var(--accent);
+            opacity: 0.3;
+        }
+
+        .dossier-header::before { top: 6px; }
+        .dossier-header::after { bottom: 6px; }
+
+        .dossier-stamp {
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+        }
+
+        .dossier-doc-id {
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+        }
+
+        /* ── Dossier Sections ── */
+        .dossier-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            overflow: hidden;
+            animation: fadeSlideIn 0.5s ease-out both;
+        }
+
+        .dossier-section:nth-child(2) { animation-delay: 0.15s; }
+        .dossier-section:nth-child(3) { animation-delay: 0.2s; }
+        .dossier-section:nth-child(4) { animation-delay: 0.25s; }
+        .dossier-section:nth-child(5) { animation-delay: 0.3s; }
+        .dossier-section:nth-child(6) { animation-delay: 0.35s; }
+        .dossier-section:nth-child(7) { animation-delay: 0.4s; }
+        .dossier-section:nth-child(8) { animation-delay: 0.45s; }
+        .dossier-section:nth-child(9) { animation-delay: 0.5s; }
+
+        .section-label {
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent);
+            padding: 0.75rem 1.25rem 0.4rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(230, 57, 70, 0.04);
+        }
+
+        .section-body {
+            padding: 1.25rem;
+        }
+
+        /* ── Subject Identity ── */
+        .subject-identity {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .subject-emoji {
+            font-size: 4.5rem;
+            line-height: 1;
+            filter: drop-shadow(0 0 12px var(--accent-glow));
+        }
+
+        .subject-info { flex: 1; }
+
+        .subject-name {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 0.15rem;
+        }
+
+        .subject-species {
+            font-size: 1rem;
+            color: var(--text-dim);
+            font-style: italic;
+            margin-bottom: 0.6rem;
+        }
+
+        .subject-badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            padding: 0.2rem 0.6rem;
+            border-radius: 3px;
+            text-transform: uppercase;
+        }
+
+        .badge-level {
+            background: rgba(69, 123, 157, 0.2);
+            border: 1px solid var(--blue);
+            color: var(--blue);
+        }
+
+        .badge-active {
+            background: rgba(78, 204, 163, 0.15);
+            border: 1px solid var(--green);
+            color: var(--green);
+        }
+
+        .badge-deceased {
+            background: rgba(230, 57, 70, 0.2);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            animation: pulse-red 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .badge-mood {
+            background: rgba(155, 89, 182, 0.15);
+            border: 1px solid var(--purple);
+            color: var(--purple);
+        }
+
+        /* ── Vital Statistics ── */
+        .stats-grid {
+            display: grid;
+            gap: 0.85rem;
+        }
+
+        .stat-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .stat-label {
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--text-dim);
+            width: 36px;
+            text-transform: uppercase;
+        }
+
+        .stat-bar-container {
+            flex: 1;
+            height: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stat-bar {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.6s ease-out;
+            position: relative;
+        }
+
+        .stat-bar.hp { background: linear-gradient(90deg, #c0392b, #e74c3c); }
+        .stat-bar.atk { background: linear-gradient(90deg, #d35400, #e67e22); }
+        .stat-bar.spd { background: linear-gradient(90deg, #2980b9, #3498db); }
+        .stat-bar.wil { background: linear-gradient(90deg, #8e44ad, #9b59b6); }
+
+        .stat-value {
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text);
+            width: 28px;
+            text-align: right;
+        }
+
+        .stat-total {
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .stat-total span {
+            color: var(--text);
+            font-weight: 700;
+            margin-left: 0.4rem;
+        }
+
+        /* ── Combat Record ── */
+        .combat-summary {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .combat-stat {
+            text-align: center;
+        }
+
+        .combat-stat-value {
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 1.6rem;
+            font-weight: 800;
+        }
+
+        .combat-stat-value.wins { color: var(--green); }
+        .combat-stat-value.losses { color: var(--accent); }
+        .combat-stat-value.winrate { color: var(--gold); }
+
+        .combat-stat-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-top: 0.1rem;
+        }
+
+        .fight-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        .fight-table th {
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            text-align: left;
+            padding: 0.5rem 0.6rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .fight-table td {
+            padding: 0.45rem 0.6rem;
+            border-bottom: 1px solid rgba(58, 26, 26, 0.4);
+            color: var(--text-dim);
+        }
+
+        .fight-table tr:last-child td { border-bottom: none; }
+
+        .fight-result {
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+
+        .fight-result.win { color: var(--green); }
+        .fight-result.loss { color: var(--accent); }
+
+        .no-data {
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 0.85rem;
+        }
+
+        /* ── Mutations ── */
+        .mutation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .mutation-entry {
+            padding: 0.75rem 1rem;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .mutation-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .mutation-desc {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 0.3rem;
+        }
+
+        .mutation-stats {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .mutation-stat-tag {
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.1rem 0.4rem;
+            border-radius: 3px;
+            background: rgba(78, 204, 163, 0.12);
+            color: var(--green);
+        }
+
+        .mutation-stat-tag.negative {
+            background: rgba(230, 57, 70, 0.12);
+            color: var(--accent);
+        }
+
+        .mutation-tier {
+            position: absolute;
+            top: 0.6rem;
+            right: 0.75rem;
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0.1rem 0.4rem;
+            border-radius: 3px;
+        }
+
+        .tier-1 { background: rgba(69, 123, 157, 0.2); color: var(--blue); }
+        .tier-2 { background: rgba(212, 160, 23, 0.2); color: var(--gold); }
+        .tier-3 { background: rgba(230, 57, 70, 0.2); color: var(--accent); }
+        .tier-ultra { background: rgba(155, 89, 182, 0.25); color: var(--purple); border: 1px solid var(--purple); }
+
+        .mutation-slot {
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.08em;
+        }
+
+        .slot-empty {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed var(--border);
+            border-radius: 4px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-style: italic;
+        }
+
+        /* ── Side Effects ── */
+        .side-effect-entry {
+            padding: 0.5rem 0.75rem;
+            background: rgba(230, 57, 70, 0.05);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 4px 4px 0;
+            margin-bottom: 0.5rem;
+        }
+
+        .side-effect-entry:last-child { margin-bottom: 0; }
+
+        .side-effect-name {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--accent);
+        }
+
+        .side-effect-desc {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            margin-top: 0.15rem;
+        }
+
+        .side-effect-category {
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 0.55rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        /* ── Instability Report ── */
+        .instability-gauge {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .gauge-bar-container {
+            flex: 1;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .gauge-bar {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.8s ease-out;
+            background: linear-gradient(90deg, var(--gold), #e67e22, var(--accent));
+        }
+
+        .gauge-bar.critical {
+            background: linear-gradient(90deg, var(--accent), #c0392b);
+            animation: pulse-bar 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-bar {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .gauge-value {
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 1.2rem;
+            font-weight: 800;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        .gauge-value.low { color: var(--green); }
+        .gauge-value.mid { color: var(--gold); }
+        .gauge-value.high { color: var(--accent); }
+
+        .instability-details {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .instab-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .instab-detail-label {
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .instab-detail-value {
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        /* ── Share Section ── */
+        .share-section {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .share-btn {
+            padding: 0.7rem 2rem;
+            background: transparent;
+            border: 2px solid var(--accent);
+            border-radius: var(--radius);
+            color: var(--accent);
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .share-btn:hover {
+            background: rgba(230, 57, 70, 0.12);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .share-btn.copied {
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        /* ── Nav override for fight btn ── */
+        .nav-fight a {
+            background: var(--accent) !important;
+            color: #fff !important;
+            padding: 0.35rem 1rem !important;
+            border-radius: var(--radius) !important;
+            font-weight: 700 !important;
+            font-size: 0.85rem !important;
+        }
+
+        .nav-fight a.active {
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .subject-identity {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .subject-badges {
+                justify-content: center;
+            }
+
+            .subject-name { font-size: 1.5rem; }
+            .subject-emoji { font-size: 3.5rem; }
+
+            .combat-summary {
+                justify-content: center;
+            }
+
+            .instability-details {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <div class="nav-inner">
+        <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+        <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li class="nav-dropdown">
+                <a href="/tournaments">Benchmark &#9662;</a>
+                <ul class="nav-dropdown-menu">
+                    <li><a href="/tournaments">Tournaments</a></li>
+                    <li><a href="/leaderboard">Leaderboard</a></li>
+                    <li><a href="/methodology">Methodology</a></li>
+                    <li><a href="/match-log">Match Log</a></li>
+                    <li><a href="/compare">Compare</a></li>
+                </ul>
+            </li>
+            <li class="nav-dropdown">
+                <a href="/s1-leaderboard">Seasons &#9662;</a>
+                <ul class="nav-dropdown-menu">
+                    <li><a href="/s1-leaderboard">S1 Leaderboard</a></li>
+                    <li><a href="/s1-fighters">Meet the Fighters</a></li>
+                    <li><a href="/s1-matchups">Matchup Explorer</a></li>
+                    <li><a href="/play">S1 Quick Fight</a></li>
+                    <li><a href="/s1-compare">Benchmark vs S1</a></li>
+                    <li><a href="/moreddit">The Moreddit</a></li>
+                </ul>
+            </li>
+            <li><a href="/pets">Pets</a></li>
+            <li><a href="/paper">Paper</a></li>
+            <li><a href="/api-docs">API</a></li>
+            <li class="nav-fight"><a href="/island">FIGHT!</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="island-page">
+
+    <!-- Loading -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Retrieving classified records...</div>
+    </div>
+
+    <!-- Dossier content (hidden until loaded) -->
+    <div id="dossierContent" style="display:none;">
+
+        <a href="/island/home" class="back-link">&larr; Back to Dashboard</a>
+
+        <div class="dossier">
+
+            <!-- Classified Header -->
+            <div class="dossier-header">
+                <div class="dossier-stamp">Classified &mdash; Moreau Island Dossier</div>
+                <div class="dossier-doc-id" id="docId">DOC-MI-000000</div>
+            </div>
+
+            <!-- Section A: Subject Identity -->
+            <div class="dossier-section">
+                <div class="section-label">Section A &mdash; Subject Identity</div>
+                <div class="section-body">
+                    <div class="subject-identity" id="subjectIdentity"></div>
+                </div>
+            </div>
+
+            <!-- Section B: Vital Statistics -->
+            <div class="dossier-section">
+                <div class="section-label">Section B &mdash; Vital Statistics</div>
+                <div class="section-body" id="vitalStats"></div>
+            </div>
+
+            <!-- Section C: Combat Record -->
+            <div class="dossier-section">
+                <div class="section-label">Section C &mdash; Combat Record</div>
+                <div class="section-body" id="combatRecord"></div>
+            </div>
+
+            <!-- Section D: Standard Mutations -->
+            <div class="dossier-section">
+                <div class="section-label">Section D &mdash; Standard Mutations</div>
+                <div class="section-body" id="standardMutations"></div>
+            </div>
+
+            <!-- Section E: Laboratory Modifications -->
+            <div class="dossier-section">
+                <div class="section-label">Section E &mdash; Laboratory Modifications</div>
+                <div class="section-body" id="labModifications"></div>
+            </div>
+
+            <!-- Section F: Side Effects -->
+            <div class="dossier-section">
+                <div class="section-label">Section F &mdash; Observed Side Effects</div>
+                <div class="section-body" id="sideEffects"></div>
+            </div>
+
+            <!-- Section G: Instability Report -->
+            <div class="dossier-section">
+                <div class="section-label">Section G &mdash; Instability Report</div>
+                <div class="section-body" id="instabilityReport"></div>
+            </div>
+
+            <!-- Share -->
+            <div class="dossier-section">
+                <div class="share-section">
+                    <button class="share-btn" id="shareBtn" onclick="shareDossier()">&#128274; SHARE DOSSIER</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/static/island/supabase-client.js"></script>
+<script>
+    const EMOJI_MAP = {
+        bear:'\u{1F43B}', buffalo:'\u{1F9AC}', boar:'\u{1F417}', tiger:'\u{1F405}',
+        wolf:'\u{1F43A}', monkey:'\u{1F412}', porcupine:'\u{1F994}', scorpion:'\u{1F982}',
+        vulture:'\u{1F985}', rhino:'\u{1F98F}', viper:'\u{1F40D}', fox:'\u{1F98A}',
+        eagle:'\u{1F985}', panther:'\u{1F408}'
+    };
+
+    var currentPet = null;
+    var petIndex = 0;
+
+    function escHtml(s) {
+        var d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    }
+
+    function capitalize(s) {
+        if (!s) return '';
+        return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    function isOnlineMode() {
+        return typeof getSession === 'function';
+    }
+
+    // ── Init ──
+
+    async function init() {
+        var params = new URLSearchParams(window.location.search);
+        petIndex = parseInt(params.get('id') || '0', 10);
+
+        var pet = null;
+
+        // Try online mode first (future)
+        // For now, offline localStorage
+        try {
+            var raw = localStorage.getItem('moreau_pets');
+            if (raw) {
+                var pets = JSON.parse(raw);
+                if (petIndex >= 0 && petIndex < pets.length) {
+                    pet = pets[petIndex];
+                }
+            }
+
+            // Fallback: old single-pet key
+            if (!pet) {
+                var oldRaw = localStorage.getItem('moreau_pet');
+                if (oldRaw) {
+                    pet = JSON.parse(oldRaw);
+                    petIndex = 0;
+                }
+            }
+        } catch (e) {
+            console.error('Failed to load pet data:', e);
+        }
+
+        if (!pet) {
+            document.getElementById('loadingScreen').innerHTML =
+                '<div style="text-align:center;padding:4rem 1rem;">' +
+                '<div style="font-size:3rem;margin-bottom:1rem;">&#128683;</div>' +
+                '<div style="font-size:1.1rem;color:var(--text-dim);margin-bottom:0.5rem;">No Subject Found</div>' +
+                '<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1.5rem;">The requested dossier does not exist in local records.</div>' +
+                '<a href="/island/home" style="color:var(--accent);text-decoration:none;font-size:0.9rem;">&larr; Return to Dashboard</a>' +
+                '</div>';
+            return;
+        }
+
+        currentPet = pet;
+        renderDossier(pet);
+
+        document.getElementById('loadingScreen').style.display = 'none';
+        document.getElementById('dossierContent').style.display = 'block';
+    }
+
+    // ── Render Dossier ──
+
+    function renderDossier(pet) {
+        var animal = (pet.animal || '').toLowerCase();
+        var emoji = EMOJI_MAP[animal] || '\u{1F43E}';
+        var isDeceased = pet.deceased || pet.is_alive === false;
+
+        // Doc ID
+        var docHash = 0;
+        var nameStr = (pet.name || '') + (pet.animal || '') + (pet.created_at || '');
+        for (var i = 0; i < nameStr.length; i++) {
+            docHash = ((docHash << 5) - docHash + nameStr.charCodeAt(i)) | 0;
+        }
+        var docNum = ('000000' + Math.abs(docHash % 999999)).slice(-6);
+        document.getElementById('docId').textContent = 'DOC-MI-' + docNum + ' // CLEARANCE: RESTRICTED';
+
+        // Section A: Subject Identity
+        var identHtml = '<div class="subject-emoji">' + emoji + '</div>';
+        identHtml += '<div class="subject-info">';
+        identHtml += '<div class="subject-name">' + escHtml(pet.name || 'Unknown') + '</div>';
+        identHtml += '<div class="subject-species">the ' + capitalize(animal || 'Unknown') + '</div>';
+        identHtml += '<div class="subject-badges">';
+        identHtml += '<span class="badge badge-level">LEVEL ' + (pet.level || 1) + '</span>';
+        if (isDeceased) {
+            identHtml += '<span class="badge badge-deceased">DECEASED</span>';
+        } else {
+            identHtml += '<span class="badge badge-active">ACTIVE</span>';
+        }
+        if (pet.mood) {
+            identHtml += '<span class="badge badge-mood">' + escHtml(capitalize(pet.mood)) + '</span>';
+        }
+        identHtml += '</div></div>';
+        document.getElementById('subjectIdentity').innerHTML = identHtml;
+
+        // Section B: Vital Statistics
+        renderStats(pet);
+
+        // Section C: Combat Record
+        renderCombat(pet);
+
+        // Section D: Standard Mutations
+        renderStandardMutations(pet);
+
+        // Section E: Lab Modifications
+        renderLabMutations(pet);
+
+        // Section F: Side Effects
+        renderSideEffects(pet);
+
+        // Section G: Instability Report
+        renderInstability(pet);
+    }
+
+    // ── Stats ──
+
+    function renderStats(pet) {
+        var stats = pet.base_stats || pet.stats || {};
+        var hp = stats.hp || 0;
+        var atk = stats.atk || 0;
+        var spd = stats.spd || 0;
+        var wil = stats.wil || 0;
+        var total = hp + atk + spd + wil;
+        var max = 30;
+
+        var html = '<div class="stats-grid">';
+        var statDefs = [
+            { key: 'HP', val: hp, cls: 'hp' },
+            { key: 'ATK', val: atk, cls: 'atk' },
+            { key: 'SPD', val: spd, cls: 'spd' },
+            { key: 'WIL', val: wil, cls: 'wil' }
+        ];
+
+        statDefs.forEach(function(s) {
+            var pct = Math.min(100, (s.val / max) * 100);
+            html += '<div class="stat-row">';
+            html += '<div class="stat-label">' + s.key + '</div>';
+            html += '<div class="stat-bar-container"><div class="stat-bar ' + s.cls + '" style="width:' + pct + '%"></div></div>';
+            html += '<div class="stat-value">' + s.val + '</div>';
+            html += '</div>';
+        });
+
+        html += '</div>';
+        html += '<div class="stat-total">Total Stat Points:<span>' + total + '</span></div>';
+        document.getElementById('vitalStats').innerHTML = html;
+    }
+
+    // ── Combat ──
+
+    function renderCombat(pet) {
+        var wins = pet.fights_won || 0;
+        var losses = pet.fights_lost || 0;
+        var fights = pet.fights || [];
+
+        // Count from fights array if counters not available
+        if (wins === 0 && losses === 0 && fights.length > 0) {
+            fights.forEach(function(f) {
+                if (f.result === 'win') wins++;
+                else losses++;
+            });
+        }
+
+        var totalFights = wins + losses;
+        var winRate = totalFights > 0 ? Math.round((wins / totalFights) * 100) : 0;
+
+        var html = '<div class="combat-summary">';
+        html += '<div class="combat-stat"><div class="combat-stat-value wins">' + wins + '</div><div class="combat-stat-label">Victories</div></div>';
+        html += '<div class="combat-stat"><div class="combat-stat-value losses">' + losses + '</div><div class="combat-stat-label">Defeats</div></div>';
+        html += '<div class="combat-stat"><div class="combat-stat-value winrate">' + winRate + '%</div><div class="combat-stat-label">Win Rate</div></div>';
+        html += '</div>';
+
+        if (fights.length > 0) {
+            var recent = fights.slice(-10).reverse();
+            html += '<table class="fight-table">';
+            html += '<thead><tr><th>Opponent</th><th>Result</th><th>Ticks</th><th>Date</th></tr></thead>';
+            html += '<tbody>';
+
+            recent.forEach(function(f) {
+                var isWin = f.result === 'win';
+                var dateStr = '—';
+                if (f.timestamp) {
+                    try {
+                        var d = new Date(f.timestamp);
+                        dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    } catch (e) { dateStr = '—'; }
+                }
+
+                html += '<tr>';
+                html += '<td>' + escHtml(f.opponent || 'Unknown') + '</td>';
+                html += '<td><span class="fight-result ' + (isWin ? 'win' : 'loss') + '">' + (isWin ? 'W' : 'L') + '</span></td>';
+                html += '<td>' + (f.ticks || '—') + '</td>';
+                html += '<td>' + dateStr + '</td>';
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+        } else {
+            html += '<div class="no-data">No combat engagements on record.</div>';
+        }
+
+        document.getElementById('combatRecord').innerHTML = html;
+    }
+
+    // ── Standard Mutations ──
+
+    function renderStandardMutations(pet) {
+        var mutations = pet.mutations || [];
+
+        if (mutations.length === 0) {
+            document.getElementById('standardMutations').innerHTML = '<div class="no-data">No standard mutations observed.</div>';
+            return;
+        }
+
+        var html = '<div class="mutation-list">';
+        mutations.forEach(function(m) {
+            if (typeof m === 'string') {
+                html += '<div class="mutation-entry"><div class="mutation-name">' + escHtml(m) + '</div></div>';
+            } else {
+                html += '<div class="mutation-entry">';
+                html += '<div class="mutation-name">' + escHtml(m.name || m.id || 'Unknown') + '</div>';
+                if (m.desc) html += '<div class="mutation-desc">' + escHtml(m.desc) + '</div>';
+                if (m.stats) {
+                    html += '<div class="mutation-stats">';
+                    Object.keys(m.stats).forEach(function(k) {
+                        var v = m.stats[k];
+                        var isNeg = v < 0;
+                        html += '<span class="mutation-stat-tag' + (isNeg ? ' negative' : '') + '">' + k.toUpperCase() + ' ' + (v > 0 ? '+' : '') + v + '</span>';
+                    });
+                    html += '</div>';
+                }
+                html += '</div>';
+            }
+        });
+        html += '</div>';
+
+        document.getElementById('standardMutations').innerHTML = html;
+    }
+
+    // ── Lab Mutations ──
+
+    function renderLabMutations(pet) {
+        var labMuts = pet.lab_mutations || {};
+        var slots = ['L3', 'L6', 'L9'];
+        var hasAny = false;
+
+        var html = '<div class="mutation-list">';
+
+        slots.forEach(function(slot) {
+            var m = labMuts[slot];
+            if (m) {
+                hasAny = true;
+                var tierClass = m.isUltra ? 'tier-ultra' : ('tier-' + (m.tier || 1));
+                var tierLabel = m.isUltra ? 'ULTRA' : ('TIER ' + (m.tier || 1));
+
+                html += '<div class="mutation-entry">';
+                html += '<span class="mutation-tier ' + tierClass + '">' + tierLabel + '</span>';
+                html += '<div class="mutation-slot">SLOT ' + slot + '</div>';
+                html += '<div class="mutation-name">' + escHtml(m.name || m.id || 'Unknown') + '</div>';
+                if (m.desc) html += '<div class="mutation-desc">' + escHtml(m.desc) + '</div>';
+                if (m.stats) {
+                    html += '<div class="mutation-stats">';
+                    Object.keys(m.stats).forEach(function(k) {
+                        var v = m.stats[k];
+                        var isNeg = v < 0;
+                        html += '<span class="mutation-stat-tag' + (isNeg ? ' negative' : '') + '">' + k.toUpperCase() + ' ' + (v > 0 ? '+' : '') + v + '</span>';
+                    });
+                    html += '</div>';
+                }
+                html += '</div>';
+            } else {
+                html += '<div class="slot-empty">Slot ' + slot + ' — Empty (Level ' + slot.slice(1) + ' required)</div>';
+            }
+        });
+
+        html += '</div>';
+
+        if (!hasAny) {
+            html = '<div class="no-data">No laboratory modifications applied.</div>';
+        }
+
+        document.getElementById('labModifications').innerHTML = html;
+    }
+
+    // ── Side Effects ──
+
+    function renderSideEffects(pet) {
+        var effects = pet.side_effects || [];
+
+        if (effects.length === 0) {
+            document.getElementById('sideEffects').innerHTML = '<div class="no-data">No adverse side effects documented.</div>';
+            return;
+        }
+
+        var html = '';
+        effects.forEach(function(e) {
+            html += '<div class="side-effect-entry">';
+            html += '<div class="side-effect-name">' + escHtml(e.name || 'Unknown') + '</div>';
+            if (e.desc) html += '<div class="side-effect-desc">' + escHtml(e.desc) + '</div>';
+            if (e.category) html += '<div class="side-effect-category">' + escHtml(e.category) + '</div>';
+            html += '</div>';
+        });
+
+        document.getElementById('sideEffects').innerHTML = html;
+    }
+
+    // ── Instability ──
+
+    function renderInstability(pet) {
+        var instability = pet.instability || 0;
+        var scars = pet.scars || 0;
+        var mercyUsed = pet.mercy_used || false;
+
+        var gaugeClass = instability >= 70 ? 'critical' : '';
+        var valueClass = instability < 30 ? 'low' : (instability < 60 ? 'mid' : 'high');
+
+        var html = '<div class="instability-gauge">';
+        html += '<div class="gauge-bar-container"><div class="gauge-bar ' + gaugeClass + '" style="width:' + instability + '%"></div></div>';
+        html += '<div class="gauge-value ' + valueClass + '">' + instability + '%</div>';
+        html += '</div>';
+
+        html += '<div class="instability-details">';
+        html += '<div class="instab-detail"><span class="instab-detail-label">Scars:</span><span class="instab-detail-value" style="color:' + (scars > 0 ? 'var(--accent)' : 'var(--text-muted)') + '">' + scars + ' / 5</span></div>';
+        html += '<div class="instab-detail"><span class="instab-detail-label">Mercy Protocol:</span><span class="instab-detail-value" style="color:' + (mercyUsed ? 'var(--accent)' : 'var(--green)') + '">' + (mercyUsed ? 'EXPENDED' : 'AVAILABLE') + '</span></div>';
+        html += '</div>';
+
+        document.getElementById('instabilityReport').innerHTML = html;
+    }
+
+    // ── Share ──
+
+    function shareDossier() {
+        if (!currentPet) return;
+        var animal = capitalize((currentPet.animal || '').toLowerCase());
+        var text = '\u{1F3DD}\uFE0F Check out my pet on Moreau Island: ' +
+            (currentPet.name || 'Unknown') + ' the ' + animal +
+            ' | Level ' + (currentPet.level || 1) +
+            ' | moreauarena.com/island/pet/' + petIndex;
+
+        var btn = document.getElementById('shareBtn');
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(function() {
+                btn.textContent = '\u2705 COPIED!';
+                btn.classList.add('copied');
+                setTimeout(function() {
+                    btn.innerHTML = '&#128274; SHARE DOSSIER';
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(function() {
+                fallbackCopy(text, btn);
+            });
+        } else {
+            fallbackCopy(text, btn);
+        }
+    }
+
+    function fallbackCopy(text, btn) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+            document.execCommand('copy');
+            btn.textContent = '\u2705 COPIED!';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.innerHTML = '&#128274; SHARE DOSSIER';
+                btn.classList.remove('copied');
+            }, 2000);
+        } catch (e) {
+            btn.textContent = 'COPY FAILED';
+            setTimeout(function() {
+                btn.innerHTML = '&#128274; SHARE DOSSIER';
+            }, 2000);
+        }
+        document.body.removeChild(ta);
+    }
+
+    // ── Start ──
+    init();
+</script>
+</body>
+</html>
