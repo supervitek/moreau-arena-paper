@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Grounds — The Island — Moreau Arena</title>
+    <meta property="og:title" content="Training Grounds — The Island">
+    <meta property="og:description" content="Fight AI opponents and earn XP for your pet">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Training Grounds — The Island">
+    <meta name="twitter:description" content="Fight AI opponents and earn XP for your pet">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --bg-primary: #0a0505;
+            --bg-secondary: #0f0a0a;
+            --bg-card: #1a1010;
+            --bg-card-hover: #221515;
+            --bg-code: #1e1218;
+            --border: #3a1a1a;
+            --accent: #e63946;
+            --accent-glow: rgba(230, 57, 70, 0.4);
+            --text: #f1faee;
+            --text-dim: #a8a0a0;
+            --text-muted: #6a5a5a;
+            --green: #4ecca3;
+            --blue: #457b9d;
+            --gold: #d4a017;
+            --purple: #9b59b6;
+            --radius: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(170deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #0d0707 100%);
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Particle background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                radial-gradient(1px 1px at 10% 20%, rgba(230,57,70,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 30% 60%, rgba(230,57,70,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 50% 10%, rgba(255,180,180,0.15) 0%, transparent 100%),
+                radial-gradient(1px 1px at 70% 80%, rgba(230,57,70,0.25) 0%, transparent 100%),
+                radial-gradient(1px 1px at 90% 40%, rgba(255,200,200,0.1) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 15% 85%, rgba(230,57,70,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 85% 15%, rgba(230,57,70,0.15) 0%, transparent 100%),
+                radial-gradient(1px 1px at 45% 45%, rgba(255,150,150,0.12) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 65% 30%, rgba(230,57,70,0.18) 0%, transparent 100%),
+                radial-gradient(1px 1px at 25% 70%, rgba(255,100,100,0.1) 0%, transparent 100%);
+            animation: particleDrift 20s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes particleDrift {
+            0% { transform: translateY(0) translateX(0); opacity: 0.6; }
+            33% { transform: translateY(-15px) translateX(8px); opacity: 0.8; }
+            66% { transform: translateY(10px) translateX(-5px); opacity: 0.5; }
+            100% { transform: translateY(-8px) translateX(12px); opacity: 0.7; }
+        }
+
+        .island-page {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        /* Loading */
+        .loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 1rem;
+        }
+
+        .loading-spinner {
+            width: 40px; height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-text { color: var(--text-muted); font-size: 0.9rem; }
+
+        /* Header */
+        .train-header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            animation: fadeSlideIn 0.5s ease-out both;
+        }
+
+        .train-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .train-header h1 span { color: var(--accent); }
+
+        .pet-identity {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+        }
+
+        .pet-identity .pet-emoji { font-size: 1.4rem; }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Opponent Cards */
+        .opponent-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+            animation: fadeSlideIn 0.6s ease-out 0.1s both;
+        }
+
+        @media (max-width: 640px) {
+            .opponent-grid { grid-template-columns: 1fr; }
+        }
+
+        .opponent-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+            text-align: center;
+        }
+
+        .opponent-card:hover {
+            transform: translateY(-3px);
+            background: var(--bg-card-hover);
+        }
+
+        .opponent-card.selected {
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+        }
+
+        .opponent-card.easy { border-color: var(--green); }
+        .opponent-card.easy.selected { box-shadow: 0 0 20px rgba(78,204,163,0.3); }
+        .opponent-card.medium { border-color: var(--gold); }
+        .opponent-card.medium.selected { box-shadow: 0 0 20px rgba(212,160,23,0.3); }
+        .opponent-card.hard { border-color: var(--accent); }
+        .opponent-card.hard.selected { box-shadow: 0 0 20px rgba(230,57,70,0.3); }
+
+        .opponent-difficulty {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .easy .opponent-difficulty { color: var(--green); }
+        .medium .opponent-difficulty { color: var(--gold); }
+        .hard .opponent-difficulty { color: var(--accent); }
+
+        .opponent-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+
+        .opponent-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+        }
+
+        .opponent-stats {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        /* Fight button */
+        .fight-btn-wrapper {
+            text-align: center;
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .fight-btn-wrapper.visible { display: block; }
+
+        .fight-btn {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            font-size: 1.5rem;
+            font-weight: 800;
+            padding: 0.8rem 3rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            animation: pulse-btn 1.5s ease-in-out infinite;
+            transition: transform 0.1s;
+        }
+
+        .fight-btn:hover { transform: scale(1.05); }
+        .fight-btn:active { transform: scale(0.97); }
+
+        @keyframes pulse-btn {
+            0%, 100% { box-shadow: 0 0 10px rgba(230,57,70,0.4); }
+            50% { box-shadow: 0 0 25px rgba(230,57,70,0.7); }
+        }
+
+        /* Phase 2: Fight */
+        .fight-arena {
+            display: none;
+            text-align: center;
+        }
+
+        .fight-arena.visible { display: block; }
+
+        .arena-status {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px; height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .hp-bars {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 500px) {
+            .hp-bars { flex-direction: column; align-items: center; }
+        }
+
+        .hp-fighter {
+            flex: 1;
+            max-width: 280px;
+            text-align: center;
+        }
+
+        .hp-fighter-name {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .hp-fighter-emoji { font-size: 2rem; margin-bottom: 0.25rem; }
+
+        .hp-bar-track {
+            width: 100%;
+            height: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 0.25rem;
+        }
+
+        .hp-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .hp-bar-fill.pet-bar { background: var(--green); }
+        .hp-bar-fill.opp-bar { background: var(--accent); }
+
+        .hp-value {
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .tick-counter {
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        /* Phase 3: Result */
+        .result-screen {
+            display: none;
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .result-screen.visible { display: block; }
+
+        .result-verdict {
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.25rem;
+        }
+
+        .result-verdict.win {
+            color: var(--green);
+            text-shadow: 0 0 30px rgba(78,204,163,0.5);
+        }
+
+        .result-verdict.loss {
+            color: var(--accent);
+            opacity: 0.85;
+        }
+
+        .result-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        @keyframes win-glow {
+            0%, 100% { background: transparent; }
+            50% { background: rgba(78,204,163,0.03); }
+        }
+
+        .result-screen.win-bg { animation: win-glow 2s ease-in-out 1; }
+        .result-screen.loss-bg { background: rgba(230,57,70,0.03); }
+
+        /* XP animation */
+        .xp-flyup {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--gold);
+            animation: flyup 1.5s ease-out forwards;
+            margin-bottom: 0.5rem;
+        }
+
+        @keyframes flyup {
+            0% { opacity: 0; transform: translateY(20px); }
+            30% { opacity: 1; transform: translateY(-10px); }
+            100% { opacity: 0; transform: translateY(-40px); }
+        }
+
+        .xp-section { margin: 1.5rem auto; max-width: 350px; }
+
+        .xp-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 0.3rem;
+        }
+
+        .xp-bar-track {
+            width: 100%;
+            height: 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            overflow: hidden;
+        }
+
+        .xp-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold), #e6b422);
+            border-radius: 7px;
+            transition: width 1s ease;
+        }
+
+        .level-up-flash {
+            display: none;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--gold);
+            text-shadow: 0 0 20px rgba(212,160,23,0.6);
+            margin: 1rem 0;
+            animation: level-glow 1.5s ease-in-out;
+        }
+
+        .level-up-flash.visible { display: block; }
+
+        @keyframes level-glow {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        .mutation-notice {
+            display: none;
+            margin: 1rem auto;
+            padding: 0.75rem 1rem;
+            background: rgba(212,160,23,0.1);
+            border: 1px solid var(--gold);
+            border-radius: var(--radius);
+            max-width: 350px;
+        }
+
+        .mutation-notice.visible { display: block; }
+        .mutation-notice a { color: var(--gold); font-weight: 600; text-decoration: underline; }
+
+        /* Soul bubble */
+        .soul-bubble {
+            display: none;
+            max-width: 400px;
+            margin: 1.5rem auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.25rem;
+            text-align: left;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--text-dim);
+            position: relative;
+        }
+
+        .soul-bubble.visible { display: block; }
+
+        .soul-bubble::before {
+            content: "";
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0; height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid var(--border);
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .result-actions a, .result-actions button {
+            padding: 0.65rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-decoration: none;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-primary:hover { opacity: 0.9; }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-dim);
+            border: 1px solid var(--border) !important;
+        }
+
+        .btn-secondary:hover { background: var(--bg-card-hover); color: var(--text); }
+
+        /* Nav override */
+        .nav-fight a {
+            color: var(--accent) !important;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-fight a.active {
+            text-shadow: 0 0 8px var(--accent-glow);
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li class="nav-dropdown">
+                    <a href="/tournaments">Benchmark &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/tournaments">Tournaments</a></li>
+                        <li><a href="/leaderboard">Leaderboard</a></li>
+                        <li><a href="/methodology">Methodology</a></li>
+                        <li><a href="/match-log">Match Log</a></li>
+                        <li><a href="/compare">Compare</a></li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="/s1-leaderboard">Seasons &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/s1-leaderboard">S1 Leaderboard</a></li>
+                        <li><a href="/s1-fighters">Meet the Fighters</a></li>
+                        <li><a href="/s1-matchups">Matchup Explorer</a></li>
+                        <li><a href="/play">S1 Quick Fight</a></li>
+                        <li><a href="/s1-compare">Benchmark vs S1</a></li>
+                        <li><a href="/moreddit">The Moreddit</a></li>
+                    </ul>
+                </li>
+                <li><a href="/pets">Pets</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+                <li class="nav-fight"><a href="/island" class="active">FIGHT!</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="island-page">
+        <!-- Loading -->
+        <div id="loadingScreen" class="loading-screen">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Entering the training grounds...</div>
+        </div>
+
+        <!-- Main content (hidden until loaded) -->
+        <div id="mainContent" style="display:none;">
+
+            <!-- Phase 1: Choose Opponent -->
+            <div id="phase-choose">
+                <div class="train-header">
+                    <h1>Training <span>Grounds</span></h1>
+                    <div class="pet-identity">
+                        <span class="pet-emoji" id="pet-emoji"></span>
+                        <span id="pet-name"></span>
+                        <span style="color:var(--text-muted);font-size:0.85rem;" id="pet-level-badge"></span>
+                    </div>
+                </div>
+
+                <div class="opponent-grid">
+                    <div class="opponent-card easy" data-opponent="random" onclick="selectOpponent(this)">
+                        <div class="opponent-difficulty">EASY</div>
+                        <div class="opponent-name">RandomAgent</div>
+                        <div class="opponent-desc">Unpredictable. Chaotic. A good warmup.</div>
+                        <div class="opponent-stats">Random animal | 5/5/5/5</div>
+                    </div>
+                    <div class="opponent-card medium" data-opponent="greedy" onclick="selectOpponent(this)">
+                        <div class="opponent-difficulty">MEDIUM</div>
+                        <div class="opponent-name">GreedyAgent</div>
+                        <div class="opponent-desc">Calculates the optimal. No creativity, pure efficiency.</div>
+                        <div class="opponent-stats">fox | 4/7/7/2</div>
+                    </div>
+                    <div class="opponent-card hard" data-opponent="smart" onclick="selectOpponent(this)">
+                        <div class="opponent-difficulty">HARD</div>
+                        <div class="opponent-name">SmartAgent</div>
+                        <div class="opponent-desc">200 rollouts per decision. The toughest baseline.</div>
+                        <div class="opponent-stats">fox | 3/8/7/2</div>
+                    </div>
+                </div>
+
+                <div class="fight-btn-wrapper" id="fight-btn-wrapper">
+                    <button class="fight-btn" onclick="startFight()">FIGHT!</button>
+                </div>
+            </div>
+
+            <!-- Phase 2: Fight -->
+            <div class="fight-arena" id="phase-fight">
+                <div class="arena-status" id="arena-status">
+                    <div class="spinner"></div>
+                    <div>FIGHT IN PROGRESS...</div>
+                </div>
+
+                <div class="hp-bars" id="hp-bars" style="display:none;">
+                    <div class="hp-fighter">
+                        <div class="hp-fighter-emoji" id="pet-fight-emoji"></div>
+                        <div class="hp-fighter-name" id="pet-fight-name"></div>
+                        <div class="hp-bar-track">
+                            <div class="hp-bar-fill pet-bar" id="pet-hp-bar" style="width:100%"></div>
+                        </div>
+                        <div class="hp-value" id="pet-hp-value"></div>
+                    </div>
+                    <div style="font-size:1.5rem;font-weight:800;color:var(--text-muted);padding-top:1.5rem;">VS</div>
+                    <div class="hp-fighter">
+                        <div class="hp-fighter-emoji" id="opp-fight-emoji"></div>
+                        <div class="hp-fighter-name" id="opp-fight-name"></div>
+                        <div class="hp-bar-track">
+                            <div class="hp-bar-fill opp-bar" id="opp-hp-bar" style="width:100%"></div>
+                        </div>
+                        <div class="hp-value" id="opp-hp-value"></div>
+                    </div>
+                </div>
+                <div class="tick-counter" id="tick-counter"></div>
+            </div>
+
+            <!-- Phase 3: Result -->
+            <div class="result-screen" id="phase-result">
+                <div class="result-verdict" id="result-verdict"></div>
+                <div class="result-subtitle" id="result-subtitle"></div>
+                <div class="xp-flyup" id="xp-flyup"></div>
+
+                <div class="level-up-flash" id="level-up-flash"></div>
+                <div class="mutation-notice" id="mutation-notice">
+                    New mutation available! Visit <a href="/island/mutate">Dr. Moreau's Lab</a>.
+                </div>
+
+                <div class="xp-section">
+                    <div class="xp-label">
+                        <span>Level <span id="result-level">1</span></span>
+                        <span id="xp-progress-text">0 / 50 XP</span>
+                    </div>
+                    <div class="xp-bar-track">
+                        <div class="xp-bar-fill" id="xp-bar-fill" style="width:0%"></div>
+                    </div>
+                </div>
+
+                <div class="soul-bubble" id="soul-bubble"></div>
+
+                <div class="result-actions">
+                    <button class="btn-primary" onclick="fightAgain()">Fight Again</button>
+                    <a href="/island/home" class="btn-secondary">Return Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/static/island/supabase-client.js"></script>
+    <script>
+        // ══════════════════════════════════════
+        //  Island Training Grounds
+        // ══════════════════════════════════════
+
+        const EMOJI_MAP = {
+            bear:'\u{1F43B}', buffalo:'\u{1F9AC}', boar:'\u{1F417}', tiger:'\u{1F405}',
+            wolf:'\u{1F43A}', monkey:'\u{1F412}', porcupine:'\u{1F994}', scorpion:'\u{1F982}',
+            vulture:'\u{1F985}', rhino:'\u{1F98F}', viper:'\u{1F40D}', fox:'\u{1F98A}',
+            eagle:'\u{1F985}', panther:'\u{1F408}'
+        };
+        const ANIMALS = Object.keys(EMOJI_MAP);
+        const XP_WIN = 30, XP_LOSS = 10;
+        const LEVEL_THRESHOLDS = {1:0, 2:50, 3:100, 4:150, 5:200, 6:300, 7:400, 8:500, 9:600, 10:750};
+        const MAX_LEVEL = 10;
+        const MUTATION_LEVELS = [3, 6, 9];
+
+        let pet = null;
+        let petDbId = null;       // Supabase row id (null in offline mode)
+        let selectedOpponent = null;
+        let offlineMode = false;
+
+        // ── Init ──
+
+        async function init() {
+            initSupabase();
+            const user = await getUser();
+
+            if (isOnlineMode()) {
+                offlineMode = false;
+                const pets = await dbGetPets(user.id);
+                // Find first living pet
+                const living = pets.filter(function(p) { return !p.deceased && p.is_alive !== false; });
+                if (living.length === 0) {
+                    window.location.href = '/island/home';
+                    return;
+                }
+                pet = living[0];
+                petDbId = pet.id;
+            } else if (hasLocalPets()) {
+                offlineMode = true;
+                pet = loadLocalActivePet();
+                if (!pet) {
+                    window.location.href = '/island';
+                    return;
+                }
+            } else {
+                window.location.href = '/island';
+                return;
+            }
+
+            // Check if pet is deceased
+            if (pet.deceased || pet.is_alive === false) {
+                window.location.href = '/island/home';
+                return;
+            }
+
+            showTraining();
+        }
+
+        // ── localStorage helpers ──
+
+        function hasLocalPets() {
+            try {
+                const raw = localStorage.getItem('moreau_pets');
+                if (raw) {
+                    const p = JSON.parse(raw);
+                    return Array.isArray(p) && p.length > 0;
+                }
+                return !!localStorage.getItem('moreau_pet');
+            } catch { return false; }
+        }
+
+        function loadLocalActivePet() {
+            // Migrate old single-pet format
+            const oldRaw = localStorage.getItem('moreau_pet');
+            if (oldRaw) {
+                try {
+                    const oldPet = JSON.parse(oldRaw);
+                    const existing = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                    if (existing.length < 6) existing.push(oldPet);
+                    localStorage.setItem('moreau_pets', JSON.stringify(existing));
+                    localStorage.setItem('moreau_active_pet', String(existing.length - 1));
+                    localStorage.removeItem('moreau_pet');
+                } catch(e) { localStorage.removeItem('moreau_pet'); }
+            }
+
+            const pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            if (pets.length === 0) return null;
+            let idx = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
+            if (idx < 0 || idx >= pets.length) idx = 0;
+            return pets[idx];
+        }
+
+        function saveLocalActivePet(p) {
+            const pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            let idx = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
+            if (idx < 0 || idx >= pets.length) idx = 0;
+            pets[idx] = p;
+            localStorage.setItem('moreau_pets', JSON.stringify(pets));
+        }
+
+        // ── Show Training UI ──
+
+        function showTraining() {
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+
+            const animal = (pet.animal || '').toLowerCase();
+            document.getElementById('pet-emoji').textContent = EMOJI_MAP[animal] || '\u{2753}';
+            document.getElementById('pet-name').textContent = pet.name || 'Your Pet';
+            document.getElementById('pet-level-badge').textContent = 'Lv.' + (pet.level || 1);
+        }
+
+        // ── Opponent Selection ──
+
+        function selectOpponent(card) {
+            document.querySelectorAll('.opponent-card').forEach(function(c) { c.classList.remove('selected'); });
+            card.classList.add('selected');
+            selectedOpponent = card.dataset.opponent;
+            document.getElementById('fight-btn-wrapper').classList.add('visible');
+        }
+
+        function getOpponentData() {
+            if (selectedOpponent === 'random') {
+                var a = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+                return { name: 'RandomAgent', animal: a, build: a + ' 5 5 5 5', emoji: EMOJI_MAP[a] };
+            } else if (selectedOpponent === 'greedy') {
+                return { name: 'GreedyAgent', animal: 'fox', build: 'fox 4 7 7 2', emoji: EMOJI_MAP['fox'] };
+            } else {
+                return { name: 'SmartAgent', animal: 'fox', build: 'fox 3 8 7 2', emoji: EMOJI_MAP['fox'] };
+            }
+        }
+
+        // ── Start Fight ──
+
+        async function startFight() {
+            var opp = getOpponentData();
+            var bs = pet.base_stats || pet.stats || {};
+            var petBuild = (pet.animal || 'fox') + ' ' + (bs.hp || 5) + ' ' + (bs.atk || 5) + ' ' + (bs.spd || 5) + ' ' + (bs.wil || 5);
+
+            // Show phase 2
+            document.getElementById('phase-choose').style.display = 'none';
+            var arena = document.getElementById('phase-fight');
+            arena.classList.add('visible');
+            document.getElementById('hp-bars').style.display = 'none';
+            document.getElementById('arena-status').style.display = 'block';
+            document.getElementById('tick-counter').textContent = '';
+
+            try {
+                var resp = await fetch('/api/v1/fight/s1', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ build1: petBuild, build2: opp.build, games: 1 })
+                });
+                if (!resp.ok) {
+                    var err = await resp.json().catch(function() { return {}; });
+                    throw new Error(err.detail || 'Server error ' + resp.status);
+                }
+                var data = await resp.json();
+                await animateFight(data, opp);
+                await showResult(data, opp);
+            } catch (e) {
+                document.getElementById('arena-status').innerHTML =
+                    '<div style="color:var(--accent)">Fight failed: ' + (e.message || 'Network error') + '</div>' +
+                    '<button class="btn-secondary" style="margin-top:1rem" onclick="fightAgain()">Try Again</button>';
+            }
+        }
+
+        // ── Animate HP Bars ──
+
+        async function animateFight(data, opp) {
+            var result = data.results ? data.results[0] : null;
+            var hpA = result ? result.hp_a_history : null;
+            var hpB = result ? result.hp_b_history : null;
+
+            if (!hpA || !hpB) return;
+
+            document.getElementById('arena-status').style.display = 'none';
+            document.getElementById('hp-bars').style.display = 'flex';
+
+            var petEmoji = EMOJI_MAP[(pet.animal || '').toLowerCase()] || '\u{2753}';
+            document.getElementById('pet-fight-emoji').textContent = petEmoji;
+            document.getElementById('pet-fight-name').textContent = pet.name || 'Your Pet';
+            document.getElementById('opp-fight-emoji').textContent = opp.emoji;
+            document.getElementById('opp-fight-name').textContent = opp.name;
+
+            var maxA = hpA[0], maxB = hpB[0];
+            var petBar = document.getElementById('pet-hp-bar');
+            var oppBar = document.getElementById('opp-hp-bar');
+            var petVal = document.getElementById('pet-hp-value');
+            var oppVal = document.getElementById('opp-hp-value');
+            var tickEl = document.getElementById('tick-counter');
+
+            var totalTicks = hpA.length;
+            var delay = Math.max(30, Math.min(150, 3000 / totalTicks));
+
+            for (var i = 0; i < totalTicks; i++) {
+                var pctA = Math.max(0, (hpA[i] / maxA) * 100);
+                var pctB = Math.max(0, (hpB[i] / maxB) * 100);
+                petBar.style.width = pctA + '%';
+                oppBar.style.width = pctB + '%';
+                petVal.textContent = Math.max(0, Math.round(hpA[i])) + ' / ' + maxA;
+                oppVal.textContent = Math.max(0, Math.round(hpB[i])) + ' / ' + maxB;
+                tickEl.textContent = 'Tick ' + (i + 1) + ' / ' + totalTicks;
+                await sleep(delay);
+            }
+
+            await sleep(400);
+        }
+
+        function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+        // ── Show Result ──
+
+        async function showResult(data, opp) {
+            var won = data.build1_wins > 0;
+            var ticks = data.avg_ticks || data.ticks || (data.results && data.results[0] ? data.results[0].ticks : null) || null;
+
+            // Hide arena, show result
+            document.getElementById('phase-fight').classList.remove('visible');
+            var resultScreen = document.getElementById('phase-result');
+            resultScreen.classList.add('visible');
+            resultScreen.classList.add(won ? 'win-bg' : 'loss-bg');
+
+            var verdictEl = document.getElementById('result-verdict');
+            verdictEl.textContent = won ? 'VICTORY' : 'DEFEAT';
+            verdictEl.className = 'result-verdict ' + (won ? 'win' : 'loss');
+
+            var xpGained = won ? XP_WIN : XP_LOSS;
+            document.getElementById('result-subtitle').textContent = won ? '' : 'Even defeat teaches.';
+            document.getElementById('xp-flyup').textContent = '+' + xpGained + ' XP';
+
+            // Track old state
+            var oldXp = pet.xp || 0;
+            var oldLevel = pet.level || 1;
+
+            // Update pet XP & level
+            pet.xp = oldXp + xpGained;
+            pet.level = calcLevel(pet.xp);
+
+            // Save fight record locally on pet object
+            if (!pet.fights) pet.fights = [];
+            pet.fights.push({
+                opponent: opp.name,
+                result: won ? 'win' : 'loss',
+                ticks: ticks,
+                timestamp: new Date().toISOString()
+            });
+            if (pet.fights.length > 20) pet.fights = pet.fights.slice(-20);
+
+            // Update win/loss counters
+            if (won) {
+                pet.fights_won = (pet.fights_won || 0) + 1;
+            } else {
+                pet.fights_lost = (pet.fights_lost || 0) + 1;
+            }
+
+            // Persist
+            if (offlineMode) {
+                saveLocalActivePet(pet);
+            } else {
+                // Save to DB
+                await dbUpdatePet(petDbId, {
+                    xp: pet.xp,
+                    level: pet.level,
+                    fights_won: pet.fights_won || 0,
+                    fights_lost: pet.fights_lost || 0
+                });
+
+                // Record fight in fights table
+                dbRecordFight({
+                    pet_id: petDbId,
+                    user_id: currentUser.id,
+                    opponent_name: opp.name,
+                    opponent_build: opp.build,
+                    result: won ? 'win' : 'loss',
+                    ticks: ticks,
+                    xp_gained: xpGained
+                });
+            }
+
+            // Animate XP bar
+            var currentThreshold = LEVEL_THRESHOLDS[pet.level] || 0;
+            var nextThreshold = LEVEL_THRESHOLDS[Math.min(pet.level + 1, MAX_LEVEL)] || 750;
+            var xpInLevel = pet.xp - currentThreshold;
+            var xpForLevel = nextThreshold - currentThreshold;
+            var pct = pet.level >= MAX_LEVEL ? 100 : Math.min(100, (xpInLevel / xpForLevel) * 100);
+
+            document.getElementById('result-level').textContent = pet.level;
+            document.getElementById('xp-progress-text').textContent =
+                pet.level >= MAX_LEVEL ? 'MAX' : xpInLevel + ' / ' + xpForLevel + ' XP';
+
+            // Start at old XP pct, animate to new
+            var oldInLevel = oldXp - (LEVEL_THRESHOLDS[oldLevel] || 0);
+            var oldForLevel = (LEVEL_THRESHOLDS[Math.min(oldLevel + 1, MAX_LEVEL)] || 750) - (LEVEL_THRESHOLDS[oldLevel] || 0);
+            var oldPct = oldLevel >= MAX_LEVEL ? 100 : Math.min(100, (oldInLevel / oldForLevel) * 100);
+            var xpFill = document.getElementById('xp-bar-fill');
+            xpFill.style.transition = 'none';
+            xpFill.style.width = oldPct + '%';
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    xpFill.style.transition = 'width 1s ease';
+                    xpFill.style.width = pct + '%';
+                });
+            });
+
+            // Level up?
+            if (pet.level > oldLevel) {
+                var lu = document.getElementById('level-up-flash');
+                lu.textContent = 'LEVEL UP! Level ' + pet.level;
+                lu.classList.add('visible');
+            }
+
+            // Mutation available?
+            if (MUTATION_LEVELS.indexOf(pet.level) !== -1 && pet.level > oldLevel) {
+                document.getElementById('mutation-notice').classList.add('visible');
+            }
+
+            // Soul response
+            fetchSoul(won, opp.name);
+        }
+
+        function calcLevel(xp) {
+            var lv = 1;
+            for (var l = MAX_LEVEL; l >= 1; l--) {
+                if (xp >= LEVEL_THRESHOLDS[l]) { lv = l; break; }
+            }
+            return lv;
+        }
+
+        // ── Soul Response ──
+
+        async function fetchSoul(won, oppName) {
+            var bubble = document.getElementById('soul-bubble');
+            try {
+                var resp = await fetch('/api/v1/pets/soul', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        pet: pet,
+                        context: won ? 'post_fight_win' : 'post_fight_loss',
+                        opponent: oppName
+                    })
+                });
+                var data = await resp.json();
+                var text = data.message || data.response || data.text || '';
+                bubble.classList.add('visible');
+                if (!text) {
+                    bubble.innerHTML = '<em>* ' + escHtml(pet.name || 'Your pet') + ' stares at you silently. The soul awaits awakening... *</em>';
+                    return;
+                }
+
+                bubble.textContent = '';
+                // Typewriter effect
+                for (var i = 0; i < text.length; i++) {
+                    bubble.textContent += text[i];
+                    await sleep(25);
+                }
+            } catch (e) {
+                bubble.classList.add('visible');
+                bubble.innerHTML = '<em>* ' + escHtml(pet.name || 'Your pet') + ' stares at you silently. The soul awaits awakening... *</em>';
+            }
+        }
+
+        // ── Fight Again ──
+
+        function fightAgain() {
+            document.getElementById('phase-result').classList.remove('visible', 'win-bg', 'loss-bg');
+            document.getElementById('phase-fight').classList.remove('visible');
+            document.getElementById('phase-choose').style.display = '';
+            document.getElementById('fight-btn-wrapper').classList.remove('visible');
+            document.getElementById('level-up-flash').classList.remove('visible');
+            document.getElementById('mutation-notice').classList.remove('visible');
+            document.getElementById('soul-bubble').classList.remove('visible');
+            document.querySelectorAll('.opponent-card').forEach(function(c) { c.classList.remove('selected'); });
+            selectedOpponent = null;
+
+            // Refresh level badge
+            document.getElementById('pet-level-badge').textContent = 'Lv.' + (pet.level || 1);
+        }
+
+        // ── Utility ──
+
+        function escHtml(s) {
+            var d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        // ── Start ──
+        init();
+    </script>
+</body>
+</html>
