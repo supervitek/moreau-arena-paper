@@ -178,28 +178,29 @@
 
 ## 4. IMPLEMENTATION ORDER
 
-### Phase 0 — Setup (NOW)
-- [ ] Create Supabase project, get URL + anon key
-- [ ] Add `SUPABASE_URL` and `SUPABASE_ANON_KEY` to Render env vars
-- [ ] "FIGHT!" button in nav on all pages → links to `/island`
+### Phase 0 — Setup (DONE)
+- [x] Create Supabase project, get URL + anon key → `docs/SUPABASE_SETUP.md` written
+- [ ] Add `SUPABASE_URL` and `SUPABASE_ANON_KEY` to Render env vars (needs Victor)
+- [x] "FIGHT!" button in nav on all pages → links to `/island` (38 pages)
+- [x] `/island` landing page with auth placeholders
 
-### Phase 1 — Auth + DB (3-4 days)
-- [ ] Supabase Auth (Google OAuth + email/password)
-- [ ] `/island` landing page with login
-- [ ] `/island/home` dashboard
-- [ ] DB tables: `users`, `pets`
-- [ ] localStorage → DB migration on first login
-- [ ] `/island/create` (save to DB)
-- [ ] `/island/kennel` (read from DB)
+### Phase 1 — Auth + DB (DONE — pages ready, awaiting Supabase credentials)
+- [x] Supabase JS client module (`supabase-client.js`) with auth, CRUD, migration
+- [x] `/island/home` dashboard (online + offline dual mode)
+- [x] DB tables SQL ready in `SUPABASE_SETUP.md`
+- [x] localStorage → DB migration built into `supabase-client.js`
+- [x] `/island/create` (3-step creation, saves to DB or localStorage)
+- [x] `/island/kennel` (reads from DB, deceased handling, release modal)
+- [ ] **BLOCKED:** Supabase project creation + env vars (needs Victor)
 
-### Phase 2 — Core Gameplay (3-4 days)
-- [ ] `/island/train` (fights saved to DB)
-- [ ] `/island/lab` (mutations + instability saved to DB)
-- [ ] Death mechanic (instability-based, persisted)
-- [ ] `/island/graveyard`
-- [ ] `/island/pit` (local PvP, results to DB)
-- [ ] `fights` table
-- [ ] `mutations_codex` table
+### Phase 2 — Core Gameplay (DONE — pages ready)
+- [x] `/island/train` (fights via /fight/s1, XP to DB, soul reactions)
+- [x] `/island/lab` (bridge: DB→localStorage→forbidden-lab→DB sync back)
+- [x] Death mechanic (instability-based, persisted via dbKillPet)
+- [x] `/island/graveyard` (public, all dead pets, somber design)
+- [x] `/island/pit` (local PvP, results to DB, soul reactions)
+- [x] `fights` table (SQL in SUPABASE_SETUP.md)
+- [x] `mutations_codex` table (SQL in SUPABASE_SETUP.md)
 
 ### Phase 3 — Social (3-4 days)
 - [ ] `/island/leaderboard` (computed from DB)
