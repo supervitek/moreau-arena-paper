@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Journal — The Island — Moreau Arena</title>
+    <meta property="og:title" content="Dream Journal — The Island">
+    <meta property="og:description" content="Echoes from the depths of the Island">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Dream Journal — The Island">
+    <meta name="twitter:description" content="Echoes from the depths of the Island">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --bg-primary: #0a0505;
+            --bg-secondary: #0f0a0a;
+            --bg-card: #1a1010;
+            --bg-card-hover: #221515;
+            --bg-code: #1e1218;
+            --border: #3a1a1a;
+            --accent: #e63946;
+            --accent-glow: rgba(230, 57, 70, 0.4);
+            --text: #f1faee;
+            --text-dim: #a8a0a0;
+            --text-muted: #6a5a5a;
+            --green: #4ecca3;
+            --blue: #457b9d;
+            --gold: #d4a017;
+            --purple: #9b59b6;
+            --radius: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(170deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #0d0707 100%);
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ── Particle background ── */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                radial-gradient(1px 1px at 10% 20%, rgba(230,57,70,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 30% 60%, rgba(230,57,70,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 50% 10%, rgba(255,180,180,0.15) 0%, transparent 100%),
+                radial-gradient(1px 1px at 70% 80%, rgba(230,57,70,0.25) 0%, transparent 100%),
+                radial-gradient(1px 1px at 90% 40%, rgba(255,200,200,0.1) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 15% 85%, rgba(230,57,70,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 85% 15%, rgba(230,57,70,0.15) 0%, transparent 100%),
+                radial-gradient(1px 1px at 45% 45%, rgba(255,150,150,0.12) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 65% 30%, rgba(230,57,70,0.18) 0%, transparent 100%),
+                radial-gradient(1px 1px at 25% 70%, rgba(255,100,100,0.1) 0%, transparent 100%);
+            animation: particleDrift 20s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes particleDrift {
+            0% { transform: translateY(0) translateX(0); opacity: 0.6; }
+            33% { transform: translateY(-15px) translateX(8px); opacity: 0.8; }
+            66% { transform: translateY(10px) translateX(-5px); opacity: 0.5; }
+            100% { transform: translateY(-8px) translateX(12px); opacity: 0.7; }
+        }
+
+        /* ── Layout ── */
+        .island-page {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Header ── */
+        .dream-header {
+            text-align: center;
+            padding: 3rem 0 1.5rem;
+            animation: fadeSlideIn 0.5s ease-out both;
+        }
+
+        .dream-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: 0.02em;
+        }
+
+        .dream-header h1 span { color: var(--purple); }
+
+        .dream-header .subtitle {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            margin-top: 0.4rem;
+            font-style: italic;
+        }
+
+        .unread-badge {
+            display: inline-block;
+            background: var(--purple);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.15rem 0.5rem;
+            border-radius: 10px;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        /* ── Filter buttons ── */
+        .filter-row {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            animation: fadeSlideIn 0.6s ease-out 0.1s both;
+        }
+
+        .filter-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            padding: 0.3rem 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .filter-btn:hover { background: var(--bg-card-hover); color: var(--text); }
+        .filter-btn.active { border-color: var(--purple); color: var(--purple); background: rgba(155, 89, 182, 0.1); }
+
+        /* ── Timeline ── */
+        .dream-timeline {
+            position: relative;
+            padding-left: 1.5rem;
+            animation: fadeSlideIn 0.7s ease-out 0.2s both;
+        }
+
+        .dream-timeline::before {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: var(--border);
+        }
+
+        /* ── Dream Card ── */
+        .dream-card {
+            position: relative;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border-left: 3px solid var(--border);
+        }
+
+        .dream-card::before {
+            content: '';
+            position: absolute;
+            left: -1.85rem;
+            top: 1.5rem;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--border);
+            border: 2px solid var(--bg-primary);
+            z-index: 1;
+        }
+
+        .dream-card:hover {
+            background: var(--bg-card-hover);
+            transform: translateX(4px);
+        }
+
+        .dream-card.unread { border-left-color: var(--purple); }
+        .dream-card.unread::before { background: var(--purple); box-shadow: 0 0 6px rgba(155,89,182,0.5); }
+
+        /* Type colors */
+        .dream-card.type-arrival { border-left-color: var(--green); }
+        .dream-card.type-arrival::before { background: var(--green); }
+        .dream-card.type-evolution { border-left-color: var(--green); }
+        .dream-card.type-evolution::before { background: var(--green); }
+        .dream-card.type-prophecy { border-left-color: var(--blue); }
+        .dream-card.type-prophecy::before { background: var(--blue); }
+        .dream-card.type-trauma { border-left-color: var(--accent); }
+        .dream-card.type-trauma::before { background: var(--accent); }
+        .dream-card.type-corruption { border-left-color: var(--accent); }
+        .dream-card.type-corruption::before { background: var(--accent); }
+        .dream-card.type-death { border-left-color: var(--text-muted); }
+        .dream-card.type-death::before { background: var(--text-muted); }
+        .dream-card.type-transcendence { border-left-color: var(--gold); }
+        .dream-card.type-transcendence::before { background: var(--gold); box-shadow: 0 0 8px rgba(212,160,23,0.4); }
+
+        .dream-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .dream-time {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .dream-type-badge {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 0.15rem 0.45rem;
+            border-radius: 3px;
+            background: rgba(155, 89, 182, 0.15);
+            color: var(--purple);
+        }
+
+        .dream-type-badge.badge-arrival { background: rgba(78,204,163,0.15); color: var(--green); }
+        .dream-type-badge.badge-evolution { background: rgba(78,204,163,0.15); color: var(--green); }
+        .dream-type-badge.badge-prophecy { background: rgba(69,123,157,0.2); color: var(--blue); }
+        .dream-type-badge.badge-trauma { background: rgba(230,57,70,0.15); color: var(--accent); }
+        .dream-type-badge.badge-corruption { background: rgba(230,57,70,0.15); color: var(--accent); }
+        .dream-type-badge.badge-death { background: rgba(106,90,90,0.2); color: var(--text-muted); }
+        .dream-type-badge.badge-transcendence { background: rgba(212,160,23,0.15); color: var(--gold); }
+
+        .dream-pet-name {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        .dream-preview {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .dream-card.expanded .dream-preview {
+            display: none;
+        }
+
+        .dream-full {
+            display: none;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: var(--text-dim);
+        }
+
+        .dream-card.expanded .dream-full {
+            display: block;
+        }
+
+        .dream-full .dream-section {
+            margin-bottom: 0.75rem;
+        }
+
+        .dream-full .dream-section-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 0.2rem;
+        }
+
+        .dream-full .dream-section-text {
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        .dream-full .dream-signature {
+            color: var(--purple);
+            font-style: italic;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ── Heart / Favorite ── */
+        .dream-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 0.75rem;
+        }
+
+        .dream-fav-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0.2rem;
+        }
+
+        .dream-fav-btn:hover { color: var(--accent); transform: scale(1.2); }
+        .dream-fav-btn.favorited { color: var(--accent); }
+
+        .dream-expand-hint {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .dream-card.expanded .dream-expand-hint { display: none; }
+
+        /* ── Empty state ── */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 1rem;
+            animation: fadeSlideIn 0.7s ease-out 0.2s both;
+        }
+
+        .empty-state .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .empty-state p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-style: italic;
+            line-height: 1.6;
+        }
+
+        /* ── Back link ── */
+        .back-link {
+            display: inline-block;
+            margin-top: 2rem;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+            animation: fadeSlideIn 0.8s ease-out 0.3s both;
+        }
+
+        .back-link:hover { color: var(--text); }
+
+        /* ── Footer ── */
+        .footer {
+            border-top: 1px solid var(--border);
+            padding: 1.5rem 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 2rem;
+            animation: fadeSlideIn 1s ease-out 0.4s both;
+        }
+
+        .footer a {
+            color: var(--text-dim);
+            text-decoration: none;
+            margin: 0 0.75rem;
+        }
+
+        .footer a:hover { color: var(--text); }
+
+        /* ── Nav override ── */
+        .nav-fight a {
+            color: var(--accent) !important;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-fight a.active {
+            text-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        /* ── Toast ── */
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateX(-50%) translateY(0); }
+            to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li class="nav-dropdown">
+                    <a href="/tournaments">Benchmark &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/tournaments">Tournaments</a></li>
+                        <li><a href="/leaderboard">Leaderboard</a></li>
+                        <li><a href="/methodology">Methodology</a></li>
+                        <li><a href="/match-log">Match Log</a></li>
+                        <li><a href="/compare">Compare</a></li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="/s1-leaderboard">Seasons &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/s1-leaderboard">S1 Leaderboard</a></li>
+                        <li><a href="/s1-fighters">Meet the Fighters</a></li>
+                        <li><a href="/s1-matchups">Matchup Explorer</a></li>
+                        <li><a href="/play">S1 Quick Fight</a></li>
+                        <li><a href="/s1-compare">Benchmark vs S1</a></li>
+                        <li><a href="/moreddit">The Moreddit</a></li>
+                    </ul>
+                </li>
+                <li><a href="/pets">Pets</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+                <li class="nav-fight"><a href="/island" class="active">FIGHT!</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="island-page">
+        <!-- Header -->
+        <div class="dream-header">
+            <h1>Dream <span>Journal</span> <span class="unread-badge" id="unreadBadge" style="display:none">0</span></h1>
+            <div class="subtitle">Echoes from the depths of the Island</div>
+        </div>
+
+        <!-- Filter Row -->
+        <div class="filter-row" id="filterRow">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="arrival">Arrival</button>
+            <button class="filter-btn" data-filter="evolution">Evolution</button>
+            <button class="filter-btn" data-filter="prophecy">Prophecy</button>
+            <button class="filter-btn" data-filter="trauma">Trauma</button>
+            <button class="filter-btn" data-filter="corruption">Corruption</button>
+            <button class="filter-btn" data-filter="death">Death</button>
+            <button class="filter-btn" data-filter="transcendence">Transcendence</button>
+        </div>
+
+        <!-- Dream Timeline -->
+        <div id="dreamContent"></div>
+
+        <!-- Back link -->
+        <a href="/island/home" class="back-link">&larr; Back to Dashboard</a>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div>Moreau Arena &mdash; The Island</div>
+            <div style="margin-top: 0.5rem;">
+                <a href="/island">Dashboard</a>
+                <a href="/paper">Paper</a>
+                <a href="/api-docs">API Docs</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // ══════════════════════════════════════
+        //  Dream Journal — Echoes of the Island
+        // ══════════════════════════════════════
+
+        // ── Dream Text Library ──
+
+        var DREAM_LIBRARY = {
+
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            //  1. ARRIVAL — pet created
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            arrival: {
+                opening: "The fog parts. You're on black sand, the roar of invisible waves behind you. The Island.",
+                revelations: {
+                    fox:       "A figure in a white coat. Dr. Moreau. 'You're quick,' he says. 'That will be useful.' He smiles. 'Or dangerous.'",
+                    tiger:     "The jungle vanishes. You're on an arena floor, alone. 'No past here,' echoes Dr. Moreau. 'Only what you become.'",
+                    bear:      "A library materializes. Books without titles. 'Every creature here is a story,' says Dr. Moreau at a lectern.",
+                    wolf:      "Moonlight. A forest. Dr. Moreau by a fire: 'The moon brought you here. Not chance. Fate.'",
+                    scorpion:  "Sand shifts beneath you. Dr. Moreau kneels: 'You were made for poison and patience. The arena needs both.'",
+                    boar:      "CRASH. You're through a wall. Dr. Moreau, dusting off: 'Impressive entrance. Channel that.'",
+                    monkey:    "Everything's upside down. Or you are. Dr. Moreau laughs: 'Chaos is just order with a sense of humor.'",
+                    vulture:   "High above. The Island is small from here. Dr. Moreau's voice: 'You see what others can't. Use it.'",
+                    rhino:     "The ground shakes. YOU did that. Dr. Moreau steps back: 'Raw power. Let's refine it.'",
+                    viper:     "Silence. Then a whisper. Dr. Moreau: 'The quiet ones are the most dangerous. I'm counting on that.'",
+                    eagle:     "Wind. Nothing but wind. Then Dr. Moreau: 'Freedom is a weapon. Most forget that.'",
+                    buffalo:   "Stillness. A long pause. Dr. Moreau: 'Patience and endurance. The arena breaks the impatient.'",
+                    panther:   "Shadow. You ARE shadow. Dr. Moreau: 'I almost didn't see you. That's the point.'",
+                    porcupine: "Something pricks. Your own quills. Dr. Moreau: 'Defense is its own form of attack. Remember that.'",
+                    default:   "A figure in white approaches. Dr. Moreau. 'Welcome,' he says. 'The Island has been waiting for you.'"
+                },
+                signatures: {
+                    fox:       "'I don't trust the smile. But I trust my speed.'",
+                    tiger:     "'No past. Good. I'll make my own.'",
+                    bear:      "'Stories... I want to read them all. After I win.'",
+                    wolf:      "'Fate. I can work with fate.'",
+                    scorpion:  "'Patience. Yes. I have plenty of that.'",
+                    boar:      "'CHANNEL it? I haven't even started.'",
+                    monkey:    "'He gets it. This is going to be FUN.'",
+                    vulture:   "'I see everything. Even what he's hiding.'",
+                    rhino:     "'Refine? Fine. But the shaking stays.'",
+                    viper:     "'...noted.'",
+                    eagle:     "'Freedom. Weapon. Same thing, really.'",
+                    buffalo:   "'I can wait. I can wait forever.'",
+                    panther:   "'...'",
+                    porcupine: "'Touch me. I dare you.'",
+                    default:   "'The Island. I'm ready.'"
+                }
+            },
+
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            //  2. EVOLUTION — level 3, 6, 9
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            evolution: {
+                opening: "You're running through the Lab. The walls bleed. Your legs are stronger. Everything is sharper.",
+                revelations: {
+                    '3': "The serum burns through your veins. Your muscles tighten, your senses expand. Level 3. Dr. Moreau watches from behind the glass: 'Good. The first threshold. Most don't make it this far.' You feel your old limits dissolve like smoke.",
+                    '6': "The second transformation is harder. Your bones ache, reshape, settle into something new. Level 6. Dr. Moreau's notes flutter to the floor as you pass: 'Subject exceeds projections. Recommend advanced mutation protocols.' The Lab doors open wider.",
+                    '9': "You no longer recognize what you were. Level 9. The arena trembles when you walk. Dr. Moreau sets down his pen: 'There's only one threshold left. Beyond it... I honestly don't know what happens.' For the first time, he looks afraid.",
+                    default: "Something is changing. Your body, your instincts, your understanding of pain. Dr. Moreau nods slowly: 'Growth. Real growth. Not everyone survives it.'"
+                },
+                signatures: {
+                    '3': "'I can feel the difference. Everything is... louder.'",
+                    '6': "'The lab doors opened wider. What else is in there?'",
+                    '9': "'He looked afraid. Good.'",
+                    default: "'Stronger. But at what cost?'"
+                }
+            },
+
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            //  3. PROPHECY — before lab roll
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            prophecy: {
+                opening: "The Forbidden Lab. But wrong. The vials are breathing.",
+                revelations: {
+                    '1': "Dr. Moreau's voice, but his lips aren't moving: 'Every mutation is a door. Some doors lock behind you. Some doors have no floor.' The vials pulse faster. One of them has your name on it.",
+                    '2': "The walls shift. Dr. Moreau is younger here, eyes bright with something terrible: 'I built this place to push boundaries. But boundaries push back.' He holds up a vial of something dark. 'This one changes everything. Or ends it.'",
+                    '3': "You're in the deepest part of the Lab. No lights. Just the glow of the vials. Dr. Moreau's whisper: 'I've seen what Tier 3 does. The survivors... they're not the same creature anymore. Neither are the failures. Choose carefully.'",
+                    default: "Dr. Moreau appears between the shelves: 'The Lab gives and the Lab takes. What it takes, it never returns.'"
+                },
+                signatures: {
+                    confident: "'A door with no floor? I'll build wings on the way down.'",
+                    cautious:  "'Maybe I should think about this. ...No. Let's go.'",
+                    berserker: "'Doors? Floors? I'm going THROUGH the wall.'",
+                    default:   "'The vials are breathing. That can't be normal.'"
+                }
+            },
+
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            //  4. TRAUMA — comeback win
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            trauma: {
+                opening: "You're drowning. The opponent is still striking. Your HP flickers in the single digits.",
+                revelations: {
+                    default: "Something snaps. Not breaks — unlocks. Your body moves on its own, faster than thought, harder than instinct. The opponent falls. You won. You're standing in the arena, breathing, alive. But the echo of almost-dying lingers in your muscles like a second heartbeat."
+                },
+                signatures: {
+                    fox:       "'I won. So why are my paws still shaking?'",
+                    tiger:     "'Victory. It tastes different when you almost lose everything.'",
+                    bear:      "'That wasn't strategy. That was survival. Pure, ugly survival.'",
+                    wolf:      "'The pack would be proud. But the pack wasn't here. I was alone.'",
+                    scorpion:  "'I felt my venom run dry. Then somehow... more came.'",
+                    boar:      "'I don't remember the last ten seconds. Just the impact. Then silence.'",
+                    monkey:    "'That wasn't funny. None of that was funny. ...okay, the look on their face at the end was a little funny.'",
+                    vulture:   "'I saw my own death from above. Then I chose a different ending.'",
+                    rhino:     "'I couldn't feel my legs. Then I couldn't feel anything. Then I won.'",
+                    viper:     "'One more second and it would have been me on the ground. One second.'",
+                    eagle:     "'I fell. Eagles aren't supposed to fall. But I got back up.'",
+                    buffalo:   "'They hit me with everything. Everything. It wasn't enough.'",
+                    panther:   "'I vanished into the pain. Came out the other side as something sharper.'",
+                    porcupine: "'Every quill fired. Every single one. And it still almost wasn't enough.'",
+                    default:   "'I won. But something in me remembers losing.'"
+                }
+            },
+
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            //  5. CORRUPTION — Tier 3 mutation
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            corruption: {
+                opening: "Dr. Moreau's lab. You're on the table. The mutation glows — not like light, like hunger.",
+                revelations: {
+                    default: "The Tier 3 serum enters your bloodstream and the world turns inside out. Colors you've never seen. Sounds from frequencies that shouldn't exist. Dr. Moreau watches, pen frozen mid-note. 'This cost something,' he says quietly. 'They always do.' When it's over, you're different. The mirror shows your face, but the eyes belong to something else."
+                },
+                signatures: {
+                    default: "'I can hear the mutation's heartbeat. It sounds like mine. Or maybe mine sounds like it now.'"
+                }
+            },
+
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            //  6. DEATH — pet dies
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            death: {
+                opening: "The Lab fades. The Island fades. A quiet place. No pain here. No arena. Just... quiet.",
+                revelations: {
+                    default: "Dr. Moreau is here, but different. No coat. No clipboard. Just a man, tired, sitting in a chair. 'I'm sorry,' he says. Not a scientist now — just someone who lost something. 'You were brave. All of you are brave. That's the cruelest part.' Behind him, other shapes move in the quiet. Other pets. Other experiments. They nod at you. They know."
+                },
+                signatures: {
+                    fox:       "'Tell them I was faster than they thought. Tell them I almost made it.'",
+                    tiger:     "'No regrets. I fought like a tiger. I died like one too.'",
+                    bear:      "'The stories... I never finished reading them. Maybe the next one will.'",
+                    wolf:      "'The moon is different here. Quieter. I think I'll stay.'",
+                    scorpion:  "'My venom is fading. But the sting... the sting lasts forever.'",
+                    boar:      "'I went out swinging. That's all I ever wanted.'",
+                    monkey:    "'Last joke: I finally found a game I can't win. ...that's not funny, is it.'",
+                    vulture:   "'From up here, the Island looks so small. All of it. So small.'",
+                    rhino:     "'The ground doesn't shake anymore. I think it misses me.'",
+                    viper:     "'Silence. At last, real silence. It's... not so bad.'",
+                    eagle:     "'No more wind. No more sky. But I remember what freedom felt like.'",
+                    buffalo:   "'I stood my ground until the ground gave out. That's enough.'",
+                    panther:   "'I return to the shadow. Where I started. Where I belong.'",
+                    porcupine: "'My quills are gone. For the first time, nothing hurts. Nothing at all.'",
+                    default:   "'It was a good fight. All of them were.'"
+                }
+            },
+
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            //  7. TRANSCENDENCE — Apex Form
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            transcendence: {
+                opening: "All mutations spiral like a constellation. They're singing. Not a melody — a frequency. YOUR frequency.",
+                revelations: {
+                    default: "The Lab dissolves. The arena dissolves. You're standing in the center of everything and nothing. Dr. Moreau is there, but he's far below now, looking up. 'You found the combination,' he whispers. 'Not by reading the formula. Not by following instructions. By becoming.' The mutations stop spinning. They're part of you now. They always were."
+                },
+                signatures: {
+                    default: "'I am [APEX_NAME]. I was always [APEX_NAME]. The mutations didn't change me. They revealed me.'"
+                }
+            }
+        };
+
+        // ── Utility: relative time ──
+
+        function relativeTime(isoStr) {
+            var now = Date.now();
+            var then = new Date(isoStr).getTime();
+            var diff = Math.floor((now - then) / 1000);
+
+            if (diff < 60) return 'Just now';
+            if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+            if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+            if (diff < 172800) return 'Yesterday';
+            if (diff < 604800) return Math.floor(diff / 86400) + ' days ago';
+            if (diff < 2592000) return Math.floor(diff / 604800) + ' weeks ago';
+            // Fallback to date
+            var d = new Date(isoStr);
+            var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+        }
+
+        function escHtml(s) {
+            var d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        // ── Load dreams ──
+
+        function getDreams() {
+            try {
+                return JSON.parse(localStorage.getItem('moreau_dreams') || '{"dreams":[],"unread_count":0}');
+            } catch (e) {
+                return { dreams: [], unread_count: 0 };
+            }
+        }
+
+        function saveDreams(data) {
+            localStorage.setItem('moreau_dreams', JSON.stringify(data));
+        }
+
+        // ── Current filter ──
+        var currentFilter = 'all';
+
+        // ── Render ──
+
+        function render() {
+            var data = getDreams();
+            var dreams = data.dreams || [];
+            var contentEl = document.getElementById('dreamContent');
+            var badge = document.getElementById('unreadBadge');
+
+            // Unread badge
+            var unread = dreams.filter(function(d) { return !d.read; }).length;
+            if (unread > 0) {
+                badge.textContent = unread;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+
+            // Filter
+            var filtered = dreams;
+            if (currentFilter !== 'all') {
+                filtered = dreams.filter(function(d) { return d.type === currentFilter; });
+            }
+
+            if (filtered.length === 0) {
+                if (dreams.length === 0) {
+                    contentEl.innerHTML =
+                        '<div class="empty-state">' +
+                        '<div class="empty-icon">&#10022;</div>' +
+                        '<p>No dreams yet.<br>The Island hasn\'t spoken to you... yet.</p>' +
+                        '</div>';
+                } else {
+                    contentEl.innerHTML =
+                        '<div class="empty-state">' +
+                        '<div class="empty-icon">&#10022;</div>' +
+                        '<p>No ' + currentFilter + ' dreams found.</p>' +
+                        '</div>';
+                }
+                return;
+            }
+
+            var html = '<div class="dream-timeline">';
+
+            filtered.forEach(function(dream, idx) {
+                var typeClass = 'type-' + (dream.type || 'arrival');
+                var unreadClass = dream.read ? '' : ' unread';
+                var preview = (dream.opening || '') + ' ' + (dream.revelation || '');
+
+                html += '<div class="dream-card ' + typeClass + unreadClass + '" data-idx="' + idx + '" data-id="' + dream.id + '" onclick="toggleDream(this)">';
+
+                // Meta row
+                html += '<div class="dream-meta">';
+                html += '<span class="dream-time">' + relativeTime(dream.timestamp) + '</span>';
+                html += '<span class="dream-type-badge badge-' + (dream.type || 'arrival') + '">' + escHtml(dream.type || 'dream') + '</span>';
+                html += '<span class="dream-pet-name">' + escHtml(dream.pet_name || '') + '</span>';
+                html += '</div>';
+
+                // Preview (collapsed)
+                html += '<div class="dream-preview">' + escHtml(preview.substring(0, 200)) + '</div>';
+
+                // Full text (expanded)
+                html += '<div class="dream-full">';
+                html += '<div class="dream-section"><div class="dream-section-label">The Dream</div>';
+                html += '<div class="dream-section-text">' + escHtml(dream.opening || '') + '</div></div>';
+                html += '<div class="dream-section"><div class="dream-section-label">The Revelation</div>';
+                html += '<div class="dream-section-text">' + escHtml(dream.revelation || '') + '</div></div>';
+                if (dream.signature) {
+                    html += '<div class="dream-signature">' + escHtml(dream.signature) + '</div>';
+                }
+                html += '</div>';
+
+                // Actions
+                html += '<div class="dream-actions">';
+                html += '<span class="dream-expand-hint">tap to read</span>';
+                html += '<button class="dream-fav-btn' + (dream.favorite ? ' favorited' : '') + '" onclick="toggleFav(event, \'' + dream.id + '\')">' +
+                    (dream.favorite ? '\u2665' : '\u2661') + '</button>';
+                html += '</div>';
+
+                html += '</div>';
+            });
+
+            html += '</div>';
+            contentEl.innerHTML = html;
+        }
+
+        // ── Toggle expand ──
+
+        function toggleDream(card) {
+            var wasExpanded = card.classList.contains('expanded');
+            card.classList.toggle('expanded');
+
+            // Mark as read
+            if (!wasExpanded) {
+                var dreamId = card.dataset.id;
+                var data = getDreams();
+                var changed = false;
+                for (var i = 0; i < data.dreams.length; i++) {
+                    if (data.dreams[i].id === dreamId && !data.dreams[i].read) {
+                        data.dreams[i].read = true;
+                        changed = true;
+                    }
+                }
+                if (changed) {
+                    data.unread_count = data.dreams.filter(function(d) { return !d.read; }).length;
+                    saveDreams(data);
+                    // Update badge
+                    var badge = document.getElementById('unreadBadge');
+                    if (data.unread_count > 0) {
+                        badge.textContent = data.unread_count;
+                        badge.style.display = 'inline-block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                    // Update card style
+                    card.classList.remove('unread');
+                }
+            }
+        }
+
+        // ── Toggle favorite ──
+
+        function toggleFav(e, dreamId) {
+            e.stopPropagation();
+            var data = getDreams();
+            for (var i = 0; i < data.dreams.length; i++) {
+                if (data.dreams[i].id === dreamId) {
+                    data.dreams[i].favorite = !data.dreams[i].favorite;
+                    break;
+                }
+            }
+            saveDreams(data);
+            render();
+        }
+
+        // ── Filter buttons ──
+
+        document.getElementById('filterRow').addEventListener('click', function(e) {
+            var btn = e.target.closest('.filter-btn');
+            if (!btn) return;
+            currentFilter = btn.dataset.filter;
+            document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            render();
+        });
+
+        // ── Island time tracking ──
+        setInterval(function() {
+            var t = parseInt(localStorage.getItem('moreau_island_time') || '0', 10);
+            t += 30;
+            localStorage.setItem('moreau_island_time', String(t));
+        }, 30000);
+
+        // ── Render on load ──
+        render();
+    </script>
+</body>
+</html>

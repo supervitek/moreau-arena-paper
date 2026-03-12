@@ -11,6 +11,7 @@
     <link rel="icon" href="/static/favicon.svg">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/static/island/supabase-client.js"></script>
+    <script src="/static/island/dreams-engine.js"></script>
     <style>
         :root {
             --bg-primary: #0a0505;
@@ -902,6 +903,9 @@
                         localStorage.setItem('moreau_achievements', JSON.stringify(stored));
                     }
                 })();
+
+                // Dream: ARRIVAL
+                generateDream('arrival', pet);
 
                 // Redirect after dramatic pause
                 setTimeout(function() {

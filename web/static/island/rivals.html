@@ -1,0 +1,1987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rival Encounters — The Island — Moreau Arena</title>
+    <meta property="og:title" content="Rival Encounters — The Island">
+    <meta property="og:description" content="Face your nemeses. Earn their respect — or their fear.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Rival Encounters — The Island">
+    <meta name="twitter:description" content="Face your nemeses. Earn their respect — or their fear.">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --bg-primary: #0a0505;
+            --bg-secondary: #0f0a0a;
+            --bg-card: #1a1010;
+            --bg-card-hover: #221515;
+            --bg-code: #1e1218;
+            --border: #3a1a1a;
+            --accent: #e63946;
+            --accent-glow: rgba(230, 57, 70, 0.4);
+            --text: #f1faee;
+            --text-dim: #a8a0a0;
+            --text-muted: #6a5a5a;
+            --green: #4ecca3;
+            --blue: #457b9d;
+            --gold: #d4a017;
+            --purple: #9b59b6;
+            --radius: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(170deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #0d0707 100%);
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ── Particle background ── */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                radial-gradient(1px 1px at 10% 20%, rgba(230,57,70,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 30% 60%, rgba(230,57,70,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 50% 10%, rgba(255,180,180,0.15) 0%, transparent 100%),
+                radial-gradient(1px 1px at 70% 80%, rgba(230,57,70,0.25) 0%, transparent 100%),
+                radial-gradient(1px 1px at 90% 40%, rgba(255,200,200,0.1) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 15% 85%, rgba(230,57,70,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 85% 15%, rgba(230,57,70,0.15) 0%, transparent 100%),
+                radial-gradient(1px 1px at 45% 45%, rgba(255,150,150,0.12) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 65% 30%, rgba(230,57,70,0.18) 0%, transparent 100%),
+                radial-gradient(1px 1px at 25% 70%, rgba(255,100,100,0.1) 0%, transparent 100%);
+            animation: particleDrift 20s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes particleDrift {
+            0% { transform: translateY(0) translateX(0); opacity: 0.6; }
+            33% { transform: translateY(-15px) translateX(8px); opacity: 0.8; }
+            66% { transform: translateY(10px) translateX(-5px); opacity: 0.5; }
+            100% { transform: translateY(-8px) translateX(12px); opacity: 0.7; }
+        }
+
+        /* ── Layout ── */
+        .island-page {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        /* ── Loading state ── */
+        .loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 1rem;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Header ── */
+        .rivals-header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            animation: fadeSlideIn 0.5s ease-out both;
+        }
+
+        .rivals-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: 0.02em;
+        }
+
+        .rivals-header h1 span { color: var(--accent); }
+
+        .rivals-header .subtitle {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            margin-top: 0.4rem;
+        }
+
+        /* ── Section titles ── */
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title .section-icon { color: var(--accent); }
+
+        /* ── Rival card grid ── */
+        .rivals-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+            animation: fadeSlideIn 0.6s ease-out 0.1s both;
+        }
+
+        /* ── Rival card ── */
+        .rival-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rival-card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(230, 57, 70, 0.3);
+        }
+
+        .rival-portrait {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .rival-name {
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .rival-title {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-align: center;
+            margin-top: 0.15rem;
+        }
+
+        .rival-tier {
+            text-align: center;
+            margin-top: 0.6rem;
+            font-size: 0.8rem;
+            color: var(--gold);
+            letter-spacing: 0.1em;
+        }
+
+        .rival-progress-bar {
+            height: 4px;
+            background: var(--bg-code);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 0.6rem;
+        }
+
+        .rival-progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: width 0.4s ease;
+        }
+
+        .rival-progress-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 0.3rem;
+        }
+
+        .rival-last-fight {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 0.4rem;
+        }
+
+        .rival-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            margin-top: 0.8rem;
+        }
+
+        .rival-challenge-btn {
+            width: 100%;
+            padding: 0.6rem;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .rival-challenge-btn:hover {
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+
+        .rival-challenge-btn.pulsing {
+            animation: challengePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes challengePulse {
+            0%, 100% { box-shadow: 0 0 4px var(--accent-glow); }
+            50% { box-shadow: 0 0 20px var(--accent-glow), 0 0 40px rgba(230,57,70,0.15); }
+        }
+
+        .rival-details-btn {
+            width: 100%;
+            padding: 0.45rem;
+            background: transparent;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .rival-details-btn:hover {
+            border-color: var(--text-dim);
+            color: var(--text);
+        }
+
+        /* ── Expanded details ── */
+        .rival-expanded {
+            display: none;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .rival-expanded.visible { display: block; }
+
+        .rival-pet-info {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 0.5rem;
+        }
+
+        .rival-pet-info strong { color: var(--text); }
+
+        .vendetta-line {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            font-style: italic;
+            padding: 0.4rem 0.6rem;
+            background: var(--bg-code);
+            border-radius: 4px;
+            margin-top: 0.3rem;
+            border-left: 2px solid var(--accent);
+        }
+
+        .vendetta-line.locked {
+            color: var(--text-muted);
+            font-style: normal;
+            border-left-color: var(--border);
+        }
+
+        .vendetta-label {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-top: 0.5rem;
+            margin-bottom: 0.15rem;
+        }
+
+        /* ── Vanquished section ── */
+        .vanquished-section {
+            margin-top: 2rem;
+            animation: fadeSlideIn 0.8s ease-out 0.3s both;
+        }
+
+        .vanquished-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+
+        .vanquished-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem;
+            opacity: 0.5;
+            position: relative;
+        }
+
+        .vanquished-card .rival-portrait { font-size: 2rem; filter: grayscale(0.6); }
+
+        .vanquished-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            background: rgba(78, 204, 163, 0.15);
+            color: var(--green);
+            border: 1px solid rgba(78, 204, 163, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .vanquished-date {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 0.4rem;
+        }
+
+        .vanquished-record {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-align: center;
+            margin-top: 0.2rem;
+        }
+
+        /* ── No pet state ── */
+        .no-pet-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 3rem 2rem;
+            text-align: center;
+            animation: fadeSlideIn 0.6s ease-out both;
+        }
+
+        .no-pet-card .empty-emoji { font-size: 3rem; margin-bottom: 1rem; }
+        .no-pet-card h2 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+        .no-pet-card p { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.85rem 2rem;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            letter-spacing: 0.03em;
+        }
+
+        .cta-btn:hover {
+            box-shadow: 0 0 24px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        /* ── Pre-fight overlay ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(5, 2, 2, 0.92);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .overlay.visible {
+            display: flex;
+        }
+
+        .overlay-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            animation: fadeSlideIn 0.3s ease-out both;
+        }
+
+        .prefight-rival {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .prefight-rival .portrait { font-size: 3.5rem; }
+        .prefight-rival .name { font-size: 1.3rem; font-weight: 700; margin-top: 0.3rem; }
+        .prefight-rival .title-text { font-size: 0.85rem; color: var(--text-dim); }
+
+        .prefight-quote {
+            font-size: 0.95rem;
+            color: var(--text-dim);
+            font-style: italic;
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            margin-bottom: 1.5rem;
+            border-left: 3px solid var(--accent);
+        }
+
+        .prefight-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .prefight-fighter {
+            text-align: center;
+            padding: 0.75rem;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .prefight-fighter .f-emoji { font-size: 2rem; }
+        .prefight-fighter .f-name { font-size: 0.85rem; font-weight: 700; margin-top: 0.2rem; }
+        .prefight-fighter .f-stats { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.2rem; }
+        .prefight-fighter .f-level { font-size: 0.65rem; color: var(--accent); font-weight: 700; margin-top: 0.1rem; }
+
+        .prefight-tier-warning {
+            font-size: 0.75rem;
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .prefight-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .prefight-buttons button {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-fight {
+            background: var(--accent);
+            color: #fff;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-fight:hover {
+            box-shadow: 0 0 24px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        .btn-cancel {
+            background: transparent;
+            color: var(--text-dim);
+            border: 1px solid var(--border) !important;
+        }
+
+        .btn-cancel:hover { border-color: var(--text-dim) !important; color: var(--text); }
+
+        /* ── Fight arena phase ── */
+        .fight-phase {
+            display: none;
+        }
+
+        .fight-phase.visible { display: block; }
+
+        .arena-fighters {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .arena-fighter {
+            text-align: center;
+        }
+
+        .arena-fighter .a-emoji { font-size: 3rem; }
+        .arena-fighter .a-name { font-size: 0.85rem; font-weight: 700; margin-top: 0.3rem; }
+
+        .arena-vs {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .hp-bars-container {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .hp-bar-wrapper {
+            flex: 1;
+        }
+
+        .hp-bar-label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            margin-bottom: 0.2rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .hp-bar-bg {
+            height: 8px;
+            background: var(--bg-code);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .hp-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.1s ease;
+        }
+
+        .hp-bar-fill.pet-bar { background: var(--green); }
+        .hp-bar-fill.opp-bar { background: var(--accent); }
+
+        .tick-display {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .arena-status {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-dim);
+        }
+
+        /* ── Result overlay ── */
+        .result-phase {
+            display: none;
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .result-phase.visible { display: block; }
+
+        .result-verdict {
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-verdict.win { color: var(--green); text-shadow: 0 0 30px rgba(78, 204, 163, 0.4); }
+        .result-verdict.loss { color: var(--accent); text-shadow: 0 0 30px rgba(230, 57, 70, 0.4); }
+
+        .result-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            margin-bottom: 0.5rem;
+        }
+
+        .result-xp {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .result-vendetta {
+            font-size: 0.95rem;
+            color: var(--text-dim);
+            font-style: italic;
+            padding: 1rem 1.5rem;
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            border-left: 3px solid var(--accent);
+            margin: 1.5rem auto;
+            max-width: 400px;
+            text-align: left;
+        }
+
+        .result-vendetta .speaker {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-style: normal;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.3rem;
+        }
+
+        .result-buttons {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .result-buttons button, .result-buttons a {
+            padding: 0.7rem 1.5rem;
+            border-radius: var(--radius);
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-primary:hover { box-shadow: 0 0 20px var(--accent-glow); }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-dim);
+            border: 1px solid var(--border) !important;
+        }
+
+        .btn-secondary:hover { border-color: var(--text-dim) !important; color: var(--text); }
+
+        /* ── Defeated overlay ── */
+        .defeated-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(5, 2, 2, 0.95);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .defeated-overlay.visible { display: flex; }
+
+        .defeated-panel {
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            animation: defeatSlam 0.5s ease-out both;
+        }
+
+        @keyframes defeatSlam {
+            0% { transform: scale(1.5); opacity: 0; }
+            60% { transform: scale(0.95); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .defeated-portrait { font-size: 4rem; filter: grayscale(0.4); margin-bottom: 1rem; }
+
+        .defeated-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--green);
+            letter-spacing: 0.08em;
+            text-shadow: 0 0 30px rgba(78, 204, 163, 0.5);
+            margin-bottom: 0.3rem;
+        }
+
+        .defeated-name {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+
+        .defeated-quote {
+            font-size: 0.95rem;
+            color: var(--text-dim);
+            font-style: italic;
+            padding: 1rem 1.5rem;
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            border-left: 3px solid var(--green);
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .defeated-xp {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .defeated-cosmetic {
+            font-size: 0.8rem;
+            color: var(--purple);
+            margin-bottom: 1.5rem;
+        }
+
+        .defeated-btn {
+            padding: 0.85rem 2.5rem;
+            background: var(--green);
+            color: #000;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .defeated-btn:hover {
+            box-shadow: 0 0 24px rgba(78, 204, 163, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* ── Footer ── */
+        .footer {
+            border-top: 1px solid var(--border);
+            padding: 1.5rem 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 3rem;
+            animation: fadeSlideIn 1s ease-out 0.4s both;
+        }
+
+        .footer a {
+            color: var(--text-dim);
+            text-decoration: none;
+            margin: 0 0.75rem;
+        }
+
+        .footer a:hover { color: var(--text); }
+
+        /* ── Nav override ── */
+        .nav-fight a {
+            color: var(--accent) !important;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-fight a.active {
+            text-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 700px) {
+            .rivals-grid, .vanquished-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .prefight-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .hp-bars-container {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .rivals-header h1 { font-size: 1.5rem; }
+            .rival-portrait { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li class="nav-dropdown">
+                    <a href="/tournaments">Benchmark &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/tournaments">Tournaments</a></li>
+                        <li><a href="/leaderboard">Leaderboard</a></li>
+                        <li><a href="/methodology">Methodology</a></li>
+                        <li><a href="/match-log">Match Log</a></li>
+                        <li><a href="/compare">Compare</a></li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="/s1-leaderboard">Seasons &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/s1-leaderboard">S1 Leaderboard</a></li>
+                        <li><a href="/s1-fighters">Meet the Fighters</a></li>
+                        <li><a href="/s1-matchups">Matchup Explorer</a></li>
+                        <li><a href="/play">S1 Quick Fight</a></li>
+                        <li><a href="/s1-compare">Benchmark vs S1</a></li>
+                        <li><a href="/moreddit">The Moreddit</a></li>
+                    </ul>
+                </li>
+                <li><a href="/pets">Pets</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+                <li class="nav-fight"><a href="/island" class="active">FIGHT!</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="island-page">
+        <!-- Loading -->
+        <div id="loadingScreen" class="loading-screen">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Scanning for rivals...</div>
+        </div>
+
+        <!-- Main content -->
+        <div id="mainContent" style="display:none;">
+
+            <!-- Header -->
+            <div class="rivals-header">
+                <h1>Rival <span>Encounters</span></h1>
+                <div class="subtitle">Face your nemeses. Earn their respect — or their fear.</div>
+            </div>
+
+            <!-- No pet warning -->
+            <div id="noPetState" class="no-pet-card" style="display:none;">
+                <div class="empty-emoji">&#9876;</div>
+                <h2>No Fighter Ready</h2>
+                <p>You need an active pet to challenge rivals.</p>
+                <a href="/island/create" class="cta-btn">Create a Pet</a>
+            </div>
+
+            <!-- Active rivals -->
+            <div id="rivalsSection" style="display:none;">
+                <div class="section-title"><span class="section-icon">&#9876;</span> Your Rivals</div>
+                <div class="rivals-grid" id="rivalsGrid"></div>
+            </div>
+
+            <!-- Vanquished -->
+            <div id="vanquishedSection" class="vanquished-section" style="display:none;">
+                <div class="section-title"><span class="section-icon">&#9760;</span> Vanquished</div>
+                <div class="vanquished-grid" id="vanquishedGrid"></div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <div>Moreau Arena &mdash; The Island</div>
+                <div style="margin-top: 0.5rem;">
+                    <a href="/island">Dashboard</a>
+                    <a href="/paper">Paper</a>
+                    <a href="/api-docs">API Docs</a>
+                    <a href="https://github.com">GitHub</a>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Pre-fight overlay -->
+    <div class="overlay" id="prefightOverlay">
+        <div class="overlay-panel" id="prefightPanel"></div>
+    </div>
+
+    <!-- Fight phase (replaces main content during fight) -->
+    <div class="fight-phase" id="fightPhase">
+        <div style="max-width:500px; margin:3rem auto; padding:0 1.5rem;">
+            <div class="arena-fighters" id="arenaFighters"></div>
+            <div class="hp-bars-container" id="hpBars" style="display:none;">
+                <div class="hp-bar-wrapper">
+                    <div class="hp-bar-label">
+                        <span id="petBarName">Your Pet</span>
+                        <span id="petHpVal"></span>
+                    </div>
+                    <div class="hp-bar-bg"><div class="hp-bar-fill pet-bar" id="petHpBar" style="width:100%"></div></div>
+                </div>
+                <div class="hp-bar-wrapper">
+                    <div class="hp-bar-label">
+                        <span id="oppBarName">Rival</span>
+                        <span id="oppHpVal"></span>
+                    </div>
+                    <div class="hp-bar-bg"><div class="hp-bar-fill opp-bar" id="oppHpBar" style="width:100%"></div></div>
+                </div>
+            </div>
+            <div class="tick-display" id="tickDisplay"></div>
+            <div class="arena-status" id="arenaStatus">Preparing arena...</div>
+        </div>
+    </div>
+
+    <!-- Result phase -->
+    <div class="result-phase" id="resultPhase"></div>
+
+    <!-- Defeated overlay -->
+    <div class="defeated-overlay" id="defeatedOverlay"></div>
+
+    <script>
+        // ══════════════════════════════════════════════
+        //  Rival Encounters — NPC Nemesis System
+        // ══════════════════════════════════════════════
+
+        const EMOJI_MAP = {
+            bear:'\u{1F43B}', buffalo:'\u{1F9AC}', boar:'\u{1F417}', tiger:'\u{1F405}',
+            wolf:'\u{1F43A}', monkey:'\u{1F412}', porcupine:'\u{1F994}', scorpion:'\u{1F982}',
+            vulture:'\u{1F985}', rhino:'\u{1F98F}', viper:'\u{1F40D}', fox:'\u{1F98A}',
+            eagle:'\u{1F985}', panther:'\u{1F408}'
+        };
+
+        const LEVEL_THRESHOLDS = {1:0, 2:50, 3:100, 4:150, 5:200, 6:300, 7:400, 8:500, 9:600, 10:750};
+        const MAX_LEVEL = 10;
+        const XP_RIVAL_WIN = 40;
+        const XP_RIVAL_LOSS = 15;
+        const WINS_TO_DEFEAT = 3;
+        const MAX_TIER = 5;
+        const TIER_STAT_BONUS = 2;
+
+        // ── 20 Rival Archetypes ──
+
+        const RIVAL_ARCHETYPES = [
+            {
+                id: 'dr_vex',
+                name: 'Dr. Vex',
+                title: 'The Cruel Scientist',
+                portrait: '\u{1F9EA}',
+                personality: 'Calculating, cold, sees pets as data points',
+                pets: [
+                    {name:'Toxica', animal:'scorpion', level:5, base_stats:{hp:4,atk:6,spd:5,wil:5}, mutations:['venom_glands']},
+                    {name:'Nightshade', animal:'viper', level:7, base_stats:{hp:3,atk:7,spd:6,wil:4}, mutations:['venom_glands','ambush_wiring']}
+                ],
+                vendetta: {
+                    intro: "Interesting specimen. Let's see how it performs under... pressure.",
+                    loss1: "Hmm. Unexpected. I'll adjust the variables.",
+                    loss2: "You're disrupting my research. That won't do.",
+                    loss3: "Fine. You've earned my full attention. That's not a good thing.",
+                    win1: "As predicted. Science always wins.",
+                    defeated: "Impossible... my calculations were perfect. PERFECT!"
+                }
+            },
+            {
+                id: 'iron_marshal',
+                name: 'The Iron Marshal',
+                title: 'Retired Arena Champion',
+                portrait: '\u{2694}\u{FE0F}',
+                personality: 'Honor-bound, tactical, respects strength',
+                pets: [
+                    {name:'Sentinel', animal:'buffalo', level:6, base_stats:{hp:7,atk:5,spd:3,wil:5}, mutations:['thick_skin']},
+                    {name:'Warden', animal:'rhino', level:8, base_stats:{hp:8,atk:6,spd:2,wil:4}, mutations:['thick_skin','exoskeleton']}
+                ],
+                vendetta: {
+                    intro: "Stand and fight. I don't chase weaklings.",
+                    loss1: "Well struck. But one blow doesn't win a war.",
+                    loss2: "You have the instinct. Now prove you have the endurance.",
+                    loss3: "...I haven't felt this alive in years. Let's end this.",
+                    win1: "Stand up. Try again. That's not a request.",
+                    defeated: "You've earned it, warrior. The arena is yours now."
+                }
+            },
+            {
+                id: 'shadow_dancer',
+                name: 'Shadow Dancer',
+                title: 'The Unseen Blade',
+                portrait: '\u{1F311}',
+                personality: 'Silent, elegant, strikes from darkness',
+                pets: [
+                    {name:'Mirage', animal:'fox', level:5, base_stats:{hp:3,atk:5,spd:8,wil:4}, mutations:['cunning']},
+                    {name:'Eclipse', animal:'panther', level:7, base_stats:{hp:4,atk:7,spd:6,wil:3}, mutations:['shadow_stalk','ambush_wiring']}
+                ],
+                vendetta: {
+                    intro: "You won't see me coming. Nobody does.",
+                    loss1: "...faster than I expected. Interesting.",
+                    loss2: "You can see in the dark too? That changes things.",
+                    loss3: "No one has pushed me to use both. You'll wish they hadn't.",
+                    win1: "Gone before you blinked. That's the difference.",
+                    defeated: "You... found me. No one's ever found me before."
+                }
+            },
+            {
+                id: 'beast_king',
+                name: 'The Beast King',
+                title: 'Lord of the Wilds',
+                portrait: '\u{1F451}',
+                personality: 'Savage, primal, rules through raw power',
+                pets: [
+                    {name:'Rageclaw', animal:'bear', level:6, base_stats:{hp:6,atk:7,spd:3,wil:4}, mutations:['fury_protocol']},
+                    {name:'Goretusk', animal:'boar', level:7, base_stats:{hp:7,atk:6,spd:4,wil:3}, mutations:['charge','thick_skin']}
+                ],
+                vendetta: {
+                    intro: "RRRAAAGH! Another pretender to the throne!",
+                    loss1: "You... you hit hard. But I hit HARDER!",
+                    loss2: "The wild doesn't bow! It FIGHTS BACK!",
+                    loss3: "ENOUGH! I'll show you what a REAL beast looks like!",
+                    win1: "The strong survive. The weak... don't. Simple.",
+                    defeated: "You... beat the Beast King. The wilds... are yours."
+                }
+            },
+            {
+                id: 'whisper',
+                name: 'Whisper',
+                title: 'The Silent One',
+                portrait: '\u{1F32C}\u{FE0F}',
+                personality: 'Says almost nothing, lets actions speak',
+                pets: [
+                    {name:'Hush', animal:'eagle', level:5, base_stats:{hp:3,atk:5,spd:7,wil:5}, mutations:['aerial_advantage']},
+                    {name:'Stillness', animal:'vulture', level:7, base_stats:{hp:5,atk:6,spd:4,wil:5}, mutations:['carrion_feeder','aerial_advantage']}
+                ],
+                vendetta: {
+                    intro: "...",
+                    loss1: "...hm.",
+                    loss2: "......interesting.",
+                    loss3: "...you have my attention.",
+                    win1: "...",
+                    defeated: "...well fought. That's all I have to say."
+                }
+            },
+            {
+                id: 'chaos_agent',
+                name: 'Chaos Agent',
+                title: 'The Unpredictable',
+                portrait: '\u{1F0CF}',
+                personality: 'Manic, unpredictable, treats fights as games',
+                pets: [
+                    {name:'Mayhem', animal:'monkey', level:5, base_stats:{hp:4,atk:5,spd:6,wil:5}, mutations:['primate_cortex']},
+                    {name:'Entropy', animal:'monkey', level:7, base_stats:{hp:3,atk:6,spd:7,wil:4}, mutations:['primate_cortex','cunning']}
+                ],
+                vendetta: {
+                    intro: "Eenie meenie miney FIGHT! Hahahaha!",
+                    loss1: "Ooh! That was FUN! Do it again!",
+                    loss2: "You're making this TOO easy to enjoy!",
+                    loss3: "Okay okay okay. Serious face. SERIOUS. FACE. ...nah. CHAOS!",
+                    win1: "BOOM! Did NOT see that coming, did ya? Neither did I!",
+                    defeated: "Ha! HAHAHA! Best game I've EVER played! You win! I win! We ALL win!"
+                }
+            },
+            {
+                id: 'the_collector',
+                name: 'The Collector',
+                title: 'Hoarder of Rarities',
+                portrait: '\u{1F48E}',
+                personality: 'Obsessive, catalogues everything, envies mutations',
+                pets: [
+                    {name:'Specimen-A', animal:'porcupine', level:5, base_stats:{hp:5,atk:4,spd:4,wil:7}, mutations:['quill_armor']},
+                    {name:'Specimen-Prime', animal:'scorpion', level:7, base_stats:{hp:4,atk:5,spd:5,wil:6}, mutations:['venom_gland','quill_armor']}
+                ],
+                vendetta: {
+                    intro: "Oh my... what lovely mutations you have. I MUST catalogue them.",
+                    loss1: "Fascinating! I've recorded every detail of that fight.",
+                    loss2: "Your pet's combat patterns are... exquisite. I need more data.",
+                    loss3: "If I can't collect your pet, I'll collect your defeat instead.",
+                    win1: "Another specimen for the collection. Wonderful.",
+                    defeated: "You... you're the one specimen I could never contain. Remarkable."
+                }
+            },
+            {
+                id: 'night_terror',
+                name: 'Night Terror',
+                title: 'Stalker of the Dark Hours',
+                portrait: '\u{1F319}',
+                personality: 'Eerie, poetic about darkness, nocturnal predator',
+                pets: [
+                    {name:'Dread', animal:'panther', level:6, base_stats:{hp:4,atk:7,spd:5,wil:4}, mutations:['shadow_stalk']},
+                    {name:'Nightmare', animal:'viper', level:7, base_stats:{hp:3,atk:6,spd:7,wil:4}, mutations:['hemotoxin','shadow_stalk']}
+                ],
+                vendetta: {
+                    intro: "The dark has teeth. Would you like to meet them?",
+                    loss1: "Even the darkness blinks. But it always returns.",
+                    loss2: "You fight well in the light. But how long until sunset?",
+                    loss3: "I've been patient. I've been kind. No more.",
+                    win1: "Sleep well tonight. If you can.",
+                    defeated: "Dawn breaks... and for the first time, I don't mind."
+                }
+            },
+            {
+                id: 'the_pack',
+                name: 'The Pack',
+                title: 'Alpha of the Wolf Horde',
+                portrait: '\u{1F43A}',
+                personality: 'Pack-mentality, speaks in "we", strategic swarm tactics',
+                pets: [
+                    {name:'Fang', animal:'wolf', level:4, base_stats:{hp:4,atk:5,spd:6,wil:5}, mutations:['pack_sense']},
+                    {name:'Howl', animal:'wolf', level:6, base_stats:{hp:5,atk:6,spd:5,wil:4}, mutations:['pack_sense','rend']}
+                ],
+                vendetta: {
+                    intro: "We are many. You are one. The math is simple.",
+                    loss1: "One of us falls, another rises. We don't stop.",
+                    loss2: "You fight like a lone wolf. We'll teach you what a pack does.",
+                    loss3: "The full pack hunts now. Every. Single. One.",
+                    win1: "The pack feeds tonight. Thank you for the offering.",
+                    defeated: "You... broke the pack. We scatter. You are the alpha now."
+                }
+            },
+            {
+                id: 'storm_caller',
+                name: 'Storm Caller',
+                title: 'Rider of Lightning',
+                portrait: '\u{26A1}',
+                personality: 'Electric energy, speaks fast, moves faster',
+                pets: [
+                    {name:'Bolt', animal:'eagle', level:5, base_stats:{hp:3,atk:5,spd:8,wil:4}, mutations:['aerial_advantage']},
+                    {name:'Tempest', animal:'eagle', level:8, base_stats:{hp:4,atk:6,spd:7,wil:3}, mutations:['aerial_advantage','tailwind']}
+                ],
+                vendetta: {
+                    intro: "Blink and you'll miss it. Blink and you'll miss EVERYTHING.",
+                    loss1: "Fast! But am I faster? Let's find out AGAIN!",
+                    loss2: "Lightning doesn't strike twice? WRONG. It strikes as many times as I want.",
+                    loss3: "Full voltage. No holding back. Feel the THUNDER.",
+                    win1: "Too slow. Way too slow. Gotta be FASTER!",
+                    defeated: "You... outran the storm. I didn't think that was possible."
+                }
+            },
+            {
+                id: 'blood_artist',
+                name: 'Blood Artist',
+                title: 'The Crimson Painter',
+                portrait: '\u{1F3A8}',
+                personality: 'Sees violence as art, disturbingly aesthetic',
+                pets: [
+                    {name:'Canvas', animal:'tiger', level:6, base_stats:{hp:4,atk:7,spd:5,wil:4}, mutations:['ambush_wiring']},
+                    {name:'Masterpiece', animal:'tiger', level:8, base_stats:{hp:5,atk:8,spd:4,wil:3}, mutations:['ambush_wiring','fury_protocol']}
+                ],
+                vendetta: {
+                    intro: "Every fight is a canvas. Every wound, a brushstroke. Shall we begin?",
+                    loss1: "Beautiful... you paint with such raw strokes.",
+                    loss2: "My finest work is born from failure. You inspire me.",
+                    loss3: "The masterpiece awaits. This time, I use ALL my colors.",
+                    win1: "Exquisite. The red against the arena floor... perfection.",
+                    defeated: "You... you're the masterpiece. I was just the frame."
+                }
+            },
+            {
+                id: 'the_professor',
+                name: 'The Professor',
+                title: 'Scholar of Combat Theory',
+                portrait: '\u{1F4DA}',
+                personality: 'Academic, polite, treats fights as peer review',
+                pets: [
+                    {name:'Thesis', animal:'fox', level:5, base_stats:{hp:4,atk:4,spd:5,wil:7}, mutations:['cunning']},
+                    {name:'Axiom', animal:'buffalo', level:7, base_stats:{hp:6,atk:4,spd:3,wil:7}, mutations:['thick_hide','iron_will']}
+                ],
+                vendetta: {
+                    intro: "Ah, a new test subject! I mean... colleague. Shall we exchange hypotheses?",
+                    loss1: "Fascinating data point. I'll need to revise my model.",
+                    loss2: "Your methodology is... unorthodox, but clearly effective. Publishing soon?",
+                    loss3: "I've revised my thesis seventeen times because of you. This is the final draft.",
+                    win1: "Hypothesis confirmed. The data doesn't lie, I'm afraid.",
+                    defeated: "I... must concede. Your combat theory supersedes mine. Well published!"
+                }
+            },
+            {
+                id: 'graveyard_keeper',
+                name: 'Graveyard Keeper',
+                title: 'Mourner of Lost Pets',
+                portrait: '\u{26B0}\u{FE0F}',
+                personality: 'Somber, respectful, fights to honor the fallen',
+                pets: [
+                    {name:'Requiem', animal:'vulture', level:6, base_stats:{hp:5,atk:5,spd:5,wil:5}, mutations:['carrion_feeder']},
+                    {name:'Epitaph', animal:'vulture', level:8, base_stats:{hp:6,atk:5,spd:4,wil:5}, mutations:['carrion_feeder','death_spiral']}
+                ],
+                vendetta: {
+                    intro: "I fight in memory of those who fell. Do not take this lightly.",
+                    loss1: "They would have been proud. My fallen... they approve.",
+                    loss2: "Each loss adds a name to my memorial. Yours won't be among them yet.",
+                    loss3: "For every pet that ever drew its last breath in this arena... I fight.",
+                    win1: "Rest now. There's no shame in defeat. Only in forgetting.",
+                    defeated: "You fight with the weight of the living. That's... stronger than memory."
+                }
+            },
+            {
+                id: 'the_rookie',
+                name: 'The Rookie',
+                title: 'Overconfident Newcomer',
+                portrait: '\u{1F31F}',
+                personality: 'Nervous bravado, underestimates then panics, grows with each encounter',
+                pets: [
+                    {name:'Lucky', animal:'fox', level:3, base_stats:{hp:4,atk:4,spd:6,wil:6}, mutations:[]},
+                    {name:'Scrappy', animal:'wolf', level:5, base_stats:{hp:5,atk:5,spd:5,wil:5}, mutations:['pack_sense']}
+                ],
+                vendetta: {
+                    intro: "H-hey! You don't look so tough! I've been training for WEEKS!",
+                    loss1: "W-what?! That was... okay, you got lucky. LUCKY!",
+                    loss2: "Fine! Maybe you're good! But I'm getting BETTER!",
+                    loss3: "I'm not scared! I'm NOT! ...okay maybe a little. But I won't run!",
+                    win1: "YES! I KNEW IT! I'm the GREATEST! ...wait, really?",
+                    defeated: "I... I lost. But I learned SO much. Thank you. Seriously."
+                }
+            },
+            {
+                id: 'mutation_hunter',
+                name: 'Mutation Hunter',
+                title: 'Seeker of the Ultra-Rare',
+                portrait: '\u{1F52C}',
+                personality: 'Obsessed with rare mutations, jealous of enhanced pets',
+                pets: [
+                    {name:'Catalyst', animal:'scorpion', level:6, base_stats:{hp:3,atk:6,spd:5,wil:6}, mutations:['venom_gland','envenom']},
+                    {name:'Aberration', animal:'porcupine', level:8, base_stats:{hp:5,atk:5,spd:4,wil:6}, mutations:['quill_armor','spike_shield']}
+                ],
+                vendetta: {
+                    intro: "I've been tracking ultra-rare mutations for months. What do YOU have?",
+                    loss1: "Your pet's mutation expression... I need to study it closer.",
+                    loss2: "The mutation patterns in your fights are UNPRECEDENTED!",
+                    loss3: "I've stacked every mutation I could find. Let's see if quantity beats quality.",
+                    win1: "Ha! Mutations are everything. Raw stats are NOTHING.",
+                    defeated: "You proved that the trainer matters more than the mutation. I... see that now."
+                }
+            },
+            {
+                id: 'old_guard',
+                name: 'Old Guard',
+                title: 'Arena Veteran Since Day One',
+                portrait: '\u{1F9D3}',
+                personality: 'Cranky, nostalgic, complains about "new fighters"',
+                pets: [
+                    {name:'Ironside', animal:'rhino', level:7, base_stats:{hp:8,atk:5,spd:2,wil:5}, mutations:['bulwark_frame']},
+                    {name:'Broadback', animal:'buffalo', level:8, base_stats:{hp:7,atk:5,spd:3,wil:5}, mutations:['thick_hide','fortify']}
+                ],
+                vendetta: {
+                    intro: "Another new trainer? Back in MY day, we didn't have fancy mutations.",
+                    loss1: "Hmph. Beginner's luck. We'll see how long that lasts.",
+                    loss2: "Fine, you've got some skill. But you lack EXPERIENCE.",
+                    loss3: "I've forgotten more about fighting than you'll ever learn. Let me remind you.",
+                    win1: "THAT'S how it's done, youngster. Respect your elders.",
+                    defeated: "...you fight like I used to. Maybe the arena's in good hands after all."
+                }
+            },
+            {
+                id: 'the_ghost',
+                name: 'The Ghost',
+                title: 'Returned from Defeat',
+                portrait: '\u{1F47B}',
+                personality: 'Was defeated before, came back with new pets and a vendetta',
+                pets: [
+                    {name:'Revenant', animal:'panther', level:6, base_stats:{hp:4,atk:6,spd:6,wil:4}, mutations:['shadow_stalk']},
+                    {name:'Undying', animal:'bear', level:8, base_stats:{hp:6,atk:7,spd:3,wil:4}, mutations:['fury_protocol','last_stand']}
+                ],
+                vendetta: {
+                    intro: "Remember me? No? You will. I came back for ONE reason.",
+                    loss1: "Not yet. But soon. I've been practicing in the shadows.",
+                    loss2: "Every time you beat me, I come back stronger. Don't you get it?",
+                    loss3: "Third time. The number of the dead. Let's see who stays down.",
+                    win1: "Finally. FINALLY. The ghost doesn't haunt anymore. It devours.",
+                    defeated: "You... you can't kill what's already dead. But you tried. And won. Rest well."
+                }
+            },
+            {
+                id: 'apex_seeker',
+                name: 'Apex Seeker',
+                title: 'Hunter of Ultimate Forms',
+                portrait: '\u{1F525}',
+                personality: 'Knows about apex transformations, hunting the ultimate evolution',
+                pets: [
+                    {name:'Catalyst', animal:'tiger', level:7, base_stats:{hp:4,atk:7,spd:5,wil:4}, mutations:['ambush_wiring','pounce']},
+                    {name:'Zenith', animal:'bear', level:9, base_stats:{hp:7,atk:6,spd:3,wil:4}, mutations:['fury_protocol','berserker_rage']}
+                ],
+                vendetta: {
+                    intro: "I've seen what lies beyond Level 10. Have you? The apex awaits.",
+                    loss1: "Good. The path to apex demands you defeat everything in your way.",
+                    loss2: "You're close. I can see the apex energy building. But are you ready?",
+                    loss3: "Only the strongest reach apex. Let me test if you're truly worthy.",
+                    win1: "Not ready. The apex demands perfection. Return when you've found it.",
+                    defeated: "You... you might actually reach it. The apex. Go. Don't stop."
+                }
+            },
+            {
+                id: 'iron_maiden',
+                name: 'Iron Maiden',
+                title: 'The Undefeated',
+                portrait: '\u{1F6E1}\u{FE0F}',
+                personality: 'Cold confidence, unbroken win streak, respects no one until beaten',
+                pets: [
+                    {name:'Fortress', animal:'rhino', level:7, base_stats:{hp:7,atk:6,spd:3,wil:4}, mutations:['bulwark_frame','horn_charge']},
+                    {name:'Colossus', animal:'buffalo', level:9, base_stats:{hp:8,atk:5,spd:2,wil:5}, mutations:['thick_hide','iron_will']}
+                ],
+                vendetta: {
+                    intro: "Forty-seven wins. Zero losses. You're about to be forty-eight.",
+                    loss1: "...one loss. ONE. You have NO idea what you've done.",
+                    loss2: "My streak. My LEGACY. I'll rebuild it on YOUR defeat.",
+                    loss3: "No record. No pride. Just rage. Pure. Unfiltered. RAGE.",
+                    win1: "Forty-eight. The streak continues. Did you really think you could?",
+                    defeated: "Zero and... it doesn't matter. You taught me that numbers aren't everything."
+                }
+            },
+            {
+                id: 'the_gambler',
+                name: 'The Gambler',
+                title: 'All-In or Nothing',
+                portrait: '\u{1F3B2}',
+                personality: 'Bets on everything, cocky, treats fights like poker',
+                pets: [
+                    {name:'Jackpot', animal:'monkey', level:5, base_stats:{hp:3,atk:6,spd:7,wil:4}, mutations:['primate_cortex']},
+                    {name:'Double Down', animal:'fox', level:7, base_stats:{hp:3,atk:5,spd:8,wil:4}, mutations:['cunning','outfox']}
+                ],
+                vendetta: {
+                    intro: "I'll bet my best pet you can't beat me. Wanna take that action?",
+                    loss1: "Ha! Lost the hand but not the game. Double or nothing!",
+                    loss2: "Okay, you're on a streak. But streaks ALWAYS end. I know cards.",
+                    loss3: "All in. Everything I've got. The house doesn't always win... but I DO.",
+                    win1: "Read 'em and weep, kid! The house ALWAYS wins!",
+                    defeated: "...busted. You cleaned me out. Fair and square. Respect."
+                }
+            }
+        ];
+
+        // ── State ──
+
+        var pet = null;
+        var rivalsData = null;
+        var currentFightRivalIdx = -1;
+
+        // ── Init ──
+
+        function init() {
+            pet = getLocalActivePet();
+
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+
+            if (!pet || pet.deceased || pet.is_alive === false) {
+                document.getElementById('noPetState').style.display = 'block';
+                return;
+            }
+
+            rivalsData = loadRivals();
+            renderRivals();
+            renderVanquished();
+        }
+
+        // ── Local pet helpers ──
+
+        function getLocalActivePet() {
+            // Migrate old format
+            var oldRaw = localStorage.getItem('moreau_pet');
+            if (oldRaw) {
+                try {
+                    var oldPet = JSON.parse(oldRaw);
+                    var existing = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                    if (existing.length < 6) existing.push(oldPet);
+                    localStorage.setItem('moreau_pets', JSON.stringify(existing));
+                    localStorage.setItem('moreau_active_pet', String(existing.length - 1));
+                    localStorage.removeItem('moreau_pet');
+                } catch(e) { localStorage.removeItem('moreau_pet'); }
+            }
+
+            var pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            if (pets.length === 0) return null;
+            var idx = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
+            if (idx < 0 || idx >= pets.length) idx = 0;
+            return pets[idx];
+        }
+
+        function saveLocalActivePet(p) {
+            var pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            var idx = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
+            if (idx < 0 || idx >= pets.length) idx = 0;
+            pets[idx] = p;
+            localStorage.setItem('moreau_pets', JSON.stringify(pets));
+        }
+
+        function calcLevel(xp) {
+            var lvl = 1;
+            for (var l = MAX_LEVEL; l >= 1; l--) {
+                if (xp >= (LEVEL_THRESHOLDS[l] || 0)) { lvl = l; break; }
+            }
+            return lvl;
+        }
+
+        // ── Rivals data ──
+
+        function loadRivals() {
+            var raw = localStorage.getItem('moreau_rivals');
+            if (raw) {
+                try {
+                    var data = JSON.parse(raw);
+                    if (data && Array.isArray(data.assigned)) return data;
+                } catch(e) {}
+            }
+            // First visit: assign 3 random rivals
+            return assignNewRivals();
+        }
+
+        function assignNewRivals() {
+            var data = {assigned: [], vanquished: []};
+            // Get existing vanquished to avoid re-assigning
+            var raw = localStorage.getItem('moreau_rivals');
+            if (raw) {
+                try {
+                    var old = JSON.parse(raw);
+                    if (old && Array.isArray(old.vanquished)) data.vanquished = old.vanquished;
+                } catch(e) {}
+            }
+
+            var vanquishedIds = data.vanquished.map(function(v) { return v.archetype_id; });
+            var assignedIds = data.assigned.map(function(a) { return a.archetype_id; });
+            var available = RIVAL_ARCHETYPES.filter(function(a) {
+                return vanquishedIds.indexOf(a.id) === -1 && assignedIds.indexOf(a.id) === -1;
+            });
+
+            // Shuffle and pick 3
+            shuffleArray(available);
+            var count = Math.min(3, available.length);
+            for (var i = 0; i < count; i++) {
+                data.assigned.push({
+                    archetype_id: available[i].id,
+                    tier: 1,
+                    wins: 0,
+                    losses: 0,
+                    current_pet_index: 0,
+                    vendetta_unlocked: ['intro'],
+                    assigned_at: new Date().toISOString(),
+                    last_fight: null
+                });
+            }
+
+            saveRivals(data);
+            return data;
+        }
+
+        function saveRivals(data) {
+            localStorage.setItem('moreau_rivals', JSON.stringify(data));
+            rivalsData = data;
+        }
+
+        function shuffleArray(arr) {
+            for (var i = arr.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+            }
+        }
+
+        function getArchetype(id) {
+            for (var i = 0; i < RIVAL_ARCHETYPES.length; i++) {
+                if (RIVAL_ARCHETYPES[i].id === id) return RIVAL_ARCHETYPES[i];
+            }
+            return null;
+        }
+
+        function getTierStars(tier) {
+            var s = '';
+            for (var i = 0; i < tier; i++) s += '\u2605';
+            for (var i = tier; i < MAX_TIER; i++) s += '\u2606';
+            return s;
+        }
+
+        function timeAgo(isoStr) {
+            if (!isoStr) return 'Never';
+            var diff = Date.now() - new Date(isoStr).getTime();
+            var mins = Math.floor(diff / 60000);
+            if (mins < 1) return 'Just now';
+            if (mins < 60) return mins + 'm ago';
+            var hrs = Math.floor(mins / 60);
+            if (hrs < 24) return hrs + 'h ago';
+            var days = Math.floor(hrs / 24);
+            return days + 'd ago';
+        }
+
+        function isChallengePulsing(rivalState) {
+            if (!rivalState.last_fight) return true;
+            var diff = Date.now() - new Date(rivalState.last_fight).getTime();
+            return diff > 24 * 60 * 60 * 1000;
+        }
+
+        // ── Render rivals ──
+
+        function renderRivals() {
+            var section = document.getElementById('rivalsSection');
+            var grid = document.getElementById('rivalsGrid');
+
+            if (rivalsData.assigned.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = 'block';
+            var html = '';
+
+            rivalsData.assigned.forEach(function(rs, idx) {
+                var arch = getArchetype(rs.archetype_id);
+                if (!arch) return;
+
+                var pulsing = isChallengePulsing(rs);
+                var progressPct = (rs.wins / WINS_TO_DEFEAT) * 100;
+
+                html += '<div class="rival-card" id="rival-card-' + idx + '">';
+                html += '<div class="rival-portrait">' + arch.portrait + '</div>';
+                html += '<div class="rival-name">' + escHtml(arch.name) + '</div>';
+                html += '<div class="rival-title">' + escHtml(arch.title) + '</div>';
+                html += '<div class="rival-tier">' + getTierStars(rs.tier) + '</div>';
+                html += '<div class="rival-progress-bar"><div class="rival-progress-fill" style="width:' + progressPct + '%"></div></div>';
+                html += '<div class="rival-progress-label">' + rs.wins + '/' + WINS_TO_DEFEAT + ' victories to defeat</div>';
+                html += '<div class="rival-last-fight">Last fight: ' + timeAgo(rs.last_fight) + '</div>';
+                html += '<div class="rival-actions">';
+                html += '<button class="rival-challenge-btn' + (pulsing ? ' pulsing' : '') + '" onclick="showPrefight(' + idx + ')">CHALLENGE</button>';
+                html += '<button class="rival-details-btn" onclick="toggleDetails(' + idx + ')">View Details</button>';
+                html += '</div>';
+
+                // Expanded details
+                html += '<div class="rival-expanded" id="rival-details-' + idx + '">';
+                // Pet info
+                var petIdx = Math.min(rs.current_pet_index, arch.pets.length - 1);
+                var rivalPet = arch.pets[petIdx];
+                var emoji = EMOJI_MAP[rivalPet.animal] || '\u{1F43E}';
+                html += '<div class="rival-pet-info"><strong>' + emoji + ' ' + escHtml(rivalPet.name) + '</strong> &mdash; Lv.' + rivalPet.level + ' ' + capitalize(rivalPet.animal) + '</div>';
+                html += '<div class="rival-pet-info">HP:' + rivalPet.base_stats.hp + ' ATK:' + rivalPet.base_stats.atk + ' SPD:' + rivalPet.base_stats.spd + ' WIL:' + rivalPet.base_stats.wil;
+                if (rs.tier > 1) {
+                    html += ' <span style="color:var(--accent);">(+' + ((rs.tier - 1) * TIER_STAT_BONUS) + ' tier bonus)</span>';
+                }
+                html += '</div>';
+                if (rivalPet.mutations.length > 0) {
+                    html += '<div class="rival-pet-info" style="color:var(--purple);">Mutations: ' + rivalPet.mutations.join(', ') + '</div>';
+                }
+                html += '<div class="rival-pet-info">Record vs you: ' + rs.wins + 'W / ' + rs.losses + 'L</div>';
+
+                // Vendetta lines unlocked
+                var vendettaKeys = ['intro', 'loss1', 'loss2', 'loss3', 'win1', 'defeated'];
+                var vendettaLabels = {intro: 'First Words', loss1: 'After Loss 1', loss2: 'After Loss 2', loss3: 'After Loss 3', win1: 'After Victory', defeated: 'Defeated'};
+                vendettaKeys.forEach(function(key) {
+                    var unlocked = rs.vendetta_unlocked.indexOf(key) !== -1;
+                    html += '<div class="vendetta-label">' + vendettaLabels[key] + '</div>';
+                    if (unlocked) {
+                        html += '<div class="vendetta-line">"' + escHtml(arch.vendetta[key]) + '"</div>';
+                    } else {
+                        html += '<div class="vendetta-line locked">[ Locked ]</div>';
+                    }
+                });
+
+                html += '</div>';
+                html += '</div>';
+            });
+
+            grid.innerHTML = html;
+        }
+
+        function renderVanquished() {
+            var section = document.getElementById('vanquishedSection');
+            var grid = document.getElementById('vanquishedGrid');
+
+            if (!rivalsData.vanquished || rivalsData.vanquished.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = 'block';
+            var html = '';
+
+            rivalsData.vanquished.forEach(function(v) {
+                var arch = getArchetype(v.archetype_id);
+                if (!arch) return;
+
+                html += '<div class="vanquished-card">';
+                html += '<div class="vanquished-badge">Defeated</div>';
+                html += '<div class="rival-portrait">' + arch.portrait + '</div>';
+                html += '<div class="rival-name">' + escHtml(arch.name) + '</div>';
+                html += '<div class="rival-title">' + escHtml(arch.title) + '</div>';
+                html += '<div class="vanquished-record">' + v.total_wins + 'W / ' + v.total_losses + 'L</div>';
+                html += '<div class="vanquished-date">Defeated ' + timeAgo(v.defeated_at) + '</div>';
+                html += '</div>';
+            });
+
+            grid.innerHTML = html;
+        }
+
+        function toggleDetails(idx) {
+            var el = document.getElementById('rival-details-' + idx);
+            if (el) el.classList.toggle('visible');
+        }
+
+        // ── Pre-fight screen ──
+
+        function showPrefight(rivalIdx) {
+            currentFightRivalIdx = rivalIdx;
+            var rs = rivalsData.assigned[rivalIdx];
+            var arch = getArchetype(rs.archetype_id);
+            if (!arch) return;
+
+            var petIdx = Math.min(rs.current_pet_index, arch.pets.length - 1);
+            var rivalPet = arch.pets[petIdx];
+            var rivalEmoji = EMOJI_MAP[rivalPet.animal] || '\u{1F43E}';
+            var myBS = pet.base_stats || pet.stats || {};
+            var myEmoji = EMOJI_MAP[(pet.animal || '').toLowerCase()] || '\u{1F43E}';
+
+            // Pick vendetta line
+            var line = arch.vendetta.intro;
+            if (rs.losses >= 3) line = arch.vendetta.loss3;
+            else if (rs.losses >= 2) line = arch.vendetta.loss2;
+            else if (rs.losses >= 1) line = arch.vendetta.loss1;
+
+            // Calculate boosted stats
+            var bonus = (rs.tier - 1) * TIER_STAT_BONUS;
+            var rHP = rivalPet.base_stats.hp + bonus;
+            var rATK = rivalPet.base_stats.atk + bonus;
+            var rSPD = rivalPet.base_stats.spd + bonus;
+            var rWIL = rivalPet.base_stats.wil + bonus;
+
+            var html = '';
+            html += '<div class="prefight-rival">';
+            html += '<div class="portrait">' + arch.portrait + '</div>';
+            html += '<div class="name">' + escHtml(arch.name) + '</div>';
+            html += '<div class="title-text">' + escHtml(arch.title) + ' &mdash; ' + getTierStars(rs.tier) + '</div>';
+            html += '</div>';
+
+            html += '<div class="prefight-quote">"' + escHtml(line) + '"</div>';
+
+            html += '<div class="prefight-stats">';
+            // Your pet
+            html += '<div class="prefight-fighter">';
+            html += '<div class="f-emoji">' + myEmoji + '</div>';
+            html += '<div class="f-name">' + escHtml(pet.name || 'Your Pet') + '</div>';
+            html += '<div class="f-stats">HP:' + (myBS.hp || 5) + ' ATK:' + (myBS.atk || 5) + ' SPD:' + (myBS.spd || 5) + ' WIL:' + (myBS.wil || 5) + '</div>';
+            html += '<div class="f-level">Lv.' + (pet.level || 1) + '</div>';
+            html += '</div>';
+
+            // Rival pet
+            html += '<div class="prefight-fighter">';
+            html += '<div class="f-emoji">' + rivalEmoji + '</div>';
+            html += '<div class="f-name">' + escHtml(rivalPet.name) + '</div>';
+            html += '<div class="f-stats">HP:' + rHP + ' ATK:' + rATK + ' SPD:' + rSPD + ' WIL:' + rWIL + '</div>';
+            html += '<div class="f-level">Lv.' + rivalPet.level + '</div>';
+            html += '</div>';
+            html += '</div>';
+
+            if (rs.tier > 1) {
+                html += '<div class="prefight-tier-warning">Tier ' + rs.tier + ' &mdash; Stats boosted by +' + bonus + '</div>';
+            }
+
+            html += '<div class="prefight-buttons">';
+            html += '<button class="btn-cancel" onclick="closePrefight()">Back</button>';
+            html += '<button class="btn-fight" onclick="startRivalFight()">FIGHT!</button>';
+            html += '</div>';
+
+            document.getElementById('prefightPanel').innerHTML = html;
+            document.getElementById('prefightOverlay').classList.add('visible');
+        }
+
+        function closePrefight() {
+            document.getElementById('prefightOverlay').classList.remove('visible');
+            currentFightRivalIdx = -1;
+        }
+
+        // ── Fight ──
+
+        async function startRivalFight() {
+            var rivalIdx = currentFightRivalIdx;
+            if (rivalIdx < 0) return;
+
+            var rs = rivalsData.assigned[rivalIdx];
+            var arch = getArchetype(rs.archetype_id);
+            if (!arch) return;
+
+            closePrefight();
+
+            // Hide main, show fight phase
+            document.getElementById('mainContent').style.display = 'none';
+            var fightPhase = document.getElementById('fightPhase');
+            fightPhase.classList.add('visible');
+
+            var petIdx = Math.min(rs.current_pet_index, arch.pets.length - 1);
+            var rivalPet = arch.pets[petIdx];
+            var bonus = (rs.tier - 1) * TIER_STAT_BONUS;
+            var rHP = rivalPet.base_stats.hp + bonus;
+            var rATK = rivalPet.base_stats.atk + bonus;
+            var rSPD = rivalPet.base_stats.spd + bonus;
+            var rWIL = rivalPet.base_stats.wil + bonus;
+
+            var myBS = pet.base_stats || pet.stats || {};
+            var petBuild = (pet.animal || 'fox') + ' ' + (myBS.hp || 5) + ' ' + (myBS.atk || 5) + ' ' + (myBS.spd || 5) + ' ' + (myBS.wil || 5);
+            var rivalBuild = rivalPet.animal + ' ' + rHP + ' ' + rATK + ' ' + rSPD + ' ' + rWIL;
+
+            var myEmoji = EMOJI_MAP[(pet.animal || '').toLowerCase()] || '\u{1F43E}';
+            var rivalEmoji = EMOJI_MAP[rivalPet.animal] || '\u{1F43E}';
+
+            // Render arena
+            document.getElementById('arenaFighters').innerHTML =
+                '<div class="arena-fighter"><div class="a-emoji">' + myEmoji + '</div><div class="a-name">' + escHtml(pet.name || 'Your Pet') + '</div></div>' +
+                '<div class="arena-vs">VS</div>' +
+                '<div class="arena-fighter"><div class="a-emoji">' + rivalEmoji + '</div><div class="a-name">' + escHtml(rivalPet.name) + '</div></div>';
+
+            document.getElementById('hpBars').style.display = 'none';
+            document.getElementById('arenaStatus').style.display = 'block';
+            document.getElementById('arenaStatus').innerHTML = 'Preparing arena...';
+            document.getElementById('tickDisplay').textContent = '';
+            document.getElementById('petBarName').textContent = pet.name || 'Your Pet';
+            document.getElementById('oppBarName').textContent = rivalPet.name;
+
+            try {
+                var resp = await fetch('/api/v1/fight/s1', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ build1: petBuild, build2: rivalBuild, games: 1 })
+                });
+                if (!resp.ok) {
+                    var err = await resp.json().catch(function() { return {}; });
+                    throw new Error(err.detail || 'Server error ' + resp.status);
+                }
+                var data = await resp.json();
+
+                // Animate HP bars
+                await animateFight(data);
+
+                // Process result
+                var won = data.build1_wins > 0;
+                var ticks = data.avg_ticks || (data.results && data.results[0] ? data.results[0].ticks : null) || null;
+
+                processRivalResult(rivalIdx, won, ticks, arch);
+            } catch (e) {
+                document.getElementById('arenaStatus').innerHTML =
+                    '<div style="color:var(--accent)">Fight failed: ' + (e.message || 'Network error') + '</div>' +
+                    '<button class="btn-secondary" style="margin-top:1rem" onclick="returnToRivals()">Back to Rivals</button>';
+            }
+        }
+
+        async function animateFight(data) {
+            var result = data.results ? data.results[0] : null;
+            var hpA = result ? result.hp_a_history : null;
+            var hpB = result ? result.hp_b_history : null;
+
+            if (!hpA || !hpB) return;
+
+            document.getElementById('arenaStatus').style.display = 'none';
+            document.getElementById('hpBars').style.display = 'flex';
+
+            var maxA = hpA[0], maxB = hpB[0];
+            var petBar = document.getElementById('petHpBar');
+            var oppBar = document.getElementById('oppHpBar');
+            var petVal = document.getElementById('petHpVal');
+            var oppVal = document.getElementById('oppHpVal');
+            var tickEl = document.getElementById('tickDisplay');
+
+            var totalTicks = hpA.length;
+            var delay = Math.max(30, Math.min(150, 3000 / totalTicks));
+
+            for (var i = 0; i < totalTicks; i++) {
+                var pctA = Math.max(0, (hpA[i] / maxA) * 100);
+                var pctB = Math.max(0, (hpB[i] / maxB) * 100);
+                petBar.style.width = pctA + '%';
+                oppBar.style.width = pctB + '%';
+                petVal.textContent = Math.max(0, Math.round(hpA[i])) + ' / ' + maxA;
+                oppVal.textContent = Math.max(0, Math.round(hpB[i])) + ' / ' + maxB;
+                tickEl.textContent = 'Tick ' + (i + 1) + ' / ' + totalTicks;
+                await sleep(delay);
+            }
+
+            await sleep(400);
+        }
+
+        function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+        // ── Process result ──
+
+        function processRivalResult(rivalIdx, won, ticks, arch) {
+            var rs = rivalsData.assigned[rivalIdx];
+
+            rs.last_fight = new Date().toISOString();
+
+            if (won) {
+                rs.wins += 1;
+                // Unlock vendetta lines based on losses to player (rival's losses)
+                if (rs.wins === 1 && rs.vendetta_unlocked.indexOf('loss1') === -1) rs.vendetta_unlocked.push('loss1');
+                if (rs.wins === 2 && rs.vendetta_unlocked.indexOf('loss2') === -1) rs.vendetta_unlocked.push('loss2');
+                if (rs.wins >= 3 && rs.vendetta_unlocked.indexOf('loss3') === -1) rs.vendetta_unlocked.push('loss3');
+            } else {
+                rs.losses += 1;
+                // Tier up on loss (rival gets stronger)
+                if (rs.tier < MAX_TIER) rs.tier += 1;
+                // Cycle to next pet if available
+                if (arch.pets.length > 1) {
+                    rs.current_pet_index = (rs.current_pet_index + 1) % arch.pets.length;
+                }
+                if (rs.vendetta_unlocked.indexOf('win1') === -1) rs.vendetta_unlocked.push('win1');
+            }
+
+            // XP
+            var xpGained = won ? XP_RIVAL_WIN : XP_RIVAL_LOSS;
+            var oldXp = pet.xp || 0;
+            pet.xp = oldXp + xpGained;
+            pet.level = calcLevel(pet.xp);
+
+            // Fight record
+            if (!pet.fights) pet.fights = [];
+            pet.fights.push({
+                opponent: arch.name + ' (' + arch.pets[Math.min(rs.current_pet_index, arch.pets.length - 1)].name + ')',
+                result: won ? 'win' : 'loss',
+                ticks: ticks,
+                timestamp: new Date().toISOString(),
+                type: 'rival'
+            });
+            if (pet.fights.length > 50) pet.fights = pet.fights.slice(-50);
+
+            if (won) {
+                pet.fights_won = (pet.fights_won || 0) + 1;
+            } else {
+                pet.fights_lost = (pet.fights_lost || 0) + 1;
+            }
+
+            saveLocalActivePet(pet);
+
+            // Check if rival defeated
+            if (won && rs.wins >= WINS_TO_DEFEAT) {
+                rs.vendetta_unlocked.push('defeated');
+                // Move to vanquished
+                rivalsData.vanquished.push({
+                    archetype_id: rs.archetype_id,
+                    defeated_at: new Date().toISOString(),
+                    total_wins: rs.wins,
+                    total_losses: rs.losses,
+                    cosmetic_id: 'badge_' + rs.archetype_id
+                });
+                rivalsData.assigned.splice(rivalIdx, 1);
+
+                // Replace with new rival if pool available
+                var usedIds = rivalsData.assigned.map(function(a) { return a.archetype_id; })
+                    .concat(rivalsData.vanquished.map(function(v) { return v.archetype_id; }));
+                var available = RIVAL_ARCHETYPES.filter(function(a) { return usedIds.indexOf(a.id) === -1; });
+                if (available.length > 0) {
+                    shuffleArray(available);
+                    rivalsData.assigned.push({
+                        archetype_id: available[0].id,
+                        tier: 1,
+                        wins: 0,
+                        losses: 0,
+                        current_pet_index: 0,
+                        vendetta_unlocked: ['intro'],
+                        assigned_at: new Date().toISOString(),
+                        last_fight: null
+                    });
+                }
+
+                saveRivals(rivalsData);
+
+                // Bonus XP for defeating rival
+                var bonusXP = 50;
+                pet.xp += bonusXP;
+                pet.level = calcLevel(pet.xp);
+                saveLocalActivePet(pet);
+
+                showDefeatedScreen(arch, xpGained + bonusXP);
+            } else {
+                saveRivals(rivalsData);
+                showResultScreen(won, xpGained, arch, rs);
+            }
+        }
+
+        // ── Result screen ──
+
+        function showResultScreen(won, xpGained, arch, rs) {
+            document.getElementById('fightPhase').classList.remove('visible');
+            var resultEl = document.getElementById('resultPhase');
+            resultEl.classList.add('visible');
+
+            // Pick vendetta line for reaction
+            var line = '';
+            if (won) {
+                if (rs.wins >= 3) line = arch.vendetta.loss3;
+                else if (rs.wins === 2) line = arch.vendetta.loss2;
+                else line = arch.vendetta.loss1;
+            } else {
+                line = arch.vendetta.win1;
+            }
+
+            var html = '';
+            html += '<div class="result-verdict ' + (won ? 'win' : 'loss') + '">' + (won ? 'VICTORY' : 'DEFEAT') + '</div>';
+            html += '<div class="result-subtitle">' + (won ? rs.wins + '/' + WINS_TO_DEFEAT + ' victories toward defeating ' + escHtml(arch.name) : 'Even defeat teaches.') + '</div>';
+            html += '<div class="result-xp">+' + xpGained + ' XP</div>';
+
+            html += '<div class="result-vendetta">';
+            html += '<div class="speaker">' + escHtml(arch.name) + ':</div>';
+            html += '"' + escHtml(line) + '"';
+            html += '</div>';
+
+            html += '<div class="result-buttons">';
+            html += '<button class="btn-secondary" onclick="returnToRivals()">Back to Rivals</button>';
+            html += '<button class="btn-primary" onclick="rematchRival()">Rematch</button>';
+            html += '</div>';
+
+            resultEl.innerHTML = html;
+        }
+
+        function showDefeatedScreen(arch, totalXP) {
+            document.getElementById('fightPhase').classList.remove('visible');
+            var overlay = document.getElementById('defeatedOverlay');
+            overlay.classList.add('visible');
+
+            var html = '<div class="defeated-panel">';
+            html += '<div class="defeated-portrait">' + arch.portrait + '</div>';
+            html += '<div class="defeated-title">RIVAL DEFEATED</div>';
+            html += '<div class="defeated-name">' + escHtml(arch.name) + ' &mdash; ' + escHtml(arch.title) + '</div>';
+            html += '<div class="defeated-quote">"' + escHtml(arch.vendetta.defeated) + '"</div>';
+            html += '<div class="defeated-xp">+' + totalXP + ' XP (includes defeat bonus!)</div>';
+            html += '<div class="defeated-cosmetic">Unlocked: ' + escHtml(arch.name) + ' Victory Badge</div>';
+            html += '<button class="defeated-btn" onclick="closeDefeated()">Continue</button>';
+            html += '</div>';
+
+            overlay.innerHTML = html;
+        }
+
+        function closeDefeated() {
+            document.getElementById('defeatedOverlay').classList.remove('visible');
+            returnToRivals();
+        }
+
+        function returnToRivals() {
+            document.getElementById('fightPhase').classList.remove('visible');
+            document.getElementById('resultPhase').classList.remove('visible');
+            document.getElementById('resultPhase').innerHTML = '';
+            document.getElementById('mainContent').style.display = 'block';
+            renderRivals();
+            renderVanquished();
+        }
+
+        function rematchRival() {
+            // Find the same rival in the updated assigned list
+            document.getElementById('resultPhase').classList.remove('visible');
+            document.getElementById('resultPhase').innerHTML = '';
+            document.getElementById('mainContent').style.display = 'block';
+            renderRivals();
+            renderVanquished();
+
+            // Re-challenge if still assigned
+            if (currentFightRivalIdx >= 0 && currentFightRivalIdx < rivalsData.assigned.length) {
+                showPrefight(currentFightRivalIdx);
+            }
+        }
+
+        // ── Utility ──
+
+        function capitalize(s) {
+            if (!s) return '';
+            return s.charAt(0).toUpperCase() + s.slice(1);
+        }
+
+        function escHtml(s) {
+            if (!s) return '';
+            var d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        // ── Start ──
+        init();
+    </script>
+</body>
+</html>

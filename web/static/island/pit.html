@@ -933,11 +933,24 @@
             return p.animal + ' ' + (bs.hp||5) + ' ' + (bs.atk||5) + ' ' + (bs.spd||5) + ' ' + (bs.wil||5);
         }
 
+        function isTaintedBlocked(p) {
+            if (!p) return false;
+            var tainted = p.is_tainted || (p.corruption || 0) >= 100;
+            if (!tainted) return false;
+            var h = new Date().getHours();
+            return !(h >= 21 || h < 6);
+        }
+
         async function startFight() {
             if (leftIdx === null || rightIdx === null) return;
 
             var leftPet = allPets[leftIdx];
             var rightPet = allPets[rightIdx];
+
+            if (isTaintedBlocked(leftPet) || isTaintedBlocked(rightPet)) {
+                alert('The Tainted can only fight in darkness (9 PM \u2013 6 AM)');
+                return;
+            }
 
             // Show fight phase
             document.getElementById('phase-select').style.display = 'none';

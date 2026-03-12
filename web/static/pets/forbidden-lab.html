@@ -1162,6 +1162,211 @@
 
         .btn-close-modal:hover { border-color: var(--text-dim); color: var(--text); }
 
+        /* ── Corruption Choice Modal ── */
+        #corruption-choice-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 1050;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .corruption-choice-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .corruption-choice-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+        }
+
+        .corruption-choice-paths {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 500px) {
+            .corruption-choice-paths { grid-template-columns: 1fr; }
+        }
+
+        .choice-path {
+            background: var(--bg-code);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .choice-path:hover { transform: translateY(-3px); }
+
+        .choice-path.path-pure {
+            border-color: rgba(78, 204, 163, 0.4);
+        }
+
+        .choice-path.path-pure:hover {
+            border-color: var(--green);
+            box-shadow: 0 0 20px rgba(78, 204, 163, 0.2);
+        }
+
+        .choice-path.path-corrupt {
+            border-color: rgba(139, 0, 0, 0.5);
+            animation: corruptPulse 2s ease-in-out infinite;
+        }
+
+        .choice-path.path-corrupt:hover {
+            border-color: #8b0000;
+            box-shadow: 0 0 30px rgba(139, 0, 0, 0.4);
+        }
+
+        @keyframes corruptPulse {
+            0%, 100% { box-shadow: 0 0 8px rgba(139, 0, 0, 0.2); }
+            50% { box-shadow: 0 0 25px rgba(139, 0, 0, 0.4); }
+        }
+
+        .choice-path-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .path-pure .choice-path-label { color: var(--green); }
+        .path-corrupt .choice-path-label { color: #8b0000; }
+
+        .choice-path-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .path-pure .choice-path-name { color: var(--text); }
+        .path-corrupt .choice-path-name { color: #ff3333; }
+
+        .choice-path-desc {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+            font-style: italic;
+        }
+
+        .choice-path-stats {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .choice-path-stats .stat-pill {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .choice-corruption-cost {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #8b0000;
+            margin-top: 0.25rem;
+        }
+
+        .corruption-meter-mini {
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .corruption-meter-mini .corruption-bar-bg {
+            height: 8px;
+            background: var(--bg-code);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            margin-top: 0.25rem;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .corruption-meter-mini .corruption-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, #8b0000, #ff3333);
+            transition: width 0.6s ease;
+        }
+
+        .btn-choose-pure, .btn-choose-corrupt {
+            display: block;
+            width: 100%;
+            padding: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.5rem;
+        }
+
+        .btn-choose-pure {
+            background: transparent;
+            border: 1px solid var(--green);
+            color: var(--green);
+        }
+
+        .btn-choose-pure:hover { background: var(--green); color: var(--bg); }
+
+        .btn-choose-corrupt {
+            background: transparent;
+            border: 1px solid #8b0000;
+            color: #ff3333;
+            animation: corruptBtnPulse 2s ease-in-out infinite;
+        }
+
+        .btn-choose-corrupt:hover { background: #8b0000; color: #fff; }
+
+        @keyframes corruptBtnPulse {
+            0%, 100% { box-shadow: 0 0 5px rgba(139, 0, 0, 0.2); }
+            50% { box-shadow: 0 0 15px rgba(139, 0, 0, 0.5); }
+        }
+
+        /* ── Corruption Indicator on Result Card ── */
+        .result-corruption-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #ff3333;
+            background: rgba(139, 0, 0, 0.15);
+            border: 1px solid rgba(139, 0, 0, 0.3);
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
         /* ── Screen Shake ── */
         .screen-shake { animation: shake 0.4s ease-in-out; }
 
@@ -1452,6 +1657,20 @@
         </div>
     </div>
 
+    <!-- Corruption Choice Overlay -->
+    <div id="corruption-choice-overlay" onclick="if(event.target===this)cancelCorruptionChoice()">
+        <div class="corruption-choice-card">
+            <div class="corruption-choice-title">Choose Your Path</div>
+            <div class="corruption-choice-paths" id="corruption-choice-paths"></div>
+            <div class="corruption-meter-mini">
+                <span>Corruption: <span id="corruption-meter-value">0</span> / 100</span>
+                <div class="corruption-bar-bg">
+                    <div class="corruption-bar-fill" id="corruption-meter-bar" style="width:0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Odds Modal -->
     <div id="odds-modal" onclick="if(event.target===this)closeOdds()">
         <div class="odds-content" id="odds-content"></div>
@@ -1570,6 +1789,43 @@
         { id:'ur_porcupine', animal:'porcupine', name:'NEEDLE STORM',           desc:'Return 100% damage on every hit received, attackers take spike damage on contact' },
     ];
 
+    // ══════════════════════════════════════════════
+    //  CORRUPTED MUTATION POOLS
+    // ══════════════════════════════════════════════
+
+    const CORRUPT_TIER1 = [
+        {id:'corrupt_thick_skin', name:'Obsidian Skin', desc:'Hardened beyond nature. Reflects pain.', stats:{hp:3}, corruption:10, normal_variant:'t1_tough_skin'},
+        {id:'corrupt_sharp_claws', name:'Venom Talons', desc:'Claws drip with unnatural poison.', stats:{atk:3}, corruption:10, normal_variant:'t1_sharp_claws'},
+        {id:'corrupt_quick_reflexes', name:'Shadow Sprint', desc:'Move between moments.', stats:{spd:3}, corruption:10, normal_variant:'t1_quick_feet'},
+        {id:'corrupt_iron_will', name:'Dark Resolve', desc:'Will forged in corruption.', stats:{wil:3}, corruption:10, normal_variant:'t1_iron_will'},
+        {id:'corrupt_muscle_fibers', name:'Abyssal Sinew', desc:'Muscles that shouldn\'t exist.', stats:{hp:3,atk:1}, corruption:10, normal_variant:'t1_muscle_fibers'},
+    ];
+
+    const CORRUPT_TIER2 = [
+        {id:'corrupt_berserker', name:'Blood Vortex', desc:'Rage consumes all. Even allies.', stats:{atk:6,spd:1}, corruption:25, normal_variant:'t2_berserker_protocol'},
+        {id:'corrupt_fortress', name:'Tomb Shell', desc:'Encased in living stone. Slower. Unkillable.', stats:{hp:6,wil:1}, corruption:25, normal_variant:'t2_fortress_shell'},
+        {id:'corrupt_ghost_step', name:'Void Phase', desc:'Between dimensions. Untouchable.', stats:{spd:6,wil:1}, corruption:25, normal_variant:'t2_ghost_step'},
+        {id:'corrupt_mind_fortress', name:'Psychic Abyss', desc:'Your mind is a weapon. Their mind is prey.', stats:{wil:6,hp:1}, corruption:25, normal_variant:'t2_mind_fortress'},
+        {id:'corrupt_predator', name:'Death Instinct', desc:'Kill or be killed. No third option.', stats:{atk:4,spd:4}, corruption:25, normal_variant:'t2_predator_wire'},
+        {id:'corrupt_regen', name:'Parasitic Heal', desc:'Drain life from the arena itself.', stats:{hp:5,spd:2}, corruption:25, normal_variant:'t2_regeneration'},
+    ];
+
+    const CORRUPT_TIER3 = [
+        {id:'corrupt_omega', name:'Extinction Protocol', desc:'The final mutation. Nothing survives.', stats:{atk:8,spd:2}, corruption:50, normal_variant:'t3_omega_protocol'},
+        {id:'corrupt_immortal', name:'Undying Abomination', desc:'Death rejected you. Now you reject everything.', stats:{hp:8,wil:2}, corruption:50, normal_variant:'t3_immortal_frame'},
+        {id:'corrupt_time', name:'Temporal Fracture', desc:'You exist in all moments. They exist in none.', stats:{spd:8,atk:2}, corruption:50, normal_variant:'t3_time_dilation'},
+        {id:'corrupt_hivemind', name:'Eldritch Network', desc:'Connected to something ancient. Something hungry.', stats:{wil:8,hp:2}, corruption:50, normal_variant:'t3_hivemind_link'},
+        {id:'corrupt_chimera', name:'Nightmare Splice', desc:'Three creatures in one body. All screaming.', stats:{hp:4,atk:4,spd:2}, corruption:50, normal_variant:'t3_chimera_splice'},
+    ];
+
+    const CORRUPT_POOLS = { 1: CORRUPT_TIER1, 2: CORRUPT_TIER2, 3: CORRUPT_TIER3 };
+
+    function findCorruptVariant(normalMutation, tier) {
+        const pool = CORRUPT_POOLS[tier];
+        if (!pool) return null;
+        return pool.find(c => c.normal_variant === normalMutation.id) || null;
+    }
+
     const SIDE_EFFECTS = {
         symbiotic: [
             { name:'Brittle Frame',        desc:'-2 HP, +10% crit chance',           stats:{hp:-2, crit:10} },
@@ -1636,6 +1892,7 @@
     let currentResult = null;
     let isRolling = false;
     let pendingTier = null;
+    let pendingCorruptChoice = null; // holds {normalMutation, corruptMutation, tier, sideEffect, cascadeResult, mercySaved}
 
     // ══════════════════════════════════════════════
     //  PET STORAGE
@@ -2300,7 +2557,14 @@
             showUltraRare(mutation);
         } else {
             await runSlotAnimation(tier, mutation);
-            showNormalResult(tier, mutation, sideEffect, cascadeResult, mercySaved);
+            // Check for corrupted variant
+            const corruptVariant = findCorruptVariant(mutation, tier);
+            if (corruptVariant) {
+                // Show corruption choice INSTEAD of normal result
+                showCorruptionChoice(mutation, corruptVariant, tier, sideEffect, cascadeResult, mercySaved);
+            } else {
+                showNormalResult(tier, mutation, sideEffect, cascadeResult, mercySaved);
+            }
         }
 
         renderCodex();
@@ -2509,6 +2773,110 @@
     }
 
     // ══════════════════════════════════════════════
+    //  CORRUPTION CHOICE
+    // ══════════════════════════════════════════════
+
+    function getCorruption() {
+        return pet.corruption || 0;
+    }
+
+    function showCorruptionChoice(normalMut, corruptMut, tier, sideEffect, cascadeResult, mercySaved) {
+        // Hide the result overlay first
+        document.getElementById('result-overlay').style.display = 'none';
+
+        pendingCorruptChoice = { normalMutation: normalMut, corruptMutation: corruptMut, tier, sideEffect, cascadeResult, mercySaved };
+
+        const pathsEl = document.getElementById('corruption-choice-paths');
+        const corruption = getCorruption();
+
+        function renderStatPills(stats) {
+            if (!stats || Object.keys(stats).length === 0) return '';
+            let html = '';
+            for (const [stat, val] of Object.entries(stats)) {
+                const sign = val > 0 ? '+' : '';
+                const cls = val < 0 ? 'negative' : 'positive';
+                html += '<span class="stat-pill ' + cls + '">' + sign + val + ' ' + stat.toUpperCase() + '</span>';
+            }
+            return html;
+        }
+
+        let html = '';
+        // Pure path
+        html += '<div class="choice-path path-pure" onclick="choosePure()">';
+        html += '<div class="choice-path-label">\u2606 Pure</div>';
+        html += '<div class="choice-path-name">' + normalMut.name + '</div>';
+        html += '<div class="choice-path-desc">' + normalMut.desc + '</div>';
+        html += '<div class="choice-path-stats">' + renderStatPills(normalMut.stats) + '</div>';
+        html += '<button class="btn-choose-pure" onclick="event.stopPropagation();choosePure()">Choose Pure</button>';
+        html += '</div>';
+
+        // Corrupt path
+        html += '<div class="choice-path path-corrupt" onclick="chooseCorrupt()">';
+        html += '<div class="choice-path-label">\u2726 Corrupted</div>';
+        html += '<div class="choice-path-name">' + corruptMut.name + '</div>';
+        html += '<div class="choice-path-desc">' + corruptMut.desc + '</div>';
+        html += '<div class="choice-path-stats">' + renderStatPills(corruptMut.stats) + '</div>';
+        html += '<div class="choice-corruption-cost">+' + corruptMut.corruption + ' Corruption</div>';
+        html += '<button class="btn-choose-corrupt" onclick="event.stopPropagation();chooseCorrupt()">Embrace Corruption</button>';
+        html += '</div>';
+
+        pathsEl.innerHTML = html;
+
+        // Update corruption meter
+        document.getElementById('corruption-meter-value').textContent = corruption;
+        document.getElementById('corruption-meter-bar').style.width = corruption + '%';
+
+        document.getElementById('corruption-choice-overlay').style.display = 'flex';
+    }
+
+    function choosePure() {
+        if (!pendingCorruptChoice) return;
+        const c = pendingCorruptChoice;
+        pendingCorruptChoice = null;
+        document.getElementById('corruption-choice-overlay').style.display = 'none';
+
+        currentResult = { mutation: c.normalMutation, tier: c.tier, sideEffect: c.sideEffect, isUltra: false, cascadeResult: c.cascadeResult };
+        discoverMutation(c.normalMutation.id);
+        showNormalResult(c.tier, c.normalMutation, c.sideEffect, c.cascadeResult, c.mercySaved);
+    }
+
+    function chooseCorrupt() {
+        if (!pendingCorruptChoice) return;
+        const c = pendingCorruptChoice;
+        pendingCorruptChoice = null;
+        document.getElementById('corruption-choice-overlay').style.display = 'none';
+
+        // Apply corruption cost
+        pet.corruption = Math.min(100, getCorruption() + c.corruptMutation.corruption);
+
+        // Check if just became tainted
+        if (pet.corruption >= 100) {
+            pet.is_tainted = true;
+        }
+
+        saveActivePet(pet);
+
+        currentResult = { mutation: c.corruptMutation, tier: c.tier, sideEffect: c.sideEffect, isUltra: false, cascadeResult: c.cascadeResult, isCorrupted: true };
+        discoverMutation(c.corruptMutation.id);
+        showNormalResult(c.tier, c.corruptMutation, c.sideEffect, c.cascadeResult, c.mercySaved);
+    }
+
+    function cancelCorruptionChoice() {
+        // Treat as discard of both
+        if (pendingCorruptChoice) {
+            addLogEntry({
+                tier: pendingCorruptChoice.tier,
+                mutation: pendingCorruptChoice.normalMutation.name + ' (choice abandoned)',
+                applied: false,
+                instability: pet.instability,
+            });
+            saveActivePet(pet);
+        }
+        pendingCorruptChoice = null;
+        document.getElementById('corruption-choice-overlay').style.display = 'none';
+    }
+
+    // ══════════════════════════════════════════════
     //  APPLY / DISCARD
     // ══════════════════════════════════════════════
 
@@ -2605,7 +2973,9 @@
     function closeAllOverlays() {
         document.getElementById('result-overlay').style.display = 'none';
         document.getElementById('ultra-overlay').style.display = 'none';
+        document.getElementById('corruption-choice-overlay').style.display = 'none';
         currentResult = null;
+        pendingCorruptChoice = null;
     }
 
     // ══════════════════════════════════════════════
@@ -2681,6 +3051,7 @@
         if (pet.instability == null) pet.instability = 0;
         if (pet.scars == null) pet.scars = 0;
         if (pet.lab_log == null) pet.lab_log = [];
+        if (pet.corruption == null) pet.corruption = 0;
 
         updatePetDisplay();
         renderCurrentMuts();

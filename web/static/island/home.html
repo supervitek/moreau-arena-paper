@@ -323,6 +323,83 @@
         .stat-spd .stat-bar-fill { background: var(--blue); }
         .stat-wil .stat-bar-fill { background: var(--purple); }
 
+        /* ── Corruption meter on pet card ── */
+        .corruption-section {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .corruption-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            margin-bottom: 0.3rem;
+        }
+
+        .corruption-label-title {
+            color: #8b0000;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .corruption-label-value {
+            color: #ff3333;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+
+        .corruption-bar-bg {
+            height: 8px;
+            background: var(--bg-code);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid rgba(139, 0, 0, 0.3);
+        }
+
+        .corruption-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, #8b0000, #ff3333);
+            transition: width 0.6s ease;
+        }
+
+        .tainted-badge {
+            display: inline-block;
+            margin-top: 0.5rem;
+            padding: 0.25rem 0.65rem;
+            border: 1px solid #8b0000;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #ff3333;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: rgba(139, 0, 0, 0.15);
+            animation: taintedPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes taintedPulse {
+            0%, 100% { box-shadow: 0 0 4px rgba(139, 0, 0, 0.2); }
+            50% { box-shadow: 0 0 12px rgba(139, 0, 0, 0.5); }
+        }
+
+        .active-pet-card.tainted-card {
+            border-color: rgba(139, 0, 0, 0.5);
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.15);
+        }
+
+        .active-pet-card.tainted-card::before {
+            content: 'TAINTED';
+            color: #ff3333;
+            border-color: #8b0000;
+        }
+
+        .active-pet-card.tainted-card .pet-name {
+            color: #ff3333;
+        }
+
         .deceased-badge {
             display: inline-block;
             margin-top: 0.75rem;
@@ -361,7 +438,7 @@
         /* ── Quick Actions ── */
         .actions {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: repeat(7, 1fr);
             gap: 0.75rem;
             margin-top: 1.5rem;
             animation: fadeSlideIn 0.7s ease-out 0.2s both;
@@ -415,6 +492,32 @@
         .action-logbook { border-color: var(--gold); }
         .action-logbook:hover { border-color: #e8b520; box-shadow: 0 4px 16px rgba(212,160,23,0.15); }
         .action-logbook .action-icon { color: var(--gold); }
+
+        .action-rivals { border-color: var(--accent); }
+        .action-rivals:hover { border-color: #ff4d5a; box-shadow: 0 4px 16px rgba(230,57,70,0.15); }
+        .action-rivals .action-icon { color: var(--accent); }
+
+        .action-btn.rival-available {
+            animation: rivalPulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes rivalPulse {
+            0%, 100% { box-shadow: 0 0 4px rgba(230,57,70,0.2); }
+            50% { box-shadow: 0 0 18px rgba(230,57,70,0.5); }
+        }
+
+        .action-btn .rival-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.45rem;
+            font-weight: 700;
+            padding: 0.1rem 0.3rem;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
 
         .action-btn.disabled {
             opacity: 0.35;
@@ -1002,6 +1105,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/static/island/supabase-client.js"></script>
+    <script src="/static/island/dreams-engine.js"></script>
     <script>
         // ══════════════════════════════════════
         //  Island Home — Player Dashboard
@@ -1225,15 +1329,28 @@
 
             const xp = xpProgress(pet);
             const maxStat = 30;
+            const corruption = pet.corruption || 0;
+            const isTainted = pet.is_tainted || corruption >= 100;
 
-            let html = '<div class="active-pet-card' + (deceased ? ' deceased' : '') + '">';
+            let cardClasses = 'active-pet-card';
+            if (deceased) cardClasses += ' deceased';
+            if (isTainted && !deceased) cardClasses += ' tainted-card';
+
+            let html = '<div class="' + cardClasses + '">';
 
             if (deceased) {
                 html += '<style>.active-pet-card.deceased::before { content: "IN MEMORIAM"; color: var(--text-muted); border-color: var(--text-muted); }</style>';
             }
 
             html += '<div class="pet-emoji">' + emoji + '</div>';
-            html += '<div class="pet-name">' + escHtml(name) + '</div>';
+
+            // Dream indicator next to pet name
+            var _dreamData = JSON.parse(localStorage.getItem('moreau_dreams') || '{"dreams":[],"unread_count":0}');
+            var _unreadDreams = _dreamData.dreams ? _dreamData.dreams.filter(function(d) { return !d.read; }).length : 0;
+            var _dreamBadge = _unreadDreams > 0
+                ? ' <a href="/island/dreams" style="color:#9b59b6;text-decoration:none;font-size:0.9em;" title="' + _unreadDreams + ' unread dream' + (_unreadDreams > 1 ? 's' : '') + '">&#10022;</a>'
+                : '';
+            html += '<div class="pet-name">' + escHtml(name) + _dreamBadge + '</div>';
             html += '<div class="pet-subtitle">Level ' + level + ' ' + capitalize(pet.animal || 'Creature') + '</div>';
 
             // Apex Form badge
@@ -1268,6 +1385,19 @@
                         '<span class="stat-val">' + val + '</span></div>';
                 });
                 html += '</div>';
+
+                // Corruption bar (show if corruption > 0)
+                if (corruption > 0) {
+                    html += '<div class="corruption-section">';
+                    html += '<div class="corruption-label"><span class="corruption-label-title">\u2620 Corruption</span><span class="corruption-label-value">' + corruption + '/100</span></div>';
+                    html += '<div class="corruption-bar-bg"><div class="corruption-bar-fill" style="width:' + corruption + '%"></div></div>';
+                    html += '</div>';
+                }
+
+                // Tainted badge
+                if (isTainted) {
+                    html += '<div class="tainted-badge">\u2620 TAINTED</div>';
+                }
             }
 
             html += '</div>';
@@ -1318,6 +1448,19 @@
             // LOGBOOK
             html += '<a href="/island/achievements" class="action-btn action-logbook">' +
                 '<span class="action-icon">&#127942;</span>LOGBOOK</a>';
+
+            // DREAMS
+            var _dj = JSON.parse(localStorage.getItem('moreau_dreams') || '{"dreams":[],"unread_count":0}');
+            var _djUnread = _dj.dreams ? _dj.dreams.filter(function(d) { return !d.read; }).length : 0;
+            html += '<a href="/island/dreams" class="action-btn action-dreams">' +
+                (_djUnread > 0 ? '<span class="ready-badge" style="background:#9b59b6;">' + _djUnread + '</span>' : '') +
+                '<span class="action-icon">&#10022;</span>DREAMS</a>';
+
+            // RIVALS
+            var rivalAvailable = isRivalChallengeAvailable();
+            html += '<a href="' + (hasPet ? '/island/rivals' : '#') + '" class="action-btn action-rivals' + (hasPet ? '' : ' disabled') + (rivalAvailable ? ' rival-available' : '') + '">' +
+                (rivalAvailable ? '<span class="rival-badge">CHALLENGE!</span>' : '') +
+                '<span class="action-icon">&#9876;&#65039;</span>RIVALS</a>';
 
             grid.innerHTML = html;
         }
@@ -1399,6 +1542,22 @@
         }
 
         // ── Utility Functions ──
+
+        function isRivalChallengeAvailable() {
+            try {
+                var raw = localStorage.getItem('moreau_rivals');
+                if (!raw) return true; // First visit — rivals will be assigned
+                var data = JSON.parse(raw);
+                if (!data || !Array.isArray(data.assigned) || data.assigned.length === 0) return true;
+                for (var i = 0; i < data.assigned.length; i++) {
+                    var rs = data.assigned[i];
+                    if (!rs.last_fight) return true;
+                    var diff = Date.now() - new Date(rs.last_fight).getTime();
+                    if (diff > 24 * 60 * 60 * 1000) return true;
+                }
+                return false;
+            } catch(e) { return false; }
+        }
 
         function canMutate(p) {
             var m = (p.mutations || []).length;

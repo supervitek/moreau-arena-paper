@@ -757,6 +757,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/static/island/supabase-client.js"></script>
+    <script src="/static/island/dreams-engine.js"></script>
     <script>
         // ══════════════════════════════════════
         //  Island Training Grounds
@@ -893,7 +894,20 @@
 
         // ── Start Fight ──
 
+        function isTaintedBlocked(p) {
+            if (!p) return false;
+            var tainted = p.is_tainted || (p.corruption || 0) >= 100;
+            if (!tainted) return false;
+            var h = new Date().getHours();
+            // Allowed between 9 PM (21) and 6 AM (6)
+            return !(h >= 21 || h < 6);
+        }
+
         async function startFight() {
+            if (isTaintedBlocked(pet)) {
+                alert('The Tainted can only fight in darkness (9 PM \u2013 6 AM)');
+                return;
+            }
             var opp = getOpponentData();
             var bs = pet.base_stats || pet.stats || {};
             var petBuild = (pet.animal || 'fox') + ' ' + (bs.hp || 5) + ' ' + (bs.atk || 5) + ' ' + (bs.spd || 5) + ' ' + (bs.wil || 5);
@@ -1069,6 +1083,26 @@
                 var lu = document.getElementById('level-up-flash');
                 lu.textContent = 'LEVEL UP! Level ' + pet.level;
                 lu.classList.add('visible');
+
+                // Dream: EVOLUTION (level 3, 6, or 9)
+                if ([3, 6, 9].indexOf(pet.level) !== -1) {
+                    generateDream('evolution', pet, { level: pet.level });
+                }
+            }
+
+            // Dream: TRAUMA (comeback win — HP dropped below 50% during fight)
+            if (won && data.results && data.results[0] && data.results[0].hp_a_history) {
+                var hpHist = data.results[0].hp_a_history;
+                var startHP = hpHist[0];
+                if (startHP > 0) {
+                    var minHP = startHP;
+                    for (var hi = 0; hi < hpHist.length; hi++) {
+                        if (hpHist[hi] < minHP) minHP = hpHist[hi];
+                    }
+                    if (minHP / startHP < 0.5) {
+                        generateDream('trauma', pet);
+                    }
+                }
             }
 
             // Mutation available?

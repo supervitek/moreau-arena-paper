@@ -159,6 +159,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/static/island/supabase-client.js"></script>
+    <script src="/static/island/dreams-engine.js"></script>
     <script>
         // ══════════════════════════════════════════════════
         //  Lab Bridge — syncs DB pet → localStorage,
@@ -216,6 +217,8 @@
                     scars: p.scars || 0,
                     mercy_used: p.mercy_used || false,
                     mood: p.mood || 'neutral',
+                    corruption: p.corruption || 0,
+                    is_tainted: p.is_tainted || false,
                     deceased: p.is_alive === false,
                     fights: [],
                     fights_won: p.fights_won || 0,
@@ -250,6 +253,12 @@
             }));
 
             updateStatus('Entering the lab...');
+
+            // Dream: PROPHECY (before entering the lab, if pet level >= 6)
+            var activePetForDream = localPets[activeIdx];
+            if (activePetForDream && (activePetForDream.level || 1) >= 6 && !activePetForDream.deceased) {
+                generateDream('prophecy', activePetForDream);
+            }
 
             // ── Redirect after brief delay ──
             setTimeout(function() {
@@ -311,7 +320,9 @@
                     mood: lp.mood || 'neutral',
                     mutations: lp.mutations || [],
                     level: lp.level || 1,
-                    xp: lp.xp || 0
+                    xp: lp.xp || 0,
+                    corruption: lp.corruption || 0,
+                    is_tainted: lp.is_tainted || false
                 };
 
                 // Check if pet died in the lab
@@ -323,7 +334,7 @@
                 await dbUpdatePet(dbId, updates);
             }
 
-            // ── Generate Moreddit posts for lab events ──
+            // ── Generate Moreddit posts & dreams for lab events ──
             var preLabStates = returnData.pre_lab || [];
             for (var j = 0; j < localPets.length && j < preLabStates.length; j++) {
                 var lp2 = localPets[j];
@@ -342,12 +353,19 @@
                             if (skeys.length > 0) mutStat = skeys[0];
                         }
                         saveMoredditLabPost('mutation', lp2, { mutation_name: mutName, stat: mutStat || 'power' });
+
+                        // Dream: CORRUPTION (Tier 3 mutation acquired)
+                        if (mut && (mut.tier === 3 || (typeof mut.id === 'string' && mut.id.indexOf('t3_') === 0))) {
+                            generateDream('corruption', lp2);
+                        }
                     }
                 }
 
                 // Detect death
                 if (lp2.deceased && !pre.deceased) {
                     saveMoredditLabPost('death', lp2, {});
+                    // Dream: DEATH
+                    generateDream('death', lp2);
                 }
             }
 
@@ -555,6 +573,8 @@
                         apex_id: apex.id,
                         apex_name: apex.name
                     }));
+                    // Dream: TRANSCENDENCE
+                    generateDream('transcendence', pet, { apex_name: apex.name });
                 }
             }
             localStorage.setItem('moreau_apex_forms', JSON.stringify(apexForms));
