@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create a Fighter — The Island</title>
+    <meta property="og:title" content="Create a Fighter — The Island">
+    <meta property="og:description" content="Choose your subject. Name it. Allocate the serum. Begin.">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="/static/favicon.svg">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/static/island/supabase-client.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0a0505;
+            --bg-secondary: #0f0a0a;
+            --bg-card: #1a1010;
+            --bg-card-hover: #221515;
+            --bg-code: #120c0c;
+            --border: #3a1a1a;
+            --accent: #e63946;
+            --accent-glow: rgba(230, 57, 70, 0.4);
+            --text: #f1faee;
+            --text-dim: #a8a0a0;
+            --text-muted: #6a5a5a;
+            --green: #4ecca3;
+            --blue: #48bfe3;
+            --gold: #d4a017;
+            --radius: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(170deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #0d0707 100%);
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Particle background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                radial-gradient(1px 1px at 10% 20%, rgba(230,57,70,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 30% 60%, rgba(230,57,70,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 50% 10%, rgba(255,180,180,0.15) 0%, transparent 100%),
+                radial-gradient(1px 1px at 70% 80%, rgba(230,57,70,0.25) 0%, transparent 100%),
+                radial-gradient(1px 1px at 90% 40%, rgba(255,200,200,0.1) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 15% 85%, rgba(230,57,70,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 85% 15%, rgba(230,57,70,0.15) 0%, transparent 100%),
+                radial-gradient(1px 1px at 45% 45%, rgba(255,150,150,0.12) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 65% 30%, rgba(230,57,70,0.18) 0%, transparent 100%),
+                radial-gradient(1px 1px at 25% 70%, rgba(255,100,100,0.1) 0%, transparent 100%);
+            animation: particleDrift 20s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes particleDrift {
+            0% { transform: translateY(0) translateX(0); opacity: 0.6; }
+            33% { transform: translateY(-15px) translateX(8px); opacity: 0.8; }
+            66% { transform: translateY(10px) translateX(-5px); opacity: 0.5; }
+            100% { transform: translateY(-8px) translateX(12px); opacity: 0.7; }
+        }
+
+        /* Nav override */
+        .nav-fight a {
+            color: var(--accent) !important;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .nav-fight a.active {
+            text-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        /* Layout */
+        .create-page {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+            min-height: calc(100vh - 64px);
+        }
+
+        /* Steps */
+        .step { display: none; }
+        .step.active { display: block; animation: stepFadeIn 0.4s ease-out; }
+
+        @keyframes stepFadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-title {
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            color: var(--text);
+        }
+
+        .step-subtitle {
+            text-align: center;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2.5rem;
+            padding-top: 1rem;
+        }
+
+        .progress-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .progress-dot.active {
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .progress-dot.done {
+            background: var(--green);
+        }
+
+        /* ── Step 1: Animal grid ── */
+        .animal-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .animal-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 520px) {
+            .animal-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .animal-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.2rem 0.8rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+            user-select: none;
+        }
+
+        .animal-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 16px rgba(230, 57, 70, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .animal-card.selected {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(212, 160, 23, 0.4);
+        }
+
+        .animal-emoji { font-size: 2.2rem; display: block; margin-bottom: 0.3rem; }
+        .animal-name { font-weight: 700; color: var(--text); text-transform: capitalize; font-size: 0.95rem; }
+        .animal-hint {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+            font-style: italic;
+        }
+
+        /* ── Step 2: Name + Stats ── */
+        .step2-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            align-items: start;
+        }
+
+        @media (max-width: 640px) {
+            .step2-layout { grid-template-columns: 1fr; }
+        }
+
+        .name-section { }
+
+        .name-input {
+            background: var(--bg-code);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            padding: 0.8rem 1.2rem;
+            font-size: 1.1rem;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        .name-input:focus { border-color: var(--accent); }
+
+        .char-count {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 0.4rem;
+            text-align: right;
+        }
+
+        .section-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-dim);
+            margin-bottom: 0.75rem;
+        }
+
+        /* Stats */
+        .stats-section { }
+
+        .stat-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-label {
+            width: 40px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+        .stat-label.hp { color: var(--green); }
+        .stat-label.atk { color: var(--accent); }
+        .stat-label.spd { color: var(--blue); }
+        .stat-label.wil { color: #a855f7; }
+
+        .stat-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--bg-code);
+            outline: none;
+        }
+
+        .stat-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .stat-slider.hp::-webkit-slider-thumb { background: var(--green); }
+        .stat-slider.atk::-webkit-slider-thumb { background: var(--accent); }
+        .stat-slider.spd::-webkit-slider-thumb { background: var(--blue); }
+        .stat-slider.wil::-webkit-slider-thumb { background: #a855f7; }
+
+        .stat-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        .stat-slider.hp::-moz-range-thumb { background: var(--green); }
+        .stat-slider.atk::-moz-range-thumb { background: var(--accent); }
+        .stat-slider.spd::-moz-range-thumb { background: var(--blue); }
+        .stat-slider.wil::-moz-range-thumb { background: #a855f7; }
+
+        .stat-value {
+            width: 28px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text);
+        }
+
+        .points-remaining {
+            text-align: center;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+        .points-remaining strong { color: var(--gold); font-size: 1.1rem; }
+        .points-remaining.over strong { color: var(--accent); }
+
+        /* Preview card in step 2 */
+        .preview-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .preview-emoji { font-size: 3rem; margin-bottom: 0.3rem; }
+        .preview-name { font-size: 1.3rem; font-weight: 700; min-height: 1.6em; }
+        .preview-animal { color: var(--text-dim); text-transform: capitalize; font-size: 0.9rem; margin-bottom: 0.75rem; }
+
+        .preview-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.4rem;
+            max-width: 180px;
+            margin: 0 auto;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        .preview-stats span { font-weight: 600; }
+        .preview-stats .hp { color: var(--green); }
+        .preview-stats .atk { color: var(--accent); }
+        .preview-stats .spd { color: var(--blue); }
+        .preview-stats .wil { color: #a855f7; }
+
+        /* ── Step 3: Confirm ── */
+        .confirm-section { text-align: center; }
+
+        .confirm-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2.5rem 2rem;
+            max-width: 380px;
+            margin: 0 auto 2rem;
+        }
+
+        .confirm-emoji { font-size: 4.5rem; }
+        .confirm-name {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text);
+            margin: 0.5rem 0 0.2rem;
+        }
+        .confirm-animal {
+            color: var(--text-dim);
+            text-transform: capitalize;
+            margin-bottom: 1.2rem;
+            font-size: 0.95rem;
+        }
+        .confirm-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            text-align: left;
+            max-width: 200px;
+            margin: 0 auto;
+            font-size: 1rem;
+        }
+        .confirm-stats span { font-weight: 600; }
+        .confirm-stats .hp { color: var(--green); }
+        .confirm-stats .atk { color: var(--accent); }
+        .confirm-stats .spd { color: var(--blue); }
+        .confirm-stats .wil { color: #a855f7; }
+
+        /* Buttons */
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s, transform 0.15s;
+            font-family: inherit;
+        }
+        .btn-primary:hover { background: #ff4757; transform: scale(1.03); }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+            padding: 0.6rem 1.5rem;
+            font-size: 0.95rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+            font-family: inherit;
+        }
+        .btn-secondary:hover { border-color: var(--text-dim); color: var(--text); }
+
+        .btn-create {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: var(--radius);
+            cursor: pointer;
+            animation: pulse 2s ease-in-out infinite;
+            transition: transform 0.15s;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .btn-create:hover { transform: scale(1.05); }
+        .btn-create:disabled { opacity: 0.4; cursor: not-allowed; transform: none; animation: none; }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.6); }
+            50% { box-shadow: 0 0 30px 10px rgba(230, 57, 70, 0.3); }
+        }
+
+        .step-nav {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        /* Flash overlay */
+        .flash-overlay {
+            position: fixed;
+            inset: 0;
+            background: #fff;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+        }
+        .flash-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Serum text */
+        .serum-phase {
+            text-align: center;
+            padding-top: 4rem;
+        }
+        .serum-text {
+            font-size: 1.3rem;
+            color: var(--text-dim);
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        .serum-text.visible { opacity: 1; }
+
+        /* Kennels full overlay */
+        .kennels-full {
+            text-align: center;
+            padding-top: 6rem;
+        }
+        .kennels-full h2 {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        .kennels-full p {
+            color: var(--text-dim);
+            margin-bottom: 2rem;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 5, 5, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            color: var(--text-dim);
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li class="nav-dropdown">
+                    <a href="/tournaments">Benchmark &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/tournaments">Tournaments</a></li>
+                        <li><a href="/leaderboard">Leaderboard</a></li>
+                        <li><a href="/methodology">Methodology</a></li>
+                        <li><a href="/match-log">Match Log</a></li>
+                        <li><a href="/compare">Compare</a></li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="/s1-leaderboard">Seasons &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/s1-leaderboard">S1 Leaderboard</a></li>
+                        <li><a href="/s1-fighters">Meet the Fighters</a></li>
+                        <li><a href="/s1-matchups">Matchup Explorer</a></li>
+                        <li><a href="/play">S1 Quick Fight</a></li>
+                        <li><a href="/s1-compare">Benchmark vs S1</a></li>
+                        <li><a href="/moreddit">The Moreddit</a></li>
+                    </ul>
+                </li>
+                <li><a href="/pets">Pets</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+                <li class="nav-fight"><a href="/island" class="active">FIGHT!</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div id="loadingOverlay" class="loading-overlay">Loading...</div>
+    <div class="flash-overlay" id="flashOverlay"></div>
+
+    <div class="create-page" id="mainContent" style="display:none;">
+        <!-- Kennels full (hidden by default) -->
+        <div id="kennelsFull" style="display:none;" class="kennels-full">
+            <h2>Kennels Full</h2>
+            <p>You already have 6 fighters. Release or lose one before creating another.</p>
+            <a href="/island/kennel" class="btn-primary">Go to Kennel</a>
+        </div>
+
+        <!-- Creation flow -->
+        <div id="creationFlow">
+            <!-- Progress -->
+            <div class="progress-bar">
+                <div class="progress-dot active" id="dot1"></div>
+                <div class="progress-dot" id="dot2"></div>
+                <div class="progress-dot" id="dot3"></div>
+            </div>
+
+            <!-- Step 1: Animal Selection -->
+            <div class="step active" id="step1">
+                <h2 class="step-title">Select Your Subject</h2>
+                <p class="step-subtitle">14 species. Each one fights differently.</p>
+                <div class="animal-grid" id="animalGrid"></div>
+                <div class="step-nav">
+                    <button class="btn-primary" id="btnToStep2" disabled onclick="goToStep(2)">Continue</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Name + Stats -->
+            <div class="step" id="step2">
+                <h2 class="step-title">Configure the Serum</h2>
+                <p class="step-subtitle">Name your creation and allocate 20 stat points.</p>
+
+                <div class="step2-layout">
+                    <div>
+                        <div class="name-section">
+                            <div class="section-label">Name</div>
+                            <input type="text" class="name-input" id="nameInput" placeholder="Every monster deserves a name..." maxlength="20">
+                            <div class="char-count"><span id="charCount">0</span>/20</div>
+                        </div>
+
+                        <div class="stats-section" style="margin-top: 2rem;">
+                            <div class="section-label">Stats <span style="font-weight:400; text-transform:none; letter-spacing:0;">(20 points)</span></div>
+                            <div class="stat-row">
+                                <span class="stat-label hp">HP</span>
+                                <input type="range" class="stat-slider hp" id="sliderHp" min="1" max="16" value="5" oninput="onStatChange('hp')">
+                                <span class="stat-value" id="valHp">5</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label atk">ATK</span>
+                                <input type="range" class="stat-slider atk" id="sliderAtk" min="1" max="16" value="5" oninput="onStatChange('atk')">
+                                <span class="stat-value" id="valAtk">5</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label spd">SPD</span>
+                                <input type="range" class="stat-slider spd" id="sliderSpd" min="1" max="16" value="5" oninput="onStatChange('spd')">
+                                <span class="stat-value" id="valSpd">5</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label wil">WIL</span>
+                                <input type="range" class="stat-slider wil" id="sliderWil" min="1" max="16" value="5" oninput="onStatChange('wil')">
+                                <span class="stat-value" id="valWil">5</span>
+                            </div>
+                            <div class="points-remaining" id="pointsRemaining">
+                                Points remaining: <strong>0</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="section-label">Preview</div>
+                        <div class="preview-card">
+                            <div class="preview-emoji" id="previewEmoji"></div>
+                            <div class="preview-name" id="previewName">???</div>
+                            <div class="preview-animal" id="previewAnimal"></div>
+                            <div class="preview-stats" id="previewStats">
+                                <span class="hp">HP 5</span>
+                                <span class="atk">ATK 5</span>
+                                <span class="spd">SPD 5</span>
+                                <span class="wil">WIL 5</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-nav">
+                    <button class="btn-secondary" onclick="goToStep(1)">Back</button>
+                    <button class="btn-primary" id="btnToStep3" disabled onclick="goToStep(3)">Continue</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Confirm + Create -->
+            <div class="step" id="step3">
+                <div class="confirm-section" id="confirmContent">
+                    <h2 class="step-title">Begin Transformation</h2>
+                    <p class="step-subtitle">There is no going back.</p>
+
+                    <div class="confirm-card">
+                        <div class="confirm-emoji" id="confirmEmoji"></div>
+                        <div class="confirm-name" id="confirmName"></div>
+                        <div class="confirm-animal" id="confirmAnimal"></div>
+                        <div class="confirm-stats" id="confirmStats"></div>
+                    </div>
+
+                    <div class="step-nav" style="margin-bottom: 1.5rem;">
+                        <button class="btn-secondary" onclick="goToStep(2)">Back</button>
+                    </div>
+                    <button class="btn-create" id="btnCreate" onclick="beginTransformation()">Create</button>
+                </div>
+
+                <div class="serum-phase" id="serumPhase" style="display:none;">
+                    <p class="serum-text" id="serumText">The serum takes hold...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ── Animal data ──
+        var ANIMALS = [
+            { id: 'bear',      emoji: '\u{1F43B}',             hint: 'The librarian' },
+            { id: 'buffalo',   emoji: '\u{1F9AC}',             hint: 'The veteran' },
+            { id: 'boar',      emoji: '\u{1F417}',             hint: 'The brawler' },
+            { id: 'tiger',     emoji: '\u{1F42F}',             hint: 'The silent killer' },
+            { id: 'wolf',      emoji: '\u{1F43A}',             hint: 'The poet' },
+            { id: 'monkey',    emoji: '\u{1F412}',             hint: 'The entertainer' },
+            { id: 'porcupine', emoji: '\u{1F994}',             hint: 'The paranoid genius' },
+            { id: 'scorpion',  emoji: '\u{1F982}',             hint: 'The detective' },
+            { id: 'vulture',   emoji: '\u{1F985}',             hint: 'The monk' },
+            { id: 'rhino',     emoji: '\u{1F98F}',             hint: 'The drill sergeant' },
+            { id: 'viper',     emoji: '\u{1F40D}',             hint: 'The spy' },
+            { id: 'fox',       emoji: '\u{1F98A}',             hint: 'The con artist' },
+            { id: 'eagle',     emoji: '\u{1F985}',             hint: 'The aristocrat' },
+            { id: 'panther',   emoji: '\u{1F408}\u200D\u2B1B', hint: 'The artist' }
+        ];
+
+        var selectedAnimal = null;
+        var petName = '';
+        var stats = { hp: 5, atk: 5, spd: 5, wil: 5 };
+        var TOTAL_POINTS = 20;
+        var currentStep = 1;
+        var isCreating = false;
+
+        // ── Init ──
+        (async function init() {
+            initSupabase();
+            var user = await getUser();
+
+            if (!user) {
+                window.location.href = '/island';
+                return;
+            }
+
+            // Check pet count
+            var pets = await dbGetPets(user.id);
+            if (pets.length >= 6) {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                document.getElementById('creationFlow').style.display = 'none';
+                document.getElementById('kennelsFull').style.display = 'block';
+                setTimeout(function() { window.location.href = '/island/kennel'; }, 3000);
+                return;
+            }
+
+            // Show creation flow
+            document.getElementById('loadingOverlay').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            buildAnimalGrid();
+        })();
+
+        // ── Build animal grid ──
+        function buildAnimalGrid() {
+            var grid = document.getElementById('animalGrid');
+            ANIMALS.forEach(function(a) {
+                var card = document.createElement('div');
+                card.className = 'animal-card';
+                card.dataset.id = a.id;
+                card.innerHTML =
+                    '<span class="animal-emoji">' + a.emoji + '</span>' +
+                    '<div class="animal-name">' + a.id + '</div>' +
+                    '<div class="animal-hint">' + a.hint + '</div>';
+                card.addEventListener('click', function() {
+                    document.querySelectorAll('.animal-card').forEach(function(c) { c.classList.remove('selected'); });
+                    card.classList.add('selected');
+                    selectedAnimal = a;
+                    document.getElementById('btnToStep2').disabled = false;
+                });
+                grid.appendChild(card);
+            });
+        }
+
+        // ── Step navigation ──
+        function goToStep(n) {
+            document.querySelectorAll('.step').forEach(function(s) { s.classList.remove('active'); });
+            document.getElementById('step' + n).classList.add('active');
+            currentStep = n;
+            updateProgress();
+
+            if (n === 2 && selectedAnimal) {
+                document.getElementById('previewEmoji').textContent = selectedAnimal.emoji;
+                document.getElementById('previewAnimal').textContent = selectedAnimal.id;
+                updatePreview();
+                validateStep2();
+            }
+            if (n === 3) { buildConfirm(); }
+        }
+
+        function updateProgress() {
+            for (var i = 1; i <= 3; i++) {
+                var dot = document.getElementById('dot' + i);
+                dot.className = 'progress-dot';
+                if (i < currentStep) dot.classList.add('done');
+                if (i === currentStep) dot.classList.add('active');
+            }
+        }
+
+        // ── Step 2: Name input ──
+        var nameInput = document.getElementById('nameInput');
+        nameInput.addEventListener('input', function() {
+            petName = nameInput.value.trim();
+            document.getElementById('charCount').textContent = nameInput.value.length;
+            document.getElementById('previewName').textContent = petName || '???';
+            validateStep2();
+        });
+
+        function validateStep2() {
+            var total = stats.hp + stats.atk + stats.spd + stats.wil;
+            document.getElementById('btnToStep3').disabled = (petName.length === 0 || total !== TOTAL_POINTS);
+        }
+
+        // ── Step 2: Stat sliders ──
+        function onStatChange(changed) {
+            var keys = ['hp', 'atk', 'spd', 'wil'];
+            stats[changed] = parseInt(document.getElementById('slider' + capitalize(changed)).value);
+
+            var total = keys.reduce(function(sum, k) { return sum + stats[k]; }, 0);
+            var diff = total - TOTAL_POINTS;
+
+            if (diff > 0) {
+                var others = keys.filter(function(k) { return k !== changed; });
+                var remaining = diff;
+                var attempts = 0;
+                while (remaining > 0 && attempts < 50) {
+                    for (var i = 0; i < others.length && remaining > 0; i++) {
+                        if (stats[others[i]] > 1) {
+                            stats[others[i]]--;
+                            remaining--;
+                        }
+                    }
+                    attempts++;
+                }
+                others.forEach(function(k) {
+                    document.getElementById('slider' + capitalize(k)).value = stats[k];
+                });
+            }
+
+            keys.forEach(function(k) {
+                document.getElementById('val' + capitalize(k)).textContent = stats[k];
+            });
+
+            var currentTotal = keys.reduce(function(sum, k) { return sum + stats[k]; }, 0);
+            var rem = TOTAL_POINTS - currentTotal;
+            var pr = document.getElementById('pointsRemaining');
+            pr.innerHTML = 'Points remaining: <strong>' + rem + '</strong>';
+            pr.className = rem < 0 ? 'points-remaining over' : 'points-remaining';
+
+            updatePreview();
+            validateStep2();
+        }
+
+        function updatePreview() {
+            var ps = document.getElementById('previewStats');
+            ps.innerHTML =
+                '<span class="hp">HP ' + stats.hp + '</span>' +
+                '<span class="atk">ATK ' + stats.atk + '</span>' +
+                '<span class="spd">SPD ' + stats.spd + '</span>' +
+                '<span class="wil">WIL ' + stats.wil + '</span>';
+        }
+
+        function capitalize(s) {
+            return s.charAt(0).toUpperCase() + s.slice(1);
+        }
+
+        // ── Step 3: Confirm ──
+        function buildConfirm() {
+            document.getElementById('confirmEmoji').textContent = selectedAnimal.emoji;
+            document.getElementById('confirmName').textContent = petName;
+            document.getElementById('confirmAnimal').textContent = selectedAnimal.id;
+            document.getElementById('confirmStats').innerHTML =
+                '<span class="hp">HP ' + stats.hp + '</span>' +
+                '<span class="atk">ATK ' + stats.atk + '</span>' +
+                '<span class="spd">SPD ' + stats.spd + '</span>' +
+                '<span class="wil">WIL ' + stats.wil + '</span>';
+        }
+
+        // ── Create pet ──
+        async function beginTransformation() {
+            if (isCreating) return;
+            isCreating = true;
+
+            var btn = document.getElementById('btnCreate');
+            btn.disabled = true;
+
+            var confirmContent = document.getElementById('confirmContent');
+            var serumPhase = document.getElementById('serumPhase');
+            var flash = document.getElementById('flashOverlay');
+            var serumText = document.getElementById('serumText');
+
+            // Flash
+            flash.classList.add('active');
+            setTimeout(async function() {
+                flash.classList.remove('active');
+                confirmContent.style.display = 'none';
+                serumPhase.style.display = 'block';
+                setTimeout(function() { serumText.classList.add('visible'); }, 200);
+
+                // Build pet object
+                var pet = {
+                    name: petName,
+                    animal: selectedAnimal.id,
+                    level: 1,
+                    xp: 0,
+                    base_stats: {
+                        hp: stats.hp,
+                        atk: stats.atk,
+                        spd: stats.spd,
+                        wil: stats.wil
+                    },
+                    mutations: [],
+                    lab_mutations: {},
+                    side_effects: [],
+                    instability: 0,
+                    scars: 0,
+                    mercy_used: false,
+                    mood: 'excited',
+                    fights_won: 0,
+                    fights_lost: 0
+                };
+
+                // Try Supabase first, fall back to localStorage
+                var saved = false;
+                if (isOnlineMode()) {
+                    var result = await dbCreatePet(currentUser.id, pet);
+                    if (result) saved = true;
+                }
+
+                if (!saved) {
+                    // Offline fallback
+                    pet.created_at = new Date().toISOString();
+                    var pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                    pets.push(pet);
+                    localStorage.setItem('moreau_pets', JSON.stringify(pets));
+                    localStorage.setItem('moreau_active_pet', String(pets.length - 1));
+                }
+
+                // Redirect after dramatic pause
+                setTimeout(function() {
+                    window.location.href = '/island/home';
+                }, 2000);
+            }, 300);
+        }
+    </script>
+</body>
+</html>

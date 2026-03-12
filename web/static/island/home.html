@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — The Island — Moreau Arena</title>
+    <meta property="og:title" content="Dashboard — The Island">
+    <meta property="og:description" content="Your pets. Your mutations. Your legacy.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Dashboard — The Island">
+    <meta name="twitter:description" content="Your pets. Your mutations. Your legacy.">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --bg-primary: #0a0505;
+            --bg-secondary: #0f0a0a;
+            --bg-card: #1a1010;
+            --bg-card-hover: #221515;
+            --bg-code: #1e1218;
+            --border: #3a1a1a;
+            --accent: #e63946;
+            --accent-glow: rgba(230, 57, 70, 0.4);
+            --text: #f1faee;
+            --text-dim: #a8a0a0;
+            --text-muted: #6a5a5a;
+            --green: #4ecca3;
+            --blue: #457b9d;
+            --gold: #d4a017;
+            --purple: #9b59b6;
+            --radius: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(170deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #0d0707 100%);
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ── Particle background ── */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                radial-gradient(1px 1px at 10% 20%, rgba(230,57,70,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 30% 60%, rgba(230,57,70,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 50% 10%, rgba(255,180,180,0.15) 0%, transparent 100%),
+                radial-gradient(1px 1px at 70% 80%, rgba(230,57,70,0.25) 0%, transparent 100%),
+                radial-gradient(1px 1px at 90% 40%, rgba(255,200,200,0.1) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 15% 85%, rgba(230,57,70,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 85% 15%, rgba(230,57,70,0.15) 0%, transparent 100%),
+                radial-gradient(1px 1px at 45% 45%, rgba(255,150,150,0.12) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 65% 30%, rgba(230,57,70,0.18) 0%, transparent 100%),
+                radial-gradient(1px 1px at 25% 70%, rgba(255,100,100,0.1) 0%, transparent 100%);
+            animation: particleDrift 20s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes particleDrift {
+            0% { transform: translateY(0) translateX(0); opacity: 0.6; }
+            33% { transform: translateY(-15px) translateX(8px); opacity: 0.8; }
+            66% { transform: translateY(10px) translateX(-5px); opacity: 0.5; }
+            100% { transform: translateY(-8px) translateX(12px); opacity: 0.7; }
+        }
+
+        /* ── Layout ── */
+        .island-page {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        /* ── Loading state ── */
+        .loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 1rem;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* ── Banners ── */
+        .banner {
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: fadeSlideIn 0.5s ease-out both;
+        }
+
+        .banner-offline {
+            background: rgba(212, 160, 23, 0.12);
+            border: 1px solid rgba(212, 160, 23, 0.3);
+            color: var(--gold);
+        }
+
+        .banner-migrate {
+            background: rgba(78, 204, 163, 0.1);
+            border: 1px solid rgba(78, 204, 163, 0.3);
+            color: var(--green);
+        }
+
+        .banner-btn {
+            margin-left: auto;
+            padding: 0.3rem 0.85rem;
+            border-radius: 4px;
+            border: 1px solid currentColor;
+            background: transparent;
+            color: inherit;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+
+        .banner-btn:hover { background: rgba(255,255,255,0.08); }
+
+        .banner-dismiss {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 1.1rem;
+            line-height: 1;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+            flex-shrink: 0;
+        }
+
+        .banner-dismiss:hover { opacity: 1; }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Welcome header ── */
+        .welcome-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 3rem 0 1.5rem;
+            animation: fadeSlideIn 0.5s ease-out both;
+        }
+
+        .welcome-text h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .welcome-text h1 span {
+            color: var(--accent);
+        }
+
+        .welcome-text .welcome-email {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        .signout-btn {
+            padding: 0.5rem 1.2rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .signout-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* ── Active Pet Card ── */
+        .active-pet-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            animation: fadeSlideIn 0.6s ease-out 0.1s both;
+        }
+
+        .active-pet-card::before {
+            content: 'ACTIVE';
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            padding: 0.15rem 0.5rem;
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+        }
+
+        .pet-emoji { font-size: 3.5rem; line-height: 1; margin-bottom: 0.5rem; }
+        .pet-name { font-size: 1.8rem; font-weight: 700; margin: 0.25rem 0 0.15rem; }
+
+        .pet-subtitle {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .pet-mood {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 1.25rem;
+        }
+
+        /* XP bar */
+        .xp-section { margin-bottom: 1.5rem; }
+
+        .xp-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 0.35rem;
+        }
+
+        .xp-bar-bg {
+            height: 10px;
+            background: var(--bg-code);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .xp-bar-fill {
+            height: 100%;
+            border-radius: 5px;
+            background: linear-gradient(90deg, var(--gold), #f0c040, var(--gold));
+            background-size: 200% 100%;
+            animation: xpShimmer 2s ease-in-out infinite;
+            transition: width 0.6s ease;
+        }
+
+        @keyframes xpShimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Stat bars */
+        .stat-bars {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem 1.5rem;
+        }
+
+        .stat-row { display: flex; align-items: center; gap: 0.5rem; }
+
+        .stat-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            width: 30px;
+            flex-shrink: 0;
+        }
+
+        .stat-bar-bg {
+            flex: 1;
+            height: 6px;
+            background: var(--bg-code);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .stat-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.6s ease;
+        }
+
+        .stat-val {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            width: 22px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .stat-hp .stat-bar-fill { background: var(--green); }
+        .stat-atk .stat-bar-fill { background: var(--accent); }
+        .stat-spd .stat-bar-fill { background: var(--blue); }
+        .stat-wil .stat-bar-fill { background: var(--purple); }
+
+        .deceased-badge {
+            display: inline-block;
+            margin-top: 0.75rem;
+            padding: 0.3rem 0.75rem;
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .no-pet-card {
+            background: var(--bg-card);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 3rem 2rem;
+            text-align: center;
+            animation: fadeSlideIn 0.6s ease-out 0.1s both;
+        }
+
+        .no-pet-card .no-pet-emoji { font-size: 3rem; margin-bottom: 0.75rem; }
+
+        .no-pet-card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .no-pet-card p {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* ── Quick Actions ── */
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            animation: fadeSlideIn 0.7s ease-out 0.2s both;
+        }
+
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 1.2rem 0.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: background 0.2s, border-color 0.2s, transform 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .action-btn:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+        }
+
+        .action-btn .action-icon { font-size: 1.4rem; }
+
+        .action-train { border-color: var(--accent); }
+        .action-train:hover { border-color: #ff4d5a; box-shadow: 0 4px 16px rgba(230,57,70,0.15); }
+        .action-train .action-icon { color: var(--accent); }
+
+        .action-pit { border-color: var(--purple); }
+        .action-pit:hover { border-color: #b06ec6; box-shadow: 0 4px 16px rgba(155,89,182,0.15); }
+        .action-pit .action-icon { color: var(--purple); }
+
+        .action-mutate { border-color: var(--gold); }
+        .action-mutate:hover { border-color: #e8b520; box-shadow: 0 4px 16px rgba(212,160,23,0.15); }
+        .action-mutate .action-icon { color: var(--gold); }
+
+        .action-lab { border-color: var(--accent); }
+        .action-lab:hover { border-color: #ff4d5a; box-shadow: 0 4px 16px rgba(230,57,70,0.15); }
+        .action-lab .action-icon { color: var(--accent); }
+
+        .action-dossier { border-color: var(--blue); }
+        .action-dossier:hover { border-color: #5a9ab8; box-shadow: 0 4px 16px rgba(69,123,157,0.15); }
+        .action-dossier .action-icon { color: var(--blue); }
+
+        .action-btn.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+            border-color: var(--border);
+        }
+
+        .action-btn.disabled .action-icon { color: var(--text-muted); }
+
+        .action-btn .action-sub {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .action-btn.ready {
+            animation: mutGlow 2s ease-in-out infinite;
+        }
+
+        .action-btn .ready-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: var(--gold);
+            color: #000;
+            font-size: 0.5rem;
+            font-weight: 700;
+            padding: 0.1rem 0.35rem;
+            border-radius: 6px;
+        }
+
+        @keyframes mutGlow {
+            0%, 100% { box-shadow: 0 0 4px rgba(212,160,23,0.2); }
+            50% { box-shadow: 0 0 18px rgba(212,160,23,0.5); }
+        }
+
+        @media (max-width: 640px) {
+            .actions { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 400px) {
+            .actions { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* ── Your Pets Section ── */
+        .pets-section {
+            margin-top: 2rem;
+            animation: fadeSlideIn 0.8s ease-out 0.3s both;
+        }
+
+        .pets-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .pets-section-header h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-dim);
+        }
+
+        .pets-count {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .pets-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 500px) {
+            .pets-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .mini-pet-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 0.75rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+
+        .mini-pet-card:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+        }
+
+        .mini-pet-card.active-mini {
+            border-color: var(--accent);
+            box-shadow: 0 0 12px rgba(230,57,70,0.15);
+        }
+
+        .mini-pet-card.deceased-mini {
+            opacity: 0.4;
+            filter: grayscale(0.8);
+            cursor: default;
+        }
+
+        .mini-pet-card.deceased-mini:hover {
+            transform: none;
+            background: var(--bg-card);
+        }
+
+        .mini-emoji { font-size: 1.8rem; }
+        .mini-name { font-size: 0.8rem; font-weight: 600; margin-top: 0.3rem; }
+
+        .mini-level {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 0.15rem;
+        }
+
+        .mini-active-dot {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 6px var(--accent-glow);
+        }
+
+        .mini-memorial {
+            font-size: 0.55rem;
+            color: var(--accent);
+            margin-top: 0.15rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        /* ── Create Pet Card ── */
+        .create-pet-card {
+            background: transparent;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 0.75rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-decoration: none;
+            color: var(--text-muted);
+        }
+
+        .create-pet-card:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .create-pet-emoji { font-size: 1.8rem; opacity: 0.5; }
+        .create-pet-label { font-size: 0.75rem; font-weight: 600; margin-top: 0.3rem; }
+
+        /* ── Primary CTA button ── */
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.85rem 2rem;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            letter-spacing: 0.03em;
+        }
+
+        .cta-btn:hover {
+            box-shadow: 0 0 24px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        /* ── Footer ── */
+        .footer {
+            border-top: 1px solid var(--border);
+            padding: 1.5rem 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            animation: fadeSlideIn 1s ease-out 0.4s both;
+        }
+
+        .footer a {
+            color: var(--text-dim);
+            text-decoration: none;
+            margin: 0 0.75rem;
+        }
+
+        .footer a:hover { color: var(--text); }
+
+        /* ── Nav override ── */
+        .nav-fight a {
+            color: var(--accent) !important;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-fight a.active {
+            text-shadow: 0 0 8px var(--accent-glow);
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li class="nav-dropdown">
+                    <a href="/tournaments">Benchmark &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/tournaments">Tournaments</a></li>
+                        <li><a href="/leaderboard">Leaderboard</a></li>
+                        <li><a href="/methodology">Methodology</a></li>
+                        <li><a href="/match-log">Match Log</a></li>
+                        <li><a href="/compare">Compare</a></li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="/s1-leaderboard">Seasons &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/s1-leaderboard">S1 Leaderboard</a></li>
+                        <li><a href="/s1-fighters">Meet the Fighters</a></li>
+                        <li><a href="/s1-matchups">Matchup Explorer</a></li>
+                        <li><a href="/play">S1 Quick Fight</a></li>
+                        <li><a href="/s1-compare">Benchmark vs S1</a></li>
+                        <li><a href="/moreddit">The Moreddit</a></li>
+                    </ul>
+                </li>
+                <li><a href="/pets">Pets</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+                <li class="nav-fight"><a href="/island" class="active">FIGHT!</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="island-page">
+        <!-- Loading -->
+        <div id="loadingScreen" class="loading-screen">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Entering the island...</div>
+        </div>
+
+        <!-- Main dashboard (hidden until loaded) -->
+        <div id="dashboard" style="display:none;">
+
+            <!-- Banners -->
+            <div id="bannerArea"></div>
+
+            <!-- Welcome -->
+            <div class="welcome-header">
+                <div class="welcome-text">
+                    <h1>Welcome, <span id="userName">Trainer</span></h1>
+                    <div class="welcome-email" id="userEmail"></div>
+                </div>
+                <button class="signout-btn" id="signOutBtn" onclick="handleSignOut()">Sign Out</button>
+            </div>
+
+            <!-- Active Pet Card -->
+            <div id="activePetArea"></div>
+
+            <!-- Quick Actions -->
+            <div class="actions" id="actionsGrid"></div>
+
+            <!-- Your Pets -->
+            <div class="pets-section" id="petsSection"></div>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <div>Moreau Arena &mdash; The Island</div>
+                <div style="margin-top: 0.5rem;">
+                    <a href="/paper">Paper</a>
+                    <a href="/api-docs">API Docs</a>
+                    <a href="https://github.com">GitHub</a>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/static/island/supabase-client.js"></script>
+    <script>
+        // ══════════════════════════════════════
+        //  Island Home — Player Dashboard
+        // ══════════════════════════════════════
+
+        const EMOJI_MAP = {
+            bear:'\u{1F43B}', buffalo:'\u{1F9AC}', boar:'\u{1F417}', tiger:'\u{1F405}',
+            wolf:'\u{1F43A}', monkey:'\u{1F412}', porcupine:'\u{1F994}', scorpion:'\u{1F982}',
+            vulture:'\u{1F985}', rhino:'\u{1F98F}', viper:'\u{1F40D}', fox:'\u{1F98A}',
+            eagle:'\u{1F985}', panther:'\u{1F408}'
+        };
+
+        const LEVEL_THRESHOLDS = {1:0, 2:50, 3:100, 4:150, 5:200, 6:300, 7:400, 8:500, 9:600, 10:750};
+
+        let offlineMode = false;
+        let allPets = [];
+        let activePetIndex = 0;
+
+        // ── Init ──
+
+        async function init() {
+            initSupabase();
+            const user = await getUser();
+
+            if (isOnlineMode()) {
+                // Online: load from DB
+                offlineMode = false;
+                allPets = await dbGetPets(user.id);
+                activePetIndex = allPets.length > 0 ? 0 : -1;
+                showDashboard(user);
+                checkLocalStorageMigration();
+            } else if (hasLocalPets()) {
+                // Offline fallback: load from localStorage
+                offlineMode = true;
+                loadLocalPets();
+                showDashboard(null);
+            } else {
+                // No user, no local pets -> redirect to login
+                window.location.href = '/island';
+                return;
+            }
+        }
+
+        function hasLocalPets() {
+            try {
+                const raw = localStorage.getItem('moreau_pets');
+                if (raw) {
+                    const p = JSON.parse(raw);
+                    return Array.isArray(p) && p.length > 0;
+                }
+                // Check old single-pet format
+                return !!localStorage.getItem('moreau_pet');
+            } catch { return false; }
+        }
+
+        function loadLocalPets() {
+            // Migrate old single-pet format
+            const oldRaw = localStorage.getItem('moreau_pet');
+            if (oldRaw) {
+                try {
+                    const oldPet = JSON.parse(oldRaw);
+                    const existing = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                    if (existing.length < 6) existing.push(oldPet);
+                    localStorage.setItem('moreau_pets', JSON.stringify(existing));
+                    localStorage.setItem('moreau_active_pet', String(existing.length - 1));
+                    localStorage.removeItem('moreau_pet');
+                } catch (e) { localStorage.removeItem('moreau_pet'); }
+            }
+
+            allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            activePetIndex = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
+            if (activePetIndex < 0 || activePetIndex >= allPets.length) activePetIndex = 0;
+        }
+
+        function getActivePet() {
+            if (allPets.length === 0) return null;
+            if (activePetIndex < 0 || activePetIndex >= allPets.length) activePetIndex = 0;
+            return allPets[activePetIndex];
+        }
+
+        // ── Display ──
+
+        function showDashboard(user) {
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+
+            // Welcome header
+            if (user) {
+                const displayName = user.user_metadata?.display_name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Trainer';
+                document.getElementById('userName').textContent = displayName;
+                document.getElementById('userEmail').textContent = user.email || '';
+            } else {
+                document.getElementById('userName').textContent = 'Trainer';
+                document.getElementById('userEmail').textContent = 'offline mode';
+                document.getElementById('signOutBtn').style.display = 'none';
+            }
+
+            // Banners
+            if (offlineMode) {
+                showBanner('offline', 'Running in offline mode. Sign in to save your progress.', 'Sign In', function() {
+                    window.location.href = '/island';
+                });
+            }
+
+            // Render everything
+            renderActivePet();
+            renderActions();
+            renderPetsSection();
+        }
+
+        // ── Banners ──
+
+        function showBanner(type, text, btnText, btnAction) {
+            const area = document.getElementById('bannerArea');
+            const banner = document.createElement('div');
+            banner.className = 'banner banner-' + type;
+            banner.innerHTML = '<span>' + text + '</span>';
+
+            if (btnText && btnAction) {
+                const btn = document.createElement('button');
+                btn.className = 'banner-btn';
+                btn.textContent = btnText;
+                btn.onclick = btnAction;
+                banner.appendChild(btn);
+            }
+
+            const dismiss = document.createElement('button');
+            dismiss.className = 'banner-dismiss';
+            dismiss.innerHTML = '&times;';
+            dismiss.onclick = function() { banner.remove(); };
+            banner.appendChild(dismiss);
+
+            area.appendChild(banner);
+        }
+
+        function checkLocalStorageMigration() {
+            if (!isOnlineMode()) return;
+            const raw = localStorage.getItem('moreau_pets');
+            if (!raw) return;
+            try {
+                const localPets = JSON.parse(raw);
+                if (!Array.isArray(localPets) || localPets.length === 0) return;
+                showBanner('migrate',
+                    'We found ' + localPets.length + ' pet' + (localPets.length > 1 ? 's' : '') + ' in your browser. Import them?',
+                    'Import',
+                    async function() {
+                        const result = await migrateLocalStorageToDB(currentUser.id);
+                        if (result.migrated > 0) {
+                            allPets = await dbGetPets(currentUser.id);
+                            activePetIndex = 0;
+                            renderActivePet();
+                            renderActions();
+                            renderPetsSection();
+                            // Remove the banner
+                            this.closest('.banner').remove();
+                        }
+                    }
+                );
+            } catch {}
+        }
+
+        // ── Active Pet Card ──
+
+        function renderActivePet() {
+            const area = document.getElementById('activePetArea');
+            const pet = getActivePet();
+
+            if (!pet) {
+                area.innerHTML =
+                    '<div class="no-pet-card">' +
+                        '<div class="no-pet-emoji">\u{1F43E}</div>' +
+                        '<h2>No pets yet</h2>' +
+                        '<p>Create your first fighter and enter the arena.</p>' +
+                        '<a href="/island/create" class="cta-btn">Create a Pet</a>' +
+                    '</div>';
+                return;
+            }
+
+            const animal = (pet.animal || '').toLowerCase();
+            const emoji = EMOJI_MAP[animal] || '\u{1F43E}';
+            const name = pet.name || 'Unknown';
+            const level = pet.level || 1;
+            const mood = pet.mood || 'neutral';
+            const stats = pet.base_stats || pet.stats || {};
+            const deceased = pet.deceased || pet.is_alive === false;
+
+            const xp = xpProgress(pet);
+            const maxStat = 30;
+
+            let html = '<div class="active-pet-card' + (deceased ? ' deceased' : '') + '">';
+
+            if (deceased) {
+                html += '<style>.active-pet-card.deceased::before { content: "IN MEMORIAM"; color: var(--text-muted); border-color: var(--text-muted); }</style>';
+            }
+
+            html += '<div class="pet-emoji">' + emoji + '</div>';
+            html += '<div class="pet-name">' + escHtml(name) + '</div>';
+            html += '<div class="pet-subtitle">Level ' + level + ' ' + capitalize(pet.animal || 'Creature') + '</div>';
+            html += '<div class="pet-mood">Mood: ' + mood + '</div>';
+
+            if (deceased) {
+                html += '<div class="deceased-badge">Deceased</div>';
+            } else {
+                // XP bar
+                html += '<div class="xp-section">';
+                html += '<div class="xp-label"><span>XP</span><span>' +
+                    (xp.needed > 0 ? xp.current + ' / ' + xp.needed + ' to Lv.' + (level + 1) : 'MAX') +
+                    '</span></div>';
+                html += '<div class="xp-bar-bg"><div class="xp-bar-fill" style="width:' + xp.pct + '%"></div></div>';
+                html += '</div>';
+
+                // Stat bars
+                html += '<div class="stat-bars">';
+                [['HP', 'hp', 'stat-hp'], ['ATK', 'atk', 'stat-atk'], ['SPD', 'spd', 'stat-spd'], ['WIL', 'wil', 'stat-wil']].forEach(function(s) {
+                    var val = stats[s[1]] || 0;
+                    var pct = Math.min(100, (val / maxStat) * 100);
+                    html += '<div class="stat-row ' + s[2] + '">' +
+                        '<span class="stat-label">' + s[0] + '</span>' +
+                        '<div class="stat-bar-bg"><div class="stat-bar-fill" style="width:' + pct + '%"></div></div>' +
+                        '<span class="stat-val">' + val + '</span></div>';
+                });
+                html += '</div>';
+            }
+
+            html += '</div>';
+            area.innerHTML = html;
+        }
+
+        // ── Quick Actions ──
+
+        function renderActions() {
+            const grid = document.getElementById('actionsGrid');
+            const pet = getActivePet();
+            const hasPet = !!pet && !pet.deceased && pet.is_alive !== false;
+            const canMut = hasPet && canMutate(pet);
+
+            let html = '';
+
+            // TRAIN
+            html += '<a href="' + (hasPet ? '/island/train' : '#') + '" class="action-btn action-train' + (hasPet ? '' : ' disabled') + '">' +
+                '<span class="action-icon">&#9876;</span>TRAIN</a>';
+
+            // THE PIT
+            var livingCount = allPets.filter(function(p) { return !p.deceased && p.is_alive !== false; }).length;
+            var pitDisabled = livingCount < 2;
+            html += '<a href="' + (pitDisabled ? '#' : '/island/pit') + '" class="action-btn action-pit' + (pitDisabled ? ' disabled' : '') + '">' +
+                '<span class="action-icon">&#9876;&#65039;</span>THE PIT' +
+                (pitDisabled ? '<span class="action-sub">2+ pets needed</span>' : '') + '</a>';
+
+            // MUTATE
+            if (canMut) {
+                html += '<a href="/island/mutate" class="action-btn action-mutate ready">' +
+                    '<span class="ready-badge">READY</span>' +
+                    '<span class="action-icon">&#9850;</span>MUTATE</a>';
+            } else {
+                var reqLvl = hasPet ? nextMutationLevel(pet) : 3;
+                html += '<a href="#" class="action-btn action-mutate disabled">' +
+                    '<span class="action-icon">&#9850;</span>MUTATE' +
+                    '<span class="action-sub">Lv.' + reqLvl + ' req</span></a>';
+            }
+
+            // FORBIDDEN LAB
+            html += '<a href="' + (hasPet ? '/island/lab' : '#') + '" class="action-btn action-lab' + (hasPet ? '' : ' disabled') + '">' +
+                '<span class="action-icon">&#9762;</span>LAB</a>';
+
+            // DOSSIER
+            html += '<a href="' + (hasPet ? '/island/profile' : '#') + '" class="action-btn action-dossier' + (hasPet ? '' : ' disabled') + '">' +
+                '<span class="action-icon">&#128196;</span>DOSSIER</a>';
+
+            grid.innerHTML = html;
+        }
+
+        // ── Pets Section ──
+
+        function renderPetsSection() {
+            const section = document.getElementById('petsSection');
+            const livingPets = allPets.filter(function(p) { return !p.deceased && p.is_alive !== false; });
+            const deceasedPets = allPets.filter(function(p) { return p.deceased || p.is_alive === false; });
+            const totalLiving = livingPets.length;
+
+            let html = '<div class="pets-section-header">';
+            html += '<h2>Your Pets</h2>';
+            html += '<span class="pets-count">' + totalLiving + ' / 6</span>';
+            html += '</div>';
+
+            html += '<div class="pets-grid">';
+
+            // Render all living pets as mini cards
+            allPets.forEach(function(pet, idx) {
+                var isDeceased = pet.deceased || pet.is_alive === false;
+                var isActive = idx === activePetIndex && !isDeceased;
+                var animal = (pet.animal || '').toLowerCase();
+                var emoji = EMOJI_MAP[animal] || '\u{1F43E}';
+
+                html += '<div class="mini-pet-card' +
+                    (isActive ? ' active-mini' : '') +
+                    (isDeceased ? ' deceased-mini' : '') +
+                    '"' +
+                    (isDeceased ? '' : ' onclick="setActivePet(' + idx + ')"') +
+                    '>';
+
+                if (isActive) html += '<div class="mini-active-dot"></div>';
+                html += '<div class="mini-emoji">' + emoji + '</div>';
+                html += '<div class="mini-name">' + escHtml(pet.name || 'Unknown') + '</div>';
+                html += '<div class="mini-level">Lv.' + (pet.level || 1) + '</div>';
+                if (isDeceased) html += '<div class="mini-memorial">In Memoriam</div>';
+                html += '</div>';
+            });
+
+            // "Create New Pet" card (if under 6 living)
+            if (totalLiving < 6) {
+                html += '<a href="/island/create" class="create-pet-card">' +
+                    '<div class="create-pet-emoji">+</div>' +
+                    '<div class="create-pet-label">New Pet</div></a>';
+            }
+
+            html += '</div>';
+            section.innerHTML = html;
+        }
+
+        // ── Set Active Pet ──
+
+        function setActivePet(idx) {
+            if (idx < 0 || idx >= allPets.length) return;
+            var pet = allPets[idx];
+            if (pet.deceased || pet.is_alive === false) return;
+
+            activePetIndex = idx;
+
+            if (offlineMode) {
+                localStorage.setItem('moreau_active_pet', String(idx));
+            }
+
+            renderActivePet();
+            renderActions();
+            renderPetsSection();
+        }
+
+        // ── Sign Out ──
+
+        async function handleSignOut() {
+            if (isOnlineMode()) {
+                await signOut();
+            } else {
+                window.location.href = '/island';
+            }
+        }
+
+        // ── Utility Functions ──
+
+        function canMutate(p) {
+            var m = (p.mutations || []).length;
+            return (p.level >= 3 && m === 0) || (p.level >= 6 && m === 1) || (p.level >= 9 && m === 2);
+        }
+
+        function nextMutationLevel(p) {
+            var m = (p.mutations || []).length;
+            if (m === 0) return 3;
+            if (m === 1) return 6;
+            return 9;
+        }
+
+        function xpProgress(p) {
+            var lvl = p.level || 1;
+            var xp = p.xp || 0;
+            var currThresh = LEVEL_THRESHOLDS[lvl] || 0;
+            var nextLvl = lvl + 1;
+            if (nextLvl > 10) return { current: xp - currThresh, needed: 0, pct: 100 };
+            var nextThresh = LEVEL_THRESHOLDS[nextLvl] || 9999;
+            var current = xp - currThresh;
+            var needed = nextThresh - currThresh;
+            var pct = Math.min(100, Math.max(0, (current / needed) * 100));
+            return { current: current, needed: needed, pct: pct };
+        }
+
+        function capitalize(s) {
+            if (!s) return '';
+            return s.charAt(0).toUpperCase() + s.slice(1);
+        }
+
+        function escHtml(s) {
+            var d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        // ── Start ──
+        init();
+    </script>
+</body>
+</html>
