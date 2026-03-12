@@ -601,6 +601,27 @@
             return d.innerHTML;
         }
 
+        // ── Achievement: gravedigger ──
+        (function() {
+            var stored = JSON.parse(localStorage.getItem('moreau_achievements') || '{}');
+            if (!stored.gravedigger) {
+                stored.gravedigger = { unlocked: true, date: new Date().toISOString() };
+                localStorage.setItem('moreau_achievements', JSON.stringify(stored));
+                var toast = document.createElement('div');
+                toast.style.cssText = 'position:fixed;top:1.5rem;left:50%;transform:translateX(-50%);z-index:9999;background:#1a1010;border:2px solid #d4a017;border-radius:8px;padding:0.75rem 1.5rem;display:flex;align-items:center;gap:0.75rem;box-shadow:0 4px 24px rgba(212,160,23,0.3);font-family:Inter,system-ui,sans-serif;max-width:90vw;';
+                toast.innerHTML = '<span style="font-size:1.5rem;">\u{1FAA6}</span><div><div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:#d4a017;font-weight:700;">Achievement Unlocked</div><div style="font-size:0.95rem;font-weight:700;color:#f1faee;">Gravedigger</div></div>';
+                document.body.appendChild(toast);
+                setTimeout(function() { toast.style.transition = 'opacity 0.4s'; toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 400); }, 4000);
+            }
+        })();
+
+        // Islander time tracking
+        setInterval(function() {
+            var t = parseInt(localStorage.getItem('moreau_island_time') || '0', 10);
+            t += 30;
+            localStorage.setItem('moreau_island_time', String(t));
+        }, 30000);
+
         // ── Start ──
         init();
     </script>

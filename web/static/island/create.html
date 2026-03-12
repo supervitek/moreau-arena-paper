@@ -894,6 +894,15 @@
                     localStorage.setItem('moreau_active_pet', String(pets.length - 1));
                 }
 
+                // Achievement: first_pet
+                (function() {
+                    var stored = JSON.parse(localStorage.getItem('moreau_achievements') || '{}');
+                    if (!stored.first_pet) {
+                        stored.first_pet = { unlocked: true, date: new Date().toISOString() };
+                        localStorage.setItem('moreau_achievements', JSON.stringify(stored));
+                    }
+                })();
+
                 // Redirect after dramatic pause
                 setTimeout(function() {
                     window.location.href = '/island/home';

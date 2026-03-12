@@ -499,6 +499,99 @@
             text-shadow: 0 0 8px var(--accent-glow);
         }
 
+        /* Fight Replay Narrative */
+        .replay-section {
+            max-width: 500px;
+            margin: 2rem auto;
+            text-align: left;
+        }
+
+        .replay-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            width: 100%;
+            text-align: left;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .replay-toggle:hover { background: var(--bg-card-hover); color: var(--text); }
+
+        .replay-container {
+            display: none;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 0.5rem;
+            padding-right: 0.25rem;
+        }
+
+        .replay-container.open { display: block; }
+
+        .replay-container::-webkit-scrollbar { width: 4px; }
+        .replay-container::-webkit-scrollbar-track { background: var(--bg-card); }
+        .replay-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        .replay-line {
+            background: var(--bg-card);
+            border-left: 3px solid var(--border);
+            padding: 0.4rem 0.75rem;
+            margin-bottom: 0.25rem;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            color: var(--text-dim);
+            border-radius: 0 var(--radius) var(--radius) 0;
+            opacity: 0;
+            transform: translateX(-8px);
+            transition: opacity 0.15s, transform 0.15s;
+        }
+
+        .replay-line.visible { opacity: 1; transform: translateX(0); }
+        .replay-line.pet-action { border-left-color: var(--green); }
+        .replay-line.opp-action { border-left-color: var(--accent); }
+        .replay-line.critical { border-left-color: var(--gold); background: rgba(212,160,23,0.05); }
+        .replay-line.finale { border-left-color: var(--purple); background: rgba(155,89,182,0.05); font-weight: 600; }
+
+        .replay-line .tick-num {
+            color: var(--text-muted);
+            font-family: monospace;
+            font-size: 0.75rem;
+            margin-right: 0.4rem;
+        }
+
+        /* Share & Sound buttons */
+        .fight-extras {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-share, .btn-sound {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 0.45rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .btn-share:hover, .btn-sound:hover { background: var(--bg-card-hover); color: var(--text); }
+
+        .btn-share.copied {
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        .btn-sound.on { border-color: var(--accent); color: var(--accent); }
+
         @media (max-width: 500px) {
             .train-header h1 { font-size: 1.6rem; }
             .result-verdict { font-size: 2rem; }
@@ -640,6 +733,16 @@
                     <div class="xp-bar-track">
                         <div class="xp-bar-fill" id="xp-bar-fill" style="width:0%"></div>
                     </div>
+                </div>
+
+                <div class="fight-extras">
+                    <button class="btn-share" id="btn-share" onclick="shareFight()">Share Fight</button>
+                    <button class="btn-sound" id="btn-sound" onclick="toggleSound()"></button>
+                </div>
+
+                <div class="replay-section" id="replay-section">
+                    <button class="replay-toggle" id="replay-toggle" onclick="toggleReplay()">Fight Replay</button>
+                    <div class="replay-container" id="replay-container"></div>
                 </div>
 
                 <div class="soul-bubble" id="soul-bubble"></div>
@@ -973,6 +1076,11 @@
                 document.getElementById('mutation-notice').classList.add('visible');
             }
 
+            // Fight narrative
+            var oppInfo = { name: opp.name, animal: opp.animal, stats: {} };
+            var narrativeLines = generateNarrative(data, pet, oppInfo, won);
+            displayNarrative(narrativeLines);
+
             // Soul response
             fetchSoul(won, opp.name);
         }
@@ -1029,11 +1137,305 @@
             document.getElementById('level-up-flash').classList.remove('visible');
             document.getElementById('mutation-notice').classList.remove('visible');
             document.getElementById('soul-bubble').classList.remove('visible');
+            document.getElementById('replay-container').classList.remove('open');
+            document.getElementById('replay-container').innerHTML = '';
+            document.getElementById('replay-toggle').textContent = '\u{1F4DC} Fight Replay \u25BC';
+            lastNarrativeLines = [];
             document.querySelectorAll('.opponent-card').forEach(function(c) { c.classList.remove('selected'); });
             selectedOpponent = null;
 
             // Refresh level badge
             document.getElementById('pet-level-badge').textContent = 'Lv.' + (pet.level || 1);
+        }
+
+        // ── Sound Engine (Web Audio API, no files) ──
+
+        var soundEnabled = localStorage.getItem('moreau_sound') === 'on';
+        var audioCtx = null;
+
+        function getAudioCtx() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            return audioCtx;
+        }
+
+        function playHit() {
+            if (!soundEnabled) return;
+            var ctx = getAudioCtx();
+            var osc = ctx.createOscillator();
+            var gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = 200;
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.05);
+        }
+
+        function playCritical() {
+            if (!soundEnabled) return;
+            var ctx = getAudioCtx();
+            var osc = ctx.createOscillator();
+            var gain = ctx.createGain();
+            var dist = ctx.createWaveshaper ? null : null;
+            osc.type = 'sawtooth';
+            osc.frequency.value = 400;
+            gain.gain.setValueAtTime(0.35, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.1);
+        }
+
+        function playKO() {
+            if (!soundEnabled) return;
+            var ctx = getAudioCtx();
+            var osc = ctx.createOscillator();
+            var gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, ctx.currentTime);
+            osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.35, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.3);
+        }
+
+        function playVictory() {
+            if (!soundEnabled) return;
+            var ctx = getAudioCtx();
+            var notes = [261.63, 329.63, 392.00]; // C E G
+            notes.forEach(function(freq, i) {
+                var osc = ctx.createOscillator();
+                var gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                var t = ctx.currentTime + i * 0.12;
+                gain.gain.setValueAtTime(0.25, t);
+                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(t);
+                osc.stop(t + 0.1);
+            });
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem('moreau_sound', soundEnabled ? 'on' : 'off');
+            updateSoundButton();
+            if (soundEnabled) playHit(); // feedback
+        }
+
+        function updateSoundButton() {
+            var btn = document.getElementById('btn-sound');
+            if (!btn) return;
+            btn.textContent = soundEnabled ? '\u{1F50A} Sound ON' : '\u{1F507} Sound OFF';
+            btn.classList.toggle('on', soundEnabled);
+        }
+
+        // ── Fight Narrative Generator ──
+
+        var lastNarrativeLines = [];
+        var lastFightMeta = {};
+
+        // Animal-specific flavor
+        var ANIMAL_ATTACKS = {
+            bear: ['mauls', 'swipes with massive claws', 'body slams'],
+            buffalo: ['charges headfirst', 'tramples', 'gores with horns'],
+            boar: ['tusks forward, charges', 'rams', 'gores savagely'],
+            tiger: ['pounces', 'rakes with claws', 'lunges with lethal grace'],
+            wolf: ['snaps jaws', 'circles and strikes', 'goes for the throat'],
+            monkey: ['leaps and strikes', 'feints and jabs', 'swings wildly'],
+            porcupine: ['raises quills', 'fires quills', 'bristles defensively'],
+            scorpion: ['stings', 'pinches with claws', 'whips the tail'],
+            vulture: ['dives from above', 'slashes with talons', 'pecks viciously'],
+            rhino: ['charges horn-first', 'bulldozes through', 'stomps the ground'],
+            viper: ['strikes with fangs', 'coils and lunges', 'injects venom'],
+            fox: ['darts in and out', 'nips and retreats', 'outmaneuvers'],
+            eagle: ['swoops down', 'rakes with talons', 'screeches and dives'],
+            panther: ['stalks from shadows', 'pounces silently', 'slashes with precision']
+        };
+
+        var ANIMAL_ABILITIES = {
+            bear: 'Thick Hide absorbs the blow',
+            buffalo: 'Stampede charges through',
+            boar: 'Berserker Rage activates',
+            tiger: 'Predator Instinct triggers',
+            wolf: 'Pack Tactics engage',
+            monkey: 'Chaos Protocol kicks in',
+            porcupine: 'Quill Shield deploys',
+            scorpion: 'Neurotoxin activates',
+            vulture: 'Carrion Sense heightens',
+            rhino: 'Ironclad Charge begins',
+            viper: 'Venom Drip takes hold',
+            fox: 'Cunning Evasion engages',
+            eagle: 'Sky Strike descends',
+            panther: 'Shadow Ambush triggers'
+        };
+
+        function generateNarrative(data, petInfo, oppInfo, won) {
+            var ticks = data.avg_ticks || data.ticks || (data.results && data.results[0] ? data.results[0].ticks : 30) || 30;
+            ticks = Math.round(ticks);
+            var lines = [];
+            var petName = petInfo.name || 'Your Pet';
+            var oppName = oppInfo.name || 'Opponent';
+            var petAnimal = (petInfo.animal || 'fox').toLowerCase();
+            var oppAnimal = (oppInfo.animal || 'fox').toLowerCase();
+            var petEmoji = EMOJI_MAP[petAnimal] || '\u2753';
+            var oppEmoji = EMOJI_MAP[oppAnimal] || '\u2753';
+            var petAtks = ANIMAL_ATTACKS[petAnimal] || ['attacks'];
+            var oppAtks = ANIMAL_ATTACKS[oppAnimal] || ['attacks'];
+            var petAbility = ANIMAL_ABILITIES[petAnimal] || 'Special ability activates';
+            var oppAbility = ANIMAL_ABILITIES[oppAnimal] || 'Special ability activates';
+
+            // Get pet stats for narrative flavor
+            var petStats = petInfo.base_stats || petInfo.stats || {};
+            var oppStats = oppInfo.stats || {};
+            var petMuts = Object.keys(petInfo.lab_mutations || {}).concat(petInfo.mutations || []);
+
+            function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+            // Opening
+            lines.push({ tick: 1, text: petEmoji + ' ' + petName + ' and ' + oppEmoji + ' ' + oppName + ' enter the arena. The crowd roars.', type: 'finale' });
+
+            // Generate tick events spaced throughout the fight
+            var keyTicks = [];
+            var numEvents = Math.min(ticks, Math.max(6, Math.floor(ticks / 3)));
+            for (var i = 0; i < numEvents; i++) {
+                keyTicks.push(Math.max(2, Math.floor((i + 1) * ticks / (numEvents + 1))));
+            }
+
+            // Remove duplicates
+            keyTicks = keyTicks.filter(function(v, i, a) { return a.indexOf(v) === i; });
+
+            var petTurn = true;
+            keyTicks.forEach(function(t, idx) {
+                var isCrit = Math.random() < 0.15;
+                var isAbility = Math.random() < 0.2;
+                var isDodge = Math.random() < 0.12;
+
+                if (petTurn) {
+                    if (isCrit) {
+                        lines.push({ tick: t, text: petEmoji + ' CRITICAL HIT! ' + petName + ' ' + pick(petAtks) + '! Devastating damage!', type: 'critical' });
+                    } else if (isAbility && petMuts.length > 0) {
+                        var mut = typeof petMuts[0] === 'string' ? petMuts[0] : (petMuts[0].name || 'mutation');
+                        lines.push({ tick: t, text: petEmoji + ' ' + petName + '\'s ' + mut + ' surges with power! ' + petAbility + '!', type: 'pet-action' });
+                    } else if (isDodge) {
+                        lines.push({ tick: t, text: oppEmoji + ' ' + oppName + ' ' + pick(oppAtks) + '! ' + petEmoji + ' ' + petName + ' dodges at the last moment!', type: 'pet-action' });
+                    } else {
+                        lines.push({ tick: t, text: petEmoji + ' ' + petName + ' ' + pick(petAtks) + '! ' + oppEmoji + ' ' + oppName + ' takes the hit.', type: 'pet-action' });
+                    }
+                } else {
+                    if (isCrit) {
+                        lines.push({ tick: t, text: oppEmoji + ' CRITICAL HIT! ' + oppName + ' ' + pick(oppAtks) + '! Heavy damage!', type: 'critical' });
+                    } else if (isAbility) {
+                        lines.push({ tick: t, text: oppEmoji + ' ' + oppName + '\'s ' + oppAbility + '!', type: 'opp-action' });
+                    } else if (isDodge) {
+                        lines.push({ tick: t, text: petEmoji + ' ' + petName + ' ' + pick(petAtks) + '! ' + oppEmoji + ' ' + oppName + ' evades!', type: 'opp-action' });
+                    } else {
+                        lines.push({ tick: t, text: oppEmoji + ' ' + oppName + ' ' + pick(oppAtks) + '! ' + petEmoji + ' ' + petName + ' staggers.', type: 'opp-action' });
+                    }
+                }
+                petTurn = !petTurn;
+            });
+
+            // Finale
+            if (won) {
+                lines.push({ tick: ticks, text: petEmoji + ' ' + petName + ' delivers the final blow! ' + oppEmoji + ' ' + oppName + ' falls. VICTORY!', type: 'finale' });
+            } else {
+                lines.push({ tick: ticks, text: oppEmoji + ' ' + oppName + ' lands a devastating strike! ' + petEmoji + ' ' + petName + ' goes down. Defeat.', type: 'finale' });
+            }
+
+            lastNarrativeLines = lines;
+            lastFightMeta = {
+                petName: petName,
+                petAnimal: petAnimal,
+                oppName: oppName,
+                oppAnimal: oppAnimal,
+                winner: won ? petName : oppName,
+                ticks: ticks
+            };
+
+            return lines;
+        }
+
+        async function displayNarrative(lines) {
+            var container = document.getElementById('replay-container');
+            container.innerHTML = '';
+            container.classList.add('open');
+            document.getElementById('replay-toggle').textContent = '\u{1F4DC} Fight Replay \u25B2';
+
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i];
+                var div = document.createElement('div');
+                div.className = 'replay-line ' + (line.type || '');
+                div.innerHTML = '<span class="tick-num">T' + line.tick + '</span>' + escHtml(line.text);
+                container.appendChild(div);
+
+                // Sound effects during replay
+                if (line.type === 'critical') playCritical();
+                else if (line.type === 'finale' && i === lines.length - 1) {
+                    if (lastFightMeta.winner === lastFightMeta.petName) playVictory();
+                    else playKO();
+                } else if (line.type === 'pet-action' || line.type === 'opp-action') playHit();
+
+                await sleep(50);
+                div.classList.add('visible');
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        function toggleReplay() {
+            var container = document.getElementById('replay-container');
+            var btn = document.getElementById('replay-toggle');
+            if (container.classList.contains('open')) {
+                container.classList.remove('open');
+                btn.textContent = '\u{1F4DC} Fight Replay \u25BC';
+            } else {
+                container.classList.add('open');
+                btn.textContent = '\u{1F4DC} Fight Replay \u25B2';
+            }
+        }
+
+        // ── Share Fight ──
+
+        function shareFight() {
+            if (lastNarrativeLines.length === 0) return;
+            var m = lastFightMeta;
+            var text = '\u2694\uFE0F MOREAU ISLAND FIGHT REPORT\n';
+            text += m.petName + ' the ' + m.petAnimal + ' vs ' + m.oppName + ' the ' + m.oppAnimal + '\n';
+            text += 'Winner: ' + m.winner + ' in ' + m.ticks + ' ticks\n\n';
+            lastNarrativeLines.forEach(function(line) {
+                text += 'T' + line.tick + ': ' + line.text + '\n';
+            });
+            text += '\n\u{1F3DD}\uFE0F moreauarena.com/island';
+
+            navigator.clipboard.writeText(text).then(function() {
+                var btn = document.getElementById('btn-share');
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function() {
+                    btn.textContent = 'Share Fight';
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(function() {
+                // Fallback
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                var btn = document.getElementById('btn-share');
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function() { btn.textContent = 'Share Fight'; btn.classList.remove('copied'); }, 2000);
+            });
         }
 
         // ── Utility ──
@@ -1044,7 +1446,53 @@
             return d.innerHTML;
         }
 
+        // ── Achievement system ──
+
+        function _achToast(icon, name) {
+            var toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed;top:1.5rem;left:50%;transform:translateX(-50%);z-index:9999;background:#1a1010;border:2px solid #d4a017;border-radius:8px;padding:0.75rem 1.5rem;display:flex;align-items:center;gap:0.75rem;box-shadow:0 4px 24px rgba(212,160,23,0.3);font-family:Inter,system-ui,sans-serif;max-width:90vw;';
+            toast.innerHTML = '<span style="font-size:1.5rem;">' + icon + '</span><div><div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:#d4a017;font-weight:700;">Achievement Unlocked</div><div style="font-size:0.95rem;font-weight:700;color:#f1faee;">' + name + '</div></div>';
+            document.body.appendChild(toast);
+            setTimeout(function() { toast.style.transition = 'opacity 0.4s'; toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 400); }, 4000);
+        }
+
+        function _checkAch(id, icon, name) {
+            var stored = JSON.parse(localStorage.getItem('moreau_achievements') || '{}');
+            if (stored[id]) return false;
+            stored[id] = { unlocked: true, date: new Date().toISOString() };
+            localStorage.setItem('moreau_achievements', JSON.stringify(stored));
+            _achToast(icon, name);
+            return true;
+        }
+
+        // Hook into showResult to check fight achievements
+        var _origShowResult = showResult;
+        showResult = async function(data, opp) {
+            await _origShowResult(data, opp);
+            var won = data.build1_wins > 0;
+            if (won) {
+                _checkAch('first_win', '\u2694\uFE0F', 'Blood Drawn');
+                var streak = parseInt(localStorage.getItem('moreau_win_streak') || '0', 10);
+                streak++;
+                localStorage.setItem('moreau_win_streak', String(streak));
+                if (streak >= 10) _checkAch('win_streak_10', '\u{1F3C6}', 'Undefeated');
+            } else {
+                localStorage.setItem('moreau_win_streak', '0');
+            }
+            if (pet && pet.level >= 10) {
+                _checkAch('max_level', '\u{1F4AA}', 'Max Power');
+            }
+        };
+
+        // Islander time tracking
+        setInterval(function() {
+            var t = parseInt(localStorage.getItem('moreau_island_time') || '0', 10);
+            t += 30;
+            localStorage.setItem('moreau_island_time', String(t));
+        }, 30000);
+
         // ── Start ──
+        updateSoundButton();
         init();
     </script>
 </body>

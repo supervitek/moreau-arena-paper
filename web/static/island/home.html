@@ -361,7 +361,7 @@
         /* ── Quick Actions ── */
         .actions {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 0.75rem;
             margin-top: 1.5rem;
             animation: fadeSlideIn 0.7s ease-out 0.2s both;
@@ -411,6 +411,10 @@
         .action-dossier { border-color: var(--blue); }
         .action-dossier:hover { border-color: #5a9ab8; box-shadow: 0 4px 16px rgba(69,123,157,0.15); }
         .action-dossier .action-icon { color: var(--blue); }
+
+        .action-logbook { border-color: var(--gold); }
+        .action-logbook:hover { border-color: #e8b520; box-shadow: 0 4px 16px rgba(212,160,23,0.15); }
+        .action-logbook .action-icon { color: var(--gold); }
 
         .action-btn.disabled {
             opacity: 0.35;
@@ -630,6 +634,129 @@
         .nav-fight a.active {
             text-shadow: 0 0 8px var(--accent-glow);
         }
+
+        /* ── Help Button ── */
+        .help-btn {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 50;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .help-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        /* ── Help Overlay ── */
+        .help-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(5, 2, 2, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: helpFadeIn 0.25s ease-out;
+        }
+
+        .help-overlay.open {
+            display: flex;
+        }
+
+        @keyframes helpFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .help-content {
+            max-width: 600px;
+            width: 100%;
+            padding: 2.5rem 2rem;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .help-title {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--text);
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+        }
+
+        .help-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+            align-items: flex-start;
+        }
+
+        .help-icon {
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            width: 28px;
+            text-align: center;
+        }
+
+        .help-item-text {
+            flex: 1;
+        }
+
+        .help-item-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text);
+            margin-bottom: 0.15rem;
+        }
+
+        .help-item-desc {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.4;
+        }
+
+        .help-dismiss {
+            display: block;
+            margin: 2rem auto 0;
+            padding: 0.65rem 2rem;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .help-dismiss:hover {
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 640px) {
+            .help-content { padding: 2rem 1.25rem; }
+            .help-title { font-size: 1.1rem; }
+            .help-btn { bottom: 1rem; right: 1rem; width: 36px; height: 36px; font-size: 1rem; }
+        }
     </style>
 </head>
 <body>
@@ -712,6 +839,82 @@
         </div>
     </div>
 
+    <!-- Help Button -->
+    <button class="help-btn" id="helpBtn" title="Field Guide" onclick="toggleHelp(true)">?</button>
+
+    <!-- Help Overlay -->
+    <div class="help-overlay" id="helpOverlay" onclick="if(event.target===this)toggleHelp(false)">
+        <div class="help-content">
+            <div class="help-title">The Island &mdash; Field Guide</div>
+
+            <div class="help-item">
+                <span class="help-icon">&#9876;</span>
+                <div class="help-item-text">
+                    <div class="help-item-title">TRAIN</div>
+                    <div class="help-item-desc">Fight AI opponents to earn XP and level up your pet.</div>
+                </div>
+            </div>
+
+            <div class="help-item">
+                <span class="help-icon">&#9876;&#65039;</span>
+                <div class="help-item-text">
+                    <div class="help-item-title">THE PIT</div>
+                    <div class="help-item-desc">Pit your own pets against each other in local PvP sparring.</div>
+                </div>
+            </div>
+
+            <div class="help-item">
+                <span class="help-icon">&#9850;</span>
+                <div class="help-item-text">
+                    <div class="help-item-title">MUTATE</div>
+                    <div class="help-item-desc">At levels 3, 6, and 9, choose standard mutations to power up.</div>
+                </div>
+            </div>
+
+            <div class="help-item">
+                <span class="help-icon">&#9762;</span>
+                <div class="help-item-text">
+                    <div class="help-item-title">FORBIDDEN LAB</div>
+                    <div class="help-item-desc">High-risk mutations. Higher tiers mean better rewards but a chance of death.</div>
+                </div>
+            </div>
+
+            <div class="help-item">
+                <span class="help-icon">&#128196;</span>
+                <div class="help-item-text">
+                    <div class="help-item-title">DOSSIER</div>
+                    <div class="help-item-desc">View your pet's full profile, stats, and fight history.</div>
+                </div>
+            </div>
+
+            <div class="help-item">
+                <span class="help-icon">&#127942;</span>
+                <div class="help-item-text">
+                    <div class="help-item-title">LOGBOOK</div>
+                    <div class="help-item-desc">Track your achievements across The Island.</div>
+                </div>
+            </div>
+
+            <div class="help-item">
+                <span class="help-icon">&#129702;</span>
+                <div class="help-item-text">
+                    <div class="help-item-title">GRAVEYARD</div>
+                    <div class="help-item-desc">Memorial for pets lost to the Lab's experiments.</div>
+                </div>
+            </div>
+
+            <div class="help-item">
+                <span class="help-icon">&#128202;</span>
+                <div class="help-item-text">
+                    <div class="help-item-title">LEADERBOARD</div>
+                    <div class="help-item-desc">Rankings of all pets by win rate.</div>
+                </div>
+            </div>
+
+            <button class="help-dismiss" onclick="toggleHelp(false)">Got it</button>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/static/island/supabase-client.js"></script>
     <script>
@@ -735,6 +938,15 @@
         // ── Init ──
 
         async function init() {
+            // Check if onboarding needed
+            if (!localStorage.getItem('moreau_onboarding_complete')) {
+                const pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                if (pets.length === 0 && !localStorage.getItem('moreau_pet')) {
+                    window.location.href = '/island/onboarding';
+                    return;
+                }
+            }
+
             await initSupabase();
             const user = await getUser();
 
@@ -983,6 +1195,10 @@
             html += '<a href="' + (hasPet ? '/island/profile' : '#') + '" class="action-btn action-dossier' + (hasPet ? '' : ' disabled') + '">' +
                 '<span class="action-icon">&#128196;</span>DOSSIER</a>';
 
+            // LOGBOOK
+            html += '<a href="/island/achievements" class="action-btn action-logbook">' +
+                '<span class="action-icon">&#127942;</span>LOGBOOK</a>';
+
             grid.innerHTML = html;
         }
 
@@ -1100,8 +1316,67 @@
             return d.innerHTML;
         }
 
+        // ── Help Overlay ──
+
+        function toggleHelp(show) {
+            var overlay = document.getElementById('helpOverlay');
+            if (show) {
+                overlay.classList.add('open');
+                localStorage.setItem('moreau_help_seen', 'true');
+            } else {
+                overlay.classList.remove('open');
+            }
+        }
+
+        // Close help on Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') toggleHelp(false);
+        });
+
+        function maybeShowHelp() {
+            if (!localStorage.getItem('moreau_help_seen')) {
+                toggleHelp(true);
+            }
+        }
+
         // ── Start ──
-        init();
+        init().then(function() {
+            // Show help auto-popup on first visit (after dashboard is loaded)
+            maybeShowHelp();
+        }).catch(function() {});
+
+        // ── Achievement checks ──
+
+        function _achToast(icon, name) {
+            var toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed;top:1.5rem;left:50%;transform:translateX(-50%);z-index:9999;background:#1a1010;border:2px solid #d4a017;border-radius:8px;padding:0.75rem 1.5rem;display:flex;align-items:center;gap:0.75rem;box-shadow:0 4px 24px rgba(212,160,23,0.3);font-family:Inter,system-ui,sans-serif;max-width:90vw;';
+            toast.innerHTML = '<span style="font-size:1.5rem;">' + icon + '</span><div><div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:#d4a017;font-weight:700;">Achievement Unlocked</div><div style="font-size:0.95rem;font-weight:700;color:#f1faee;">' + name + '</div></div>';
+            document.body.appendChild(toast);
+            setTimeout(function() { toast.style.transition = 'opacity 0.4s'; toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 400); }, 4000);
+        }
+
+        function _checkAch(id, icon, name) {
+            var stored = JSON.parse(localStorage.getItem('moreau_achievements') || '{}');
+            if (stored[id]) return false;
+            stored[id] = { unlocked: true, date: new Date().toISOString() };
+            localStorage.setItem('moreau_achievements', JSON.stringify(stored));
+            _achToast(icon, name);
+            return true;
+        }
+
+        // Night owl
+        (function() {
+            var h = new Date().getHours();
+            if (h >= 0 && h < 5) _checkAch('night_owl', '\u{1F319}', 'Night Owl');
+        })();
+
+        // Islander time tracking
+        setInterval(function() {
+            var t = parseInt(localStorage.getItem('moreau_island_time') || '0', 10);
+            t += 30;
+            localStorage.setItem('moreau_island_time', String(t));
+            if (t >= 3600) _checkAch('islander', '\u{1F3DD}\uFE0F', 'Islander');
+        }, 30000);
     </script>
 </body>
 </html>
