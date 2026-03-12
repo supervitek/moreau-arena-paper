@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Pact — The Island — Moreau Arena</title>
+    <meta property="og:title" content="The Pact — The Island">
+    <meta property="og:description" content="Forge an eternal bond. Accept the consequences.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="The Pact — The Island">
+    <meta name="twitter:description" content="Forge an eternal bond. Accept the consequences.">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --bg-primary: #0a0505;
+            --bg-secondary: #0f0a0a;
+            --bg-card: #1a1010;
+            --bg-card-hover: #221515;
+            --bg-code: #1e1218;
+            --border: #3a1a1a;
+            --accent: #e63946;
+            --accent-glow: rgba(230, 57, 70, 0.4);
+            --text: #f1faee;
+            --text-dim: #a8a0a0;
+            --text-muted: #6a5a5a;
+            --green: #4ecca3;
+            --blue: #457b9d;
+            --gold: #d4a017;
+            --purple: #9b59b6;
+            --radius: 8px;
+            --crimson: #6b0000;
+            --crimson-bright: #8b0000;
+            --crimson-glow: rgba(107, 0, 0, 0.5);
+            --blood: #4a0000;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(170deg, var(--bg-primary) 0%, #0d0505 50%, #080303 100%);
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── Nav ── */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(10, 5, 5, 0.9);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .back-btn {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: color 0.2s;
+        }
+
+        .back-btn:hover { color: var(--text); }
+
+        .nav-title {
+            flex: 1;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--crimson-bright);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* ── Container ── */
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 1.5rem 1rem 4rem;
+        }
+
+        /* ── Tabs ── */
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.8rem 0.5rem;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: color 0.2s, border-color 0.2s;
+        }
+
+        .tab-btn:hover { color: var(--text-dim); }
+        .tab-btn.active { color: var(--crimson-bright); border-bottom-color: var(--crimson-bright); }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ── Pact Altar ── */
+        .altar {
+            position: relative;
+            padding: 2rem 1rem;
+        }
+
+        .altar-title {
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--crimson-bright);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.08em;
+        }
+
+        .altar-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 2rem;
+        }
+
+        .altar-circles {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            position: relative;
+        }
+
+        .altar-slot {
+            width: 160px;
+            height: 160px;
+            border: 2px dashed var(--crimson);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+            position: relative;
+            background: radial-gradient(circle, rgba(107,0,0,0.08) 0%, transparent 70%);
+            z-index: 2;
+        }
+
+        .altar-slot:hover {
+            border-color: var(--crimson-bright);
+            box-shadow: 0 0 20px var(--crimson-glow);
+            background: radial-gradient(circle, rgba(107,0,0,0.15) 0%, transparent 70%);
+        }
+
+        .altar-slot.filled {
+            border-style: solid;
+            border-color: var(--crimson-bright);
+            box-shadow: 0 0 15px var(--crimson-glow);
+        }
+
+        .altar-slot.invalid {
+            border-color: #660000;
+            opacity: 0.5;
+        }
+
+        .altar-slot-empty {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .altar-slot-emoji { font-size: 2.5rem; margin-bottom: 0.3rem; }
+        .altar-slot-name { font-size: 0.8rem; font-weight: 600; }
+        .altar-slot-level { font-size: 0.65rem; color: var(--text-dim); }
+        .altar-slot-remove {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--crimson);
+            color: var(--text);
+            border: none;
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .altar-slot.filled:hover .altar-slot-remove { opacity: 1; }
+
+        /* Thread connecting the two circles */
+        .altar-thread {
+            width: 80px;
+            height: 4px;
+            position: relative;
+            z-index: 1;
+            margin: 0 -10px;
+        }
+
+        .altar-thread-line {
+            width: 100%;
+            height: 2px;
+            background: var(--border);
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .altar-thread.connected .altar-thread-line {
+            background: var(--crimson-bright);
+            box-shadow: 0 0 8px var(--crimson-glow);
+            animation: threadPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes threadPulse {
+            0%, 100% { box-shadow: 0 0 4px var(--crimson-glow); opacity: 0.7; }
+            50% { box-shadow: 0 0 12px rgba(139,0,0,0.8); opacity: 1; }
+        }
+
+        .altar-requirements {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .req-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin: 0 0.5rem;
+        }
+
+        .req-item.met { color: var(--green); }
+        .req-item.unmet { color: var(--accent); }
+
+        .forge-btn {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 2rem auto 0;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--crimson) 0%, var(--crimson-bright) 100%);
+            color: var(--text);
+            border: 2px solid var(--crimson-bright);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .forge-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px var(--crimson-glow);
+        }
+
+        .forge-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* Pet selector dropdown */
+        .pet-selector {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 0.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.5rem;
+            z-index: 50;
+            min-width: 180px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        .pet-selector-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 0.8rem;
+        }
+
+        .pet-selector-item:hover { background: var(--bg-card-hover); }
+
+        .pet-selector-item.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .pet-selector-item .psi-emoji { font-size: 1.2rem; }
+        .pet-selector-item .psi-info { flex: 1; }
+        .pet-selector-item .psi-name { font-weight: 600; }
+        .pet-selector-item .psi-level { font-size: 0.65rem; color: var(--text-dim); }
+        .pet-selector-item .psi-reason { font-size: 0.6rem; color: var(--accent); }
+
+        /* ── Active Pacts ── */
+        .pact-card {
+            background: var(--bg-card);
+            border: 1px solid var(--crimson);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pact-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, rgba(107,0,0,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .pact-pair {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+        }
+
+        .pact-pet {
+            text-align: center;
+            flex: 0 0 120px;
+        }
+
+        .pact-pet-emoji { font-size: 2rem; }
+        .pact-pet-name { font-size: 0.85rem; font-weight: 600; margin-top: 0.2rem; }
+        .pact-pet-level { font-size: 0.7rem; color: var(--text-dim); }
+        .pact-pet.deceased .pact-pet-emoji { filter: grayscale(1); opacity: 0.5; }
+        .pact-pet.deceased .pact-pet-name { color: var(--text-muted); text-decoration: line-through; }
+
+        .pact-thread-container {
+            width: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .pact-thread-line {
+            width: 100%;
+            height: 2px;
+            background: var(--crimson-bright);
+            box-shadow: 0 0 6px var(--crimson-glow);
+            animation: threadPulse 2s ease-in-out infinite;
+        }
+
+        .pact-thread-line.broken {
+            background: var(--text-muted);
+            box-shadow: none;
+            animation: none;
+            position: relative;
+        }
+
+        .pact-thread-line.broken::after {
+            content: '//';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--accent);
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .pact-bonuses {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .pact-bonus {
+            font-size: 0.7rem;
+            color: var(--green);
+            background: rgba(78, 204, 163, 0.1);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            border: 1px solid rgba(78, 204, 163, 0.2);
+        }
+
+        .pact-date {
+            text-align: center;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 0.8rem;
+        }
+
+        .pact-feral-badge {
+            position: absolute;
+            top: 0.8rem;
+            right: 0.8rem;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+            animation: feralBlink 1s ease-in-out infinite;
+        }
+
+        @keyframes feralBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .pact-scarred-badge {
+            position: absolute;
+            top: 0.8rem;
+            right: 0.8rem;
+            background: var(--blood);
+            color: var(--text-dim);
+            font-size: 0.6rem;
+            font-weight: 600;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .no-pacts {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+
+        .no-pacts-icon { font-size: 2.5rem; margin-bottom: 0.5rem; opacity: 0.5; }
+        .no-pacts-text { font-size: 0.85rem; }
+
+        /* ── Feral Monitor ── */
+        .feral-section {
+            background: linear-gradient(135deg, #1a0505 0%, #200a0a 100%);
+            border: 2px solid var(--accent);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            animation: feralEdgePulse 3s ease-in-out infinite;
+        }
+
+        @keyframes feralEdgePulse {
+            0%, 100% { box-shadow: inset 0 0 15px rgba(230,57,70,0.1); }
+            50% { box-shadow: inset 0 0 30px rgba(230,57,70,0.25); }
+        }
+
+        .feral-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .feral-countdown {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .feral-timer {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .feral-timer-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        .feral-warning {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            font-style: italic;
+            margin-top: 0.8rem;
+            padding: 0.5rem;
+            border-top: 1px solid rgba(230,57,70,0.2);
+        }
+
+        .feral-log {
+            margin-top: 1rem;
+        }
+
+        .feral-log-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .feral-log-entry {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            padding: 0.4rem 0;
+            border-bottom: 1px solid rgba(58,26,26,0.5);
+        }
+
+        .feral-log-entry:last-child { border-bottom: none; }
+
+        /* ── Lore ── */
+        .lore-section {
+            padding: 1rem 0;
+        }
+
+        .lore-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .lore-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--crimson-bright);
+            margin-bottom: 0.8rem;
+        }
+
+        .lore-text {
+            font-size: 0.8rem;
+            line-height: 1.6;
+            color: var(--text-dim);
+        }
+
+        .lore-text p { margin-bottom: 0.8rem; }
+        .lore-text p:last-child { margin-bottom: 0; }
+
+        .lore-signature {
+            font-style: italic;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-top: 1rem;
+            text-align: right;
+        }
+
+        /* ── Confirmation Modal ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal-overlay.open { display: flex; }
+
+        .modal {
+            background: var(--bg-card);
+            border: 2px solid var(--crimson-bright);
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 40px var(--crimson-glow);
+        }
+
+        .modal-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--crimson-bright);
+            margin-bottom: 0.8rem;
+        }
+
+        .modal-text {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-confirm-input {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text);
+            font-size: 0.85rem;
+            font-family: inherit;
+            text-align: center;
+            margin-bottom: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .modal-confirm-input:focus { border-color: var(--crimson-bright); }
+
+        .modal-confirm-hint {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 0.7rem;
+            border-radius: var(--radius);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .modal-btn-cancel {
+            background: var(--bg-card-hover);
+            color: var(--text-dim);
+        }
+
+        .modal-btn-cancel:hover { background: var(--bg-code); }
+
+        .modal-btn-confirm {
+            background: var(--crimson);
+            color: var(--text);
+            border-color: var(--crimson-bright);
+        }
+
+        .modal-btn-confirm:hover:not(:disabled) {
+            background: var(--crimson-bright);
+        }
+
+        .modal-btn-confirm:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* ── Binding Animation ── */
+        .binding-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 300;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .binding-overlay.active { display: flex; }
+
+        .binding-anim-pair {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .binding-anim-pet {
+            font-size: 3rem;
+            animation: bindingPetPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes bindingPetPulse {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.15); filter: brightness(1.3); }
+        }
+
+        .binding-threads {
+            width: 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .binding-thread {
+            height: 2px;
+            background: var(--crimson-bright);
+            transform: scaleX(0);
+            transform-origin: left;
+            animation: threadDraw 0.8s ease-out forwards;
+            box-shadow: 0 0 6px var(--crimson-glow);
+        }
+
+        .binding-thread:nth-child(1) { animation-delay: 0.2s; }
+        .binding-thread:nth-child(2) { animation-delay: 0.5s; }
+        .binding-thread:nth-child(3) { animation-delay: 0.8s; }
+
+        @keyframes threadDraw {
+            to { transform: scaleX(1); }
+        }
+
+        .binding-text {
+            margin-top: 2rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--crimson-bright);
+            opacity: 0;
+            animation: bindingTextFade 1s ease-out 1.5s forwards;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        @keyframes bindingTextFade {
+            to { opacity: 1; }
+        }
+
+        /* ── Feral Screen Edge Pulse ── */
+        .feral-edge-pulse {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 50;
+            box-shadow: inset 0 0 60px rgba(230, 57, 70, 0.15);
+            animation: feralEdge 4s ease-in-out infinite;
+        }
+
+        @keyframes feralEdge {
+            0%, 100% { box-shadow: inset 0 0 40px rgba(230, 57, 70, 0.08); }
+            50% { box-shadow: inset 0 0 80px rgba(230, 57, 70, 0.2); }
+        }
+
+        /* ── Notification Toast ── */
+        .feral-toast {
+            position: fixed;
+            top: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: linear-gradient(135deg, #1a0505, #2a0808);
+            border: 2px solid var(--accent);
+            border-radius: var(--radius);
+            padding: 1rem 1.5rem;
+            max-width: 400px;
+            width: 90%;
+            z-index: 250;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(230,57,70,0.3);
+            transition: transform 0.5s ease-out;
+        }
+
+        .feral-toast.visible { transform: translateX(-50%) translateY(0); }
+
+        .feral-toast-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.3rem;
+        }
+
+        .feral-toast-text {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .altar-slot { width: 120px; height: 120px; }
+            .altar-slot-emoji { font-size: 2rem; }
+            .altar-thread { width: 50px; }
+            .pact-pet { flex: 0 0 90px; }
+        }
+
+        /* ── Animations ── */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in { animation: fadeIn 0.5s ease-out both; }
+        .fade-in-d1 { animation-delay: 0.1s; }
+        .fade-in-d2 { animation-delay: 0.2s; }
+        .fade-in-d3 { animation-delay: 0.3s; }
+    </style>
+</head>
+<body>
+    <!-- Feral edge pulse (injected by JS if needed) -->
+    <div id="feralEdge"></div>
+
+    <!-- Feral attack toast -->
+    <div class="feral-toast" id="feralToast">
+        <div class="feral-toast-title" id="feralToastTitle"></div>
+        <div class="feral-toast-text" id="feralToastText"></div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="top-nav">
+        <a href="/island/home" class="back-btn">&larr; Dashboard</a>
+        <div class="nav-title">&#9939; The Pact</div>
+        <div style="width: 80px;"></div>
+    </nav>
+
+    <!-- Container -->
+    <div class="container">
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="altar">Altar</button>
+            <button class="tab-btn" data-tab="pacts">Active Pacts</button>
+            <button class="tab-btn" data-tab="feral" id="feralTab" style="display:none;">Feral Monitor</button>
+            <button class="tab-btn" data-tab="lore">Lore</button>
+        </div>
+
+        <!-- Tab: Altar -->
+        <div class="tab-panel active" id="panel-altar">
+            <div class="altar fade-in">
+                <div class="altar-title">Blood Pact Altar</div>
+                <div class="altar-subtitle">Bind two souls. Share their fate.</div>
+
+                <div class="altar-circles">
+                    <div class="altar-slot" id="slot0" onclick="openSelector(0)">
+                        <div class="altar-slot-empty">Select Pet</div>
+                    </div>
+
+                    <div class="altar-thread" id="altarThread">
+                        <div class="altar-thread-line"></div>
+                    </div>
+
+                    <div class="altar-slot" id="slot1" onclick="openSelector(1)">
+                        <div class="altar-slot-empty">Select Pet</div>
+                    </div>
+                </div>
+
+                <!-- Pet selectors (injected by JS) -->
+                <div id="selectorContainer0" style="position:relative;"></div>
+                <div id="selectorContainer1" style="position:relative;"></div>
+
+                <div class="altar-requirements" id="altarReqs"></div>
+
+                <button class="forge-btn" id="forgeBtn" disabled onclick="openConfirmModal()">
+                    FORGE THE PACT
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab: Active Pacts -->
+        <div class="tab-panel" id="panel-pacts">
+            <div id="pactsContainer"></div>
+        </div>
+
+        <!-- Tab: Feral Monitor -->
+        <div class="tab-panel" id="panel-feral">
+            <div id="feralContainer"></div>
+        </div>
+
+        <!-- Tab: Lore -->
+        <div class="tab-panel" id="panel-lore">
+            <div class="lore-section fade-in">
+                <div class="lore-card">
+                    <div class="lore-title">Dr. Moreau's Notes: On Symbiotic Neural Linking</div>
+                    <div class="lore-text">
+                        <p>The discovery was accidental, as the best horrors tend to be. Two subjects, housed in adjacent enclosures, began exhibiting synchronized neural patterns. Their EEG readings became indistinguishable. When one was injured, the other screamed.</p>
+                        <p>I isolated the mechanism: a resonance cascade in the limbic bridge. By amplifying it surgically &mdash; a few cuts in the right places, a shared blood supply through synthetic capillaries &mdash; I could make the bond permanent. Unbreakable.</p>
+                        <p>The bonded pairs fought with terrifying coordination. They anticipated each other's movements. Shared pain became shared fury. Their combat effectiveness increased measurably.</p>
+                        <p>But when Subject 14-A expired during a routine stress test, 14-B... changed. It did not grieve as we understand grief. It <em>raged</em>. It destroyed its enclosure. It attacked the handlers. It attacked everything.</p>
+                        <p>The rage lasted precisely 48 hours. Then it stopped. 14-B sat in the corner of its ruined cell and would not move for three days. When it finally rose, something in its eyes had hardened. It fought differently after that. More viciously. But also more... carefully.</p>
+                        <p>I have documented the phenomenon as "Feral Cascade." The bond, once severed by death, leaves a wound in the survivor's neural architecture that never fully heals. The scar tissue makes them stronger. The absence makes them dangerous.</p>
+                    </div>
+                    <div class="lore-signature">&mdash; Dr. Moreau, Laboratory Journal, Entry 847</div>
+                </div>
+
+                <div class="lore-card">
+                    <div class="lore-title">On The Nature of Irreversibility</div>
+                    <div class="lore-text">
+                        <p>They ask me if the bond can be undone. I tell them: can you un-know someone? Can you un-feel a hand that held yours in the dark?</p>
+                        <p>The neural pathways, once intertwined, become load-bearing structures. Remove one, and the architecture collapses. This is not a leash. It is not a chain. It is a root system. Cut one tree, and the other feels the earth shift beneath it.</p>
+                        <p>I do not offer this procedure lightly. Those who seek it must understand: you are not adding a companion. You are redefining what each creature <em>is</em>. They will be more together. They will be less alone. And if fate is unkind, they will be utterly, catastrophically unmade.</p>
+                    </div>
+                    <div class="lore-signature">&mdash; Dr. Moreau, Ethics Review (rejected), Entry 851</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <div class="modal-icon">&#9939;</div>
+            <div class="modal-title">Forge Eternal Pact</div>
+            <div class="modal-text">
+                This bond is <strong>permanent and irreversible</strong>. The two pets will share their fate forever.<br><br>
+                If one falls, the other will <strong>rage for 48 hours</strong> &mdash; attacking your own kennel in grief.
+            </div>
+            <div class="modal-confirm-hint" id="confirmHint"></div>
+            <input type="text" class="modal-confirm-input" id="confirmInput" placeholder="Type the pact name to confirm" autocomplete="off">
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-cancel" onclick="closeConfirmModal()">Step Back</button>
+                <button class="modal-btn modal-btn-confirm" id="confirmBtn" disabled onclick="executePact()">FORGE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Binding Animation Overlay -->
+    <div class="binding-overlay" id="bindingOverlay">
+        <div class="binding-anim-pair">
+            <div class="binding-anim-pet" id="bindPet0"></div>
+            <div class="binding-threads">
+                <div class="binding-thread"></div>
+                <div class="binding-thread"></div>
+                <div class="binding-thread"></div>
+            </div>
+            <div class="binding-anim-pet" id="bindPet1"></div>
+        </div>
+        <div class="binding-text">BOUND ETERNAL</div>
+    </div>
+
+    <script>
+        // ── Constants ──
+
+        var EMOJI_MAP = {
+            wolf:'\u{1F43A}', bear:'\u{1F43B}', fox:'\u{1F98A}', hawk:'\u{1F985}',
+            snake:'\u{1F40D}', panther:'\u{1F406}', shark:'\u{1F988}', eagle:'\u{1F985}',
+            tiger:'\u{1F405}', croc:'\u{1F40A}', rhino:'\u{1F98F}', mantis:'\u{1F997}',
+            scorpion:'\u{1F982}', chameleon:'\u{1F98E}'
+        };
+
+        var MIN_PACT_LEVEL = 3;
+        var FERAL_DURATION_MS = 48 * 60 * 60 * 1000; // 48 hours
+
+        // ── State ──
+
+        var allPets = [];
+        var activePetIndex = 0;
+        var selectedSlots = [null, null]; // indices into allPets
+        var selectorOpen = -1; // which slot's selector is open (-1 = none)
+
+        // ── Init ──
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPets();
+            initTabs();
+            renderAltar();
+            renderPacts();
+            renderFeral();
+            checkFeralAttack();
+        });
+
+        // ── Data ──
+
+        function loadPets() {
+            allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            activePetIndex = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
+        }
+
+        function savePets() {
+            localStorage.setItem('moreau_pets', JSON.stringify(allPets));
+        }
+
+        function escHtml(s) {
+            var d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        function getEmoji(pet) {
+            var animal = (pet.animal || '').toLowerCase();
+            return EMOJI_MAP[animal] || '\u{1F43E}';
+        }
+
+        // ── Tabs ──
+
+        function initTabs() {
+            var btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var tab = btn.getAttribute('data-tab');
+                    btns.forEach(function(b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+                    document.getElementById('panel-' + tab).classList.add('active');
+                });
+            });
+
+            // Show feral tab if any pet is feral
+            var hasFeral = allPets.some(function(p) { return p.feral && !p.deceased; });
+            document.getElementById('feralTab').style.display = hasFeral ? '' : 'none';
+        }
+
+        // ── Altar ──
+
+        function canPact(pet, otherSlotIndex) {
+            if (!pet) return { ok: false, reason: 'No pet' };
+            if (pet.deceased || pet.is_alive === false) return { ok: false, reason: 'Deceased' };
+            if ((pet.level || 1) < MIN_PACT_LEVEL) return { ok: false, reason: 'Level ' + MIN_PACT_LEVEL + '+ required' };
+            if (pet.pact) return { ok: false, reason: 'Already pacted' };
+            if (pet.scarred_bond) return { ok: false, reason: 'Scarred — cannot pact again' };
+            if (pet.feral) return { ok: false, reason: 'Currently feral' };
+            return { ok: true, reason: '' };
+        }
+
+        function renderSlot(slotIdx) {
+            var el = document.getElementById('slot' + slotIdx);
+            var petIdx = selectedSlots[slotIdx];
+
+            if (petIdx === null || petIdx === undefined) {
+                el.className = 'altar-slot';
+                el.innerHTML = '<div class="altar-slot-empty">Select Pet</div>';
+                return;
+            }
+
+            var pet = allPets[petIdx];
+            var emoji = getEmoji(pet);
+
+            el.className = 'altar-slot filled';
+            el.innerHTML =
+                '<button class="altar-slot-remove" onclick="event.stopPropagation();clearSlot(' + slotIdx + ');">&times;</button>' +
+                '<div class="altar-slot-emoji">' + emoji + '</div>' +
+                '<div class="altar-slot-name">' + escHtml(pet.name || 'Unknown') + '</div>' +
+                '<div class="altar-slot-level">Lv.' + (pet.level || 1) + '</div>';
+        }
+
+        function renderAltar() {
+            renderSlot(0);
+            renderSlot(1);
+
+            // Thread
+            var thread = document.getElementById('altarThread');
+            var both = selectedSlots[0] !== null && selectedSlots[1] !== null;
+            thread.className = 'altar-thread' + (both ? ' connected' : '');
+
+            // Requirements
+            var reqsEl = document.getElementById('altarReqs');
+            var html = '';
+            var allMet = true;
+
+            if (both) {
+                var p0 = allPets[selectedSlots[0]];
+                var p1 = allPets[selectedSlots[1]];
+                var c0 = canPact(p0);
+                var c1 = canPact(p1);
+
+                var checks = [
+                    { label: p0.name + ' Lv.' + MIN_PACT_LEVEL + '+', met: (p0.level || 1) >= MIN_PACT_LEVEL },
+                    { label: p1.name + ' Lv.' + MIN_PACT_LEVEL + '+', met: (p1.level || 1) >= MIN_PACT_LEVEL },
+                    { label: 'Both alive', met: !p0.deceased && !p1.deceased && p0.is_alive !== false && p1.is_alive !== false },
+                    { label: 'Neither pacted', met: !p0.pact && !p1.pact },
+                    { label: 'Neither scarred', met: !p0.scarred_bond && !p1.scarred_bond },
+                    { label: 'Neither feral', met: !p0.feral && !p1.feral },
+                    { label: 'Different pets', met: selectedSlots[0] !== selectedSlots[1] }
+                ];
+
+                checks.forEach(function(c) {
+                    if (!c.met) allMet = false;
+                    html += '<span class="req-item ' + (c.met ? 'met' : 'unmet') + '">' +
+                        (c.met ? '\u2713' : '\u2717') + ' ' + c.label + '</span>';
+                });
+            }
+
+            reqsEl.innerHTML = html;
+            document.getElementById('forgeBtn').disabled = !both || !allMet;
+        }
+
+        function clearSlot(idx) {
+            selectedSlots[idx] = null;
+            closeSelectorAll();
+            renderAltar();
+        }
+
+        // ── Pet Selector ──
+
+        function openSelector(slotIdx) {
+            // If already filled, remove and reopen
+            if (selectedSlots[slotIdx] !== null) {
+                // Click on filled slot — open selector to replace
+            }
+
+            if (selectorOpen === slotIdx) {
+                closeSelectorAll();
+                return;
+            }
+
+            closeSelectorAll();
+            selectorOpen = slotIdx;
+
+            var otherIdx = slotIdx === 0 ? 1 : 0;
+            var otherPetIdx = selectedSlots[otherIdx];
+
+            var container = document.getElementById('selectorContainer' + slotIdx);
+            var html = '<div class="pet-selector">';
+
+            if (allPets.length === 0) {
+                html += '<div style="padding:0.5rem;color:var(--text-muted);font-size:0.8rem;">No pets in kennel</div>';
+            } else {
+                allPets.forEach(function(pet, idx) {
+                    var check = canPact(pet);
+                    var isOther = idx === otherPetIdx;
+                    var disabled = !check.ok || isOther;
+                    var reason = isOther ? 'In other slot' : check.reason;
+
+                    html += '<div class="pet-selector-item' + (disabled ? ' disabled' : '') + '"' +
+                        (disabled ? '' : ' onclick="selectPet(' + slotIdx + ',' + idx + ')"') + '>' +
+                        '<span class="psi-emoji">' + getEmoji(pet) + '</span>' +
+                        '<div class="psi-info">' +
+                            '<div class="psi-name">' + escHtml(pet.name || 'Unknown') + '</div>' +
+                            '<div class="psi-level">Lv.' + (pet.level || 1) + '</div>' +
+                            (disabled ? '<div class="psi-reason">' + reason + '</div>' : '') +
+                        '</div></div>';
+                });
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function closeSelectorAll() {
+            selectorOpen = -1;
+            document.getElementById('selectorContainer0').innerHTML = '';
+            document.getElementById('selectorContainer1').innerHTML = '';
+        }
+
+        function selectPet(slotIdx, petIdx) {
+            selectedSlots[slotIdx] = petIdx;
+            closeSelectorAll();
+            renderAltar();
+        }
+
+        // Close selector on outside click
+        document.addEventListener('click', function(e) {
+            if (selectorOpen >= 0 && !e.target.closest('.pet-selector') && !e.target.closest('.altar-slot')) {
+                closeSelectorAll();
+            }
+        });
+
+        // ── Confirmation Modal ──
+
+        function getPactName() {
+            if (selectedSlots[0] === null || selectedSlots[1] === null) return '';
+            var p0 = allPets[selectedSlots[0]];
+            var p1 = allPets[selectedSlots[1]];
+            return (p0.name || 'Unknown') + ' & ' + (p1.name || 'Unknown');
+        }
+
+        function openConfirmModal() {
+            var pactName = getPactName();
+            document.getElementById('confirmHint').textContent = 'Type "' + pactName + '" to confirm.';
+            document.getElementById('confirmInput').value = '';
+            document.getElementById('confirmBtn').disabled = true;
+            document.getElementById('confirmModal').classList.add('open');
+
+            document.getElementById('confirmInput').addEventListener('input', function() {
+                var val = this.value.trim();
+                document.getElementById('confirmBtn').disabled = val !== pactName;
+            });
+
+            document.getElementById('confirmInput').focus();
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('open');
+        }
+
+        // ── Execute Pact ──
+
+        function executePact() {
+            var idx0 = selectedSlots[0];
+            var idx1 = selectedSlots[1];
+            if (idx0 === null || idx1 === null) return;
+
+            var pet0 = allPets[idx0];
+            var pet1 = allPets[idx1];
+
+            // Double-check validity
+            if (!canPact(pet0).ok || !canPact(pet1).ok || idx0 === idx1) return;
+
+            closeConfirmModal();
+
+            // Show binding animation
+            var overlay = document.getElementById('bindingOverlay');
+            document.getElementById('bindPet0').textContent = getEmoji(pet0);
+            document.getElementById('bindPet1').textContent = getEmoji(pet1);
+            overlay.classList.add('active');
+
+            setTimeout(function() {
+                // Apply pact data
+                var now = new Date().toISOString();
+                pet0.pact = { partner: pet1.name, partnerIndex: idx1, boundAt: now };
+                pet1.pact = { partner: pet0.name, partnerIndex: idx0, boundAt: now };
+
+                savePets();
+
+                // Hide animation
+                overlay.classList.remove('active');
+
+                // Reset altar
+                selectedSlots = [null, null];
+                renderAltar();
+                renderPacts();
+
+                // Switch to pacts tab
+                document.querySelector('.tab-btn[data-tab="pacts"]').click();
+            }, 3000);
+        }
+
+        // ── Active Pacts ──
+
+        function getPartnerStat(pet) {
+            // Return the highest stat of a pet
+            var stats = pet.base_stats || pet.stats || {};
+            var best = { key: 'hp', val: 0 };
+            ['hp', 'atk', 'spd', 'wil'].forEach(function(k) {
+                if ((stats[k] || 0) > best.val) {
+                    best = { key: k, val: stats[k] };
+                }
+            });
+            return best;
+        }
+
+        function findPactPartner(pet, petIdx) {
+            if (!pet.pact) return null;
+            // Try by partnerIndex first
+            if (pet.pact.partnerIndex !== undefined && allPets[pet.pact.partnerIndex]) {
+                return { pet: allPets[pet.pact.partnerIndex], idx: pet.pact.partnerIndex };
+            }
+            // Fallback: find by name
+            for (var i = 0; i < allPets.length; i++) {
+                if (i !== petIdx && allPets[i].name === pet.pact.partner) {
+                    return { pet: allPets[i], idx: i };
+                }
+            }
+            return null;
+        }
+
+        function renderPacts() {
+            var container = document.getElementById('pactsContainer');
+            var pactPairs = [];
+            var seen = {};
+
+            allPets.forEach(function(pet, idx) {
+                if (!pet.pact || seen[idx]) return;
+                var partner = findPactPartner(pet, idx);
+                if (!partner) return;
+                seen[idx] = true;
+                seen[partner.idx] = true;
+                pactPairs.push({ pet0: pet, idx0: idx, pet1: partner.pet, idx1: partner.idx });
+            });
+
+            if (pactPairs.length === 0) {
+                container.innerHTML =
+                    '<div class="no-pacts fade-in">' +
+                        '<div class="no-pacts-icon">&#9939;</div>' +
+                        '<div class="no-pacts-text">No active pacts. Visit the Altar to forge a bond.</div>' +
+                    '</div>';
+                return;
+            }
+
+            var html = '';
+            pactPairs.forEach(function(pair) {
+                var p0 = pair.pet0;
+                var p1 = pair.pet1;
+                var p0Dead = p0.deceased || p0.is_alive === false;
+                var p1Dead = p1.deceased || p1.is_alive === false;
+                var broken = p0Dead || p1Dead;
+
+                // Check feral status
+                var feralPet = null;
+                if (p0.feral && !p0.deceased) feralPet = p0;
+                if (p1.feral && !p1.deceased) feralPet = p1;
+                var feralActive = feralPet && new Date(feralPet.feral.until) > new Date();
+
+                // Check scarred bond
+                var scarredPet = null;
+                if (p0.scarred_bond) scarredPet = p0;
+                if (p1.scarred_bond) scarredPet = p1;
+
+                html += '<div class="pact-card fade-in">';
+
+                if (feralActive) {
+                    html += '<div class="pact-feral-badge">FERAL</div>';
+                } else if (scarredPet) {
+                    html += '<div class="pact-scarred-badge">&#9760; Scarred Bond</div>';
+                }
+
+                html += '<div class="pact-pair">';
+
+                // Pet 0
+                html += '<div class="pact-pet' + (p0Dead ? ' deceased' : '') + '">';
+                html += '<div class="pact-pet-emoji">' + getEmoji(p0) + '</div>';
+                html += '<div class="pact-pet-name">' + escHtml(p0.name || 'Unknown') + '</div>';
+                html += '<div class="pact-pet-level">Lv.' + (p0.level || 1) + '</div>';
+                if (p0Dead) html += '<div style="font-size:0.6rem;color:var(--accent);">Deceased</div>';
+                if (p0.feral) html += '<div style="font-size:0.6rem;color:var(--accent);font-weight:700;">FERAL</div>';
+                html += '</div>';
+
+                // Thread
+                html += '<div class="pact-thread-container">';
+                html += '<div class="pact-thread-line' + (broken ? ' broken' : '') + '"></div>';
+                html += '</div>';
+
+                // Pet 1
+                html += '<div class="pact-pet' + (p1Dead ? ' deceased' : '') + '">';
+                html += '<div class="pact-pet-emoji">' + getEmoji(p1) + '</div>';
+                html += '<div class="pact-pet-name">' + escHtml(p1.name || 'Unknown') + '</div>';
+                html += '<div class="pact-pet-level">Lv.' + (p1.level || 1) + '</div>';
+                if (p1Dead) html += '<div style="font-size:0.6rem;color:var(--accent);">Deceased</div>';
+                if (p1.feral) html += '<div style="font-size:0.6rem;color:var(--accent);font-weight:700;">FERAL</div>';
+                html += '</div>';
+
+                html += '</div>'; // pact-pair
+
+                // Bonuses
+                if (!broken) {
+                    var bonus0 = getPartnerStat(p1);
+                    var bonus1 = getPartnerStat(p0);
+                    html += '<div class="pact-bonuses">';
+                    html += '<span class="pact-bonus">' + escHtml(p0.name) + ': +2 ' + bonus0.key.toUpperCase() + '</span>';
+                    html += '<span class="pact-bonus">' + escHtml(p1.name) + ': +2 ' + bonus1.key.toUpperCase() + '</span>';
+                    html += '<span class="pact-bonus">+20% XP gain</span>';
+                    html += '</div>';
+                }
+
+                // Date
+                var boundDate = p0.pact.boundAt ? new Date(p0.pact.boundAt).toLocaleDateString() : '???';
+                html += '<div class="pact-date">Bound: ' + boundDate + '</div>';
+
+                html += '</div>'; // pact-card
+            });
+
+            container.innerHTML = html;
+        }
+
+        // ── Feral Monitor ──
+
+        function renderFeral() {
+            var container = document.getElementById('feralContainer');
+            var feralPets = [];
+
+            allPets.forEach(function(pet, idx) {
+                if (pet.feral && !pet.deceased && pet.is_alive !== false) {
+                    feralPets.push({ pet: pet, idx: idx });
+                }
+            });
+
+            // Show/hide tab
+            document.getElementById('feralTab').style.display = feralPets.length > 0 ? '' : 'none';
+
+            // Show feral edge pulse if active
+            var feralEdge = document.getElementById('feralEdge');
+            var hasActiveFeral = feralPets.some(function(f) {
+                return new Date(f.pet.feral.until) > new Date();
+            });
+            feralEdge.className = hasActiveFeral ? 'feral-edge-pulse' : '';
+
+            if (feralPets.length === 0) {
+                container.innerHTML =
+                    '<div class="no-pacts fade-in">' +
+                        '<div class="no-pacts-icon">&#128568;</div>' +
+                        '<div class="no-pacts-text">No feral pets. For now.</div>' +
+                    '</div>';
+                return;
+            }
+
+            var html = '';
+            feralPets.forEach(function(f) {
+                var pet = f.pet;
+                var until = new Date(pet.feral.until);
+                var now = new Date();
+                var remaining = Math.max(0, until - now);
+                var isActive = remaining > 0;
+
+                html += '<div class="feral-section fade-in">';
+                html += '<div class="feral-title">';
+                html += getEmoji(pet) + ' ' + escHtml(pet.name) + ' — ';
+                html += isActive ? 'FERAL STATE' : 'Feral Resolved';
+                html += '</div>';
+
+                if (isActive) {
+                    html += '<div class="feral-countdown">';
+                    html += '<div class="feral-timer" data-until="' + pet.feral.until + '">--:--:--</div>';
+                    html += '<div class="feral-timer-label">until grief subsides</div>';
+                    html += '</div>';
+
+                    html += '<div class="feral-warning">"Keep your other pets safe. Nothing can stop the grief."</div>';
+                } else {
+                    html += '<div style="text-align:center;color:var(--green);font-size:0.85rem;margin:1rem 0;">';
+                    html += 'Feral state has ended. ' + escHtml(pet.name) + ' carries the Scarred Bond.';
+                    html += '</div>';
+                }
+
+                // Partner info
+                html += '<div style="text-align:center;font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem;">';
+                html += 'Lost partner: ' + escHtml(pet.feral.partnerName || '???');
+                html += '</div>';
+
+                // Feral attack log
+                var log = JSON.parse(localStorage.getItem('moreau_feral_log') || '[]');
+                var petLog = log.filter(function(entry) { return entry.attacker === pet.name; });
+
+                if (petLog.length > 0) {
+                    html += '<div class="feral-log">';
+                    html += '<div class="feral-log-title">Attack Log</div>';
+                    petLog.slice(-10).reverse().forEach(function(entry) {
+                        var d = new Date(entry.timestamp).toLocaleString();
+                        html += '<div class="feral-log-entry">' +
+                            '<strong>' + escHtml(entry.attacker) + '</strong> lashed out at <strong>' + escHtml(entry.victim) + '</strong> &mdash; ' +
+                            entry.losses.map(function(l) { return '-' + l.amount + ' ' + l.stat.toUpperCase(); }).join(', ') +
+                            '<br><span style="font-size:0.6rem;color:var(--text-muted);">' + d + '</span>' +
+                            '</div>';
+                    });
+                    html += '</div>';
+                }
+
+                html += '</div>'; // feral-section
+            });
+
+            container.innerHTML = html;
+
+            // Start countdown timers
+            startFeralTimers();
+        }
+
+        function startFeralTimers() {
+            var timers = document.querySelectorAll('.feral-timer[data-until]');
+            if (timers.length === 0) return;
+
+            function update() {
+                var now = Date.now();
+                timers.forEach(function(el) {
+                    var until = new Date(el.getAttribute('data-until')).getTime();
+                    var remaining = Math.max(0, until - now);
+
+                    if (remaining <= 0) {
+                        el.textContent = '00:00:00';
+                        return;
+                    }
+
+                    var h = Math.floor(remaining / 3600000);
+                    var m = Math.floor((remaining % 3600000) / 60000);
+                    var s = Math.floor((remaining % 60000) / 1000);
+                    el.textContent =
+                        (h < 10 ? '0' : '') + h + ':' +
+                        (m < 10 ? '0' : '') + m + ':' +
+                        (s < 10 ? '0' : '') + s;
+                });
+            }
+
+            update();
+            setInterval(update, 1000);
+        }
+
+        // ── Feral Attack Check ──
+
+        function checkFeralAttack() {
+            var changed = false;
+            var now = Date.now();
+
+            allPets.forEach(function(pet, idx) {
+                if (!pet.feral || pet.deceased || pet.is_alive === false) return;
+
+                var until = new Date(pet.feral.until).getTime();
+
+                if (now >= until) {
+                    // Feral period expired — resolve
+                    resolveFeral(pet, idx);
+                    changed = true;
+                    return;
+                }
+
+                // 15% chance of attack on page load
+                if (Math.random() < 0.15) {
+                    var result = feralAttack(pet, idx);
+                    if (result) {
+                        changed = true;
+                        showFeralToast(result);
+                    }
+                }
+            });
+
+            if (changed) {
+                savePets();
+                renderPacts();
+                renderFeral();
+            }
+        }
+
+        function feralAttack(feralPet, feralIdx) {
+            // Find living kennel pets (not the feral one)
+            var targets = [];
+            allPets.forEach(function(p, i) {
+                if (i !== feralIdx && !p.deceased && p.is_alive !== false) {
+                    targets.push({ pet: p, idx: i });
+                }
+            });
+
+            if (targets.length === 0) return null;
+
+            // Pick random target
+            var target = targets[Math.floor(Math.random() * targets.length)];
+            var victim = target.pet;
+            var stats = victim.base_stats || victim.stats || {};
+
+            // Lose 1-3 stat points total, distributed randomly
+            var totalLoss = 1 + Math.floor(Math.random() * 3); // 1-3
+            var statKeys = ['hp', 'atk', 'spd', 'wil'];
+            var losses = [];
+
+            for (var i = 0; i < totalLoss; i++) {
+                var key = statKeys[Math.floor(Math.random() * statKeys.length)];
+                var current = stats[key] || 1;
+                if (current > 1) {
+                    stats[key] = current - 1;
+                    var found = losses.find(function(l) { return l.stat === key; });
+                    if (found) {
+                        found.amount++;
+                    } else {
+                        losses.push({ stat: key, amount: 1 });
+                    }
+                }
+            }
+
+            if (losses.length === 0) return null;
+
+            victim.base_stats = stats;
+
+            // Log the attack
+            var log = JSON.parse(localStorage.getItem('moreau_feral_log') || '[]');
+            var entry = {
+                attacker: feralPet.name,
+                victim: victim.name,
+                losses: losses,
+                timestamp: new Date().toISOString()
+            };
+            log.push(entry);
+            localStorage.setItem('moreau_feral_log', JSON.stringify(log));
+
+            return entry;
+        }
+
+        function resolveFeral(pet, idx) {
+            var partnerName = pet.feral.partnerName || '???';
+
+            // Remove feral state
+            delete pet.feral;
+
+            // Add Scarred Bond
+            pet.scarred_bond = {
+                partner: partnerName,
+                date: new Date().toISOString()
+            };
+
+            // Stat adjustment: ATK +2, WIL -1
+            var stats = pet.base_stats || pet.stats || {};
+            stats.atk = (stats.atk || 0) + 2;
+            stats.wil = Math.max(1, (stats.wil || 0) - 1);
+            pet.base_stats = stats;
+
+            // Pet can never pact again (scarred_bond presence prevents it)
+        }
+
+        function showFeralToast(entry) {
+            var toast = document.getElementById('feralToast');
+            document.getElementById('feralToastTitle').textContent =
+                entry.attacker + ' lashed out at ' + entry.victim + ' in grief!';
+            document.getElementById('feralToastText').textContent =
+                entry.victim + ' lost ' + entry.losses.map(function(l) {
+                    return l.amount + ' ' + l.stat.toUpperCase();
+                }).join(', ') + '.';
+
+            toast.classList.add('visible');
+
+            setTimeout(function() {
+                toast.classList.remove('visible');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

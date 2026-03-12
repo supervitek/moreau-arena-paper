@@ -1353,7 +1353,7 @@ def island_config():
 
 @app.get("/island/{page}")
 def island_page(page: str) -> FileResponse:
-    allowed = {"index", "home", "create", "kennel", "train", "lab", "pit", "graveyard", "profile", "leaderboard", "achievements", "onboarding", "dreams", "crimson", "rivals", "prophecy", "shrine", "artifacts", "menagerie", "succession", "deep-tide", "black-market"}
+    allowed = {"index", "home", "create", "kennel", "train", "lab", "pit", "graveyard", "profile", "leaderboard", "achievements", "onboarding", "dreams", "crimson", "rivals", "prophecy", "shrine", "artifacts", "menagerie", "succession", "deep-tide", "black-market", "tides", "pact"}
     if page not in allowed:
         raise HTTPException(404, f"Unknown island page: {page}")
     return FileResponse(STATIC_DIR / "island" / f"{page}.html")

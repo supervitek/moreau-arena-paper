@@ -523,6 +523,25 @@
             85% { opacity: 1; text-shadow: 0 0 10px rgba(255,102,0,0.7); }
         }
 
+        .action-pact { border-color: #6b0000; }
+        .action-pact:hover { border-color: #8b0000; box-shadow: 0 4px 16px rgba(107,0,0,0.35); }
+        .action-pact .action-icon { color: #8b0000; }
+        .action-pact.feral-pulse { animation: pactFeralPulse 1.5s ease-in-out infinite; }
+        @keyframes pactFeralPulse {
+            0%, 100% { box-shadow: 0 0 4px rgba(230,57,70,0.2); }
+            50% { box-shadow: 0 0 18px rgba(230,57,70,0.5); border-color: var(--accent); }
+        }
+        .feral-banner { background: linear-gradient(135deg, #1a0505, #200a0a); border: 1px solid var(--accent); border-radius: var(--radius); padding: 0.8rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.6rem; animation: feralBannerPulse 3s ease-in-out infinite; }
+        @keyframes feralBannerPulse { 0%, 100% { box-shadow: 0 0 8px rgba(230,57,70,0.1); } 50% { box-shadow: 0 0 20px rgba(230,57,70,0.25); } }
+        .feral-banner-icon { font-size: 1.2rem; }
+        .feral-banner-text { flex: 1; font-size: 0.75rem; color: var(--accent); }
+        .feral-banner-link { color: var(--accent); font-size: 0.7rem; font-weight: 600; text-decoration: underline; }
+        .pact-partner-badge { display: flex; align-items: center; justify-content: center; gap: 0.3rem; margin-top: 0.5rem; font-size: 0.7rem; color: #8b0000; }
+        .feral-toast-home { position: fixed; top: 1.5rem; left: 50%; transform: translateX(-50%) translateY(-100px); background: linear-gradient(135deg, #1a0505, #2a0808); border: 2px solid var(--accent); border-radius: var(--radius); padding: 1rem 1.5rem; max-width: 400px; width: 90%; z-index: 250; text-align: center; box-shadow: 0 8px 30px rgba(230,57,70,0.3); transition: transform 0.5s ease-out; }
+        .feral-toast-home.visible { transform: translateX(-50%) translateY(0); }
+        .feral-toast-home-title { font-size: 0.9rem; font-weight: 700; color: var(--accent); margin-bottom: 0.3rem; }
+        .feral-toast-home-text { font-size: 0.75rem; color: var(--text-dim); }
+
         .action-btn.rival-available {
             animation: rivalPulse 2.5s ease-in-out infinite;
         }
@@ -971,6 +990,231 @@
             .help-title { font-size: 1.1rem; }
             .help-btn { bottom: 1rem; right: 1rem; width: 36px; height: 36px; font-size: 1rem; }
         }
+
+        /* ── M — The Other Player ── */
+
+        .m-note-trigger {
+            position: fixed;
+            bottom: 5rem;
+            left: 1.2rem;
+            z-index: 800;
+            background: rgba(20, 12, 12, 0.92);
+            border: 1px solid rgba(100, 60, 60, 0.4);
+            border-radius: 4px 8px 8px 2px;
+            padding: 0.6rem 0.9rem;
+            max-width: 200px;
+            cursor: pointer;
+            transform: rotate(-1.5deg);
+            transition: opacity 0.4s, transform 0.3s;
+            box-shadow: 2px 3px 12px rgba(0,0,0,0.5);
+            animation: mNoteAppear 1.2s ease-out;
+        }
+
+        .m-note-trigger:hover {
+            transform: rotate(0deg) scale(1.04);
+            border-color: rgba(180, 80, 80, 0.5);
+        }
+
+        .m-note-trigger .m-note-preview {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-style: italic;
+            font-size: 0.72rem;
+            color: #b09080;
+            line-height: 1.4;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .m-note-trigger .m-note-label {
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #5a3a3a;
+            margin-bottom: 0.25rem;
+        }
+
+        @keyframes mNoteAppear {
+            0% { opacity: 0; transform: rotate(-1.5deg) translateY(20px); }
+            60% { opacity: 0.7; }
+            100% { opacity: 1; transform: rotate(-1.5deg) translateY(0); }
+        }
+
+        /* M Note Modal */
+        .m-note-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9000;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s;
+        }
+
+        .m-note-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .m-note-modal {
+            background: #0e0808;
+            border: 1px solid #3a2020;
+            border-radius: 6px;
+            max-width: 420px;
+            width: 90vw;
+            padding: 2.5rem 2rem;
+            position: relative;
+            box-shadow: 0 0 60px rgba(100, 30, 30, 0.2);
+        }
+
+        .m-note-modal::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 28px,
+                rgba(80, 50, 50, 0.08) 28px,
+                rgba(80, 50, 50, 0.08) 29px
+            );
+            border-radius: 6px;
+            pointer-events: none;
+        }
+
+        .m-note-modal .m-note-header {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #5a3a3a;
+            margin-bottom: 1.5rem;
+        }
+
+        .m-note-modal .m-note-text {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-style: italic;
+            font-size: 1rem;
+            color: #c0a090;
+            line-height: 1.7;
+            min-height: 60px;
+        }
+
+        .m-note-modal .m-note-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background: #c0a090;
+            margin-left: 2px;
+            animation: mCursorBlink 0.7s step-end infinite;
+            vertical-align: text-bottom;
+        }
+
+        @keyframes mCursorBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .m-note-modal .m-note-close {
+            display: block;
+            margin: 2rem auto 0;
+            background: transparent;
+            border: 1px solid #3a2020;
+            color: #5a3a3a;
+            padding: 0.4rem 1.2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.2s;
+        }
+
+        .m-note-modal .m-note-close:hover {
+            border-color: #6a4040;
+            color: #8a6060;
+        }
+
+        /* M artifact moved notification */
+        .m-moved-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 8500;
+            background: rgba(8, 4, 4, 0.95);
+            border: 1px solid rgba(80, 30, 30, 0.5);
+            border-radius: 4px;
+            padding: 1.5rem 2rem;
+            font-family: Georgia, serif;
+            font-style: italic;
+            font-size: 0.85rem;
+            color: #8a5a5a;
+            text-align: center;
+            pointer-events: none;
+            animation: mGlitchIn 0.6s ease-out, mGlitchOut 0.5s 3s ease-in forwards;
+        }
+
+        @keyframes mGlitchIn {
+            0% { opacity: 0; transform: translate(-50%, -50%) skewX(5deg); }
+            30% { opacity: 1; transform: translate(-50%, -50%) skewX(-2deg); }
+            50% { transform: translate(-50%, -50%) skewX(1deg); }
+            100% { transform: translate(-50%, -50%) skewX(0); }
+        }
+
+        @keyframes mGlitchOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; transform: translate(-50%, -50%) translateY(-10px); }
+        }
+
+        /* M death screen flash */
+        .m-death-flash {
+            position: fixed;
+            inset: 0;
+            z-index: 9500;
+            background: white;
+            animation: mDeathFlash 2s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes mDeathFlash {
+            0% { opacity: 0.8; }
+            10% { opacity: 0; }
+            15% { opacity: 0.3; background: #111; }
+            25% { opacity: 0; }
+            100% { opacity: 0; }
+        }
+
+        /* M's Last Frequency claim */
+        .m-freq-card {
+            background: var(--bg-card);
+            border: 1px solid #3a2a4a;
+            border-radius: var(--radius);
+            padding: 1.2rem;
+            margin-top: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            animation: mFreqPulse 3s ease-in-out infinite;
+        }
+
+        .m-freq-card:hover {
+            border-color: #6a4a7a;
+            box-shadow: 0 0 20px rgba(100, 60, 120, 0.2);
+        }
+
+        @keyframes mFreqPulse {
+            0%, 100% { box-shadow: 0 0 0 rgba(100, 60, 120, 0); }
+            50% { box-shadow: 0 0 15px rgba(100, 60, 120, 0.15); }
+        }
+
+        .m-freq-card .m-freq-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .m-freq-card .m-freq-title { font-size: 0.85rem; color: #b090c0; font-weight: 600; }
+        .m-freq-card .m-freq-desc { font-size: 0.7rem; color: #6a5a6a; margin-top: 0.3rem; font-style: italic; }
     </style>
 </head>
 <body>
@@ -1022,6 +1266,18 @@
 
             <!-- Banners -->
             <div id="bannerArea"></div>
+
+            <!-- Feral Warning Banner -->
+            <div id="feralBannerArea"></div>
+
+            <!-- Feral Attack Toast -->
+            <div class="feral-toast-home" id="feralToastHome">
+                <div class="feral-toast-home-title" id="feralToastHomeTitle"></div>
+                <div class="feral-toast-home-text" id="feralToastHomeText"></div>
+            </div>
+
+            <!-- Tide Indicator -->
+            <div id="tideIndicatorHome" style="text-align:right;margin-bottom:0.5rem;"></div>
 
             <!-- Welcome -->
             <div class="welcome-header">
@@ -1137,9 +1393,26 @@
         </div>
     </div>
 
+    <!-- M — The Other Player (note trigger, appears dynamically) -->
+    <div id="mNoteTrigger" class="m-note-trigger" style="display:none;" onclick="openMNote()">
+        <div class="m-note-label">scratched into the wall</div>
+        <div class="m-note-preview" id="mNotePreview"></div>
+    </div>
+
+    <!-- M Note Modal -->
+    <div class="m-note-overlay" id="mNoteOverlay" onclick="if(event.target===this)closeMNote()">
+        <div class="m-note-modal">
+            <div class="m-note-header">Found near cage 7 &mdash; handwriting unknown</div>
+            <div class="m-note-text" id="mNoteText"></div>
+            <button class="m-note-close" onclick="closeMNote()">fold and pocket</button>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/static/island/supabase-client.js"></script>
     <script src="/static/island/dreams-engine.js"></script>
+    <script src="/static/island/tide-engine.js"></script>
+    <script src="/static/island/m-engine.js"></script>
     <script>
         // ══════════════════════════════════════
         //  Island Home — Player Dashboard
@@ -1259,10 +1532,19 @@
             // Check for Bloodline Deepened notification
             checkBloodlineDeepened();
 
+            // Check feral pacts
+            checkFeralAttackHome();
+            renderFeralBanner();
+
             // Render everything
             renderActivePet();
             renderActions();
             renderPetsSection();
+
+            // Tide indicator
+            if (typeof TideEngine !== 'undefined') {
+                TideEngine.renderTideIndicator('tideIndicatorHome');
+            }
         }
 
         // ── Banners ──
@@ -1476,6 +1758,38 @@
                     html += '</div>';
                 }
 
+                // Pact partner display
+                if (pet.pact) {
+                    var _pPartner = null;
+                    if (pet.pact.partnerIndex !== undefined && allPets[pet.pact.partnerIndex]) {
+                        _pPartner = allPets[pet.pact.partnerIndex];
+                    } else {
+                        for (var pi = 0; pi < allPets.length; pi++) {
+                            if (allPets[pi].name === pet.pact.partner) { _pPartner = allPets[pi]; break; }
+                        }
+                    }
+                    if (_pPartner) {
+                        var _ppAnimal = (_pPartner.animal || '').toLowerCase();
+                        var _ppEmoji = EMOJI_MAP[_ppAnimal] || '\u{1F43E}';
+                        var _ppDead = _pPartner.deceased || _pPartner.is_alive === false;
+                        html += '<div class="pact-partner-badge">' +
+                            '<span>&#9939;</span> Pacted with ' + _ppEmoji + ' <strong>' + escHtml(_pPartner.name) + '</strong>' +
+                            (_ppDead ? ' <span style="color:var(--accent);">(deceased)</span>' : '') +
+                            '</div>';
+                    }
+                }
+                if (pet.feral) {
+                    var _fUntil = new Date(pet.feral.until);
+                    var _fRemain = Math.max(0, _fUntil - Date.now());
+                    if (_fRemain > 0) {
+                        var _fH = Math.floor(_fRemain / 3600000);
+                        html += '<div style="text-align:center;margin-top:0.4rem;font-size:0.7rem;color:var(--accent);font-weight:700;">FERAL — ' + _fH + 'h remaining</div>';
+                    }
+                }
+                if (pet.scarred_bond) {
+                    html += '<div style="text-align:center;margin-top:0.4rem;font-size:0.65rem;color:var(--text-muted);">&#9760; Scarred Bond — ' + escHtml(pet.scarred_bond.partner) + '</div>';
+                }
+
                 // Equipped artifacts display
                 var _equip = pet.equipment || {};
                 var _equipIds = [_equip.slot1, _equip.slot2, _equip.slot3].filter(Boolean);
@@ -1593,6 +1907,17 @@
             html += '<a href="' + (hasPet ? '/island/deep-tide' : '#') + '" class="action-btn action-deep-tide' + (hasPet ? '' : ' disabled') + '" style="' + (hasPet ? 'border-color:rgba(0,255,247,0.3);' : '') + '">' +
                 '<span class="action-icon" style="color:#00fff7;">&#127754;</span>DEEP TIDE</a>';
 
+            // THE PACT
+            var _pactCount = allPets.filter(function(p) { return p.pact && !p.deceased && p.is_alive !== false; }).length;
+            var _hasFeral = allPets.some(function(p) { return p.feral && !p.deceased && p.is_alive !== false; });
+            var pactLivingCount = allPets.filter(function(p) { return !p.deceased && p.is_alive !== false && (p.level || 1) >= 3 && !p.pact && !p.scarred_bond; }).length;
+            var pactReady = pactLivingCount >= 2;
+            html += '<a href="' + (pactReady || _pactCount > 0 ? '/island/pact' : '#') + '" class="action-btn action-pact' + (pactReady || _pactCount > 0 ? '' : ' disabled') + (_hasFeral ? ' feral-pulse' : '') + '">' +
+                (_hasFeral ? '<span class="ready-badge" style="background:var(--accent);">FERAL</span>' : '') +
+                '<span class="action-icon">&#9939;</span>THE PACT' +
+                (_pactCount > 0 ? '<span class="action-sub">' + Math.ceil(_pactCount / 2) + ' bond' + (_pactCount > 2 ? 's' : '') + '</span>' : '') +
+                (!pactReady && _pactCount === 0 ? '<span class="action-sub">2x Lv.3+</span>' : '') + '</a>';
+
             // MENAGERIE
             var _deadCount = allPets.filter(function(p) { return p.deceased || p.is_alive === false; }).length;
             var _bondData = null;
@@ -1602,6 +1927,12 @@
                 (_bondCount > 0 ? '<span class="ready-badge" style="background:#6ba3d6;">' + _bondCount + '</span>' : '') +
                 '<span class="action-icon">&#128123;</span>MENAGERIE' +
                 (_deadCount > 0 ? '<span class="action-sub">' + _deadCount + ' spirit' + (_deadCount !== 1 ? 's' : '') + '</span>' : '') + '</a>';
+
+            // TIDES
+            var _tideState = (typeof TideEngine !== 'undefined') ? TideEngine.getTideState() : null;
+            var _tideSub = _tideState ? '<span class="action-sub" style="color:' + _tideState.phaseColor + ';">' + _tideState.phaseName + '</span>' : '';
+            html += '<a href="/island/tides" class="action-btn action-tides" style="border-color:rgba(0,180,216,0.3);">' +
+                '<span class="action-icon" style="color:#00b4d8;">&#127754;</span>TIDES' + _tideSub + '</a>';
 
             // BLACK MARKET (only visible 22:00 - 04:00)
             var _bmHour = new Date().getHours();
@@ -1690,6 +2021,97 @@
             }
         }
 
+        // ── Feral Pact Check (Home) ──
+
+        function checkFeralAttackHome() {
+            var changed = false;
+            var now = Date.now();
+
+            allPets.forEach(function(pet, idx) {
+                if (!pet.feral || pet.deceased || pet.is_alive === false) return;
+
+                var until = new Date(pet.feral.until).getTime();
+
+                if (now >= until) {
+                    // Feral period expired — resolve
+                    var partnerName = pet.feral.partnerName || '???';
+                    delete pet.feral;
+                    pet.scarred_bond = { partner: partnerName, date: new Date().toISOString() };
+                    var stats = pet.base_stats || pet.stats || {};
+                    stats.atk = (stats.atk || 0) + 2;
+                    stats.wil = Math.max(1, (stats.wil || 0) - 1);
+                    pet.base_stats = stats;
+                    changed = true;
+                    return;
+                }
+
+                // 15% chance of feral attack on page load
+                if (Math.random() < 0.15) {
+                    var targets = [];
+                    allPets.forEach(function(p, i) {
+                        if (i !== idx && !p.deceased && p.is_alive !== false) targets.push({ pet: p, idx: i });
+                    });
+                    if (targets.length === 0) return;
+
+                    var target = targets[Math.floor(Math.random() * targets.length)];
+                    var victim = target.pet;
+                    var vstats = victim.base_stats || victim.stats || {};
+                    var totalLoss = 1 + Math.floor(Math.random() * 3);
+                    var statKeys = ['hp', 'atk', 'spd', 'wil'];
+                    var losses = [];
+
+                    for (var i = 0; i < totalLoss; i++) {
+                        var key = statKeys[Math.floor(Math.random() * statKeys.length)];
+                        var current = vstats[key] || 1;
+                        if (current > 1) {
+                            vstats[key] = current - 1;
+                            var found = losses.find(function(l) { return l.stat === key; });
+                            if (found) found.amount++;
+                            else losses.push({ stat: key, amount: 1 });
+                        }
+                    }
+
+                    if (losses.length > 0) {
+                        victim.base_stats = vstats;
+                        var log = JSON.parse(localStorage.getItem('moreau_feral_log') || '[]');
+                        var entry = { attacker: pet.name, victim: victim.name, losses: losses, timestamp: new Date().toISOString() };
+                        log.push(entry);
+                        localStorage.setItem('moreau_feral_log', JSON.stringify(log));
+                        changed = true;
+
+                        // Show toast
+                        var toast = document.getElementById('feralToastHome');
+                        document.getElementById('feralToastHomeTitle').textContent = pet.name + ' lashed out at ' + victim.name + ' in grief!';
+                        document.getElementById('feralToastHomeText').textContent = victim.name + ' lost ' + losses.map(function(l) { return l.amount + ' ' + l.stat.toUpperCase(); }).join(', ') + '.';
+                        toast.classList.add('visible');
+                        setTimeout(function() { toast.classList.remove('visible'); }, 5000);
+                    }
+                }
+            });
+
+            if (changed) {
+                localStorage.setItem('moreau_pets', JSON.stringify(allPets));
+            }
+        }
+
+        function renderFeralBanner() {
+            var area = document.getElementById('feralBannerArea');
+            var feralPets = allPets.filter(function(p) { return p.feral && !p.deceased && p.is_alive !== false && new Date(p.feral.until) > new Date(); });
+
+            if (feralPets.length === 0) {
+                area.innerHTML = '';
+                return;
+            }
+
+            var names = feralPets.map(function(p) { return p.name; }).join(', ');
+            area.innerHTML =
+                '<div class="feral-banner">' +
+                    '<span class="feral-banner-icon">&#9888;</span>' +
+                    '<span class="feral-banner-text"><strong>' + names + '</strong> is in a feral rage. Your kennel is at risk.</span>' +
+                    '<a href="/island/pact" class="feral-banner-link">Monitor &rarr;</a>' +
+                '</div>';
+        }
+
         // ── Utility Functions ──
 
         function isRivalChallengeAvailable() {
@@ -1756,9 +2178,12 @@
             }
         }
 
-        // Close help on Escape
+        // Close help / M note on Escape
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') toggleHelp(false);
+            if (e.key === 'Escape') {
+                toggleHelp(false);
+                if (typeof closeMNote === 'function') closeMNote();
+            }
         });
 
         function maybeShowHelp() {
@@ -1767,10 +2192,129 @@
             }
         }
 
+        // ── M — The Other Player ──
+
+        var _mCurrentNoteIdx = -1;
+
+        function renderMPresence() {
+            if (typeof MEngine === 'undefined') return;
+            var mState = MEngine.getState();
+            if (!mState || !mState.exists) return;
+
+            // Death flash (one-time)
+            if (mState.isDead && !localStorage.getItem('moreau_m_death_shown')) {
+                localStorage.setItem('moreau_m_death_shown', 'true');
+                var flash = document.createElement('div');
+                flash.className = 'm-death-flash';
+                document.body.appendChild(flash);
+                setTimeout(function() { flash.remove(); }, 2500);
+            }
+
+            // M's Last Frequency artifact (if M is dead and not yet claimed)
+            if (mState.isDead && mState.lastFrequency && mState.lastFrequency.available && !mState.lastFrequency.claimed) {
+                var area = document.getElementById('bannerArea');
+                if (area && !document.getElementById('mFreqCard')) {
+                    var card = document.createElement('div');
+                    card.className = 'm-freq-card';
+                    card.id = 'mFreqCard';
+                    card.innerHTML = '<div class="m-freq-icon">\u{1F4E1}</div>' +
+                        '<div class="m-freq-title">M\'s Last Frequency</div>' +
+                        '<div class="m-freq-desc">A faint signal from someone who was never here. Click to claim.</div>';
+                    card.onclick = function() {
+                        if (MEngine.claimLastFrequency()) {
+                            card.innerHTML = '<div class="m-freq-icon">\u{1F4E1}</div>' +
+                                '<div class="m-freq-title" style="color:#8a6a9a;">Signal received.</div>' +
+                                '<div class="m-freq-desc">+2 to all stats. Check your artifacts.</div>';
+                            card.style.cursor = 'default';
+                            card.onclick = null;
+                            setTimeout(function() { card.style.transition = 'opacity 1s'; card.style.opacity = '0'; }, 3000);
+                        }
+                    };
+                    area.appendChild(card);
+                }
+            }
+
+            // Artifact moved notification
+            if (mState.artifactMoved && !localStorage.getItem('moreau_m_moved_seen_' + mState.sessionCount)) {
+                localStorage.setItem('moreau_m_moved_seen_' + mState.sessionCount, 'true');
+                var toast = document.createElement('div');
+                toast.className = 'm-moved-toast';
+                toast.textContent = 'Something\u2019s been moved\u2026';
+                document.body.appendChild(toast);
+                setTimeout(function() { toast.remove(); }, 4000);
+            }
+
+            // Unread notes — show trigger
+            if (mState.hasUnread) {
+                var notes = mState.unreadNotes;
+                var latest = notes[notes.length - 1];
+                _mCurrentNoteIdx = latest.index;
+                var trigger = document.getElementById('mNoteTrigger');
+                var preview = document.getElementById('mNotePreview');
+                if (trigger && preview) {
+                    preview.textContent = latest.text.substring(0, 50) + (latest.text.length > 50 ? '\u2026' : '');
+                    trigger.style.display = 'block';
+                }
+            }
+        }
+
+        function openMNote() {
+            if (_mCurrentNoteIdx < 0) return;
+            var mState = MEngine.getState();
+            if (!mState) return;
+            var notes = mState.unreadNotes;
+            if (notes.length === 0) return;
+
+            var latest = notes[notes.length - 1];
+            var overlay = document.getElementById('mNoteOverlay');
+            var textEl = document.getElementById('mNoteText');
+            overlay.classList.add('open');
+
+            // Typewriter effect
+            textEl.innerHTML = '<span class="m-note-cursor"></span>';
+            var fullText = latest.text;
+            var charIdx = 0;
+
+            function typeChar() {
+                if (charIdx < fullText.length) {
+                    textEl.innerHTML = escHtml(fullText.substring(0, charIdx + 1)) + '<span class="m-note-cursor"></span>';
+                    charIdx++;
+                    setTimeout(typeChar, 25 + Math.random() * 35);
+                } else {
+                    textEl.innerHTML = escHtml(fullText);
+                }
+            }
+            typeChar();
+
+            // Mark as read
+            MEngine.markNoteRead(latest.index);
+        }
+
+        function closeMNote() {
+            document.getElementById('mNoteOverlay').classList.remove('open');
+            document.getElementById('mNoteTrigger').style.display = 'none';
+
+            // Check if more unread notes exist
+            var mState = MEngine.getState();
+            if (mState && mState.hasUnread) {
+                var notes = mState.unreadNotes;
+                var latest = notes[notes.length - 1];
+                _mCurrentNoteIdx = latest.index;
+                var preview = document.getElementById('mNotePreview');
+                preview.textContent = latest.text.substring(0, 50) + (latest.text.length > 50 ? '\u2026' : '');
+                document.getElementById('mNoteTrigger').style.display = 'block';
+            }
+        }
+
         // ── Start ──
         init().then(function() {
             // Show help auto-popup on first visit (after dashboard is loaded)
             maybeShowHelp();
+            // Process M (The Other Player)
+            if (typeof MEngine !== 'undefined') {
+                MEngine.process();
+                setTimeout(renderMPresence, 800);
+            }
         }).catch(function() {});
 
         // ── Achievement checks ──
