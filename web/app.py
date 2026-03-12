@@ -1333,6 +1333,22 @@ def moreddit_page() -> FileResponse:
     return FileResponse(STATIC_DIR / "moreddit.html")
 
 
+# -- Island routes -------------------------------------------------------------
+
+@app.get("/island")
+def island_landing_page() -> FileResponse:
+    """Serve the Island landing page."""
+    return FileResponse(STATIC_DIR / "island" / "index.html")
+
+
+@app.get("/island/{page}")
+def island_page(page: str) -> FileResponse:
+    allowed = {"index"}
+    if page not in allowed:
+        raise HTTPException(404, f"Unknown island page: {page}")
+    return FileResponse(STATIC_DIR / "island" / f"{page}.html")
+
+
 # -- Pets routes ---------------------------------------------------------------
 
 @app.get("/pets")

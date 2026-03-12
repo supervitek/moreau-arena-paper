@@ -97,6 +97,28 @@ img { max-width: 100%; }
 
 .nav-links a.active { color: var(--accent); }
 
+/* ── Nav FIGHT button ──────────────────────────────────────────────── */
+.nav-fight a {
+    background: #e63946;
+    color: #fff !important;
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    animation: fight-pulse 2s ease-in-out infinite;
+}
+.nav-fight a:hover {
+    background: #ff4d5a;
+    transform: scale(1.05);
+}
+@keyframes fight-pulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(230,57,70,0.3); }
+    50% { box-shadow: 0 0 18px rgba(230,57,70,0.6); }
+}
+
 /* ── Nav dropdown ───────────────────────────────────────────────────── */
 
 .nav-dropdown {
