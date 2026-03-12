@@ -451,7 +451,7 @@
         };
 
         async function init() {
-            initSupabase();
+            await initSupabase();
 
             // Try to load from DB (public page, no auth required)
             if (sb) {

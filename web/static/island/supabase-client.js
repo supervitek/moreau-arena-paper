@@ -3,15 +3,25 @@
 //  Include AFTER the Supabase CDN script
 // ══════════════════════════════════════════════
 
-// These will be replaced with real values once Supabase project is created
-// For now they serve as dev placeholders
-const SUPABASE_URL = window.__SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = window.__SUPABASE_ANON_KEY || '';
+// Config loaded from server endpoint
+let SUPABASE_URL = '';
+let SUPABASE_ANON_KEY = '';
 
 let sb = null;
 let currentUser = null;
 
-function initSupabase() {
+async function initSupabase() {
+    // Fetch config from server
+    if (!SUPABASE_URL) {
+        try {
+            const resp = await fetch('/api/v1/island/config');
+            const cfg = await resp.json();
+            SUPABASE_URL = cfg.supabase_url || '';
+            SUPABASE_ANON_KEY = cfg.supabase_anon_key || '';
+        } catch (e) {
+            console.warn('[Island] Could not fetch config:', e);
+        }
+    }
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
         console.warn('[Island] Supabase not configured. Running in offline/localStorage mode.');
         return null;

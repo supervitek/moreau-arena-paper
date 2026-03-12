@@ -139,6 +139,9 @@
         @media (max-width: 440px) {
             .pets-grid { grid-template-columns: 1fr; }
             .kennel-header h1 { font-size: 2rem; }
+            .pet-card-release { padding: 0.4rem 0.85rem; font-size: 0.7rem; min-height: 36px; }
+            .modal-actions button { min-height: 44px; padding: 0.6rem 1.5rem; }
+            .kennel-page { padding: 0 1rem 3rem; }
         }
 
         /* ── Pet Card ── */
@@ -615,7 +618,7 @@
 
         // ── Init ──
         async function init() {
-            initSupabase();
+            await initSupabase();
             const user = await getUser();
 
             if (!user && sb) {

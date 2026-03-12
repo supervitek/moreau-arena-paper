@@ -286,7 +286,13 @@
             .hero-subtitle { font-size: 1rem; }
             .features { grid-template-columns: 1fr; }
             .auth-buttons { flex-direction: column; align-items: center; }
-            .auth-btn { width: 100%; max-width: 280px; justify-content: center; }
+            .auth-btn { width: 100%; max-width: 280px; justify-content: center; min-height: 48px; }
+            .hero { padding: 3.5rem 0 2rem; }
+        }
+
+        @media (max-width: 380px) {
+            .hero-title { font-size: 2.4rem; letter-spacing: 0.1em; }
+            .island-page { padding: 0 1rem 3rem; }
         }
     </style>
 </head>

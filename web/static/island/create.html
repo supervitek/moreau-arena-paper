@@ -486,6 +486,18 @@
             color: var(--text-dim);
             font-size: 1.1rem;
         }
+
+        /* ── Mobile touch targets ── */
+        @media (max-width: 640px) {
+            .stat-slider::-webkit-slider-thumb { width: 28px; height: 28px; }
+            .stat-slider::-moz-range-thumb { width: 28px; height: 28px; }
+            .stat-slider { height: 10px; }
+            .btn-primary, .btn-secondary { min-height: 48px; }
+            .btn-create { min-height: 52px; }
+            .step-title { font-size: 1.3rem; }
+            .step-subtitle { font-size: 0.85rem; }
+            .create-page { padding: 1.5rem 1rem 3rem; }
+        }
     </style>
 </head>
 <body>
@@ -672,7 +684,7 @@
 
         // ── Init ──
         (async function init() {
-            initSupabase();
+            await initSupabase();
             var user = await getUser();
 
             if (!user) {

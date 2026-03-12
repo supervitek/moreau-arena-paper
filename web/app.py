@@ -17,6 +17,7 @@ from itertools import combinations
 from pathlib import Path
 from typing import Any
 
+import os
 import random
 import re
 import time
@@ -1339,6 +1340,15 @@ def moreddit_page() -> FileResponse:
 def island_landing_page() -> FileResponse:
     """Serve the Island landing page."""
     return FileResponse(STATIC_DIR / "island" / "index.html")
+
+
+@app.get("/api/v1/island/config")
+def island_config():
+    """Return Supabase configuration for the frontend."""
+    return {
+        "supabase_url": os.environ.get("SUPABASE_URL", ""),
+        "supabase_anon_key": os.environ.get("SUPABASE_ANON_KEY", ""),
+    }
 
 
 @app.get("/island/{page}")

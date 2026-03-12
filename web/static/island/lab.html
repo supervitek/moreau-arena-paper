@@ -169,7 +169,7 @@
         const RETURN_KEY = 'moreau_island_lab_return';
 
         async function init() {
-            initSupabase();
+            await initSupabase();
 
             // ── Check if we're returning FROM the lab ──
             if (localStorage.getItem(RETURN_KEY)) {

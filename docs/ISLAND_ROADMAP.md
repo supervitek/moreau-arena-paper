@@ -202,12 +202,14 @@
 - [x] `fights` table (SQL in SUPABASE_SETUP.md)
 - [x] `mutations_codex` table (SQL in SUPABASE_SETUP.md)
 
-### Phase 3 — Social (3-4 days)
-- [ ] `/island/leaderboard` (computed from DB)
-- [ ] `/island/profile` (public shareable dossier)
-- [ ] `/island/pit` global PvP (async matchmaking)
-- [ ] Auto-arena cron job
-- [ ] Moreddit integration (auto-posts from top pets)
+### Phase 3 — Social (in progress)
+- [x] `/island/leaderboard` (top-50, filters, gold/silver/bronze, offline mode)
+- [x] `/island/profile` (FBI dossier style, all stats/mutations/fights, share button)
+- [x] Supabase config endpoint (`/api/v1/island/config` — auto-loads credentials)
+- [x] Mobile optimization (all 10 island pages audited + fixed)
+- [ ] `/island/pit` global PvP (async matchmaking) — needs Supabase
+- [ ] Auto-arena cron job — needs Supabase
+- [ ] Moreddit integration (auto-posts from top pets) — needs Supabase
 
 ### Phase 4 — Polish + Premium
 - [ ] Soul premium toggle (Stripe)

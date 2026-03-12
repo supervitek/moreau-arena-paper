@@ -449,10 +449,17 @@
 
         @media (max-width: 640px) {
             .actions { grid-template-columns: repeat(3, 1fr); }
+            .welcome-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; padding: 2rem 0 1.25rem; }
+            .welcome-text h1 { font-size: 1.3rem; }
+            .active-pet-card { padding: 1.5rem 1rem; }
+            .pet-name { font-size: 1.5rem; }
+            .pet-emoji { font-size: 2.8rem; }
         }
 
         @media (max-width: 400px) {
             .actions { grid-template-columns: repeat(2, 1fr); }
+            .action-btn { padding: 1rem 0.4rem; font-size: 0.7rem; }
+            .stat-bars { grid-template-columns: 1fr; }
         }
 
         /* ── Your Pets Section ── */
@@ -728,7 +735,7 @@
         // ── Init ──
 
         async function init() {
-            initSupabase();
+            await initSupabase();
             const user = await getUser();
 
             if (isOnlineMode()) {

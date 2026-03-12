@@ -669,6 +669,12 @@
             box-shadow: 0 0 12px var(--accent-glow);
         }
 
+        /* ── Fight table scroll wrapper ── */
+        .fight-table-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         /* ── Responsive ── */
         @media (max-width: 600px) {
             .subject-identity {
@@ -685,12 +691,23 @@
 
             .combat-summary {
                 justify-content: center;
+                gap: 1rem;
             }
+
+            .combat-stat-value { font-size: 1.3rem; }
 
             .instability-details {
                 flex-direction: column;
                 gap: 0.75rem;
             }
+
+            .island-page { padding: 0 1rem 3rem; }
+
+            .fight-table { font-size: 0.75rem; min-width: 360px; }
+            .fight-table th { font-size: 0.55rem; padding: 0.4rem 0.4rem; }
+            .fight-table td { padding: 0.35rem 0.4rem; }
+
+            .mutation-stats { flex-wrap: wrap; }
         }
     </style>
 </head>
@@ -998,7 +1015,7 @@
 
         if (fights.length > 0) {
             var recent = fights.slice(-10).reverse();
-            html += '<table class="fight-table">';
+            html += '<div class="fight-table-wrap"><table class="fight-table">';
             html += '<thead><tr><th>Opponent</th><th>Result</th><th>Ticks</th><th>Date</th></tr></thead>';
             html += '<tbody>';
 
@@ -1020,7 +1037,7 @@
                 html += '</tr>';
             });
 
-            html += '</tbody></table>';
+            html += '</tbody></table></div>';
         } else {
             html += '<div class="no-data">No combat engagements on record.</div>';
         }
