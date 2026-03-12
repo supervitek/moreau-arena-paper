@@ -581,6 +581,14 @@
                             <div class="char-count"><span id="charCount">0</span>/20</div>
                         </div>
 
+                        <div id="inspiredBySection" style="margin-top: 1.5rem; display:none;">
+                            <div class="section-label">Inspired By <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.75rem;">(optional)</span></div>
+                            <select id="inspiredBySelect" class="name-input" style="font-size:0.9rem;padding:0.6rem 1rem;cursor:pointer;">
+                                <option value="">None &mdash; a new beginning</option>
+                            </select>
+                            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.3rem;font-style:italic;">Link this pet to a fallen ancestor's legacy.</div>
+                        </div>
+
                         <div class="stats-section" style="margin-top: 2rem;">
                             <div class="section-label">Stats <span style="font-weight:400; text-transform:none; letter-spacing:0;">(20 points)</span></div>
                             <div class="stat-row">
@@ -693,8 +701,22 @@
                 return;
             }
 
+            // Populate "Inspired By" dropdown with dead pets
+            var allDbPets = await dbGetPets(user.id);
+            var deadPetsForInspire = allDbPets.filter(function(p) { return p.deceased || p.is_alive === false; });
+            if (deadPetsForInspire.length > 0) {
+                var inspSelect = document.getElementById('inspiredBySelect');
+                deadPetsForInspire.forEach(function(dp) {
+                    var opt = document.createElement('option');
+                    opt.value = dp.name || '';
+                    opt.textContent = (dp.name || 'Unknown') + ' (Lv.' + (dp.level || 1) + ' ' + (dp.animal || '') + ')';
+                    inspSelect.appendChild(opt);
+                });
+                document.getElementById('inspiredBySection').style.display = 'block';
+            }
+
             // Check pet count
-            var pets = await dbGetPets(user.id);
+            var pets = allDbPets;
             if (pets.length >= 6) {
                 document.getElementById('loadingOverlay').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
@@ -857,6 +879,8 @@
                 setTimeout(function() { serumText.classList.add('visible'); }, 200);
 
                 // Build pet object
+                var inspiredBy = document.getElementById('inspiredBySelect') ? document.getElementById('inspiredBySelect').value : '';
+
                 var pet = {
                     name: petName,
                     animal: selectedAnimal.id,
@@ -878,6 +902,10 @@
                     fights_won: 0,
                     fights_lost: 0
                 };
+
+                if (inspiredBy) {
+                    pet.inspired_by = inspiredBy;
+                }
 
                 // Try Supabase first, fall back to localStorage
                 var saved = false;

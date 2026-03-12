@@ -1107,6 +1107,14 @@
                 </div>
             </div>
 
+            <div class="help-item">
+                <span class="help-icon">&#128123;</span>
+                <div class="help-item-text">
+                    <div class="help-item-title">MENAGERIE</div>
+                    <div class="help-item-desc">Honor fallen pets, bind their spirits to the living, and track bloodlines.</div>
+                </div>
+            </div>
+
             <button class="help-dismiss" onclick="toggleHelp(false)">Got it</button>
         </div>
     </div>
@@ -1407,6 +1415,20 @@
                     html += '<div class="tainted-badge">\u2620 TAINTED</div>';
                 }
 
+                // Spirit bonds display
+                var _sbData = null;
+                try { _sbData = JSON.parse(localStorage.getItem('moreau_spirit_bonds') || 'null'); } catch(e) {}
+                if (_sbData && _sbData.petName === name && _sbData.spirits && _sbData.spirits.length > 0) {
+                    html += '<div style="display:flex;gap:0.3rem;justify-content:center;margin-top:0.5rem;flex-wrap:wrap;align-items:center;">';
+                    html += '<span style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.06em;color:#6ba3d6;font-weight:600;margin-right:0.2rem;">\u{1F47B} Spirits:</span>';
+                    _sbData.spirits.forEach(function(sp) {
+                        var spAnimal = (sp.animal || '').toLowerCase();
+                        var spEmoji = EMOJI_MAP[spAnimal] || '\u{1F43E}';
+                        html += '<span title="' + escHtml(sp.name) + ' (+' + sp.value + ' ' + (sp.stat||'').toUpperCase() + ')" style="font-size:0.9rem;filter:brightness(1.1) saturate(0.5);opacity:0.7;">' + spEmoji + '</span>';
+                    });
+                    html += '</div>';
+                }
+
                 // Equipped artifacts display
                 var _equip = pet.equipment || {};
                 var _equipIds = [_equip.slot1, _equip.slot2, _equip.slot3].filter(Boolean);
@@ -1510,6 +1532,16 @@
             // SHRINE
             html += '<a href="/island/shrine" class="action-btn action-shrine">' +
                 '<span class="action-icon">&#9962;</span>SHRINE</a>';
+
+            // MENAGERIE
+            var _deadCount = allPets.filter(function(p) { return p.deceased || p.is_alive === false; }).length;
+            var _bondData = null;
+            try { _bondData = JSON.parse(localStorage.getItem('moreau_spirit_bonds') || 'null'); } catch(e) {}
+            var _bondCount = (_bondData && _bondData.spirits) ? _bondData.spirits.length : 0;
+            html += '<a href="/island/menagerie" class="action-btn action-menagerie">' +
+                (_bondCount > 0 ? '<span class="ready-badge" style="background:#6ba3d6;">' + _bondCount + '</span>' : '') +
+                '<span class="action-icon">&#128123;</span>MENAGERIE' +
+                (_deadCount > 0 ? '<span class="action-sub">' + _deadCount + ' spirit' + (_deadCount !== 1 ? 's' : '') + '</span>' : '') + '</a>';
 
             grid.innerHTML = html;
         }
