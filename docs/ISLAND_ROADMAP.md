@@ -219,61 +219,61 @@
 - [ ] `/island/pit` global PvP (async matchmaking) — needs Supabase
 - [ ] Auto-arena cron job — needs Supabase
 
-### Phase 4 — Deep Systems (localStorage, no Supabase needed)
+### Phase 4 — Deep Systems (DONE — localStorage, no Supabase needed)
 
 **4A. Echoes of the Island** — Pet dream/vision narrative system
-- [ ] Dream data model + 10 trigger types (arrival, level-up, prophecy, corruption, death, apex...)
-- [ ] Dream text library (14 animal voices × 10 triggers, all lore written)
-- [ ] `/island/dreams` — Dream Journal page (timeline, color-coded, favorites)
-- [ ] Integration: Lab pre-roll prophecy modal, death dreams in graveyard
-- [ ] Home dashboard "New Dream" indicator
-- [ ] 3 new achievements (Dreamer, Dream Keeper, The Haunted)
+- [x] Dream data model + 7 trigger types (arrival, evolution, prophecy, corruption, death, transcendence, trauma)
+- [x] Dream text library (14 animal voices × 7 triggers, shared dreams-engine.js)
+- [x] `/island/dreams` — Dream Journal page (timeline, color-coded, favorites, unread tracking)
+- [x] Integration: triggers in create, train, lab, home
+- [x] Home dashboard "New Dream" indicator
+- [x] Achievements (Dreamer, Dream Keeper, The Haunted)
 
 **4B. The Corruption Path** — Dark mutations & moral choice
-- [ ] Corruption meter (0-100) on every pet
-- [ ] Corrupted mutation variants for all L3/L6/L9 mutations (better stats, +Corruption cost)
-- [ ] Tainted state at Corruption 100 (dark aura, night-only fights 9PM-6AM)
-- [ ] `/island/crimson` — Crimson Leaderboard (separate, 1.5x stat multiplier)
-- [ ] Corruption choice UI in mutation selection (Pure vs Corrupted side-by-side)
+- [x] Corruption meter (0-100) on every pet
+- [x] Corrupted mutation variants (CORRUPT_TIER1/2/3 pools in forbidden-lab)
+- [x] Tainted state at Corruption 100 (dark aura, night-only fights 9PM-6AM)
+- [x] `/island/crimson` — Crimson Leaderboard (separate, 1.5x stat multiplier)
+- [x] Corruption choice UI in mutation selection (Pure vs Corrupted side-by-side)
 - [ ] Cleansing mechanic (premium, resets corruption + removes dark mutations)
 - [ ] Dossier corruption timeline
 
 **4C. Rival Encounters** — NPC nemeses with persistent lore
-- [ ] 50 NPC rival archetypes (name, personality, signature pets, vendetta lines)
-- [ ] Rival assignment (3 per player, generated on first visit)
-- [ ] 5-tier escalation system (loses → rival gets stronger)
-- [ ] `/island/rivals` — Rivals hub (progress bars, challenge accept/defer)
-- [ ] Rival detail pages (lore tree, vendetta dialogue, win/loss history)
+- [x] 20 NPC rival archetypes (name, personality, signature pets, vendetta lines)
+- [x] Rival assignment (3 per player, generated on first visit)
+- [x] 5-tier escalation system (loses → rival gets stronger)
+- [x] `/island/rivals` — Rivals hub (progress bars, challenge accept/defer)
+- [x] Rival detail pages (vendetta dialogue, win/loss history)
 - [ ] Cosmetic unlocks for defeating rivals (pet skins)
-- [ ] "Vanquished Rivals" hall of fame
+- [x] "Vanquished Rivals" hall of fame
 
-### Phase 5 — Economy & Collection
+### Phase 5 — Economy & Collection (DONE)
 
 **5A. Scavenger's Shrine** — Artifact hunting & equipment
-- [ ] 36 artifacts (12 common, 12 rare, 12 epic) with stats + synergy keywords
-- [ ] 3 equipment slots per pet (unlock by level: 1→Lv1, 2→Lv6, 3→Lv9)
-- [ ] Daily Shrine Hunts (5 hunt types, loot tables by difficulty)
-- [ ] `/island/shrine` — Shrine hub + artifact gallery
-- [ ] `/island/artifacts` — Artifact Codex (collection view, 36 cards)
-- [ ] Artifact-mutation synergies (keyword matching → bonus)
-- [ ] Death → artifact inheritance (Scar Keepsakes)
+- [x] 36 artifacts (12 common, 12 rare, 12 epic) with stats + synergy keywords
+- [x] 3 equipment slots per pet (unlock by level: 1→Lv1, 2→Lv6, 3→Lv9)
+- [x] 5 Shrine Hunt types (Shallow/Deep/Ruin/Night Raid/Abyss, 4h cooldown)
+- [x] `/island/shrine` — Shrine hub + equipment management
+- [x] `/island/artifacts` — Artifact Codex (collection view, 36 cards, silhouettes for undiscovered)
+- [x] Artifact-mutation synergies (keyword matching → bonus)
+- [x] Death → artifact inheritance (Scar Keepsakes)
 
 **5B. The Prophecy Machine** — Oracle predictions & essence betting
-- [ ] Oracle text generation (per-fight, cryptic poetry)
-- [ ] 4 bet types (outcome, time frame, critical event, prophecy reading)
-- [ ] Essence currency (earn from correct predictions, spend on rerolls)
-- [ ] `/island/prophecy` — Prophecy page with bet UI
-- [ ] Oracle Leaderboard (weekly, separate from combat rankings)
-- [ ] Oracle Rank system (Diviner → Mystic → Seer → Sage → Oracle)
+- [x] Oracle text generation (30 cryptic prophecy templates)
+- [x] 4 bet types (outcome, duration, critical event, prophecy reading)
+- [x] Essence currency (starts 100, mercy timer at 0, min bet 5)
+- [x] `/island/prophecy` — Prophecy page with oracle aesthetic (purple+gold)
+- [x] Oracle history & stats (last 20 predictions, accuracy, streak)
+- [x] Oracle Rank system (Diviner → Mystic → Seer → Sage → Oracle)
 
 ### Phase 6 — Legacy & Social
 
-**6A. The Menagerie** — Dead pet legacy & bloodline system
-- [ ] Spirit Tier assignment on death (Glorious/Honored/Remembered)
-- [ ] Bond system (up to 5 spirits buff a living pet, 7-day cycles)
-- [ ] `/island/menagerie` — Shrine, Library, Genealogy, Epitaph Editor
-- [ ] Bloodline synergies (Dual Legends, Dynasty, Sacrifice Chain)
-- [ ] Memorial rituals (Immortalize for Soul Points)
+**6A. The Menagerie** — Dead pet legacy & bloodline system (DONE)
+- [x] Spirit Tier assignment on death (Glorious/Honored/Remembered)
+- [x] Bond system (up to 5 spirits buff a living pet, 7-day cycles)
+- [x] `/island/menagerie` — Shrine, Library, Genealogy, Epitaph Editor (4 tabs)
+- [x] Bloodline synergies (Dual Legends, Dynasty, Sacrifice Chain)
+- [x] Memorial rituals (Immortalize for Soul Points)
 
 **6B. Arena Oath** — Social rivalry covenants (needs Supabase)
 - [ ] Oath declaration system (swear enmity against another player's pet)
