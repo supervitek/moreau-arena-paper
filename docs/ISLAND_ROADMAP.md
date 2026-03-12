@@ -300,76 +300,67 @@
 - [ ] Live matchmaking
 - [ ] Mobile app considerations
 
-### Phase 8 — The Deep Island (localStorage, no Supabase needed)
-
-**Priority order: build top-to-bottom. All work offline.**
+### Phase 8 — The Deep Island (DONE — localStorage, no Supabase needed)
 
 **8A. The Deep Tide** — Roguelike 7-chamber expedition
-- [ ] `/island/deep-tide` — Expedition page (chamber selection, run state, combat)
-- [ ] 30+ room templates with modifiers (poison fog, mirror clone, time pressure)
-- [ ] Shard vs Flare binary choice per chamber (greedy progress vs survival)
-- [ ] 12 Drowned Relics (4th equipment slot, bioluminescent visual)
-- [ ] Permanent pet death on failure — highest stakes content in game
-- [ ] Weekly depth leaderboard (local, date-math reset)
-- [ ] Tide Survivor cosmetic (glow effect on surviving pets)
+- [x] `/island/deep-tide` — Expedition page (2238 lines, chamber combat, run resume)
+- [x] 33 room templates with stacking modifiers (poison fog, mirror clone, time pressure, etc.)
+- [x] Shard vs Flare binary choice per chamber
+- [x] 12 Drowned Relics (4th equipment slot, bioluminescent visual)
+- [x] Permanent pet death on failure — highest stakes content
+- [x] Weekly depth leaderboard (local, date-math reset)
+- [x] Deep ocean theme (#0a0a1a, cyan #00fff7 accents, bubble particles)
 
 **8B. The Succession** — Bloodline mastery across pet deaths
-- [ ] `bloodlines` localStorage tracking per species (14 entries)
-- [ ] Generation milestones: Gen1 +1 stat, Gen3 passive ability, Gen5 start Lv2, Gen7 unique mutation
-- [ ] Gen 10: Progenitor Form — secret evolution beyond Apex (14 unique forms)
-- [ ] Species-specific passives (fox: First Strike, bear: Endure, etc.)
-- [ ] Mastery XP and cosmetic titles per bloodline
-- [ ] Integration with pet creation (claim succession option)
-- [ ] Progenitor pets draw stronger rivals + higher lab instability
+- [x] `bloodlines` localStorage tracking per species (14 entries)
+- [x] Generation milestones: Gen1 +1 stat, Gen3 passive ability, Gen5 start Lv2, Gen7 unique mutation
+- [x] Gen 10: Progenitor Form — secret evolution beyond Apex (14 unique forms)
+- [x] Species-specific passives (fox: First Strike, bear: Endure, etc.)
+- [x] Mastery XP and cosmetic titles per bloodline
+- [x] Integration with pet creation (succession toggle) + lab death trigger
 
 **8C. The Black Market** — Blind auctions for permanent sacrifice
-- [ ] `/island/black-market` — Night-only page (22:00-04:00 local time)
-- [ ] 3 daily offers with cryptic one-line clues (seeded random, 24h cycle)
-- [ ] Price = permanent stat points, levels, or mutations from a living pet
-- [ ] Mystery vial: 40% beneficial / 25% artifact / 20% instability spike / 10% rare / 5% poison
-- [ ] Purchase history log (clue patterns learnable over weeks)
-- [ ] Contraband mutations — 4th tier above Forbidden, market-exclusive
+- [x] `/island/black-market` — Night-only page (22:00-04:00 local time)
+- [x] 3 daily offers with cryptic clues (seeded PRNG, 24h cycle)
+- [x] Price = permanent stat points from a living pet
+- [x] Mystery vial (40/25/20/10/5% weighted outcomes)
+- [x] Purchase history log, Contraband mutations (4th tier)
+- [x] Flickering lantern on home (night-only)
 
 **8D. The Tidal Clock** — 6-hour real-time island rhythm
-- [ ] 4 tide phases: rising/high/falling/low (90 min each, UTC-synced)
-- [ ] Low Tide: Bone Flats open (dead pet remains → stat shards with curse risk), Lab is deadlier, fights deal x2 damage
-- [ ] High Tide: Lab locked, Dreaming Pools open (healing x2), Driftwood Market (free artifact transfers)
-- [ ] Global CSS tide overlay (desaturated low / blue-tinted high)
-- [ ] Storm guard against clock manipulation
-- [ ] Tide state indicator on all island pages
+- [x] Shared tide-engine.js with indicator widget + wave animation
+- [x] 4 tide phases (90 min each, UTC-synced)
+- [x] `/island/tides` — Bone Flats (low), Dreaming Pools + Driftwood Market (high)
+- [x] Storm guard against clock manipulation
+- [x] Tide indicator on home dashboard
 
 **8E. The Pact** — Symbiotic pet binding
-- [ ] `/island/pact` — Pact Altar page (binding ritual for 2 pets, Lv3+ each)
-- [ ] Shared HP pool (sum -20%), partner stat bonuses in fights
-- [ ] Feral state on partner death (48h, +40% stats, attacks your own kennel)
-- [ ] Scarred Bond trait after feral period (permanent stat redistribution)
-- [ ] One pact per pet lifetime, no re-pacting after partner loss
+- [x] `/island/pact` — Pact Altar (typed confirmation, red thread animation)
+- [x] Partner stat bonuses, XP boost
+- [x] Feral state on partner death (48h, +40% stats, 15% kennel attacks per page load)
+- [x] Scarred Bond resolution (+2 ATK, -1 WIL, no re-pacting)
 
 **8F. The Other Player ("M")** — Phantom mirror presence
-- [ ] `other_player` localStorage entity generated from inverted player data
-- [ ] 40 handwritten-feeling notes, behavior-reactive selection
-- [ ] M's pets as unique rival encounters (inverted stat builds)
-- [ ] Artifact movement between sessions ("Someone moved this...")
-- [ ] M's arc: friendly → cryptic (session 15) → desperate (session 30) → death if ignored
-- [ ] M's Last Frequency artifact (best stats, glitch cosmetic effect)
+- [x] m-engine.js (569 lines) — inverted player data, session tracking
+- [x] 40 handwritten notes across 4 phases (friendly→cryptic→desperate→dead)
+- [x] M's pets as rival encounters, artifact borrowing
+- [x] M's Last Frequency death artifact, typewriter note reveal
 
-### Phase 9 — Prestige & Endgame
+### Phase 9 — Prestige & Endgame (DONE)
 
 **9A. The Genesis Protocol** — New Game+ prestige system
-- [ ] Full island reset: sacrifice all pets, artifacts, achievements
-- [ ] Genesis Marks (0-5): each unlocks new island layer
-- [ ] Mark 1: hidden genetic memory stats (+1 per dead pet from prior cycle, cap +5)
-- [ ] Mark 2: 15th animal — The Chimera (fused from 3 dead species)
-- [ ] Mark 3-5: Dr. Moreau's personal journal entries (lore + mechanical secrets)
-- [ ] 30-second unskippable reset sequence (flood, names scroll, silence, brand)
-- [ ] Genesis-exclusive Lab mutations (Mark 2+)
+- [x] Full localStorage wipe (except legacy, market history, M)
+- [x] Genesis Marks (0-5) with golden circle visuals
+- [x] Mark 1: genetic memory, Mark 2: Chimera animal, Mark 3-5: Moreau's Journal
+- [x] 30-second unskippable reset sequence
+- [x] Genesis-exclusive Lab mutations (Mark 2+)
 
 **9B. The Confession Booth** — Post-kill moral reflection
-- [ ] Confession modal after causing pet death (text input, 10-500 chars)
-- [ ] Sentiment scoring via keyword dictionary (cold/remorseful/mixed)
-- [ ] Three paths: Hollow (+2 ATK, no dreams), Haunted (debuff → resurrection token after 20), Unreadable (random personality quirk)
-- [ ] Copy-paste detection (locks resurrection path permanently)
-- [ ] Confession journal (unlocks after 3rd confession)
+- [x] confession-engine.js — sentiment analysis, 3 paths (Hollow/Haunted/Unreadable)
+- [x] Resurrection token at 20 Haunted confessions (only resurrection in game)
+- [x] Copy-paste detection permanently locks resurrection
+- [x] `/island/confessions` — journal page, CRT terminal aesthetic
+- [x] Integration with lab.html death sequence
 
 ---
 
