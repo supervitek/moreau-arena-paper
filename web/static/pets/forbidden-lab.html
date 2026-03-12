@@ -1328,7 +1328,7 @@
                     <div class="tier-meta">Side Effect: <span>0%</span></div>
                     <div class="tier-meta">Ultra-Rare: <span>0%</span></div>
                     <div class="tier-instability-gain">Instability: +4</div>
-                    <div class="tier-pool-count">10 mutations in pool</div>
+                    <div class="tier-pool-count">21 mutations in pool</div>
                     <button class="btn-roll" onclick="confirmRoll(1)">Roll</button>
                 </div>
                 <div class="tier-col tier-volatile">
@@ -1336,7 +1336,7 @@
                     <div class="tier-meta">Side Effect: <span>35%</span></div>
                     <div class="tier-meta">Ultra-Rare: <span>0%</span></div>
                     <div class="tier-instability-gain">Instability: +9</div>
-                    <div class="tier-pool-count">15 mutations in pool</div>
+                    <div class="tier-pool-count">31 mutations in pool</div>
                     <button class="btn-roll pulse-subtle" onclick="confirmRoll(2)">Roll</button>
                 </div>
                 <div class="tier-col tier-forbidden">
@@ -1344,7 +1344,7 @@
                     <div class="tier-meta">Side Effect: <span>70%</span></div>
                     <div class="tier-meta">Ultra-Rare: <span>2%</span></div>
                     <div class="tier-instability-gain">Instability: +16</div>
-                    <div class="tier-pool-count">10 mutations + 14 ultra-rares</div>
+                    <div class="tier-pool-count">23 mutations + 14 ultra-rares</div>
                     <button class="btn-roll pulse-intense" onclick="confirmRoll(3)">Roll</button>
                 </div>
             </div>
@@ -1470,64 +1470,104 @@
     };
 
     const TIER1 = [
-        { id:'t1_tough_skin',       name:'Tough Skin',         desc:'+2 HP \u2014 thickened dermal layer',                    stats:{hp:2} },
-        { id:'t1_sharp_claws',      name:'Sharp Claws',        desc:'+1 ATK \u2014 keratin-reinforced strike surfaces',       stats:{atk:1} },
-        { id:'t1_quick_feet',       name:'Quick Feet',         desc:'+1 SPD \u2014 neural fast-twitch enhancement',           stats:{spd:1} },
-        { id:'t1_iron_will',        name:'Iron Will',          desc:'+1 WIL \u2014 cortical resilience boost',                stats:{wil:1} },
-        { id:'t1_keen_eyes',        name:'Keen Eyes',          desc:'+3% accuracy \u2014 retinal focus implant',              stats:{accuracy:3}, unit:'%' },
-        { id:'t1_thick_hide',       name:'Thick Hide',         desc:'+5% damage reduction \u2014 subdermal plating',          stats:{dmg_red:5}, unit:'%' },
-        { id:'t1_swift_reflexes',   name:'Swift Reflexes',     desc:'+3% dodge \u2014 reflex arc shortening',                 stats:{dodge:3}, unit:'%' },
-        { id:'t1_battle_scars',     name:'Battle Scars',       desc:'+3 HP \u2014 scarified regenerative tissue',             stats:{hp:3} },
-        { id:'t1_predator_instinct',name:'Predator Instinct',  desc:'+2% crit chance \u2014 killer instinct amplifier',       stats:{crit:2}, unit:'%' },
-        { id:'t1_survival_instinct',name:'Survival Instinct',  desc:'+1 HP, +1 WIL \u2014 fight-or-flight optimization',     stats:{hp:1, wil:1} },
+        { id:'t1_tough_skin',       name:'Tough Skin',         desc:'+2 HP — thickened dermal layer',                         stats:{hp:2} },
+        { id:'t1_sharp_claws',      name:'Sharp Claws',        desc:'+1 ATK — keratin-reinforced strike surfaces',            stats:{atk:1} },
+        { id:'t1_quick_feet',       name:'Quick Feet',         desc:'+1 SPD — neural fast-twitch enhancement',                stats:{spd:1} },
+        { id:'t1_iron_will',        name:'Iron Will',          desc:'+1 WIL — cortical resilience boost',                     stats:{wil:1} },
+        { id:'t1_keen_eyes',        name:'Keen Eyes',          desc:'+3% accuracy — retinal focus implant',                   stats:{accuracy:3}, unit:'%' },
+        { id:'t1_thick_hide',       name:'Thick Hide',         desc:'+5% damage reduction — subdermal plating',               stats:{dmg_red:5}, unit:'%' },
+        { id:'t1_swift_reflexes',   name:'Swift Reflexes',     desc:'+3% dodge — reflex arc shortening',                      stats:{dodge:3}, unit:'%' },
+        { id:'t1_battle_scars',     name:'Battle Scars',       desc:'+3 HP — scarified regenerative tissue',                  stats:{hp:3} },
+        { id:'t1_predator_instinct',name:'Predator Instinct',  desc:'+2% crit chance — killer instinct amplifier',            stats:{crit:2}, unit:'%' },
+        { id:'t1_survival_instinct',name:'Survival Instinct',  desc:'+1 HP, +1 WIL — fight-or-flight optimization',          stats:{hp:1, wil:1} },
+        { id:'t1_muscle_fibers',    name:'Muscle Fibers',      desc:'+2 HP, -1 SPD — dense myofiber weave',                   stats:{hp:2, spd:-1} },
+        { id:'t1_adrenaline_gland', name:'Adrenaline Gland',   desc:'+2 ATK, -1 WIL — adrenal cortex implant',               stats:{atk:2, wil:-1} },
+        { id:'t1_neural_pathway',   name:'Neural Pathway',     desc:'+2 WIL, -1 HP — expanded prefrontal wiring',             stats:{wil:2, hp:-1} },
+        { id:'t1_tendon_spring',    name:'Tendon Spring',      desc:'+2 SPD, -1 ATK — elastic tendon replacement',            stats:{spd:2, atk:-1} },
+        { id:'t1_bone_density',     name:'Bone Density',       desc:'+1 HP, +1 ATK — calcium-enriched skeletal mesh',         stats:{hp:1, atk:1} },
+        { id:'t1_eye_enhancement',  name:'Eye Enhancement',    desc:'+1 SPD, +1 WIL — retinal spectrum widening',             stats:{spd:1, wil:1} },
+        { id:'t1_pain_suppressor',  name:'Pain Suppressor',    desc:'+2 HP — nociceptor dampening implant',                   stats:{hp:2} },
+        { id:'t1_aggression_serum', name:'Aggression Serum',   desc:'+2 ATK — limbic aggression catalyst',                    stats:{atk:2} },
+        { id:'t1_synapse_boost',    name:'Synapse Boost',      desc:'+2 WIL — synaptic density enhancer',                     stats:{wil:2} },
+        { id:'t1_reflex_enhancer',  name:'Reflex Enhancer',    desc:'+2 SPD — motor neuron accelerant',                       stats:{spd:2} },
+        { id:'t1_metabolic_surge',  name:'Metabolic Surge',    desc:'+1 HP, +1 SPD — metabolic rate optimizer',               stats:{hp:1, spd:1} },
     ];
 
     const TIER2 = [
-        { id:'t2_fleet_tendons',    name:'Fleet Tendons',      desc:'+3 SPD, +5% dodge \u2014 elastic myofiber replacement',            stats:{spd:3, dodge:5} },
-        { id:'t2_barbed_blood',     name:'Barbed Blood',       desc:'15% reflect damage on hit \u2014 hemolytic defense system',         stats:{reflect:15}, unit:'%', special:true },
-        { id:'t2_adrenaline_surge', name:'Adrenaline Surge',   desc:'+20% ATK for first 3 ticks \u2014 adrenal gland overclocking',     stats:{atk_boost:20}, unit:'%', special:true },
-        { id:'t2_shadow_step',      name:'Shadow Step',        desc:'+8% dodge, +2 SPD \u2014 photon-bending muscle fibers',             stats:{dodge:8, spd:2} },
-        { id:'t2_venom_glands',     name:'Venom Glands',       desc:'Attacks apply 3-tick poison \u2014 toxin sac implantation',         stats:{}, special:true },
-        { id:'t2_berserker_gene',   name:'Berserker Gene',     desc:'+4 ATK, -1 WIL \u2014 limbic system override',                     stats:{atk:4, wil:-1} },
-        { id:'t2_regeneration',     name:'Regeneration',       desc:'Heal 2% max HP per tick \u2014 cellular mitosis accelerant',        stats:{}, special:true },
-        { id:'t2_hardened_bones',   name:'Hardened Bones',     desc:'+4 HP, +10% damage reduction \u2014 calcium-carbide infusion',      stats:{hp:4, dmg_red:10} },
-        { id:'t2_feral_senses',     name:'Feral Senses',       desc:'+5% crit, +3% accuracy \u2014 sensory cortex expansion',            stats:{crit:5, accuracy:3} },
-        { id:'t2_ambush_wiring',    name:'Ambush Wiring',      desc:'+30% first-strike damage \u2014 pre-synaptic trigger loop',         stats:{first_strike:30}, unit:'%', special:true },
-        { id:'t2_symbiotic_armor',  name:'Symbiotic Armor',    desc:'+3 HP, +1 ATK \u2014 parasitic exoskeleton bonding',                stats:{hp:3, atk:1} },
-        { id:'t2_neural_boost',     name:'Neural Boost',       desc:'+3 WIL, ability power +10% \u2014 prefrontal amplifier',            stats:{wil:3, ability_power:10} },
-        { id:'t2_kinetic_absorber', name:'Kinetic Absorber',   desc:'10% chance to negate hit \u2014 inertial dampening field',           stats:{negate:10}, unit:'%', special:true },
-        { id:'t2_bloodlust',        name:'Bloodlust',          desc:'+2% ATK per hit landed (stacks to 5) \u2014 dopamine combat loop',  stats:{}, special:true },
-        { id:'t2_territorial_rage', name:'Territorial Rage',   desc:'+15% ATK on home terrain \u2014 territorial pheromone reactor',      stats:{terrain_atk:15}, unit:'%', special:true },
+        { id:'t2_fleet_tendons',    name:'Fleet Tendons',      desc:'+3 SPD, +5% dodge — elastic myofiber replacement',                  stats:{spd:3, dodge:5} },
+        { id:'t2_barbed_blood',     name:'Barbed Blood',       desc:'15% reflect damage on hit — hemolytic defense system',               stats:{reflect:15}, unit:'%', special:true },
+        { id:'t2_adrenaline_surge', name:'Adrenaline Surge',   desc:'+20% ATK for first 3 ticks — adrenal gland overclocking',           stats:{atk_boost:20}, unit:'%', special:true },
+        { id:'t2_shadow_step',      name:'Shadow Step',        desc:'+8% dodge, +2 SPD — photon-bending muscle fibers',                   stats:{dodge:8, spd:2} },
+        { id:'t2_venom_glands',     name:'Venom Glands',       desc:'Attacks apply 3-tick poison — toxin sac implantation',               stats:{}, special:true },
+        { id:'t2_berserker_gene',   name:'Berserker Gene',     desc:'+4 ATK, -1 WIL — limbic system override',                           stats:{atk:4, wil:-1} },
+        { id:'t2_regeneration',     name:'Regeneration',       desc:'Heal 2% max HP per tick — cellular mitosis accelerant',              stats:{}, special:true },
+        { id:'t2_hardened_bones',   name:'Hardened Bones',     desc:'+4 HP, +10% damage reduction — calcium-carbide infusion',            stats:{hp:4, dmg_red:10} },
+        { id:'t2_feral_senses',     name:'Feral Senses',       desc:'+5% crit, +3% accuracy — sensory cortex expansion',                  stats:{crit:5, accuracy:3} },
+        { id:'t2_ambush_wiring',    name:'Ambush Wiring',      desc:'+30% first-strike damage — pre-synaptic trigger loop',               stats:{first_strike:30}, unit:'%', special:true },
+        { id:'t2_symbiotic_armor',  name:'Symbiotic Armor',    desc:'+3 HP, +1 ATK — parasitic exoskeleton bonding',                      stats:{hp:3, atk:1} },
+        { id:'t2_neural_boost',     name:'Neural Boost',       desc:'+3 WIL, ability power +10% — prefrontal amplifier',                  stats:{wil:3, ability_power:10} },
+        { id:'t2_kinetic_absorber', name:'Kinetic Absorber',   desc:'10% chance to negate hit — inertial dampening field',                 stats:{negate:10}, unit:'%', special:true },
+        { id:'t2_bloodlust',        name:'Bloodlust',          desc:'+2% ATK per hit landed (stacks to 5) — dopamine combat loop',        stats:{}, special:true },
+        { id:'t2_territorial_rage', name:'Territorial Rage',   desc:'+15% ATK on home terrain — territorial pheromone reactor',            stats:{terrain_atk:15}, unit:'%', special:true },
+        { id:'t2_berserker_protocol',name:'Berserker Protocol',desc:'+4 ATK, -2 WIL — rage overwhelms reason',                            stats:{atk:4, wil:-2} },
+        { id:'t2_fortress_shell',   name:'Fortress Shell',     desc:'+4 HP, -2 SPD — impenetrable but slow',                              stats:{hp:4, spd:-2} },
+        { id:'t2_ghost_step',       name:'Ghost Step',         desc:'+4 SPD, -2 HP — phase through attacks',                              stats:{spd:4, hp:-2} },
+        { id:'t2_mind_fortress',    name:'Mind Fortress',      desc:'+4 WIL, -2 ATK — unbreakable mental defense',                        stats:{wil:4, atk:-2} },
+        { id:'t2_adaptive_armor',   name:'Adaptive Armor',     desc:'+2 HP, +2 WIL — learns from every hit',                              stats:{hp:2, wil:2} },
+        { id:'t2_predator_wire',    name:'Predator Instinct',  desc:'+2 ATK, +2 SPD — hunt or be hunted',                                 stats:{atk:2, spd:2} },
+        { id:'t2_war_cry',          name:'War Cry',            desc:'+3 ATK, +1 WIL, -2 SPD — terrifying battlecry',                      stats:{atk:3, wil:1, spd:-2} },
+        { id:'t2_shadow_cloak',     name:'Shadow Cloak',       desc:'+3 SPD, +1 WIL, -2 HP — meld with darkness',                        stats:{spd:3, wil:1, hp:-2} },
+        { id:'t2_psychic_feedback', name:'Psychic Feedback',   desc:'+3 WIL, +1 ATK, -2 SPD — damage reflected mentally',                stats:{wil:3, atk:1, spd:-2} },
+        { id:'t2_blood_frenzy',     name:'Blood Frenzy',       desc:'+3 ATK, +1 HP, -2 WIL — pain fuels power',                          stats:{atk:3, hp:1, wil:-2} },
+        { id:'t2_exoskeleton',      name:'Exoskeleton',        desc:'+3 HP, +1 ATK, -1 SPD — hardened exterior',                         stats:{hp:3, atk:1, spd:-1} },
+        { id:'t2_fury_protocol',    name:'Fury Protocol',      desc:'+2 ATK, +2 SPD, -1 WIL — combat overdrive',                         stats:{atk:2, spd:2, wil:-1} },
+        { id:'t2_iron_marrow',      name:'Iron Marrow',        desc:'+2 HP, +2 ATK, -1 WIL — bones become weapons',                      stats:{hp:2, atk:2, wil:-1} },
+        { id:'t2_phantom_nerves',   name:'Phantom Nerves',     desc:'+2 SPD, +2 WIL, -1 HP — react before thinking',                     stats:{spd:2, wil:2, hp:-1} },
+        { id:'t2_siege_mode',       name:'Siege Mode',         desc:'+3 HP, +2 ATK, -3 SPD — immovable object',                          stats:{hp:3, atk:2, spd:-3} },
+        { id:'t2_lightning_reflexes',name:'Lightning Reflexes', desc:'+3 SPD, +2 WIL, -3 HP — untouchable',                               stats:{spd:3, wil:2, hp:-3} },
     ];
 
     const TIER3 = [
-        { id:'t3_apex_predator',    name:'Apex Predator',      desc:'+5 ATK, +3 SPD \u2014 apex genome splice',                          stats:{atk:5, spd:3} },
-        { id:'t3_unkillable',       name:'Unkillable',         desc:'Survive lethal hit once at 1 HP \u2014 death-refusal gene',          stats:{}, special:true },
-        { id:'t3_phase_shift',      name:'Phase Shift',        desc:'20% chance to completely dodge any attack \u2014 quantum instability',stats:{phase_dodge:20}, unit:'%', special:true },
-        { id:'t3_doom_bloom',       name:'Doom Bloom',         desc:'Every 4th tick: massive buff OR self-hex (50/50) \u2014 chaos bloom', stats:{}, special:true },
-        { id:'t3_chimera_heart',    name:'Chimera Heart',      desc:'Gain 1 random trait from another species each fight',            stats:{}, special:true },
-        { id:'t3_gene_overload',    name:'Gene Overload',      desc:'All stats +2, but 10% chance to lose a turn each tick',          stats:{hp:2, atk:2, spd:2, wil:2}, special:true },
-        { id:'t3_perfect_form',     name:'Perfect Form',       desc:'+2 to all stats \u2014 flawless genetic recombination',               stats:{hp:2, atk:2, spd:2, wil:2} },
-        { id:'t3_unstoppable_force',name:'Unstoppable Force',  desc:'Ignore all defensive abilities for 2 ticks \u2014 barrier breaker',   stats:{}, special:true },
-        { id:'t3_shadow_clone',     name:'Shadow Clone',       desc:'First attack each fight hits twice \u2014 mitotic echo',               stats:{}, special:true },
-        { id:'t3_evolutions_edge',  name:"Evolution's Edge",   desc:'+3 to highest stat, +1 to lowest stat \u2014 adaptive optimizer',     stats:{}, special:true },
+        { id:'t3_apex_predator',    name:'Apex Predator',      desc:'+5 ATK, +3 SPD — apex genome splice',                                stats:{atk:5, spd:3} },
+        { id:'t3_unkillable',       name:'Unkillable',         desc:'Survive lethal hit once at 1 HP — death-refusal gene',                stats:{}, special:true },
+        { id:'t3_phase_shift',      name:'Phase Shift',        desc:'20% chance to completely dodge any attack — quantum instability',      stats:{phase_dodge:20}, unit:'%', special:true },
+        { id:'t3_doom_bloom',       name:'Doom Bloom',         desc:'Every 4th tick: massive buff OR self-hex (50/50) — chaos bloom',       stats:{}, special:true },
+        { id:'t3_chimera_heart',    name:'Chimera Heart',      desc:'Gain 1 random trait from another species each fight',                  stats:{}, special:true },
+        { id:'t3_gene_overload',    name:'Gene Overload',      desc:'All stats +2, but 10% chance to lose a turn each tick',                stats:{hp:2, atk:2, spd:2, wil:2}, special:true },
+        { id:'t3_perfect_form',     name:'Perfect Form',       desc:'+2 to all stats — flawless genetic recombination',                     stats:{hp:2, atk:2, spd:2, wil:2} },
+        { id:'t3_unstoppable_force',name:'Unstoppable Force',  desc:'Ignore all defensive abilities for 2 ticks — barrier breaker',         stats:{}, special:true },
+        { id:'t3_shadow_clone',     name:'Shadow Clone',       desc:'First attack each fight hits twice — mitotic echo',                     stats:{}, special:true },
+        { id:'t3_evolutions_edge',  name:"Evolution's Edge",   desc:'+3 to highest stat, +1 to lowest stat — adaptive optimizer',           stats:{}, special:true },
+        { id:'t3_omega_protocol',   name:'Omega Protocol',     desc:'+5 ATK, -3 HP, -1 WIL — final form: pure destruction',                stats:{atk:5, hp:-3, wil:-1} },
+        { id:'t3_immortal_frame',   name:'Immortal Frame',     desc:'+5 HP, -3 ATK, -1 SPD — cannot be killed easily',                     stats:{hp:5, atk:-3, spd:-1} },
+        { id:'t3_time_dilation',    name:'Time Dilation',      desc:'+5 SPD, -3 WIL, -1 HP — move between seconds',                        stats:{spd:5, wil:-3, hp:-1} },
+        { id:'t3_hivemind_link',    name:'Hivemind Link',      desc:'+5 WIL, -3 SPD, -1 ATK — connected to all consciousness',             stats:{wil:5, spd:-3, atk:-1} },
+        { id:'t3_chimera_splice',   name:'Chimera Splice',     desc:'+3 HP, +3 ATK, -4 SPD — multiple DNA strands fused',                  stats:{hp:3, atk:3, spd:-4} },
+        { id:'t3_shadow_monarch',   name:'Shadow Monarch',     desc:'+3 SPD, +3 WIL, -4 HP — rule from the darkness',                      stats:{spd:3, wil:3, hp:-4} },
+        { id:'t3_berserk_mode',     name:'Berserk Mode',       desc:'+4 ATK, +2 SPD, -4 WIL — lose yourself, gain power',                  stats:{atk:4, spd:2, wil:-4} },
+        { id:'t3_juggernaut',       name:'Juggernaut',         desc:'+4 HP, +2 ATK, -4 SPD — slow, unstoppable destroyer',                 stats:{hp:4, atk:2, spd:-4} },
+        { id:'t3_wraith_form',      name:'Wraith Form',        desc:'+4 SPD, +2 WIL, -4 HP — between life and death',                      stats:{spd:4, wil:2, hp:-4} },
+        { id:'t3_psychic_storm',    name:'Psychic Storm',      desc:'+4 WIL, +2 HP, -4 ATK — mental devastation',                          stats:{wil:4, hp:2, atk:-4} },
+        { id:'t3_critical_mass',    name:'Critical Mass',      desc:'+2 HP, +2 ATK, +2 SPD, -4 WIL — everything amplified',                stats:{hp:2, atk:2, spd:2, wil:-4} },
+        { id:'t3_moreaus_masterwork',name:"Dr. Moreau's Masterwork", desc:'+2 HP, +2 ATK, +2 WIL, -4 SPD — his magnum opus',               stats:{hp:2, atk:2, wil:2, spd:-4} },
+        { id:'t3_perfect_defense',  name:'Perfect Defense',    desc:'+3 HP, +3 WIL, -4 ATK — absolute protection',                         stats:{hp:3, wil:3, atk:-4} },
     ];
 
     const ULTRA_RARES = [
-        { id:'ur_fox',       animal:'fox',       name:"Moreau's Briefcase",   desc:"Copy opponent's passive before fight starts" },
-        { id:'ur_tiger',     animal:'tiger',     name:'Echolocation',         desc:'Nullify accuracy penalties, double dodge' },
-        { id:'ur_bear',      animal:'bear',      name:'Ursine Apotheosis',    desc:'Below 30% HP: all stats +25% for 3 ticks' },
-        { id:'ur_wolf',      animal:'wolf',      name:'Pack Echo',            desc:'Clone your last successful ability on next tick' },
-        { id:'ur_scorpion',  animal:'scorpion',  name:'Neurotoxin Cascade',   desc:'All DOTs spread to adjacent hexes' },
-        { id:'ur_eagle',     animal:'eagle',     name:'Stratospheric Dive',   desc:'First strike from max range does 3x damage' },
-        { id:'ur_porcupine', animal:'porcupine', name:'Living Fortress',      desc:'Reflect 100% damage for 1 tick (10-tick CD)' },
-        { id:'ur_rhino',     animal:'rhino',     name:'Tectonic Charge',      desc:'Movement creates blocking rubble' },
-        { id:'ur_viper',     animal:'viper',     name:'Hemotoxin Bloom',      desc:'Poison stacks convert to healing on kill' },
-        { id:'ur_vulture',   animal:'vulture',   name:'Carrion Authority',    desc:'+5% all stats per dead unit on field' },
-        { id:'ur_monkey',    animal:'monkey',    name:'Chaos Theory',         desc:'Randomize one opponent stat each tick' },
-        { id:'ur_buffalo',   animal:'buffalo',   name:'Immovable Object',     desc:'Cannot be moved or displaced; immune to knockback' },
-        { id:'ur_panther',   animal:'panther',   name:'Void Step',            desc:'Teleport behind target before each attack' },
-        { id:'ur_boar',      animal:'boar',      name:'Blood Frenzy',         desc:'Each hit +3% ATK (stacks infinitely)' },
+        { id:'ur_bear',      animal:'bear',      name:'URSINE COLOSSUS',      desc:'Massive HP and ATK surge — become the unstoppable mountain of muscle and fury' },
+        { id:'ur_tiger',     animal:'tiger',     name:'GHOST OF THE JUNGLE',  desc:'Cannot be targeted for 2 ticks, then deal devastating single strike at 3x damage' },
+        { id:'ur_fox',       animal:'fox',       name:'NINE-TAILED TRICKSTER',desc:'Evade all attacks for 1 tick, copy and reflect opponent abilities back at them' },
+        { id:'ur_wolf',      animal:'wolf',      name:'MOONHOWL ALPHA',       desc:'Pack resonance — all stats +3, clone your last successful ability on next tick' },
+        { id:'ur_scorpion',  animal:'scorpion',  name:"EMPEROR'S STING",      desc:'Guaranteed lethal venom — all attacks apply stacking poison, DOTs spread on hit' },
+        { id:'ur_boar',      animal:'boar',      name:'UNSTOPPABLE JUGGERNAUT',desc:'Cannot be stopped or slowed — charges through all defenses, +4% ATK per hit (stacks infinitely)' },
+        { id:'ur_monkey',    animal:'monkey',    name:'CHAOS INCARNATE',       desc:'Randomize one opponent stat each tick, 20% chance to scramble all of their stats' },
+        { id:'ur_vulture',   animal:'vulture',   name:"DEATH'S PATIENCE",      desc:'Grow stronger as opponent weakens — +8% all stats per 25% opponent HP lost' },
+        { id:'ur_rhino',     animal:'rhino',     name:'TECTONIC CHARGE',       desc:'Earthquake on impact — stun opponent for 1 tick, movement creates blocking rubble' },
+        { id:'ur_viper',     animal:'viper',     name:'WORLD SERPENT',          desc:'Multi-strike — each attack hits 3 times, each hit applies a different poison type' },
+        { id:'ur_eagle',     animal:'eagle',     name:'THUNDERBIRD',            desc:'Lightning fast aerial superiority — first strike does 3x damage, permanent +5 SPD' },
+        { id:'ur_buffalo',   animal:'buffalo',   name:'IRON MOUNTAIN',          desc:'Immovable — cannot be displaced, reflect 50% of all incoming damage back to attacker' },
+        { id:'ur_panther',   animal:'panther',   name:'SHADOW SOVEREIGN',       desc:'Permanent stealth until first attack — guaranteed critical hit from stealth, +5 ATK' },
+        { id:'ur_porcupine', animal:'porcupine', name:'NEEDLE STORM',           desc:'Return 100% damage on every hit received, attackers take spike damage on contact' },
     ];
 
     const SIDE_EFFECTS = {

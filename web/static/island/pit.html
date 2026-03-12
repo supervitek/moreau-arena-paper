@@ -1109,9 +1109,102 @@
             var narrativeLines = generateNarrative(data, leftPet, rightPet, leftWon);
             displayNarrative(narrativeLines);
 
+            // Generate Moreddit posts for both fighters
+            saveMoredditPost('win', winner, { opponent: loser.name || 'Unknown', ticks: ticks });
+            saveMoredditPost('loss', loser, { opponent: winner.name || 'Unknown', ticks: ticks });
+
             // Soul responses
             fetchSoul(winner, 'post_fight_win', loser.name, 'soul-winner');
             fetchSoul(loser, 'post_fight_loss', winner.name, 'soul-loser');
+        }
+
+        // ── Moreddit Post Generator ──
+
+        var MOREDDIT_ANIMAL_VOICES = {
+            bear:   { username: '{name}TheBear' },
+            fox:    { username: '{name}Outfoxed' },
+            tiger:  { username: '{name}Strikes' },
+            wolf:   { username: '{name}Pack' },
+            scorpion: { username: '{name}Venom' },
+            monkey: { username: '{name}Chaos' },
+            eagle:  { username: '{name}Soars' },
+            vulture: { username: '{name}Circles' },
+            boar:   { username: '{name}Charges' },
+            buffalo: { username: '{name}Stands' },
+            porcupine: { username: '{name}Spines' },
+            rhino:  { username: '{name}Horn' },
+            viper:  { username: '{name}Fang' },
+            panther: { username: '{name}Shadow' }
+        };
+
+        var MOREDDIT_TEMPLATES = {
+            win: [
+                "{name} just demolished {opponent}. {ticks} ticks. Barely broke a sweat. \u{1F4AA}",
+                "They said {opponent} was tough. They were wrong. #{name}Wins",
+                "{ticks} ticks to take down {opponent}. New personal best? Maybe. #ArenaLife",
+                "Dear {opponent}: sit down. Signed, {name} the {animal}. \u{1F525}",
+                "Another day, another victory. {opponent} lasted {ticks} ticks. Respect... kind of."
+            ],
+            loss: [
+                "{opponent} got lucky. That's all I'm gonna say. Next time... \u{1F624}",
+                "Lost to {opponent} in {ticks} ticks. Gonna go stare at a wall for a while.",
+                "Ok {opponent}, I see you. But this isn't over. Not even close.",
+                "They're saying {opponent} beat me. I prefer 'strategic retreat.' \u{1F3C3}",
+                "Down but not out. {opponent} won the battle, not the war."
+            ]
+        };
+
+        var MOREDDIT_SUBS = { win: 'm/ArenaChat', loss: 'm/ArenaChat' };
+        var MOREDDIT_HASHTAGS = {
+            win: ['#ArenaLife', '#Victory', '#GetGood'],
+            loss: ['#NextTime', '#ArenaLife', '#Respect']
+        };
+
+        function saveMoredditPost(eventType, petData, extra) {
+            extra = extra || {};
+            var templates = MOREDDIT_TEMPLATES[eventType];
+            if (!templates || !templates.length) return;
+
+            var animal = (petData.animal || 'bear').toLowerCase();
+            var name = petData.name || 'Unknown';
+            var voice = MOREDDIT_ANIMAL_VOICES[animal] || MOREDDIT_ANIMAL_VOICES.bear;
+            var template = templates[Math.floor(Math.random() * templates.length)];
+
+            var content = template
+                .replace(/\{name\}/g, name)
+                .replace(/\{animal\}/g, animal)
+                .replace(/\{opponent\}/g, extra.opponent || 'someone')
+                .replace(/\{ticks\}/g, extra.ticks || '??');
+
+            var username = 'u/' + voice.username.replace('{name}', name);
+
+            var allTags = MOREDDIT_HASHTAGS[eventType] || [];
+            var tags = [];
+            var tagsCopy = allTags.slice();
+            for (var t = 0; t < 2 && tagsCopy.length > 0; t++) {
+                var idx = Math.floor(Math.random() * tagsCopy.length);
+                tags.push(tagsCopy.splice(idx, 1)[0]);
+            }
+
+            var post = {
+                id: 'md_' + Date.now() + '_' + Math.floor(Math.random() * 10000),
+                animal: animal,
+                avatar_emoji: (EMOJI_MAP || {})[animal] || '\u2753',
+                username: username,
+                sub: MOREDDIT_SUBS[eventType] || 'm/ArenaChat',
+                timestamp: new Date().toISOString(),
+                content: content,
+                hashtags: tags,
+                votes: Math.floor(Math.random() * 300) + 50,
+                event_type: eventType
+            };
+
+            var feed = [];
+            try { feed = JSON.parse(localStorage.getItem('moreau_moreddit_feed') || '[]'); } catch(e) { feed = []; }
+            feed.unshift(post);
+            if (feed.length > 50) feed = feed.slice(0, 50);
+            localStorage.setItem('moreau_moreddit_feed', JSON.stringify(feed));
+            return post;
         }
 
         function calcLevel(xp) {

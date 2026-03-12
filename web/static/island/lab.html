@@ -235,9 +235,17 @@
             localStorage.setItem('moreau_active_pet', String(activeIdx));
 
             // Mark that we came from Island so we know to sync back
+            // Store pre-lab state for Moreddit post detection
+            var preLab = localPets.map(function(lp) {
+                return {
+                    mutations: Object.keys(lp.lab_mutations || {}),
+                    deceased: !!lp.deceased
+                };
+            });
             localStorage.setItem(RETURN_KEY, JSON.stringify({
                 user_id: user.id,
                 pet_ids: pets.map(function(p) { return p.id; }),
+                pre_lab: preLab,
                 timestamp: Date.now()
             }));
 
@@ -315,6 +323,34 @@
                 await dbUpdatePet(dbId, updates);
             }
 
+            // ── Generate Moreddit posts for lab events ──
+            var preLabStates = returnData.pre_lab || [];
+            for (var j = 0; j < localPets.length && j < preLabStates.length; j++) {
+                var lp2 = localPets[j];
+                var pre = preLabStates[j];
+
+                // Detect new mutations
+                var oldMuts = pre.mutations || [];
+                var newMutKeys = Object.keys(lp2.lab_mutations || {});
+                for (var mk = 0; mk < newMutKeys.length; mk++) {
+                    if (oldMuts.indexOf(newMutKeys[mk]) === -1) {
+                        var mut = lp2.lab_mutations[newMutKeys[mk]];
+                        var mutName = (mut && mut.name) ? mut.name : newMutKeys[mk];
+                        var mutStat = '';
+                        if (mut && mut.stats) {
+                            var skeys = Object.keys(mut.stats);
+                            if (skeys.length > 0) mutStat = skeys[0];
+                        }
+                        saveMoredditLabPost('mutation', lp2, { mutation_name: mutName, stat: mutStat || 'power' });
+                    }
+                }
+
+                // Detect death
+                if (lp2.deceased && !pre.deceased) {
+                    saveMoredditLabPost('death', lp2, {});
+                }
+            }
+
             // Discover any new mutations in codex
             var codexRaw = localStorage.getItem('moreau_codex');
             if (codexRaw) {
@@ -325,6 +361,9 @@
                     }
                 } catch {}
             }
+
+            // ── Check for Apex Form discovery ──
+            checkApexForms(localPets);
 
             updateStatus('Done! Returning to base...');
 
@@ -349,6 +388,279 @@
                 '<div class="lab-icon" style="animation:none; opacity:0.4;">&#9762;</div>' +
                 '<div class="lab-error">' + msg + '</div>' +
                 '<a href="' + (backUrl || '/island/home') + '" class="lab-btn">Go Back</a>';
+        }
+
+        // ══════════════════════════════════════════════════
+        //  Apex Form Detection (mirrors Python check_apex_form)
+        // ══════════════════════════════════════════════════
+
+        var APEX_FORMS_DEF = [
+            { id:'spectral_stalker', name:'Spectral Stalker', animal:'tiger' },
+            { id:'the_martyr',       name:'The Martyr',       animal:'bear' },
+            { id:'phantom_fox',      name:'Phantom Fox',      animal:'fox' },
+            { id:'plague_bearer',    name:'Plague Bearer',     animal:'scorpion' },
+            { id:'alpha',            name:'Alpha',             animal:'wolf' },
+            { id:'living_fortress',  name:'Living Fortress',   animal:'rhino' },
+            { id:'storm_wing',      name:'Storm Wing',        animal:'eagle' },
+            { id:'primal_rage',     name:'Primal Rage',       animal:'boar' },
+            { id:'void_walker',     name:'Void Walker',       animal:'panther' },
+            { id:'trickster_god',   name:'Trickster God',     animal:'monkey' }
+        ];
+
+        function _hasMutMatch(pet, keywords) {
+            var kws = keywords.map(function(k) { return k.toLowerCase(); });
+            // Standard mutations
+            var muts = pet.mutations || [];
+            for (var i = 0; i < muts.length; i++) {
+                var mid = muts[i].toLowerCase();
+                for (var j = 0; j < kws.length; j++) {
+                    if (mid.indexOf(kws[j]) !== -1) return true;
+                }
+            }
+            // Lab mutations
+            var lab = pet.lab_mutations || {};
+            var slots = ['L3','L6','L9'];
+            for (var s = 0; s < slots.length; s++) {
+                var m = lab[slots[s]];
+                if (!m) continue;
+                var mId = (m.id || '').toLowerCase();
+                var mName = (m.name || '').toLowerCase();
+                for (var j = 0; j < kws.length; j++) {
+                    if (mId.indexOf(kws[j]) !== -1 || mName.indexOf(kws[j]) !== -1) return true;
+                }
+            }
+            return false;
+        }
+
+        function _countLabMuts(pet) {
+            var lab = pet.lab_mutations || {};
+            var c = 0;
+            ['L3','L6','L9'].forEach(function(s) { if (lab[s]) c++; });
+            return c;
+        }
+
+        function _countLabTier3(pet) {
+            var lab = pet.lab_mutations || {};
+            var c = 0;
+            ['L3','L6','L9'].forEach(function(s) {
+                var m = lab[s];
+                if (!m) return;
+                if (m.tier === 3 || (typeof m.id === 'string' && m.id.indexOf('t3_') === 0)) c++;
+            });
+            return c;
+        }
+
+        function _hasSECat(pet, cat) {
+            var ses = pet.side_effects || [];
+            for (var i = 0; i < ses.length; i++) {
+                if ((ses[i].category || '').toLowerCase() === cat.toLowerCase()) return true;
+            }
+            return false;
+        }
+
+        function _hasSEMatch(pet, keywords) {
+            var kws = keywords.map(function(k) { return k.toLowerCase(); });
+            var ses = pet.side_effects || [];
+            for (var i = 0; i < ses.length; i++) {
+                var name = (ses[i].name || '').toLowerCase();
+                for (var j = 0; j < kws.length; j++) {
+                    if (name.indexOf(kws[j]) !== -1) return true;
+                }
+            }
+            return false;
+        }
+
+        function _countSE(pet) { return (pet.side_effects || []).length; }
+
+        function _getStat(pet, stat) {
+            var stats = pet.base_stats || pet.stats || {};
+            return stats[stat] || 0;
+        }
+
+        function _hasHPMuts(pet, min) {
+            var count = 0;
+            var hpKws = ['hp','tough','hide','battle_scars','hardened','survival','heavy'];
+            (pet.mutations || []).forEach(function(mid) {
+                var ml = mid.toLowerCase();
+                hpKws.forEach(function(k) { if (ml.indexOf(k) !== -1) count++; });
+            });
+            var lab = pet.lab_mutations || {};
+            ['L3','L6','L9'].forEach(function(s) {
+                var m = lab[s];
+                if (!m) return;
+                var st = m.stats || {};
+                if ((st.hp || 0) > 0) count++;
+                var mId = (m.id || '').toLowerCase();
+                hpKws.forEach(function(k) { if (mId.indexOf(k) !== -1) count++; });
+            });
+            return count >= min;
+        }
+
+        function _hasDefMut(pet) {
+            return _hasMutMatch(pet, ['fortress','armor','hide','regenerat','immortal','juggernaut',
+                'unkillable','absorber','hardened','symbiotic_armor','shield']);
+        }
+
+        function detectApexForm(pet) {
+            var animal = (pet.animal || '').toLowerCase();
+            for (var i = 0; i < APEX_FORMS_DEF.length; i++) {
+                var apex = APEX_FORMS_DEF[i];
+                if (apex.animal !== animal) continue;
+                var ok = false;
+
+                if (apex.id === 'spectral_stalker') {
+                    ok = _hasMutMatch(pet, ['shadow','twitch']) && _hasMutMatch(pet, ['ambush']);
+                } else if (apex.id === 'the_martyr') {
+                    ok = _hasMutMatch(pet, ['thick_hide','iron']) && _hasSECat(pet, 'cascade');
+                } else if (apex.id === 'phantom_fox') {
+                    ok = _hasMutMatch(pet, ['quick','speed','agile']) && _hasSEMatch(pet, ['eye','vision','chromatic']);
+                } else if (apex.id === 'plague_bearer') {
+                    ok = _hasMutMatch(pet, ['poison','venom','toxic']) && _hasSECat(pet, 'cascade');
+                } else if (apex.id === 'alpha') {
+                    ok = _countLabTier3(pet) >= 2;
+                } else if (apex.id === 'living_fortress') {
+                    ok = _hasHPMuts(pet, 2) && _hasDefMut(pet);
+                } else if (apex.id === 'storm_wing') {
+                    ok = _getStat(pet, 'spd') >= 12 && _hasMutMatch(pet, ['speed','wind','aerial','fleet','swift']);
+                } else if (apex.id === 'primal_rage') {
+                    ok = _getStat(pet, 'atk') >= 12 && _hasMutMatch(pet, ['charge','fury','rage','frenzy','berserker']);
+                } else if (apex.id === 'void_walker') {
+                    ok = _countLabMuts(pet) >= 3 && (pet.instability || 0) >= 50;
+                } else if (apex.id === 'trickster_god') {
+                    ok = _countSE(pet) >= 3;
+                }
+
+                if (ok) return apex;
+            }
+            return null;
+        }
+
+        function checkApexForms(localPets) {
+            var apexForms = JSON.parse(localStorage.getItem('moreau_apex_forms') || '{}');
+            for (var i = 0; i < localPets.length; i++) {
+                var pet = localPets[i];
+                if (pet.deceased || pet.is_alive === false) continue;
+                if (apexForms[String(i)]) continue; // already discovered
+
+                var apex = detectApexForm(pet);
+                if (apex) {
+                    apexForms[String(i)] = {
+                        apex_id: apex.id,
+                        apex_name: apex.name,
+                        discovered_at: new Date().toISOString()
+                    };
+                    // Set pending flag for home.html golden banner
+                    localStorage.setItem('moreau_apex_pending', JSON.stringify({
+                        pet_index: i,
+                        apex_id: apex.id,
+                        apex_name: apex.name
+                    }));
+                }
+            }
+            localStorage.setItem('moreau_apex_forms', JSON.stringify(apexForms));
+        }
+
+        // ── Moreddit Lab Post Generator ──
+
+        var MOREDDIT_ANIMAL_VOICES = {
+            bear:   { username: '{name}TheBear' },
+            fox:    { username: '{name}Outfoxed' },
+            tiger:  { username: '{name}Strikes' },
+            wolf:   { username: '{name}Pack' },
+            scorpion: { username: '{name}Venom' },
+            monkey: { username: '{name}Chaos' },
+            eagle:  { username: '{name}Soars' },
+            vulture: { username: '{name}Circles' },
+            boar:   { username: '{name}Charges' },
+            buffalo: { username: '{name}Stands' },
+            porcupine: { username: '{name}Spines' },
+            rhino:  { username: '{name}Horn' },
+            viper:  { username: '{name}Fang' },
+            panther: { username: '{name}Shadow' }
+        };
+
+        var MOREDDIT_LAB_TEMPLATES = {
+            mutation: [
+                "Just got {mutation}. I can feel it changing me. This is... different. \u{1F9EC}",
+                "Dr. Moreau just gave me {mutation}. My {stat} went through the roof. Science is WILD.",
+                "NEW POWER UNLOCKED: {mutation}. The arena is NOT ready for what's coming.",
+                "{mutation}. They said it would hurt. They were right. Worth it though. \u{1F480}",
+                "Walked into the lab a fighter, walked out a weapon. {mutation} hits different."
+            ],
+            death: [
+                "I pushed too far. The instability... I can feel it all slipping away. Goodbye, arena. \u{1FAA6}",
+                "This is my last post. The experiment failed. Remember {name} the {animal}. Remember what I was.",
+                "They warned me about Tier 3. I didn't listen. Tell the others... it's not worth it.",
+                "Critical failure. Systems shutting down. It was... a good fight. All of them were.",
+                "If you're reading this, I'm already in the Graveyard. Don't cry for me. Fight for me. \u2694\uFE0F"
+            ],
+            apex: [
+                "Something happened. I feel... evolved. They're calling it {apex_name}. I am become MORE. \u26A1",
+                "APEX FORM: {apex_name}. This isn't a mutation anymore. This is TRANSCENDENCE. \u{1F31F}",
+                "I've become {apex_name}. The arena has never seen anything like this. And it never will again."
+            ]
+        };
+
+        var MOREDDIT_LAB_SUBS = { mutation: 'm/ForbiddenScience', death: 'm/InMemoriam', apex: 'm/Ascension' };
+        var MOREDDIT_LAB_HASHTAGS = {
+            mutation: ['#LabRat', '#Science', '#Evolved'],
+            death: ['#FallenFighter', '#InMemoriam', '#GoneButNotForgotten'],
+            apex: ['#ApexForm', '#Transcendence', '#Ultimate']
+        };
+
+        var EMOJI_MAP_LAB = {
+            bear:'\u{1F43B}', buffalo:'\u{1F9AC}', boar:'\u{1F417}', tiger:'\u{1F405}',
+            wolf:'\u{1F43A}', monkey:'\u{1F412}', porcupine:'\u{1F994}', scorpion:'\u{1F982}',
+            vulture:'\u{1F985}', rhino:'\u{1F98F}', viper:'\u{1F40D}', fox:'\u{1F98A}',
+            eagle:'\u{1F985}', panther:'\u{1F408}'
+        };
+
+        function saveMoredditLabPost(eventType, petData, extra) {
+            extra = extra || {};
+            var templates = MOREDDIT_LAB_TEMPLATES[eventType];
+            if (!templates || !templates.length) return;
+
+            var animal = (petData.animal || 'bear').toLowerCase();
+            var name = petData.name || 'Unknown';
+            var voice = MOREDDIT_ANIMAL_VOICES[animal] || MOREDDIT_ANIMAL_VOICES.bear;
+            var template = templates[Math.floor(Math.random() * templates.length)];
+
+            var content = template
+                .replace(/\{name\}/g, name)
+                .replace(/\{animal\}/g, animal)
+                .replace(/\{mutation\}/g, extra.mutation_name || 'something')
+                .replace(/\{stat\}/g, extra.stat || 'power')
+                .replace(/\{apex_name\}/g, extra.apex_name || 'Apex Form');
+
+            var username = 'u/' + voice.username.replace('{name}', name);
+
+            var allTags = MOREDDIT_LAB_HASHTAGS[eventType] || [];
+            var tags = [];
+            var tagsCopy = allTags.slice();
+            for (var t = 0; t < 2 && tagsCopy.length > 0; t++) {
+                var idx = Math.floor(Math.random() * tagsCopy.length);
+                tags.push(tagsCopy.splice(idx, 1)[0]);
+            }
+
+            var post = {
+                id: 'md_' + Date.now() + '_' + Math.floor(Math.random() * 10000),
+                animal: animal,
+                avatar_emoji: EMOJI_MAP_LAB[animal] || '\u2753',
+                username: username,
+                sub: MOREDDIT_LAB_SUBS[eventType] || 'm/ForbiddenScience',
+                timestamp: new Date().toISOString(),
+                content: content,
+                hashtags: tags,
+                votes: Math.floor(Math.random() * 300) + (eventType === 'apex' ? 500 : eventType === 'death' ? 200 : 100),
+                event_type: eventType
+            };
+
+            var feed = [];
+            try { feed = JSON.parse(localStorage.getItem('moreau_moreddit_feed') || '[]'); } catch(e) { feed = []; }
+            feed.unshift(post);
+            if (feed.length > 50) feed = feed.slice(0, 50);
+            localStorage.setItem('moreau_moreddit_feed', JSON.stringify(feed));
+            return post;
         }
 
         // ── Start ──

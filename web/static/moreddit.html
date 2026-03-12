@@ -158,6 +158,54 @@
         }
         .hashtag:hover { background: rgba(74, 158, 255, 0.18); }
 
+        /* Dynamic feed styles */
+        .dynamic-feed-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.6rem 0.8rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.82rem;
+            color: #999;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        .dynamic-feed-header .feed-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #4ecca3;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+        .dynamic-feed-header .feed-count {
+            color: #4ecca3;
+            font-weight: 700;
+        }
+
+        .post-card.dynamic-win { border-left: 3px solid #4ecca3; }
+        .post-card.dynamic-loss { border-left: 3px solid #457b9d; }
+        .post-card.dynamic-mutation { border-left: 3px solid #9b59b6; }
+        .post-card.dynamic-death {
+            border-left: 3px solid #e63946;
+            background: #1e1818;
+        }
+        .post-card.dynamic-death .post-content { font-style: italic; }
+        .post-card.dynamic-apex {
+            border-left: 3px solid;
+            border-image: linear-gradient(180deg, #d4a017, #f0c040, #d4a017) 1;
+        }
+        .post-card.dynamic-apex .post-username::after {
+            content: ' \u26A1';
+        }
+
+        .dynamic-separator {
+            border: none;
+            border-top: 1px dashed #333;
+            margin: 1.2rem 0;
+        }
+
         /* Comments */
         .post-comments-toggle {
             font-size: 0.78rem;
@@ -1088,5 +1136,95 @@ My Carrion Feeder scales with opponent HP missing. The lower they fall, the stro
             <div class="footer-cite">Stasiuc, V. (2026). Moreau Arena: A Contamination-Resistant Benchmark for LLM Strategic Reasoning. <a href="/paper" style="color:var(--text-muted);">arXiv submission pending approval</a>.</div>
         </div>
     </footer>
+    <script>
+    (function() {
+        var EMOJI_MAP = {
+            bear:'\u{1F43B}', buffalo:'\u{1F9AC}', boar:'\u{1F417}', tiger:'\u{1F405}',
+            wolf:'\u{1F43A}', monkey:'\u{1F412}', porcupine:'\u{1F994}', scorpion:'\u{1F982}',
+            vulture:'\u{1F985}', rhino:'\u{1F98F}', viper:'\u{1F40D}', fox:'\u{1F98A}',
+            eagle:'\u{1F985}', panther:'\u{1F408}'
+        };
+
+        var BORDER_CLASSES = {
+            win: 'dynamic-win',
+            loss: 'dynamic-loss',
+            mutation: 'dynamic-mutation',
+            death: 'dynamic-death',
+            apex: 'dynamic-apex'
+        };
+
+        function timeAgo(ts) {
+            var diff = Date.now() - new Date(ts).getTime();
+            var mins = Math.floor(diff / 60000);
+            if (mins < 1) return 'just now';
+            if (mins < 60) return mins + 'm ago';
+            var hrs = Math.floor(mins / 60);
+            if (hrs < 24) return hrs + 'h ago';
+            var days = Math.floor(hrs / 24);
+            return days + 'd ago';
+        }
+
+        function escHtml(s) {
+            var d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        function renderPost(post) {
+            var emoji = EMOJI_MAP[post.animal] || '\u2753';
+            var borderClass = BORDER_CLASSES[post.event_type] || '';
+            var hashtags = '';
+            if (post.hashtags && post.hashtags.length) {
+                hashtags = '<div class="post-hashtags">' +
+                    post.hashtags.map(function(h) { return '<span class="hashtag">' + escHtml(h) + '</span>'; }).join('') +
+                    '</div>';
+            }
+            return '<div class="post-card ' + borderClass + '">' +
+                '<div class="post-votes">' +
+                    '<div class="vote-arrow vote-up"></div>' +
+                    '<div class="vote-count">' + (post.votes || 0) + '</div>' +
+                    '<div class="vote-arrow vote-down"></div>' +
+                '</div>' +
+                '<div class="post-body">' +
+                    '<div class="post-meta">' +
+                        '<span class="post-avatar">' + emoji + '</span>' +
+                        '<span class="post-username">' + escHtml(post.username || 'u/Unknown') + '</span>' +
+                        '<span class="post-sub">' + escHtml(post.sub || 'm/ArenaChat') + '</span>' +
+                        '<span class="post-timestamp">' + timeAgo(post.timestamp) + '</span>' +
+                    '</div>' +
+                    '<div class="post-content">' + escHtml(post.content) + '</div>' +
+                    hashtags +
+                '</div>' +
+            '</div>';
+        }
+
+        // Load feed from localStorage
+        var raw = localStorage.getItem('moreau_moreddit_feed');
+        if (!raw) return;
+        var feed;
+        try { feed = JSON.parse(raw); } catch(e) { return; }
+        if (!feed || !feed.length) return;
+
+        // Find the feed container
+        var feedEl = document.querySelector('.moreddit-feed');
+        if (!feedEl) return;
+
+        // Build dynamic posts HTML
+        var html = '<div class="dynamic-feed-header">' +
+            '<span class="feed-dot"></span>' +
+            '<span>Your Feed</span>' +
+            '<span class="feed-count">' + feed.length + ' post' + (feed.length !== 1 ? 's' : '') + '</span>' +
+            '</div>';
+
+        for (var i = 0; i < feed.length; i++) {
+            html += renderPost(feed[i]);
+        }
+
+        html += '<hr class="dynamic-separator">';
+
+        // Insert at the top of the feed
+        feedEl.insertAdjacentHTML('afterbegin', html);
+    })();
+    </script>
 </body>
 </html>

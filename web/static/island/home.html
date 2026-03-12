@@ -451,6 +451,91 @@
             50% { box-shadow: 0 0 18px rgba(212,160,23,0.5); }
         }
 
+        /* ── Apex Form Banner ── */
+        .apex-banner {
+            background: linear-gradient(135deg, #1a1400 0%, #2a1f00 40%, #1a1400 100%);
+            border: 2px solid #d4a017;
+            border-radius: var(--radius);
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
+            animation: apexSlideIn 0.6s ease-out, apexShimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes apexSlideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes apexShimmer {
+            0%, 100% { border-color: #d4a017; box-shadow: 0 0 10px rgba(212,160,23,0.2); }
+            50% { border-color: #f0c040; box-shadow: 0 0 25px rgba(212,160,23,0.5), 0 0 50px rgba(212,160,23,0.15); }
+        }
+
+        .apex-banner::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212,160,23,0.1), transparent);
+            animation: apexSweep 4s ease-in-out infinite;
+        }
+
+        @keyframes apexSweep {
+            0% { left: -50%; }
+            100% { left: 150%; }
+        }
+
+        .apex-banner-text {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #f0c040;
+            text-shadow: 0 0 10px rgba(212,160,23,0.5);
+            z-index: 1;
+        }
+
+        .apex-banner-dismiss {
+            background: transparent;
+            border: 1px solid rgba(212,160,23,0.4);
+            color: #d4a017;
+            border-radius: 4px;
+            padding: 0.3rem 0.7rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 1;
+            transition: all 0.2s;
+        }
+
+        .apex-banner-dismiss:hover {
+            background: rgba(212,160,23,0.15);
+            border-color: #f0c040;
+        }
+
+        /* ── Apex Badge on Pet Card ── */
+        .apex-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(212,160,23,0.2), rgba(240,192,64,0.1));
+            border: 1px solid rgba(212,160,23,0.5);
+            border-radius: 4px;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #f0c040;
+            text-shadow: 0 0 6px rgba(212,160,23,0.4);
+            margin-top: 0.35rem;
+            animation: apexBadgeGlow 2.5s ease-in-out infinite;
+        }
+
+        @keyframes apexBadgeGlow {
+            0%, 100% { box-shadow: 0 0 4px rgba(212,160,23,0.2); }
+            50% { box-shadow: 0 0 12px rgba(212,160,23,0.4); }
+        }
+
         @media (max-width: 640px) {
             .actions { grid-template-columns: repeat(3, 1fr); }
             .welcome-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; padding: 2rem 0 1.25rem; }
@@ -1030,6 +1115,9 @@
                 });
             }
 
+            // Check for Apex Form discovery banner
+            checkApexPending();
+
             // Render everything
             renderActivePet();
             renderActions();
@@ -1059,6 +1147,29 @@
             banner.appendChild(dismiss);
 
             area.appendChild(banner);
+        }
+
+        function checkApexPending() {
+            var raw = localStorage.getItem('moreau_apex_pending');
+            if (!raw) return;
+            try {
+                var pending = JSON.parse(raw);
+                if (!pending || !pending.apex_name) return;
+
+                var area = document.getElementById('bannerArea');
+                var banner = document.createElement('div');
+                banner.className = 'apex-banner';
+                banner.innerHTML =
+                    '<div class="apex-banner-text">\u26A1 APEX FORM DISCOVERED: ' + escHtml(pending.apex_name) + '</div>' +
+                    '<button class="apex-banner-dismiss" onclick="dismissApexBanner(this)">Dismiss</button>';
+                area.insertBefore(banner, area.firstChild);
+            } catch(e) {}
+        }
+
+        function dismissApexBanner(btn) {
+            localStorage.removeItem('moreau_apex_pending');
+            var banner = btn.closest('.apex-banner');
+            if (banner) banner.remove();
         }
 
         function checkLocalStorageMigration() {
@@ -1124,6 +1235,15 @@
             html += '<div class="pet-emoji">' + emoji + '</div>';
             html += '<div class="pet-name">' + escHtml(name) + '</div>';
             html += '<div class="pet-subtitle">Level ' + level + ' ' + capitalize(pet.animal || 'Creature') + '</div>';
+
+            // Apex Form badge
+            var apexForms = {};
+            try { apexForms = JSON.parse(localStorage.getItem('moreau_apex_forms') || '{}'); } catch(e) {}
+            var petApex = apexForms[String(activePetIndex)];
+            if (petApex) {
+                html += '<div class="apex-badge">\u26A1 ' + escHtml(petApex.apex_name) + '</div>';
+            }
+
             html += '<div class="pet-mood">Mood: ' + mood + '</div>';
 
             if (deceased) {

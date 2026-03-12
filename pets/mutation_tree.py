@@ -327,6 +327,280 @@ def get_mutation_tree() -> dict:
     }
 
 
+# ---------------------------------------------------------------------------
+# Apex Forms — Secret synergies
+# ---------------------------------------------------------------------------
+
+APEX_FORMS: list[dict[str, Any]] = [
+    {
+        "id": "spectral_stalker",
+        "name": "Spectral Stalker",
+        "animal": "tiger",
+        "description": "Between one heartbeat and the next, the tiger ceases to exist — and reappears behind you.",
+        "stat_bonus": {"atk": 3, "spd": 3},
+        "ability": "Guaranteed critical strike from stealth. Cannot be targeted for 1 tick after a kill.",
+    },
+    {
+        "id": "the_martyr",
+        "name": "The Martyr",
+        "animal": "bear",
+        "description": "Every wound only makes it angrier. Every scar is a sermon. It will not fall.",
+        "stat_bonus": {"hp": 5, "wil": 2},
+        "ability": "When HP drops below 20%, gain massive damage reduction and heal allies on death.",
+    },
+    {
+        "id": "phantom_fox",
+        "name": "Phantom Fox",
+        "animal": "fox",
+        "description": "Its eyes see through walls, through lies, through time. Nothing hides from the Phantom.",
+        "stat_bonus": {"spd": 3, "wil": 2},
+        "ability": "Reveal all hidden enemies. Dodge chance doubled against abilities. Can see future attacks.",
+    },
+    {
+        "id": "plague_bearer",
+        "name": "Plague Bearer",
+        "animal": "scorpion",
+        "description": "The venom has evolved. It no longer kills — it converts. Everything it touches becomes poison.",
+        "stat_bonus": {"atk": 2, "wil": 3},
+        "ability": "All attacks apply cascading poison. Poison spreads to adjacent enemies each tick.",
+    },
+    {
+        "id": "alpha",
+        "name": "Alpha",
+        "animal": "wolf",
+        "description": "Not the biggest. Not the fastest. But every creature in the arena knows who leads.",
+        "stat_bonus": {"atk": 2, "spd": 2, "wil": 2},
+        "ability": "Aura: allies gain +10% all stats. Enemies within range suffer -5% ATK.",
+    },
+    {
+        "id": "living_fortress",
+        "name": "Living Fortress",
+        "animal": "rhino",
+        "description": "Walls of flesh and bone. It does not dodge. It does not retreat. It simply endures.",
+        "stat_bonus": {"hp": 6, "atk": 1},
+        "ability": "Immune to displacement. Reflect 25% melee damage. Cannot be one-shot.",
+    },
+    {
+        "id": "storm_wing",
+        "name": "Storm Wing",
+        "animal": "eagle",
+        "description": "It doesn't fly — it becomes the wind. Untouchable, inevitable, everywhere.",
+        "stat_bonus": {"spd": 4, "atk": 2},
+        "ability": "Always acts first. Ranged attacks cost 0 ticks. +50% damage from elevation.",
+    },
+    {
+        "id": "primal_rage",
+        "name": "Primal Rage",
+        "animal": "boar",
+        "description": "Pure fury given form. Rational thought is gone — only the charge remains.",
+        "stat_bonus": {"atk": 5, "hp": 2},
+        "ability": "Charge attack deals triple damage and stuns. ATK increases by 3% each tick.",
+    },
+    {
+        "id": "void_walker",
+        "name": "Void Walker",
+        "animal": "panther",
+        "description": "It stepped through the threshold and came back... different. Parts of it exist elsewhere now.",
+        "stat_bonus": {"spd": 3, "atk": 2, "wil": 1},
+        "ability": "Phase through attacks (30% chance). Teleport to any tile. Attacks ignore armor.",
+    },
+    {
+        "id": "trickster_god",
+        "name": "Trickster God",
+        "animal": "monkey",
+        "description": "Chaos incarnate. Every side effect is a gift. Every mutation is a punchline.",
+        "stat_bonus": {"wil": 4, "spd": 2},
+        "ability": "Randomize one enemy stat each tick. Side effects become beneficial. Immune to debuffs.",
+    },
+]
+
+
+def _has_mutation_matching(pet: dict, *keywords: str) -> bool:
+    """Check if pet has any mutation (standard, lab, or ultra) with id/name containing any keyword."""
+    kws = [k.lower() for k in keywords]
+
+    # Check standard mutations
+    for mid in pet.get("mutations", []):
+        mid_lower = mid.lower()
+        if any(k in mid_lower for k in kws):
+            return True
+
+    # Check lab mutations
+    lab = pet.get("lab_mutations") or {}
+    for slot_key, mut in lab.items():
+        if not mut:
+            continue
+        mut_id = (mut.get("id") or "").lower()
+        mut_name = (mut.get("name") or "").lower()
+        if any(k in mut_id or k in mut_name for k in kws):
+            return True
+
+    return False
+
+
+def _count_lab_mutations(pet: dict) -> int:
+    """Count filled lab mutation slots."""
+    lab = pet.get("lab_mutations") or {}
+    return sum(1 for v in lab.values() if v)
+
+
+def _count_lab_tier3(pet: dict) -> int:
+    """Count lab mutations from tier 3."""
+    lab = pet.get("lab_mutations") or {}
+    count = 0
+    for v in lab.values():
+        if not v:
+            continue
+        tier = v.get("tier")
+        if tier == 3 or (isinstance(v.get("id"), str) and v["id"].startswith("t3_")):
+            count += 1
+    return count
+
+
+def _has_side_effect_matching(pet: dict, *keywords: str) -> bool:
+    """Check if pet has any side effect with name containing any keyword (case-insensitive)."""
+    kws = [k.lower() for k in keywords]
+    for se in pet.get("side_effects") or []:
+        name = (se.get("name") or "").lower()
+        if any(k in name for k in kws):
+            return True
+    return False
+
+
+def _has_side_effect_category(pet: dict, category: str) -> bool:
+    """Check if pet has any side effect with given category."""
+    cat = category.lower()
+    for se in pet.get("side_effects") or []:
+        if (se.get("category") or "").lower() == cat:
+            return True
+    return False
+
+
+def _count_side_effects(pet: dict) -> int:
+    """Count all side effects."""
+    return len(pet.get("side_effects") or [])
+
+
+def _has_hp_boosting_mutations(pet: dict, min_count: int = 2) -> bool:
+    """Check if pet has mutations that boost HP."""
+    count = 0
+    hp_keywords = ["hp", "tough", "hide", "battle_scars", "hardened", "survival", "heavy"]
+
+    for mid in pet.get("mutations", []):
+        if any(k in mid.lower() for k in hp_keywords):
+            count += 1
+
+    lab = pet.get("lab_mutations") or {}
+    for v in lab.values():
+        if not v:
+            continue
+        stats = v.get("stats") or {}
+        if stats.get("hp", 0) > 0:
+            count += 1
+        mid = (v.get("id") or "").lower()
+        if any(k in mid for k in hp_keywords):
+            count += 1
+
+    return count >= min_count
+
+
+def _has_defensive_mutation(pet: dict) -> bool:
+    """Check if pet has any defensive mutation."""
+    def_keywords = ["fortress", "armor", "hide", "regenerat", "immortal", "juggernaut",
+                    "unkillable", "absorber", "hardened", "symbiotic_armor", "shield"]
+    return _has_mutation_matching(pet, *def_keywords)
+
+
+def _get_stat(pet: dict, stat: str) -> int:
+    """Get a stat value from the pet."""
+    stats = pet.get("base_stats") or pet.get("stats") or {}
+    return stats.get(stat, 0)
+
+
+def check_apex_form(pet: dict) -> dict | None:
+    """Check if a pet qualifies for an Apex Form.
+
+    Returns the apex form dict (with id, name, animal, description, stat_bonus, ability)
+    or None if no match.
+    """
+    animal = (pet.get("animal") or "").lower()
+
+    for apex in APEX_FORMS:
+        if apex["animal"] != animal:
+            continue
+
+        matched = False
+
+        if apex["id"] == "spectral_stalker":
+            # Tiger: shadow/twitch mutation + ambush mutation
+            matched = (
+                _has_mutation_matching(pet, "shadow", "twitch") and
+                _has_mutation_matching(pet, "ambush")
+            )
+
+        elif apex["id"] == "the_martyr":
+            # Bear: thick_hide/iron mutation + cascade side effect
+            matched = (
+                _has_mutation_matching(pet, "thick_hide", "iron") and
+                _has_side_effect_category(pet, "cascade")
+            )
+
+        elif apex["id"] == "phantom_fox":
+            # Fox: quick/speed/agile mutation + eye/vision/chromatic side effect
+            matched = (
+                _has_mutation_matching(pet, "quick", "speed", "agile") and
+                _has_side_effect_matching(pet, "eye", "vision", "chromatic")
+            )
+
+        elif apex["id"] == "plague_bearer":
+            # Scorpion: poison/venom/toxic mutation + cascade side effect
+            matched = (
+                _has_mutation_matching(pet, "poison", "venom", "toxic") and
+                _has_side_effect_category(pet, "cascade")
+            )
+
+        elif apex["id"] == "alpha":
+            # Wolf: 2+ tier 3 lab mutations
+            matched = _count_lab_tier3(pet) >= 2
+
+        elif apex["id"] == "living_fortress":
+            # Rhino: 2+ HP-boosting mutations + defensive mutation
+            matched = (
+                _has_hp_boosting_mutations(pet, 2) and
+                _has_defensive_mutation(pet)
+            )
+
+        elif apex["id"] == "storm_wing":
+            # Eagle: SPD >= 12 + speed/wind/aerial mutation
+            matched = (
+                _get_stat(pet, "spd") >= 12 and
+                _has_mutation_matching(pet, "speed", "wind", "aerial", "fleet", "swift")
+            )
+
+        elif apex["id"] == "primal_rage":
+            # Boar: ATK >= 12 + charge/fury/rage mutation
+            matched = (
+                _get_stat(pet, "atk") >= 12 and
+                _has_mutation_matching(pet, "charge", "fury", "rage", "frenzy", "berserker")
+            )
+
+        elif apex["id"] == "void_walker":
+            # Panther: all 3 lab slots filled + instability >= 50
+            matched = (
+                _count_lab_mutations(pet) >= 3 and
+                (pet.get("instability") or 0) >= 50
+            )
+
+        elif apex["id"] == "trickster_god":
+            # Monkey: 3+ side effects
+            matched = _count_side_effects(pet) >= 3
+
+        if matched:
+            return dict(apex)
+
+    return None
+
+
 def calculate_mood(pet: dict) -> str:
     """Calculate mood from recent fight history and state."""
     level = pet.get("level", 1)
