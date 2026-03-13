@@ -1345,9 +1345,25 @@ def island_landing_page() -> FileResponse:
 @app.get("/api/v1/island/config")
 def island_config():
     """Return Supabase configuration for the frontend."""
+    url = os.environ.get("SUPABASE_URL", "")
+    key = os.environ.get("SUPABASE_ANON_KEY", "")
     return {
-        "supabase_url": os.environ.get("SUPABASE_URL", ""),
-        "supabase_anon_key": os.environ.get("SUPABASE_ANON_KEY", ""),
+        "supabase_url": url,
+        "supabase_anon_key": key,
+        "configured": bool(url and key),
+    }
+
+
+@app.get("/api/v1/island/debug-env")
+def island_debug_env():
+    """Temporary debug: check which SUPABASE env vars exist."""
+    import os as _os
+    supabase_vars = {k: v[:20] + "..." for k, v in _os.environ.items() if "SUPA" in k.upper()}
+    return {
+        "found_vars": supabase_vars,
+        "SUPABASE_URL_exists": "SUPABASE_URL" in _os.environ,
+        "SUPABASE_ANON_KEY_exists": "SUPABASE_ANON_KEY" in _os.environ,
+        "total_env_count": len(_os.environ),
     }
 
 
