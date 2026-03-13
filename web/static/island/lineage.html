@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lineage — The Island — Moreau Arena</title>
+    <meta property="og:title" content="Lineage — The Island">
+    <meta property="og:description" content="Trace every bloodline. Every scar. Every inheritance.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Lineage — The Island">
+    <meta name="twitter:description" content="Trace every bloodline. Every scar. Every inheritance.">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --bg-primary: #080a05;
+            --bg-secondary: #0d100a;
+            --bg-card: #141a10;
+            --bg-card-hover: #1a2215;
+            --bg-code: #101810;
+            --border: #2a3a1a;
+            --accent: #e63946;
+            --text: #e8f0e0;
+            --text-dim: #90a880;
+            --text-muted: #506040;
+            --green: #4ecca3;
+            --blue: #457b9d;
+            --gold: #d4a017;
+            --purple: #9b59b6;
+            --breed-green: #2d8a4e;
+            --egg-gold: #c9a227;
+            --radius: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(170deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #060805 100%);
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                radial-gradient(1px 1px at 15% 30%, rgba(45,138,78,0.06) 0%, transparent 100%),
+                radial-gradient(1px 1px at 55% 70%, rgba(201,162,39,0.05) 0%, transparent 100%),
+                radial-gradient(1px 1px at 80% 20%, rgba(45,138,78,0.04) 0%, transparent 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .island-page {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1.5rem 6rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.8rem;
+            padding: 2rem 0 0;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--text); }
+
+        .page-header {
+            text-align: center;
+            padding: 2rem 0 2rem;
+            animation: fadeSlideIn 0.6s ease-out both;
+        }
+
+        .page-header h1 { font-size: 1.8rem; font-weight: 700; }
+        .page-header .subtitle { color: var(--text-muted); font-size: 0.85rem; font-style: italic; margin-top: 0.3rem; }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; gap: 1rem; }
+        .loading-spinner { width: 36px; height: 36px; border: 2px solid var(--border); border-top-color: var(--breed-green); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: var(--text-muted); font-size: 0.85rem; }
+
+        /* ── Legend ── */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            animation: fadeSlideIn 0.7s ease-out 0.1s both;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .legend-dot.living { background: var(--green); }
+        .legend-dot.dead { background: #666; }
+        .legend-dot.egg { background: var(--egg-gold); }
+
+        /* ── Tree ── */
+        .tree-container {
+            position: relative;
+        }
+
+        .tree-group {
+            margin-bottom: 3rem;
+            animation: fadeSlideIn 0.5s ease-out both;
+        }
+
+        .tree-group-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tree-row {
+            display: flex;
+            align-items: stretch;
+            margin-bottom: 0.5rem;
+        }
+
+        .tree-connector {
+            width: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .tree-line-v {
+            width: 2px;
+            flex: 1;
+            background: var(--border);
+        }
+
+        .tree-line-h {
+            width: 20px;
+            height: 2px;
+            background: var(--border);
+            align-self: center;
+        }
+
+        .tree-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .tree-dot.living { background: var(--green); box-shadow: 0 0 6px rgba(78,204,163,0.4); }
+        .tree-dot.dead { background: #555; }
+        .tree-dot.egg { background: var(--egg-gold); box-shadow: 0 0 6px rgba(201,162,39,0.4); }
+
+        /* ── Node cards ── */
+        .tree-node {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .tree-node:hover {
+            background: var(--bg-card-hover);
+            transform: translateX(4px);
+        }
+
+        .tree-node.living { border-left: 3px solid var(--green); }
+        .tree-node.dead { border-left: 3px solid #555; opacity: 0.7; }
+        .tree-node.egg { border-left: 3px solid var(--egg-gold); }
+
+        .node-emoji { font-size: 1.5rem; flex-shrink: 0; }
+        .node-emoji.deceased { filter: grayscale(0.6) brightness(0.8); opacity: 0.7; }
+
+        .node-info { flex: 1; min-width: 0; }
+        .node-name { font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .node-detail { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.1rem; }
+
+        .node-gen {
+            display: inline-block;
+            padding: 0.1rem 0.4rem;
+            background: rgba(78, 204, 163, 0.1);
+            border: 1px solid rgba(78, 204, 163, 0.2);
+            border-radius: 4px;
+            font-size: 0.6rem;
+            color: var(--green);
+            margin-left: 0.3rem;
+            font-weight: 700;
+        }
+
+        .node-stats {
+            display: flex;
+            gap: 0.4rem;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        .node-inherited {
+            font-size: 0.6rem;
+            color: var(--purple);
+            margin-top: 0.15rem;
+        }
+
+        .node-right {
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .node-status {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .node-status.alive { color: var(--green); }
+        .node-status.deceased { color: #888; }
+        .node-status.incubating { color: var(--egg-gold); }
+
+        /* ── Detail popup ── */
+        .detail-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(8, 10, 5, 0.92);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .detail-overlay.open { display: flex; }
+
+        .detail-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            max-width: 400px;
+            width: 90%;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .detail-close {
+            position: absolute;
+            top: 0.75rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .detail-close:hover { color: var(--text); }
+
+        .detail-emoji { font-size: 3.5rem; }
+        .detail-name { font-size: 1.3rem; font-weight: 700; margin-top: 0.3rem; }
+        .detail-sub { font-size: 0.85rem; color: var(--text-dim); margin-top: 0.2rem; }
+
+        .detail-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem 1.5rem;
+            margin: 1rem 0;
+            text-align: left;
+        }
+
+        .detail-stat {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+        }
+
+        .detail-stat-label { color: var(--text-dim); text-transform: uppercase; font-size: 0.7rem; font-weight: 600; }
+        .detail-stat-val { font-weight: 700; }
+
+        .detail-lineage {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .detail-lineage-item { margin-bottom: 0.3rem; }
+        .detail-lineage-label { color: var(--text-muted); font-size: 0.65rem; text-transform: uppercase; }
+
+        /* ── Empty ── */
+        .empty-state { text-align: center; padding: 4rem 1rem; }
+        .empty-state .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
+        .empty-state p { color: var(--text-muted); font-size: 0.95rem; font-style: italic; }
+        .empty-state a { display: inline-block; margin-top: 1rem; color: var(--breed-green); text-decoration: none; font-size: 0.9rem; }
+        .empty-state a:hover { text-decoration: underline; }
+
+        @media (max-width: 640px) {
+            .page-header h1 { font-size: 1.4rem; }
+            .tree-connector { width: 30px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/island" class="active">FIGHT!</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="island-page">
+        <a href="/island/home" class="back-link">&#8592; Dashboard</a>
+
+        <div id="loadingScreen" class="loading-screen">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Tracing bloodlines...</div>
+        </div>
+
+        <div id="mainContent" style="display:none;">
+            <div class="page-header">
+                <h1>&#127795; Family Tree</h1>
+                <div class="subtitle">Every breed. Every scar. Every inheritance.</div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item"><div class="legend-dot living"></div> Living</div>
+                <div class="legend-item"><div class="legend-dot dead"></div> Deceased</div>
+                <div class="legend-item"><div class="legend-dot egg"></div> Incubating</div>
+            </div>
+
+            <div class="tree-container" id="treeContainer"></div>
+        </div>
+    </div>
+
+    <!-- Detail popup -->
+    <div class="detail-overlay" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
+        <div class="detail-card">
+            <button class="detail-close" onclick="closeDetail()">&#10005;</button>
+            <div id="detailContent"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/static/island/supabase-client.js"></script>
+    <script>
+        // ══════════════════════════════════════
+        //  Lineage — Full Family Tree
+        // ══════════════════════════════════════
+
+        const EMOJI_MAP = {
+            bear:'\u{1F43B}', buffalo:'\u{1F9AC}', boar:'\u{1F417}', tiger:'\u{1F405}',
+            wolf:'\u{1F43A}', monkey:'\u{1F412}', porcupine:'\u{1F994}', scorpion:'\u{1F982}',
+            vulture:'\u{1F985}', rhino:'\u{1F98F}', viper:'\u{1F40D}', fox:'\u{1F98A}',
+            eagle:'\u{1F985}', panther:'\u{1F408}'
+        };
+
+        let allPets = [];
+        let eggs = [];
+        let offlineMode = false;
+
+        async function init() {
+            await initSupabase();
+            var user = await getUser();
+
+            if (isOnlineMode && isOnlineMode()) {
+                offlineMode = false;
+                allPets = await dbGetPets(user.id);
+                eggs = await dbGetEggs(user.id);
+            } else if (hasLocalPets()) {
+                offlineMode = true;
+                loadLocalPets();
+                loadLocalEggs();
+            } else {
+                window.location.href = '/island';
+                return;
+            }
+
+            renderTree();
+
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+        }
+
+        function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+        function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+        function hasLocalPets() {
+            try { var raw = localStorage.getItem('moreau_pets'); if (raw) { var p = JSON.parse(raw); return Array.isArray(p) && p.length > 0; } return !!localStorage.getItem('moreau_pet'); } catch { return false; }
+        }
+
+        function loadLocalPets() {
+            try { var raw = localStorage.getItem('moreau_pets'); if (raw) { allPets = JSON.parse(raw) || []; return; } var single = localStorage.getItem('moreau_pet'); if (single) { allPets = [JSON.parse(single)]; return; } } catch {} allPets = [];
+        }
+
+        function loadLocalEggs() {
+            try { eggs = JSON.parse(localStorage.getItem('moreau_eggs') || '[]'); } catch { eggs = []; }
+        }
+
+        async function dbGetEggs(userId) {
+            if (!sb) return [];
+            var result = await sb.from('eggs').select('*').eq('user_id', userId).order('created_at');
+            if (result.error) return [];
+            return result.data || [];
+        }
+
+        // ══ Build Tree Data ══
+
+        function buildFamilies() {
+            // Group by lineage: find roots (pets without parent_id/parent_name)
+            // Then build trees downward
+
+            var families = [];
+            var petMap = {};
+            var childrenOf = {}; // parent key -> [children]
+
+            allPets.forEach(function(p, i) {
+                var key = p.id || ('local_' + i);
+                p._key = key;
+                petMap[key] = p;
+            });
+
+            // Build parent->children map
+            allPets.forEach(function(p) {
+                if (p.parent_id || p.parent_name) {
+                    var parentKey = null;
+                    if (p.parent_id) {
+                        parentKey = p.parent_id;
+                    } else {
+                        // Find by name
+                        var parent = allPets.find(function(pp) { return pp.name === p.parent_name && pp !== p; });
+                        if (parent) parentKey = parent._key;
+                    }
+
+                    if (parentKey) {
+                        if (!childrenOf[parentKey]) childrenOf[parentKey] = [];
+                        childrenOf[parentKey].push(p);
+                    }
+                }
+            });
+
+            // Find roots: pets that are NOT children of anyone
+            var isChild = {};
+            allPets.forEach(function(p) {
+                if (p.parent_id || p.parent_name) {
+                    isChild[p._key] = true;
+                }
+            });
+
+            var roots = allPets.filter(function(p) { return !isChild[p._key]; });
+
+            // Build family trees from roots
+            roots.forEach(function(root) {
+                var family = { root: root, members: [] };
+                var queue = [{ pet: root, depth: 0 }];
+                var visited = {};
+
+                while (queue.length > 0) {
+                    var item = queue.shift();
+                    if (visited[item.pet._key]) continue;
+                    visited[item.pet._key] = true;
+
+                    family.members.push({ pet: item.pet, depth: item.depth });
+
+                    var children = childrenOf[item.pet._key] || [];
+                    children.forEach(function(child) {
+                        queue.push({ pet: child, depth: item.depth + 1 });
+                    });
+                }
+
+                // Only include families with at least one bred pet
+                if (family.members.length > 1 || family.members.some(function(m) { return m.pet.generation > 0; })) {
+                    families.push(family);
+                }
+            });
+
+            // Also include unattached eggs
+            var unhatched = eggs.filter(function(e) { return !e.hatched; });
+
+            return { families: families, activeEggs: unhatched };
+        }
+
+        function renderTree() {
+            var container = document.getElementById('treeContainer');
+            var data = buildFamilies();
+
+            if (data.families.length === 0 && data.activeEggs.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">&#127795;</div>' +
+                    '<p>No lineage data yet. Breed your pets to grow the family tree.</p>' +
+                    '<a href="/island/breeding">Visit the Scar Garden</a></div>';
+                return;
+            }
+
+            var html = '';
+
+            // Active eggs
+            if (data.activeEggs.length > 0) {
+                html += '<div class="tree-group">';
+                html += '<div class="tree-group-title">&#129370; Incubating Eggs</div>';
+
+                data.activeEggs.forEach(function(egg) {
+                    var species = (egg.species || '').toLowerCase();
+                    var emoji = EMOJI_MAP[species] || '\u{1F43E}';
+                    var now = Date.now();
+                    var end = new Date(egg.incubation_end).getTime();
+                    var remaining = Math.max(0, end - now);
+                    var h = Math.floor(remaining / 3600000);
+                    var m = Math.floor((remaining % 3600000) / 60000);
+                    var timeStr = remaining > 0 ? h + 'h ' + m + 'm remaining' : 'Ready to hatch!';
+
+                    html += '<div class="tree-row">';
+                    html += '<div class="tree-connector"><div class="tree-dot egg"></div></div>';
+                    html += '<div class="tree-node egg">';
+                    html += '<div class="node-emoji">&#129370;</div>';
+                    html += '<div class="node-info">';
+                    html += '<div class="node-name">' + capitalize(species) + ' Egg</div>';
+                    html += '<div class="node-detail">' + escHtml(egg.parent_name || '?') + ' + ' + escHtml(egg.donor_name || '?') + '</div>';
+                    html += '</div>';
+                    html += '<div class="node-right"><div class="node-status incubating">' + timeStr + '</div></div>';
+                    html += '</div></div>';
+                });
+
+                html += '</div>';
+            }
+
+            // Family trees
+            data.families.forEach(function(family, fi) {
+                var rootAnimal = (family.root.animal || '').toLowerCase();
+                var rootEmoji = EMOJI_MAP[rootAnimal] || '\u{1F43E}';
+
+                html += '<div class="tree-group" style="animation-delay:' + (fi * 0.1) + 's;">';
+                html += '<div class="tree-group-title">' + rootEmoji + ' ' + escHtml(family.root.name || 'Unknown') + ' Bloodline</div>';
+
+                family.members.forEach(function(member, mi) {
+                    var pet = member.pet;
+                    var depth = member.depth;
+                    var animal = (pet.animal || '').toLowerCase();
+                    var emoji = EMOJI_MAP[animal] || '\u{1F43E}';
+                    var isDeceased = pet.deceased || pet.is_alive === false;
+                    var status = isDeceased ? 'dead' : 'living';
+                    var stats = pet.base_stats || pet.stats || {};
+
+                    html += '<div class="tree-row" style="padding-left:' + (depth * 30) + 'px;">';
+
+                    // Connector
+                    html += '<div class="tree-connector">';
+                    if (mi > 0) html += '<div class="tree-line-v" style="height:10px;"></div>';
+                    html += '<div class="tree-dot ' + status + '"></div>';
+                    if (mi < family.members.length - 1) html += '<div class="tree-line-v"></div>';
+                    html += '</div>';
+
+                    // Node
+                    html += '<div class="tree-node ' + status + '" onclick="showDetail(' + JSON.stringify(JSON.stringify(pet)).slice(0,-1) + '\')">';
+                    html += '<div class="node-emoji' + (isDeceased ? ' deceased' : '') + '">' + emoji + '</div>';
+                    html += '<div class="node-info">';
+                    html += '<div class="node-name">' + escHtml(pet.name || 'Unknown');
+                    if (pet.generation > 0) html += ' <span class="node-gen">Gen ' + pet.generation + '</span>';
+                    html += '</div>';
+                    html += '<div class="node-detail">Lv.' + (pet.level || 1) + ' ' + capitalize(animal) + '</div>';
+                    html += '<div class="node-stats">';
+                    html += '<span>HP:' + (stats.hp || 0) + '</span>';
+                    html += '<span>ATK:' + (stats.atk || 0) + '</span>';
+                    html += '<span>SPD:' + (stats.spd || 0) + '</span>';
+                    html += '<span>WIL:' + (stats.wil || 0) + '</span>';
+                    html += '</div>';
+
+                    // Show inherited mutations
+                    var muts = pet.lab_mutations || {};
+                    var mutKeys = Object.keys(muts);
+                    if (mutKeys.length > 0) {
+                        html += '<div class="node-inherited">';
+                        mutKeys.forEach(function(k) { html += escHtml(muts[k].name || k) + ' '; });
+                        html += '</div>';
+                    }
+
+                    html += '</div>';
+                    html += '<div class="node-right"><div class="node-status ' + (isDeceased ? 'deceased' : 'alive') + '">' + (isDeceased ? 'Deceased' : 'Alive') + '</div>';
+                    if (pet.breed_count > 0) html += '<div style="font-size:0.55rem;color:#8b0000;margin-top:0.2rem;">' + pet.breed_count + '/' + 5 + ' breeds</div>';
+                    html += '</div>';
+                    html += '</div></div>';
+                });
+
+                html += '</div>';
+            });
+
+            container.innerHTML = html;
+        }
+
+        // ══ Detail Popup ══
+
+        function showDetail(petJson) {
+            var pet;
+            try { pet = JSON.parse(petJson); } catch { return; }
+
+            var animal = (pet.animal || '').toLowerCase();
+            var emoji = EMOJI_MAP[animal] || '\u{1F43E}';
+            var isDeceased = pet.deceased || pet.is_alive === false;
+            var stats = pet.base_stats || pet.stats || {};
+
+            var html = '';
+            html += '<div class="detail-emoji' + (isDeceased ? ' node-emoji deceased' : '') + '" style="font-size:3.5rem;">' + emoji + '</div>';
+            html += '<div class="detail-name">' + escHtml(pet.name || 'Unknown');
+            if (pet.generation > 0) html += ' <span class="node-gen">Gen ' + pet.generation + '</span>';
+            html += '</div>';
+            html += '<div class="detail-sub">Lv.' + (pet.level || 1) + ' ' + capitalize(animal) + (isDeceased ? ' (Deceased)' : '') + '</div>';
+
+            html += '<div class="detail-stats-grid">';
+            [['hp','HP'],['atk','ATK'],['spd','SPD'],['wil','WIL']].forEach(function(pair) {
+                html += '<div class="detail-stat"><span class="detail-stat-label">' + pair[1] + '</span><span class="detail-stat-val">' + (stats[pair[0]] || 0) + '</span></div>';
+            });
+            html += '</div>';
+
+            // Mutations
+            var muts = pet.lab_mutations || {};
+            var mutKeys = Object.keys(muts);
+            if (mutKeys.length > 0) {
+                html += '<div style="margin-top:0.5rem;">';
+                mutKeys.forEach(function(k) {
+                    html += '<span style="display:inline-block;padding:0.15rem 0.5rem;background:rgba(155,89,182,0.12);border:1px solid rgba(155,89,182,0.25);border-radius:12px;font-size:0.7rem;color:#9b59b6;margin:0.15rem;">' + escHtml(muts[k].name || k) + '</span>';
+                });
+                html += '</div>';
+            }
+
+            // Lineage info
+            if (pet.parent_name || pet.donor_name) {
+                html += '<div class="detail-lineage">';
+                if (pet.parent_name) {
+                    html += '<div class="detail-lineage-item"><div class="detail-lineage-label">Parent</div>' + escHtml(pet.parent_name) + '</div>';
+                }
+                if (pet.donor_name) {
+                    html += '<div class="detail-lineage-item"><div class="detail-lineage-label">Donor</div>' + escHtml(pet.donor_name) + ' (deceased)</div>';
+                }
+                html += '</div>';
+            }
+
+            // Scars & breeds
+            if (pet.scars > 0 || pet.breed_count > 0) {
+                html += '<div style="margin-top:0.75rem;font-size:0.7rem;color:#8b0000;">';
+                if (pet.scars > 0) html += pet.scars + ' scar' + (pet.scars > 1 ? 's' : '') + ' ';
+                if (pet.breed_count > 0) html += '&mdash; ' + pet.breed_count + '/5 breeds';
+                html += '</div>';
+            }
+
+            document.getElementById('detailContent').innerHTML = html;
+            document.getElementById('detailOverlay').classList.add('open');
+        }
+
+        function closeDetail() {
+            document.getElementById('detailOverlay').classList.remove('open');
+        }
+
+        // ── Start ──
+        init().catch(function(e) { console.error('[Lineage] init:', e); });
+    </script>
+</body>
+</html>

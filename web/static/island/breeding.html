@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Scar Garden — The Island — Moreau Arena</title>
+    <meta property="og:title" content="The Scar Garden — The Island">
+    <meta property="og:description" content="Breed the living with the memory of the dead. Grow the bloodline.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="The Scar Garden — The Island">
+    <meta name="twitter:description" content="Breed the living with the memory of the dead. Grow the bloodline.">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --bg-primary: #080a05;
+            --bg-secondary: #0d100a;
+            --bg-card: #141a10;
+            --bg-card-hover: #1a2215;
+            --bg-code: #101810;
+            --border: #2a3a1a;
+            --accent: #e63946;
+            --accent-glow: rgba(230, 57, 70, 0.4);
+            --text: #e8f0e0;
+            --text-dim: #90a880;
+            --text-muted: #506040;
+            --green: #4ecca3;
+            --blue: #457b9d;
+            --gold: #d4a017;
+            --purple: #9b59b6;
+            --scar-red: #8b0000;
+            --breed-green: #2d8a4e;
+            --breed-glow: rgba(45, 138, 78, 0.3);
+            --egg-gold: #c9a227;
+            --egg-glow: rgba(201, 162, 39, 0.3);
+            --radius: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(170deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #060805 100%);
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                radial-gradient(1.5px 1.5px at 10% 25%, rgba(45,138,78,0.08) 0%, transparent 100%),
+                radial-gradient(1px 1px at 30% 65%, rgba(201,162,39,0.06) 0%, transparent 100%),
+                radial-gradient(2px 2px at 50% 15%, rgba(45,138,78,0.05) 0%, transparent 100%),
+                radial-gradient(1px 1px at 70% 55%, rgba(201,162,39,0.07) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 90% 35%, rgba(45,138,78,0.06) 0%, transparent 100%),
+                radial-gradient(1px 1px at 20% 85%, rgba(139,0,0,0.05) 0%, transparent 100%);
+            animation: gardenDrift 25s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes gardenDrift {
+            0% { transform: translateY(0) translateX(0); opacity: 0.5; }
+            50% { transform: translateY(-10px) translateX(6px); opacity: 0.7; }
+            100% { transform: translateY(5px) translateX(-4px); opacity: 0.55; }
+        }
+
+        .island-page {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1.5rem 6rem;
+        }
+
+        .page-header {
+            text-align: center;
+            padding: 3rem 0 1.5rem;
+            animation: fadeSlideIn 0.6s ease-out both;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: 0.04em;
+        }
+
+        .page-header .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-style: italic;
+            margin-top: 0.4rem;
+        }
+
+        .shards-display {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 0.75rem;
+            padding: 0.3rem 0.8rem;
+            background: rgba(201, 162, 39, 0.1);
+            border: 1px solid rgba(201, 162, 39, 0.25);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--egg-gold);
+            font-weight: 600;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.8rem;
+            padding: 2rem 0 0;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--text); }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Loading */
+        .loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 50vh;
+            gap: 1rem;
+        }
+        .loading-spinner {
+            width: 36px; height: 36px;
+            border: 2px solid var(--border);
+            border-top-color: var(--breed-green);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: var(--text-muted); font-size: 0.85rem; }
+
+        /* ── Tabs ── */
+        .tab-bar {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2rem;
+            animation: fadeSlideIn 0.7s ease-out 0.1s both;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 0.8rem 0.5rem;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .tab-btn:hover { color: var(--text-dim); }
+        .tab-btn.active { color: var(--breed-green); border-bottom-color: var(--breed-green); }
+        .tab-content { display: none; animation: fadeSlideIn 0.4s ease-out; }
+        .tab-content.active { display: block; }
+
+        /* ── Breeding Flow ── */
+        .breed-step {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            animation: fadeSlideIn 0.5s ease-out both;
+        }
+
+        .breed-step-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+        }
+
+        .step-number {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: var(--breed-green);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-number.completed { background: var(--green); }
+        .step-number.locked { background: var(--border); color: var(--text-muted); }
+
+        .breed-step-title {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .breed-step.locked {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        /* Pet selection cards */
+        .select-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        @media (max-width: 500px) { .select-grid { grid-template-columns: 1fr; } }
+
+        .select-card {
+            background: rgba(20, 26, 16, 0.8);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            text-align: center;
+            position: relative;
+        }
+
+        .select-card:hover {
+            border-color: var(--breed-green);
+            background: rgba(45, 138, 78, 0.06);
+            transform: translateY(-2px);
+        }
+
+        .select-card.selected {
+            border-color: var(--breed-green);
+            box-shadow: 0 0 16px var(--breed-glow);
+            background: rgba(45, 138, 78, 0.08);
+        }
+
+        .select-card.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+
+        .select-emoji { font-size: 2rem; margin-bottom: 0.3rem; }
+        .select-name { font-size: 0.9rem; font-weight: 600; }
+        .select-detail { font-size: 0.7rem; color: var(--text-dim); margin-top: 0.2rem; }
+
+        .select-stats {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 0.4rem;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        .select-card .breed-badge {
+            position: absolute;
+            top: 6px; right: 8px;
+            font-size: 0.55rem;
+            font-weight: 700;
+            padding: 0.1rem 0.35rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .breed-count-badge {
+            background: rgba(45, 138, 78, 0.15);
+            color: var(--breed-green);
+            border: 1px solid rgba(45, 138, 78, 0.3);
+        }
+
+        .breed-maxed-badge {
+            background: rgba(139, 0, 0, 0.15);
+            color: var(--scar-red);
+            border: 1px solid rgba(139, 0, 0, 0.3);
+        }
+
+        .donor-dead-badge {
+            background: rgba(107, 163, 214, 0.15);
+            color: #6ba3d6;
+            border: 1px solid rgba(107, 163, 214, 0.3);
+        }
+
+        .select-card.donor-card .select-emoji {
+            filter: brightness(1.1) saturate(0.5);
+            opacity: 0.85;
+        }
+
+        /* Genetic Preview */
+        .genetic-preview {
+            background: rgba(20, 26, 16, 0.6);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+        }
+
+        .preview-species {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .preview-species-emoji { font-size: 3rem; }
+        .preview-species-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-top: 0.3rem;
+        }
+        .preview-species-note {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        .preview-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .preview-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .preview-stat-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            width: 30px;
+            flex-shrink: 0;
+        }
+
+        .preview-stat-bar-bg {
+            flex: 1;
+            height: 6px;
+            background: var(--bg-code);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .preview-stat-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.6s ease;
+        }
+
+        .stat-hp .preview-stat-bar-fill { background: var(--green); }
+        .stat-atk .preview-stat-bar-fill { background: var(--accent); }
+        .stat-spd .preview-stat-bar-fill { background: var(--blue); }
+        .stat-wil .preview-stat-bar-fill { background: var(--purple); }
+
+        .preview-stat-val {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            width: 22px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .preview-mutations {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .preview-mutations-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .preview-mutation-chip {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            background: rgba(155, 89, 182, 0.12);
+            border: 1px solid rgba(155, 89, 182, 0.25);
+            border-radius: 12px;
+            font-size: 0.7rem;
+            color: var(--purple);
+            margin: 0.2rem 0.3rem 0.2rem 0;
+        }
+
+        .preview-mutation-chip.missed {
+            opacity: 0.3;
+            text-decoration: line-through;
+        }
+
+        .preview-warning {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 0.6rem 0.8rem;
+            background: rgba(139, 0, 0, 0.1);
+            border: 1px solid rgba(139, 0, 0, 0.25);
+            border-radius: var(--radius);
+            font-size: 0.75rem;
+            color: #cc3333;
+        }
+
+        /* Shard spending buttons */
+        .shard-options {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .shard-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(201, 162, 39, 0.08);
+            border: 1px solid rgba(201, 162, 39, 0.25);
+            border-radius: var(--radius);
+            color: var(--egg-gold);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .shard-btn:hover {
+            background: rgba(201, 162, 39, 0.15);
+            border-color: var(--egg-gold);
+        }
+
+        .shard-btn.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+
+        .shard-btn .shard-cost {
+            font-size: 0.6rem;
+            opacity: 0.7;
+            display: block;
+            margin-top: 0.15rem;
+        }
+
+        /* Begin button */
+        .breed-btn {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--breed-green), #1a6e3a);
+            border: 2px solid var(--breed-green);
+            border-radius: var(--radius);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            text-transform: uppercase;
+        }
+
+        .breed-btn:hover {
+            box-shadow: 0 0 24px var(--breed-glow);
+            transform: translateY(-2px);
+        }
+
+        .breed-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ── Incubation ── */
+        .egg-card {
+            background: var(--bg-card);
+            border: 2px solid var(--egg-gold);
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            animation: eggPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes eggPulse {
+            0%, 100% { box-shadow: 0 0 10px var(--egg-glow); }
+            50% { box-shadow: 0 0 30px var(--egg-glow), 0 0 60px rgba(201,162,39,0.1); }
+        }
+
+        .egg-emoji {
+            font-size: 4rem;
+            animation: eggRock 2s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        @keyframes eggRock {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(3deg); }
+            75% { transform: rotate(-3deg); }
+        }
+
+        .egg-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--egg-gold);
+            margin-top: 0.5rem;
+            font-weight: 700;
+        }
+
+        .egg-species {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-top: 0.3rem;
+        }
+
+        .egg-timer {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--egg-gold);
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.05em;
+        }
+
+        .egg-progress-bg {
+            height: 8px;
+            background: var(--bg-code);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.75rem;
+        }
+
+        .egg-progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--egg-gold), #f0c040, var(--egg-gold));
+            background-size: 200% 100%;
+            animation: eggShimmer 2s ease-in-out infinite;
+            transition: width 1s ease;
+        }
+
+        @keyframes eggShimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .egg-parents {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .egg-parent-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+        }
+
+        .egg-parent-name { font-weight: 600; color: var(--text-dim); margin-top: 0.15rem; }
+
+        /* Hatch button */
+        .hatch-btn {
+            display: block;
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(135deg, var(--egg-gold), #b8901a);
+            border: 2px solid var(--egg-gold);
+            border-radius: var(--radius);
+            color: #000;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            text-transform: uppercase;
+            animation: hatchGlow 1.5s ease-in-out infinite;
+        }
+
+        @keyframes hatchGlow {
+            0%, 100% { box-shadow: 0 0 12px var(--egg-glow); }
+            50% { box-shadow: 0 0 30px var(--egg-glow), 0 0 60px rgba(201,162,39,0.2); }
+        }
+
+        .hatch-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px var(--egg-glow);
+        }
+
+        /* Hatching animation */
+        .hatch-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .hatch-overlay.active { display: flex; }
+
+        .hatch-egg-big {
+            font-size: 8rem;
+            animation: hatchCrack 2s ease-in-out forwards;
+        }
+
+        @keyframes hatchCrack {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            30% { transform: scale(1.1) rotate(-5deg); }
+            50% { transform: scale(1.15) rotate(5deg); }
+            70% { transform: scale(1.2) rotate(-3deg); }
+            85% { transform: scale(1.3) rotate(0deg); opacity: 0.8; }
+            100% { transform: scale(0) rotate(0deg); opacity: 0; }
+        }
+
+        .hatch-reveal {
+            font-size: 6rem;
+            opacity: 0;
+            animation: hatchReveal 1s ease-out 2.2s forwards;
+        }
+
+        @keyframes hatchReveal {
+            from { opacity: 0; transform: scale(0.3); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .hatch-burst {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle, rgba(201,162,39,0.4) 0%, transparent 70%);
+            opacity: 0;
+            animation: burstFlash 0.5s ease-out 2s forwards;
+            pointer-events: none;
+        }
+
+        @keyframes burstFlash {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .hatch-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--egg-gold);
+            opacity: 0;
+            animation: fadeSlideIn 0.6s ease-out 3s forwards;
+            margin-top: 1rem;
+        }
+
+        .hatch-stats-reveal {
+            opacity: 0;
+            animation: fadeSlideIn 0.6s ease-out 3.5s forwards;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .hatch-continue-btn {
+            opacity: 0;
+            animation: fadeSlideIn 0.6s ease-out 4.2s forwards;
+            margin-top: 2rem;
+            padding: 0.8rem 2.5rem;
+            background: var(--breed-green);
+            border: none;
+            border-radius: var(--radius);
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .hatch-continue-btn:hover { background: #35a05a; }
+
+        /* ── Lineage mini-view ── */
+        .lineage-section {
+            margin-top: 2rem;
+        }
+
+        .lineage-section-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .lineage-chain {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .lineage-node {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0.75rem;
+            background: rgba(20, 26, 16, 0.5);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+
+        .lineage-node.current { border-color: var(--breed-green); }
+        .lineage-node.donor { border-color: rgba(107, 163, 214, 0.3); }
+
+        .lineage-emoji { font-size: 1.3rem; }
+        .lineage-emoji.deceased { filter: grayscale(0.6) brightness(0.8); opacity: 0.7; }
+        .lineage-info { flex: 1; }
+        .lineage-name { font-weight: 600; font-size: 0.85rem; }
+        .lineage-detail { font-size: 0.65rem; color: var(--text-muted); }
+        .lineage-arrow { text-align: center; color: var(--text-muted); font-size: 0.7rem; padding: 0.2rem 0; opacity: 0.5; }
+
+        .lineage-inherited {
+            display: inline-block;
+            padding: 0.1rem 0.4rem;
+            background: rgba(78, 204, 163, 0.1);
+            border: 1px solid rgba(78, 204, 163, 0.2);
+            border-radius: 4px;
+            font-size: 0.6rem;
+            color: var(--green);
+            margin-left: 0.3rem;
+        }
+
+        /* ── Empty state ── */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 1rem;
+        }
+        .empty-state .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
+        .empty-state p { color: var(--text-muted); font-size: 0.95rem; font-style: italic; }
+        .empty-state a { display: inline-block; margin-top: 1rem; color: var(--breed-green); text-decoration: none; font-size: 0.9rem; }
+        .empty-state a:hover { text-decoration: underline; }
+
+        /* ── Confirmation modal ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(8, 10, 5, 0.92);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: modalFadeIn 0.2s ease-out;
+        }
+        .modal-overlay.open { display: flex; }
+        @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            max-width: 450px;
+            width: 90%;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .modal-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem; }
+        .modal-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 1.25rem; }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 0.6rem 1.4rem;
+            border-radius: var(--radius);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            font-family: inherit;
+        }
+
+        .modal-btn-confirm {
+            background: var(--breed-green);
+            color: #fff;
+        }
+        .modal-btn-confirm:hover { background: #35a05a; }
+
+        .modal-btn-cancel {
+            background: transparent;
+            color: var(--text-dim);
+            border-color: var(--border);
+        }
+        .modal-btn-cancel:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            .page-header h1 { font-size: 1.5rem; }
+            .egg-timer { font-size: 1.4rem; }
+            .hatch-egg-big { font-size: 5rem; }
+            .hatch-reveal { font-size: 4rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/island" class="active">FIGHT!</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="island-page">
+        <a href="/island/home" class="back-link">&#8592; Dashboard</a>
+
+        <!-- Loading -->
+        <div id="loadingScreen" class="loading-screen">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Entering the Scar Garden...</div>
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent" style="display:none;">
+            <div class="page-header">
+                <h1>&#127793; The Scar Garden</h1>
+                <div class="subtitle">Breed the living with the memory of the dead</div>
+                <div class="shards-display" id="shardsDisplay">&#10022; <span id="shardsCount">0</span> Memory Shards</div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tab-bar">
+                <button class="tab-btn active" onclick="switchTab('breed')">Breeding</button>
+                <button class="tab-btn" onclick="switchTab('eggs')">Incubation</button>
+                <button class="tab-btn" onclick="switchTab('lineage')">Lineage</button>
+            </div>
+
+            <!-- TAB 1: BREEDING -->
+            <div class="tab-content active" id="tabBreed">
+                <!-- Step 1: Select Parent -->
+                <div class="breed-step" id="step1">
+                    <div class="breed-step-header">
+                        <div class="step-number" id="step1num">1</div>
+                        <div class="breed-step-title">Select Parent <span style="font-size:0.7rem;color:var(--text-muted);font-weight:400;">(living, Lv.5+)</span></div>
+                    </div>
+                    <div class="select-grid" id="parentGrid"></div>
+                </div>
+
+                <!-- Step 2: Select Donor -->
+                <div class="breed-step locked" id="step2">
+                    <div class="breed-step-header">
+                        <div class="step-number locked" id="step2num">2</div>
+                        <div class="breed-step-title">Select Donor <span style="font-size:0.7rem;color:var(--text-muted);font-weight:400;">(dead pet's genetic memory)</span></div>
+                    </div>
+                    <div class="select-grid" id="donorGrid"></div>
+                </div>
+
+                <!-- Step 3: Genetic Preview -->
+                <div class="breed-step locked" id="step3">
+                    <div class="breed-step-header">
+                        <div class="step-number locked" id="step3num">3</div>
+                        <div class="breed-step-title">Genetic Preview</div>
+                    </div>
+                    <div class="genetic-preview" id="geneticPreview"></div>
+                    <div class="shard-options" id="shardOptions"></div>
+                    <div style="margin-top:1.5rem;">
+                        <button class="breed-btn" id="beginBreedBtn" disabled onclick="confirmBreed()">BEGIN INCUBATION</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: INCUBATION -->
+            <div class="tab-content" id="tabEggs">
+                <div id="eggsContainer"></div>
+            </div>
+
+            <!-- TAB 3: LINEAGE -->
+            <div class="tab-content" id="tabLineage">
+                <div id="lineageContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-content">
+            <div class="modal-title" id="confirmTitle">Confirm Breeding</div>
+            <div class="modal-text" id="confirmText"></div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-confirm" onclick="executeBreed()">Proceed</button>
+                <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hatching overlay -->
+    <div class="hatch-overlay" id="hatchOverlay">
+        <div class="hatch-burst"></div>
+        <div class="hatch-egg-big" id="hatchEggBig">&#129370;</div>
+        <div class="hatch-reveal" id="hatchRevealEmoji"></div>
+        <div class="hatch-name" id="hatchName"></div>
+        <div class="hatch-stats-reveal" id="hatchStats"></div>
+        <button class="hatch-continue-btn" id="hatchContinue" onclick="finishHatch()">Welcome to the Island</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/static/island/supabase-client.js"></script>
+    <script>
+        // ══════════════════════════════════════
+        //  The Scar Garden — Breeding System
+        // ══════════════════════════════════════
+
+        const EMOJI_MAP = {
+            bear:'\u{1F43B}', buffalo:'\u{1F9AC}', boar:'\u{1F417}', tiger:'\u{1F405}',
+            wolf:'\u{1F43A}', monkey:'\u{1F412}', porcupine:'\u{1F994}', scorpion:'\u{1F982}',
+            vulture:'\u{1F985}', rhino:'\u{1F98F}', viper:'\u{1F40D}', fox:'\u{1F98A}',
+            eagle:'\u{1F985}', panther:'\u{1F408}'
+        };
+
+        const MAX_BREEDS = 5;
+        const INCUBATION_MS = 12 * 60 * 60 * 1000; // 12 hours
+        const MUTATION_INHERIT_CHANCE = 0.30;
+        const SHARD_MUTATION_BOOST = 0.15;
+        const SHARD_MUTATION_COST = 5;
+        const SHARD_SPECIES_COST = 10;
+        const SHARDS_PER_HATCH = 5;
+
+        let offlineMode = false;
+        let allPets = [];
+        let livingPets = [];
+        let deadPets = [];
+        let eggs = [];
+        let memoryShards = 0;
+
+        let selectedParent = null;
+        let selectedDonor = null;
+        let previewData = null;
+        let shardMutBoost = false;
+        let shardSpeciesLock = false;
+        let lockedSpecies = null;
+
+        // ══ Init ══
+
+        async function init() {
+            await initSupabase();
+            var user = await getUser();
+
+            if (isOnlineMode && isOnlineMode()) {
+                offlineMode = false;
+                allPets = await dbGetPets(user.id);
+                eggs = await dbGetEggs(user.id);
+            } else if (hasLocalPets()) {
+                offlineMode = true;
+                loadLocalPets();
+                loadLocalEggs();
+            } else {
+                window.location.href = '/island';
+                return;
+            }
+
+            livingPets = allPets.filter(function(p) { return !p.deceased && p.is_alive !== false; });
+            deadPets = allPets.filter(function(p) { return p.deceased || p.is_alive === false; });
+            memoryShards = parseInt(localStorage.getItem('moreau_memory_shards') || '0', 10);
+
+            updateShardsDisplay();
+            renderParentGrid();
+            renderEggs();
+            renderLineage();
+
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+
+            // Auto-switch to eggs tab if active egg
+            if (eggs.filter(function(e) { return !e.hatched; }).length > 0) {
+                switchTab('eggs');
+            }
+        }
+
+        // ── Helpers ──
+
+        function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+        function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+        function hasLocalPets() {
+            try {
+                var raw = localStorage.getItem('moreau_pets');
+                if (raw) { var p = JSON.parse(raw); return Array.isArray(p) && p.length > 0; }
+                return !!localStorage.getItem('moreau_pet');
+            } catch { return false; }
+        }
+
+        function loadLocalPets() {
+            try {
+                var raw = localStorage.getItem('moreau_pets');
+                if (raw) { allPets = JSON.parse(raw) || []; return; }
+                var single = localStorage.getItem('moreau_pet');
+                if (single) { allPets = [JSON.parse(single)]; return; }
+            } catch {}
+            allPets = [];
+        }
+
+        function saveLocalPets() {
+            localStorage.setItem('moreau_pets', JSON.stringify(allPets));
+        }
+
+        function loadLocalEggs() {
+            try {
+                eggs = JSON.parse(localStorage.getItem('moreau_eggs') || '[]');
+            } catch { eggs = []; }
+        }
+
+        function saveLocalEggs() {
+            localStorage.setItem('moreau_eggs', JSON.stringify(eggs));
+        }
+
+        function updateShardsDisplay() {
+            document.getElementById('shardsCount').textContent = memoryShards;
+        }
+
+        function addShards(n) {
+            memoryShards += n;
+            localStorage.setItem('moreau_memory_shards', String(memoryShards));
+            updateShardsDisplay();
+        }
+
+        // ── DB helpers for eggs ──
+
+        async function dbGetEggs(userId) {
+            if (!sb) return [];
+            var result = await sb.from('eggs').select('*')
+                .eq('user_id', userId).order('created_at');
+            if (result.error) { console.error('[Breeding] dbGetEggs:', result.error); return []; }
+            return result.data || [];
+        }
+
+        async function dbCreateEgg(userId, egg) {
+            if (!sb) return null;
+            var result = await sb.from('eggs').insert({
+                user_id: userId,
+                parent_pet_id: egg.parent_pet_id,
+                donor_pet_id: egg.donor_pet_id,
+                species: egg.species,
+                inherited_stats: egg.inherited_stats,
+                inherited_mutations: egg.inherited_mutations,
+                incubation_start: egg.incubation_start,
+                incubation_end: egg.incubation_end,
+                hatched: false
+            }).select().single();
+            if (result.error) { console.error('[Breeding] dbCreateEgg:', result.error); return null; }
+            return result.data;
+        }
+
+        async function dbUpdateEgg(eggId, updates) {
+            if (!sb) return null;
+            var result = await sb.from('eggs').update(updates)
+                .eq('id', eggId).select().single();
+            if (result.error) { console.error('[Breeding] dbUpdateEgg:', result.error); return null; }
+            return result.data;
+        }
+
+        // ── Tabs ──
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(function(b, i) {
+                b.classList.toggle('active', ['breed','eggs','lineage'][i] === tab);
+            });
+            document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+            document.getElementById('tab' + capitalize(tab === 'eggs' ? 'eggs' : tab === 'lineage' ? 'lineage' : 'breed')).classList.add('active');
+
+            if (tab === 'eggs') renderEggs();
+            if (tab === 'lineage') renderLineage();
+        }
+
+        // ══════════════════════════════════════
+        //  STEP 1: Select Parent
+        // ══════════════════════════════════════
+
+        function renderParentGrid() {
+            var grid = document.getElementById('parentGrid');
+            var eligible = livingPets.filter(function(p) { return (p.level || 1) >= 5; });
+
+            if (eligible.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><div class="empty-icon">&#127793;</div>' +
+                    '<p>No eligible parents. Pets must be Lv.5+ to breed.</p>' +
+                    '<a href="/island/train">Train your pets</a></div>';
+                return;
+            }
+
+            var html = '';
+            eligible.forEach(function(pet, i) {
+                var animal = (pet.animal || '').toLowerCase();
+                var emoji = EMOJI_MAP[animal] || '\u{1F43E}';
+                var stats = pet.base_stats || pet.stats || {};
+                var breedCount = pet.breed_count || 0;
+                var maxed = breedCount >= MAX_BREEDS;
+                var isSelected = selectedParent && (selectedParent.name === pet.name && selectedParent.animal === pet.animal);
+
+                html += '<div class="select-card' + (maxed ? ' disabled' : '') + (isSelected ? ' selected' : '') + '" onclick="selectParent(' + i + ')">';
+
+                if (maxed) {
+                    html += '<span class="breed-badge breed-maxed-badge">SCARRED</span>';
+                } else if (breedCount > 0) {
+                    html += '<span class="breed-badge breed-count-badge">' + breedCount + '/' + MAX_BREEDS + '</span>';
+                }
+
+                html += '<div class="select-emoji">' + emoji + '</div>';
+                html += '<div class="select-name">' + escHtml(pet.name || 'Unknown') + '</div>';
+                html += '<div class="select-detail">Lv.' + (pet.level || 1) + ' ' + capitalize(animal) + '</div>';
+                html += '<div class="select-stats">';
+                html += '<span>HP:' + (stats.hp || 0) + '</span>';
+                html += '<span>ATK:' + (stats.atk || 0) + '</span>';
+                html += '<span>SPD:' + (stats.spd || 0) + '</span>';
+                html += '<span>WIL:' + (stats.wil || 0) + '</span>';
+                html += '</div>';
+
+                if (pet.scars > 0) {
+                    html += '<div style="font-size:0.6rem;color:var(--scar-red);margin-top:0.3rem;">';
+                    for (var s = 0; s < Math.min(pet.scars, 5); s++) html += '&#10006; ';
+                    html += pet.scars + ' scar' + (pet.scars !== 1 ? 's' : '') + '</div>';
+                }
+
+                html += '</div>';
+            });
+
+            grid.innerHTML = html;
+        }
+
+        function selectParent(idx) {
+            var eligible = livingPets.filter(function(p) { return (p.level || 1) >= 5; });
+            var pet = eligible[idx];
+            if (!pet || (pet.breed_count || 0) >= MAX_BREEDS) return;
+
+            selectedParent = pet;
+            selectedDonor = null;
+            previewData = null;
+
+            // Unlock step 2
+            document.getElementById('step1num').className = 'step-number completed';
+            document.getElementById('step2').classList.remove('locked');
+            document.getElementById('step2num').className = 'step-number';
+            document.getElementById('step3').classList.add('locked');
+            document.getElementById('step3num').className = 'step-number locked';
+
+            renderParentGrid();
+            renderDonorGrid();
+        }
+
+        // ══════════════════════════════════════
+        //  STEP 2: Select Donor (dead pet)
+        // ══════════════════════════════════════
+
+        function renderDonorGrid() {
+            var grid = document.getElementById('donorGrid');
+
+            if (deadPets.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><div class="empty-icon">&#128123;</div>' +
+                    '<p>No dead pets to use as donors. The Garden requires sacrifice.</p>' +
+                    '<a href="/island/menagerie">Visit the Menagerie</a></div>';
+                return;
+            }
+
+            var html = '';
+            deadPets.forEach(function(pet, i) {
+                var animal = (pet.animal || '').toLowerCase();
+                var emoji = EMOJI_MAP[animal] || '\u{1F43E}';
+                var stats = pet.base_stats || pet.stats || {};
+                var isSelected = selectedDonor && (selectedDonor.name === pet.name && selectedDonor.animal === pet.animal);
+
+                // Check if this donor is a "Glorious" tier spirit
+                var spiritTier = getSpiritTier(pet);
+
+                html += '<div class="select-card donor-card' + (isSelected ? ' selected' : '') + '" onclick="selectDonor(' + i + ')">';
+                html += '<span class="breed-badge donor-dead-badge">' + spiritTier.toUpperCase() + '</span>';
+                html += '<div class="select-emoji">' + emoji + '</div>';
+                html += '<div class="select-name">' + escHtml(pet.name || 'Unknown') + '</div>';
+                html += '<div class="select-detail">' + capitalize(animal) + ' &mdash; Died Lv.' + (pet.level || 1) + '</div>';
+                html += '<div class="select-stats">';
+                html += '<span>HP:' + (stats.hp || 0) + '</span>';
+                html += '<span>ATK:' + (stats.atk || 0) + '</span>';
+                html += '<span>SPD:' + (stats.spd || 0) + '</span>';
+                html += '<span>WIL:' + (stats.wil || 0) + '</span>';
+                html += '</div>';
+
+                // Show mutations
+                var muts = pet.lab_mutations || {};
+                var mutKeys = Object.keys(muts);
+                if (mutKeys.length > 0) {
+                    html += '<div style="margin-top:0.3rem;font-size:0.6rem;color:var(--purple);">';
+                    mutKeys.forEach(function(k) {
+                        html += '<span style="margin-right:0.3rem;">' + escHtml(muts[k].name || k) + '</span>';
+                    });
+                    html += '</div>';
+                }
+
+                html += '</div>';
+            });
+
+            grid.innerHTML = html;
+        }
+
+        function getSpiritTier(pet) {
+            var stats = pet.base_stats || pet.stats || {};
+            var total = (stats.hp || 0) + (stats.atk || 0) + (stats.spd || 0) + (stats.wil || 0);
+            var level = pet.level || 1;
+            var wins = pet.fights_won || (pet.fights || []).filter(function(f) { return f.result === 'win'; }).length || 0;
+
+            if (level >= 8 && wins >= 10) return 'glorious';
+            if (level >= 5 && wins >= 5) return 'honored';
+            return 'remembered';
+        }
+
+        function selectDonor(idx) {
+            var pet = deadPets[idx];
+            if (!pet) return;
+
+            selectedDonor = pet;
+
+            document.getElementById('step2num').className = 'step-number completed';
+            document.getElementById('step3').classList.remove('locked');
+            document.getElementById('step3num').className = 'step-number';
+
+            renderDonorGrid();
+            generatePreview();
+        }
+
+        // ══════════════════════════════════════
+        //  STEP 3: Genetic Preview
+        // ══════════════════════════════════════
+
+        function generatePreview() {
+            if (!selectedParent || !selectedDonor) return;
+
+            var parentStats = selectedParent.base_stats || selectedParent.stats || {};
+            var donorStats = selectedDonor.base_stats || selectedDonor.stats || {};
+
+            // Species: 50/50 or locked
+            var species;
+            if (shardSpeciesLock && lockedSpecies) {
+                species = lockedSpecies;
+            } else {
+                species = Math.random() < 0.5 ? selectedParent.animal : selectedDonor.animal;
+            }
+            species = (species || 'bear').toLowerCase();
+
+            // Stats: average + random variance
+            var inheritedStats = {};
+            ['hp', 'atk', 'spd', 'wil'].forEach(function(stat) {
+                var avg = Math.round(((parentStats[stat] || 5) + (donorStats[stat] || 5)) / 2);
+                var variance = Math.floor(Math.random() * 3) - 1; // -1, 0, or +1
+                inheritedStats[stat] = Math.max(1, Math.min(10, avg + variance));
+            });
+
+            // Glorious bonus
+            var donorTier = getSpiritTier(selectedDonor);
+            if (donorTier === 'glorious') {
+                ['hp', 'atk', 'spd', 'wil'].forEach(function(stat) {
+                    inheritedStats[stat] = Math.min(10, inheritedStats[stat] + 1);
+                });
+            }
+
+            // Mutations: 30% each (or 45% with shard boost)
+            var donorMuts = selectedDonor.lab_mutations || {};
+            var mutChance = MUTATION_INHERIT_CHANCE + (shardMutBoost ? SHARD_MUTATION_BOOST : 0);
+            var inheritedMuts = {};
+            var missedMuts = [];
+            Object.keys(donorMuts).forEach(function(key) {
+                if (Math.random() < mutChance) {
+                    inheritedMuts[key] = donorMuts[key];
+                } else {
+                    missedMuts.push(donorMuts[key]);
+                }
+            });
+
+            previewData = {
+                species: species,
+                stats: inheritedStats,
+                mutations: inheritedMuts,
+                missedMuts: missedMuts,
+                donorTier: donorTier,
+                gloriousBonus: donorTier === 'glorious'
+            };
+
+            renderPreview();
+        }
+
+        function renderPreview() {
+            if (!previewData) return;
+            var container = document.getElementById('geneticPreview');
+            var emoji = EMOJI_MAP[previewData.species] || '\u{1F43E}';
+
+            var html = '<div class="preview-species">';
+            html += '<div class="preview-species-emoji">' + emoji + '</div>';
+            html += '<div class="preview-species-name">' + capitalize(previewData.species) + '</div>';
+            html += '<div class="preview-species-note">50% ' + capitalize(selectedParent.animal) + ' / 50% ' + capitalize(selectedDonor.animal) + '</div>';
+            if (previewData.gloriousBonus) {
+                html += '<div style="font-size:0.7rem;color:var(--gold);margin-top:0.3rem;">&#10022; Glorious Memory: +1 all stats</div>';
+            }
+            html += '</div>';
+
+            html += '<div class="preview-stats">';
+            ['hp', 'atk', 'spd', 'wil'].forEach(function(stat) {
+                var val = previewData.stats[stat] || 5;
+                var pct = Math.min(100, val * 10);
+                html += '<div class="preview-stat stat-' + stat + '">';
+                html += '<div class="preview-stat-label" style="color:var(--' + {hp:'green',atk:'accent',spd:'blue',wil:'purple'}[stat] + ');">' + stat.toUpperCase() + '</div>';
+                html += '<div class="preview-stat-bar-bg"><div class="preview-stat-bar-fill" style="width:' + pct + '%;"></div></div>';
+                html += '<div class="preview-stat-val">' + val + '</div>';
+                html += '</div>';
+            });
+            html += '</div>';
+
+            // Mutations
+            var mutKeys = Object.keys(previewData.mutations);
+            if (mutKeys.length > 0 || previewData.missedMuts.length > 0) {
+                html += '<div class="preview-mutations">';
+                html += '<div class="preview-mutations-title">Inherited Mutations</div>';
+                mutKeys.forEach(function(k) {
+                    html += '<span class="preview-mutation-chip">' + escHtml(previewData.mutations[k].name || k) + '</span>';
+                });
+                previewData.missedMuts.forEach(function(m) {
+                    html += '<span class="preview-mutation-chip missed">' + escHtml(m.name || '?') + '</span>';
+                });
+                html += '</div>';
+            }
+
+            // Warning about parent scar
+            html += '<div class="preview-warning">';
+            html += '&#9888; Parent ' + escHtml(selectedParent.name) + ' will receive +1 scar (' + ((selectedParent.breed_count || 0) + 1) + '/' + MAX_BREEDS + ')';
+            html += '</div>';
+
+            container.innerHTML = html;
+
+            // Shard options
+            renderShardOptions();
+
+            // Enable breed button
+            document.getElementById('beginBreedBtn').disabled = false;
+        }
+
+        function renderShardOptions() {
+            var container = document.getElementById('shardOptions');
+            var html = '';
+
+            // Mutation boost
+            var mutDisabled = memoryShards < SHARD_MUTATION_COST;
+            html += '<button class="shard-btn' + (mutDisabled && !shardMutBoost ? ' disabled' : '') + (shardMutBoost ? ' selected' : '') + '" ' +
+                'style="' + (shardMutBoost ? 'background:rgba(201,162,39,0.25);border-color:var(--egg-gold);' : '') + '" ' +
+                'onclick="toggleMutBoost()">' +
+                '+15% Mutation Inheritance' +
+                '<span class="shard-cost">' + SHARD_MUTATION_COST + ' shards</span></button>';
+
+            // Species lock
+            var specDisabled = memoryShards < SHARD_SPECIES_COST;
+            html += '<button class="shard-btn' + (specDisabled && !shardSpeciesLock ? ' disabled' : '') + (shardSpeciesLock ? ' selected' : '') + '" ' +
+                'style="' + (shardSpeciesLock ? 'background:rgba(201,162,39,0.25);border-color:var(--egg-gold);' : '') + '" ' +
+                'onclick="toggleSpeciesLock()">' +
+                'Lock Species Choice' +
+                '<span class="shard-cost">' + SHARD_SPECIES_COST + ' shards</span></button>';
+
+            if (shardSpeciesLock) {
+                html += '<button class="shard-btn" style="font-size:0.7rem;" onclick="pickSpecies(\'' + selectedParent.animal + '\')">' +
+                    EMOJI_MAP[(selectedParent.animal || '').toLowerCase()] + ' ' + capitalize(selectedParent.animal) + '</button>';
+                html += '<button class="shard-btn" style="font-size:0.7rem;" onclick="pickSpecies(\'' + selectedDonor.animal + '\')">' +
+                    EMOJI_MAP[(selectedDonor.animal || '').toLowerCase()] + ' ' + capitalize(selectedDonor.animal) + '</button>';
+            }
+
+            container.innerHTML = html;
+        }
+
+        function toggleMutBoost() {
+            if (!shardMutBoost && memoryShards < SHARD_MUTATION_COST) return;
+            shardMutBoost = !shardMutBoost;
+            generatePreview();
+        }
+
+        function toggleSpeciesLock() {
+            if (!shardSpeciesLock && memoryShards < SHARD_SPECIES_COST) return;
+            shardSpeciesLock = !shardSpeciesLock;
+            lockedSpecies = null;
+            generatePreview();
+        }
+
+        function pickSpecies(species) {
+            lockedSpecies = species;
+            generatePreview();
+        }
+
+        // ══════════════════════════════════════
+        //  Confirm & Execute Breeding
+        // ══════════════════════════════════════
+
+        function confirmBreed() {
+            if (!selectedParent || !selectedDonor || !previewData) return;
+
+            var shardCost = 0;
+            if (shardMutBoost) shardCost += SHARD_MUTATION_COST;
+            if (shardSpeciesLock) shardCost += SHARD_SPECIES_COST;
+
+            var text = 'Parent <strong>' + escHtml(selectedParent.name) + '</strong> will receive <strong>+1 scar</strong> and lose 1 random stat during incubation.<br><br>';
+            text += 'Donor <strong>' + escHtml(selectedDonor.name) + '</strong>\'s genetic memory will be consumed.<br><br>';
+            text += 'An egg will incubate for <strong>12 hours</strong>.';
+            if (shardCost > 0) {
+                text += '<br><br>Cost: <strong>' + shardCost + ' Memory Shards</strong>';
+            }
+
+            document.getElementById('confirmText').innerHTML = text;
+            document.getElementById('confirmModal').classList.add('open');
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').classList.remove('open');
+        }
+
+        async function executeBreed() {
+            closeModal();
+
+            // Deduct shards
+            var shardCost = 0;
+            if (shardMutBoost) shardCost += SHARD_MUTATION_COST;
+            if (shardSpeciesLock) shardCost += SHARD_SPECIES_COST;
+            if (shardCost > 0 && memoryShards >= shardCost) {
+                addShards(-shardCost);
+            }
+
+            var now = new Date();
+            var end = new Date(now.getTime() + INCUBATION_MS);
+
+            // Scar the parent
+            var parentIdx = allPets.findIndex(function(p) { return p === selectedParent; });
+            if (parentIdx === -1) parentIdx = allPets.findIndex(function(p) {
+                return p.name === selectedParent.name && p.animal === selectedParent.animal;
+            });
+
+            if (parentIdx >= 0) {
+                allPets[parentIdx].scars = (allPets[parentIdx].scars || 0) + 1;
+                allPets[parentIdx].breed_count = (allPets[parentIdx].breed_count || 0) + 1;
+
+                // Temporary stat loss
+                var statKeys = ['hp', 'atk', 'spd', 'wil'];
+                var rndStat = statKeys[Math.floor(Math.random() * statKeys.length)];
+                var parentStats = allPets[parentIdx].base_stats || allPets[parentIdx].stats || {};
+                if (parentStats[rndStat] > 1) {
+                    parentStats[rndStat] -= 1;
+                    allPets[parentIdx]._incubation_stat_loss = { stat: rndStat, amount: 1 };
+                }
+            }
+
+            var eggData = {
+                id: 'egg_' + Date.now() + '_' + Math.random().toString(36).substr(2,6),
+                parent_pet_id: selectedParent.id || null,
+                donor_pet_id: selectedDonor.id || null,
+                parent_name: selectedParent.name,
+                donor_name: selectedDonor.name,
+                parent_animal: selectedParent.animal,
+                donor_animal: selectedDonor.animal,
+                species: previewData.species,
+                inherited_stats: previewData.stats,
+                inherited_mutations: previewData.mutations,
+                incubation_start: now.toISOString(),
+                incubation_end: end.toISOString(),
+                hatched: false,
+                hatched_pet_id: null
+            };
+
+            if (offlineMode) {
+                eggs.push(eggData);
+                saveLocalEggs();
+                saveLocalPets();
+            } else {
+                // Update parent in DB
+                if (selectedParent.id) {
+                    await dbUpdatePet(selectedParent.id, {
+                        scars: allPets[parentIdx].scars,
+                        breed_count: allPets[parentIdx].breed_count,
+                        base_stats: allPets[parentIdx].base_stats
+                    });
+                }
+                var dbEgg = await dbCreateEgg(currentUser.id, eggData);
+                if (dbEgg) {
+                    eggData.id = dbEgg.id;
+                }
+                eggs.push(eggData);
+            }
+
+            // Reset selection
+            selectedParent = null;
+            selectedDonor = null;
+            previewData = null;
+            shardMutBoost = false;
+            shardSpeciesLock = false;
+            lockedSpecies = null;
+
+            // Refresh
+            livingPets = allPets.filter(function(p) { return !p.deceased && p.is_alive !== false; });
+            renderParentGrid();
+            document.getElementById('step2').classList.add('locked');
+            document.getElementById('step3').classList.add('locked');
+            document.getElementById('step1num').className = 'step-number';
+            document.getElementById('step2num').className = 'step-number locked';
+            document.getElementById('step3num').className = 'step-number locked';
+            document.getElementById('donorGrid').innerHTML = '';
+            document.getElementById('geneticPreview').innerHTML = '';
+            document.getElementById('shardOptions').innerHTML = '';
+            document.getElementById('beginBreedBtn').disabled = true;
+
+            switchTab('eggs');
+        }
+
+        // ══════════════════════════════════════
+        //  INCUBATION
+        // ══════════════════════════════════════
+
+        var eggTimerInterval = null;
+
+        function renderEggs() {
+            var container = document.getElementById('eggsContainer');
+            var activeEggs = eggs.filter(function(e) { return !e.hatched; });
+            var hatchedEggs = eggs.filter(function(e) { return e.hatched; });
+
+            if (activeEggs.length === 0 && hatchedEggs.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">&#129370;</div>' +
+                    '<p>No eggs incubating. Breed to create new life.</p>' +
+                    '<a href="#" onclick="switchTab(\'breed\');return false;">Start Breeding</a></div>';
+                return;
+            }
+
+            var html = '';
+
+            activeEggs.forEach(function(egg) {
+                var species = (egg.species || 'unknown').toLowerCase();
+                var now = Date.now();
+                var end = new Date(egg.incubation_end).getTime();
+                var start = new Date(egg.incubation_start).getTime();
+                var total = end - start;
+                var elapsed = now - start;
+                var remaining = Math.max(0, end - now);
+                var progress = Math.min(100, (elapsed / total) * 100);
+                var isReady = remaining <= 0;
+
+                html += '<div class="egg-card">';
+                html += '<div class="egg-emoji">&#129370;</div>';
+                html += '<div class="egg-label">Incubating</div>';
+                html += '<div class="egg-species">' + capitalize(species) + ' Egg</div>';
+
+                if (isReady) {
+                    html += '<div class="egg-timer" style="color:var(--green);">READY TO HATCH</div>';
+                } else {
+                    var h = Math.floor(remaining / 3600000);
+                    var m = Math.floor((remaining % 3600000) / 60000);
+                    var s = Math.floor((remaining % 60000) / 1000);
+                    html += '<div class="egg-timer" data-egg-id="' + egg.id + '">' +
+                        String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0') +
+                        '</div>';
+                }
+
+                html += '<div class="egg-progress-bg"><div class="egg-progress-fill" style="width:' + progress + '%;"></div></div>';
+
+                html += '<div class="egg-parents">';
+                html += '<div><div class="egg-parent-label">Parent</div><div class="egg-parent-name">' +
+                    (EMOJI_MAP[(egg.parent_animal || '').toLowerCase()] || '') + ' ' + escHtml(egg.parent_name || '?') + '</div></div>';
+                html += '<div><div class="egg-parent-label">Donor</div><div class="egg-parent-name">' +
+                    (EMOJI_MAP[(egg.donor_animal || '').toLowerCase()] || '') + ' ' + escHtml(egg.donor_name || '?') + '</div></div>';
+                html += '</div>';
+
+                if (isReady) {
+                    html += '<div style="margin-top:1.5rem;"><button class="hatch-btn" onclick="hatchEgg(\'' + egg.id + '\')">HATCH</button></div>';
+                }
+
+                html += '</div>';
+            });
+
+            // Hatched history
+            if (hatchedEggs.length > 0) {
+                html += '<div style="margin-top:2rem;">';
+                html += '<div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:1rem;">Hatched</div>';
+                hatchedEggs.forEach(function(egg) {
+                    var species = (egg.species || '').toLowerCase();
+                    html += '<div class="lineage-node" style="margin-bottom:0.5rem;">';
+                    html += '<div class="lineage-emoji">' + (EMOJI_MAP[species] || '\u{1F43E}') + '</div>';
+                    html += '<div class="lineage-info">';
+                    html += '<div class="lineage-name">' + capitalize(species) + ' Egg</div>';
+                    html += '<div class="lineage-detail">' + escHtml(egg.parent_name || '?') + ' + ' + escHtml(egg.donor_name || '?') + '</div>';
+                    html += '</div>';
+                    html += '<span style="font-size:0.7rem;color:var(--green);">&#10003; Hatched</span>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            }
+
+            container.innerHTML = html;
+
+            // Start timer
+            if (eggTimerInterval) clearInterval(eggTimerInterval);
+            if (activeEggs.length > 0) {
+                eggTimerInterval = setInterval(function() { updateEggTimers(); }, 1000);
+            }
+        }
+
+        function updateEggTimers() {
+            var now = Date.now();
+            var needsRerender = false;
+
+            eggs.forEach(function(egg) {
+                if (egg.hatched) return;
+                var end = new Date(egg.incubation_end).getTime();
+                var start = new Date(egg.incubation_start).getTime();
+                var remaining = Math.max(0, end - now);
+                var el = document.querySelector('[data-egg-id="' + egg.id + '"]');
+
+                if (remaining <= 0) {
+                    needsRerender = true;
+                    return;
+                }
+
+                if (el) {
+                    var h = Math.floor(remaining / 3600000);
+                    var m = Math.floor((remaining % 3600000) / 60000);
+                    var s = Math.floor((remaining % 60000) / 1000);
+                    el.textContent = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+                }
+            });
+
+            if (needsRerender) renderEggs();
+        }
+
+        // ══════════════════════════════════════
+        //  HATCHING
+        // ══════════════════════════════════════
+
+        var hatchingEgg = null;
+
+        function hatchEgg(eggId) {
+            var egg = eggs.find(function(e) { return e.id === eggId; });
+            if (!egg || egg.hatched) return;
+
+            var now = Date.now();
+            var end = new Date(egg.incubation_end).getTime();
+            if (now < end) return; // not ready
+
+            hatchingEgg = egg;
+
+            // Show hatching animation
+            var species = (egg.species || '').toLowerCase();
+            var emoji = EMOJI_MAP[species] || '\u{1F43E}';
+            document.getElementById('hatchRevealEmoji').textContent = emoji;
+            document.getElementById('hatchName').textContent = capitalize(species) + ' is born!';
+
+            var stats = egg.inherited_stats || {};
+            var statsHtml = '<div style="font-size:0.8rem;color:var(--text-dim);">';
+            statsHtml += 'HP:' + (stats.hp || 5) + ' ATK:' + (stats.atk || 5) + ' SPD:' + (stats.spd || 5) + ' WIL:' + (stats.wil || 5);
+            statsHtml += '</div>';
+            var mutKeys = Object.keys(egg.inherited_mutations || {});
+            if (mutKeys.length > 0) {
+                statsHtml += '<div style="font-size:0.7rem;color:var(--purple);margin-top:0.5rem;">';
+                mutKeys.forEach(function(k) {
+                    statsHtml += escHtml((egg.inherited_mutations[k].name || k)) + ' ';
+                });
+                statsHtml += '</div>';
+            }
+            document.getElementById('hatchStats').innerHTML = statsHtml;
+
+            document.getElementById('hatchOverlay').classList.add('active');
+        }
+
+        async function finishHatch() {
+            if (!hatchingEgg) return;
+            var egg = hatchingEgg;
+
+            // Generate name
+            var prefixes = ['Neo','Echo','Shade','Mist','Dawn','Dusk','Ash','Storm','Flux','Ember','Rune','Glyph','Void','Rift','Pulse'];
+            var suffixes = ['claw','fang','mane','heart','soul','wing','tail','eye','scar','bone','blood','mark','born','child','kin'];
+            var name = prefixes[Math.floor(Math.random()*prefixes.length)] + suffixes[Math.floor(Math.random()*suffixes.length)];
+
+            // Find parent to restore stat
+            var parentIdx = allPets.findIndex(function(p) {
+                return (p.id && p.id === egg.parent_pet_id) || (p.name === egg.parent_name && p.animal === egg.parent_animal);
+            });
+            if (parentIdx >= 0 && allPets[parentIdx]._incubation_stat_loss) {
+                var loss = allPets[parentIdx]._incubation_stat_loss;
+                var pStats = allPets[parentIdx].base_stats || allPets[parentIdx].stats || {};
+                pStats[loss.stat] = (pStats[loss.stat] || 0) + loss.amount;
+                delete allPets[parentIdx]._incubation_stat_loss;
+            }
+
+            // Determine generation
+            var parentGen = 0;
+            if (parentIdx >= 0) parentGen = allPets[parentIdx].generation || 0;
+            var newGen = parentGen + 1;
+
+            // Create new pet
+            var newPet = {
+                name: name,
+                animal: egg.species,
+                level: 1,
+                xp: 0,
+                base_stats: egg.inherited_stats || { hp: 5, atk: 5, spd: 5, wil: 5 },
+                mutations: [],
+                lab_mutations: egg.inherited_mutations || {},
+                side_effects: [],
+                instability: 0,
+                scars: 0,
+                mercy_used: false,
+                mood: 'neutral',
+                fights: [],
+                breed_count: 0,
+                parent_id: egg.parent_pet_id || null,
+                donor_id: egg.donor_pet_id || null,
+                parent_name: egg.parent_name,
+                donor_name: egg.donor_name,
+                generation: newGen,
+                created_at: new Date().toISOString()
+            };
+
+            // Mark egg as hatched
+            egg.hatched = true;
+
+            if (offlineMode) {
+                allPets.push(newPet);
+                saveLocalPets();
+                saveLocalEggs();
+            } else {
+                var dbPet = await dbCreatePet(currentUser.id, {
+                    ...newPet,
+                    fights_won: 0,
+                    fights_lost: 0
+                });
+                if (dbPet) {
+                    newPet.id = dbPet.id;
+                    egg.hatched_pet_id = dbPet.id;
+                    // Update parent pet
+                    if (parentIdx >= 0 && allPets[parentIdx].id) {
+                        await dbUpdatePet(allPets[parentIdx].id, {
+                            base_stats: allPets[parentIdx].base_stats
+                        });
+                    }
+                    // Update egg in DB
+                    await dbUpdateEgg(egg.id, { hatched: true, hatched_pet_id: dbPet.id });
+                }
+                allPets.push(newPet);
+            }
+
+            // Award shards
+            addShards(SHARDS_PER_HATCH);
+
+            // Refresh
+            livingPets = allPets.filter(function(p) { return !p.deceased && p.is_alive !== false; });
+            deadPets = allPets.filter(function(p) { return p.deceased || p.is_alive === false; });
+
+            document.getElementById('hatchOverlay').classList.remove('active');
+            hatchingEgg = null;
+
+            renderEggs();
+            renderParentGrid();
+            renderLineage();
+        }
+
+        // ══════════════════════════════════════
+        //  LINEAGE (mini view)
+        // ══════════════════════════════════════
+
+        function renderLineage() {
+            var container = document.getElementById('lineageContainer');
+
+            // Find pets with parents
+            var bredPets = allPets.filter(function(p) {
+                return p.parent_name || p.parent_id || p.donor_name || p.donor_id;
+            });
+
+            if (bredPets.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">&#127795;</div>' +
+                    '<p>No lineage yet. Breed to grow your family tree.</p>' +
+                    '<a href="/island/lineage">Full Lineage View</a></div>';
+                return;
+            }
+
+            var html = '';
+
+            bredPets.forEach(function(pet) {
+                var animal = (pet.animal || '').toLowerCase();
+                var emoji = EMOJI_MAP[animal] || '\u{1F43E}';
+                var isDeceased = pet.deceased || pet.is_alive === false;
+
+                // Find parent & donor
+                var parent = allPets.find(function(p) {
+                    return (pet.parent_id && p.id === pet.parent_id) || (pet.parent_name && p.name === pet.parent_name);
+                });
+                var donor = allPets.find(function(p) {
+                    return (pet.donor_id && p.id === pet.donor_id) || (pet.donor_name && p.name === pet.donor_name);
+                });
+
+                html += '<div class="lineage-section" style="margin-bottom:2rem;">';
+
+                // Parent
+                if (parent) {
+                    var pAnimal = (parent.animal || '').toLowerCase();
+                    var pEmoji = EMOJI_MAP[pAnimal] || '\u{1F43E}';
+                    var pDead = parent.deceased || parent.is_alive === false;
+                    html += '<div class="lineage-node">';
+                    html += '<div class="lineage-emoji' + (pDead ? ' deceased' : '') + '">' + pEmoji + '</div>';
+                    html += '<div class="lineage-info"><div class="lineage-name">' + escHtml(parent.name || '?') + '</div>';
+                    html += '<div class="lineage-detail">Parent &mdash; Lv.' + (parent.level || 1) + ' ' + capitalize(pAnimal) + '</div></div></div>';
+                } else if (pet.parent_name) {
+                    html += '<div class="lineage-node"><div class="lineage-emoji">\u{1F43E}</div>';
+                    html += '<div class="lineage-info"><div class="lineage-name">' + escHtml(pet.parent_name) + '</div>';
+                    html += '<div class="lineage-detail">Parent</div></div></div>';
+                }
+
+                // Donor
+                if (donor) {
+                    var dAnimal = (donor.animal || '').toLowerCase();
+                    var dEmoji = EMOJI_MAP[dAnimal] || '\u{1F43E}';
+                    html += '<div class="lineage-arrow">+ genetic memory of</div>';
+                    html += '<div class="lineage-node donor">';
+                    html += '<div class="lineage-emoji deceased">' + dEmoji + '</div>';
+                    html += '<div class="lineage-info"><div class="lineage-name">' + escHtml(donor.name || '?') + '</div>';
+                    html += '<div class="lineage-detail">Donor (deceased) &mdash; ' + capitalize(dAnimal) + '</div></div></div>';
+                } else if (pet.donor_name) {
+                    html += '<div class="lineage-arrow">+ genetic memory of</div>';
+                    html += '<div class="lineage-node donor"><div class="lineage-emoji deceased">\u{1F43E}</div>';
+                    html += '<div class="lineage-info"><div class="lineage-name">' + escHtml(pet.donor_name) + '</div>';
+                    html += '<div class="lineage-detail">Donor (deceased)</div></div></div>';
+                }
+
+                // Arrow down to offspring
+                html += '<div class="lineage-arrow">&#8595;</div>';
+
+                // Offspring
+                html += '<div class="lineage-node current">';
+                html += '<div class="lineage-emoji' + (isDeceased ? ' deceased' : '') + '">' + emoji + '</div>';
+                html += '<div class="lineage-info"><div class="lineage-name">' + escHtml(pet.name || '?');
+                if (pet.generation) html += ' <span class="lineage-inherited">Gen ' + pet.generation + '</span>';
+                html += '</div>';
+                html += '<div class="lineage-detail">Lv.' + (pet.level || 1) + ' ' + capitalize(animal) + (isDeceased ? ' (deceased)' : '') + '</div></div></div>';
+
+                html += '</div>';
+            });
+
+            html += '<div style="text-align:center;margin-top:1rem;"><a href="/island/lineage" style="color:var(--breed-green);font-size:0.85rem;text-decoration:none;">View Full Family Tree &#8594;</a></div>';
+
+            container.innerHTML = html;
+        }
+
+        // ── Start ──
+        init().catch(function(e) { console.error('[Breeding] init failed:', e); });
+    </script>
+</body>
+</html>

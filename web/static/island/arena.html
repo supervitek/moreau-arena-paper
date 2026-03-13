@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Arena — The Island — Moreau Arena</title>
+    <meta property="og:title" content="Global Arena — The Island">
+    <meta property="og:description" content="Fight other players' pets asynchronously. ELO rating. Your pet fights while you sleep.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Global Arena — The Island">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --bg-primary: #0a0505;
+            --bg-secondary: #0f0a0a;
+            --bg-card: #1a1010;
+            --bg-card-hover: #221515;
+            --bg-code: #1e1218;
+            --border: #3a1a1a;
+            --accent: #e63946;
+            --accent-glow: rgba(230, 57, 70, 0.4);
+            --text: #f1faee;
+            --text-dim: #a8a0a0;
+            --text-muted: #6a5a5a;
+            --green: #4ecca3;
+            --blue: #457b9d;
+            --gold: #d4a017;
+            --purple: #9b59b6;
+            --orange: #f4a261;
+            --fire: #ff6600;
+            --radius: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(170deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #0d0707 100%);
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                radial-gradient(1px 1px at 10% 20%, rgba(230,57,70,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 30% 60%, rgba(230,57,70,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 50% 10%, rgba(255,180,180,0.15) 0%, transparent 100%),
+                radial-gradient(1px 1px at 70% 80%, rgba(230,57,70,0.25) 0%, transparent 100%),
+                radial-gradient(1px 1px at 90% 40%, rgba(255,200,200,0.1) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 15% 85%, rgba(230,57,70,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 85% 15%, rgba(230,57,70,0.15) 0%, transparent 100%),
+                radial-gradient(1px 1px at 45% 45%, rgba(255,150,150,0.12) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 65% 30%, rgba(230,57,70,0.18) 0%, transparent 100%),
+                radial-gradient(1px 1px at 25% 70%, rgba(255,100,100,0.1) 0%, transparent 100%);
+            animation: particleDrift 20s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes particleDrift {
+            0% { transform: translateY(0) translateX(0); opacity: 0.6; }
+            33% { transform: translateY(-15px) translateX(8px); opacity: 0.8; }
+            66% { transform: translateY(10px) translateX(-5px); opacity: 0.5; }
+            100% { transform: translateY(-8px) translateX(12px); opacity: 0.7; }
+        }
+
+        .arena-page {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        /* Loading */
+        .loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 1rem;
+        }
+
+        .loading-spinner {
+            width: 40px; height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--orange);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-text { color: var(--text-muted); font-size: 0.9rem; }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header */
+        .arena-header {
+            text-align: center;
+            padding: 3rem 0 1.5rem;
+            animation: fadeSlideIn 0.5s ease-out both;
+        }
+
+        .arena-header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.25rem;
+        }
+
+        .arena-header h1 span {
+            color: var(--orange);
+            text-shadow: 0 0 20px rgba(244,162,97,0.4);
+        }
+
+        .arena-subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Tabs */
+        .arena-tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 1.5rem;
+            animation: fadeSlideIn 0.5s ease-out 0.1s both;
+            overflow-x: auto;
+        }
+
+        .arena-tab {
+            padding: 0.75rem 1.25rem;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            white-space: nowrap;
+        }
+
+        .arena-tab:hover { color: var(--text-dim); }
+
+        .arena-tab.active {
+            color: var(--orange);
+            border-bottom-color: var(--orange);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeSlideIn 0.3s ease-out both;
+        }
+
+        .tab-content.active { display: block; }
+
+        /* Auto-Arena Notification */
+        .auto-arena-toast {
+            position: fixed;
+            top: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(-120px);
+            background: linear-gradient(135deg, #1a1000, #2a1500);
+            border: 2px solid var(--orange);
+            border-radius: var(--radius);
+            padding: 1rem 1.5rem;
+            max-width: 450px;
+            width: 90%;
+            z-index: 250;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(244,162,97,0.3);
+            transition: transform 0.5s ease-out;
+        }
+
+        .auto-arena-toast.visible {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .auto-arena-toast-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--orange);
+            margin-bottom: 0.3rem;
+        }
+
+        .auto-arena-toast-text {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        /* Registration Card */
+        .reg-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            animation: fadeSlideIn 0.5s ease-out both;
+        }
+
+        .reg-pet-emoji { font-size: 3.5rem; line-height: 1; margin-bottom: 0.5rem; }
+        .reg-pet-name { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.15rem; }
+
+        .reg-pet-level {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+
+        .reg-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            max-width: 320px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .reg-stat {
+            background: var(--bg-code);
+            border-radius: 4px;
+            padding: 0.4rem;
+            text-align: center;
+        }
+
+        .reg-stat-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .reg-stat-val {
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: monospace;
+        }
+
+        .stat-hp { color: var(--green); }
+        .stat-atk { color: var(--accent); }
+        .stat-spd { color: var(--blue); }
+        .stat-wil { color: var(--purple); }
+
+        .reg-rating-display {
+            margin-bottom: 1.5rem;
+        }
+
+        .reg-rating-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .reg-rating-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--orange);
+            font-family: monospace;
+            text-shadow: 0 0 15px rgba(244,162,97,0.3);
+        }
+
+        .reg-record {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+        }
+
+        .reg-record .wins { color: var(--green); font-weight: 700; }
+        .reg-record .losses { color: var(--accent); font-weight: 700; }
+
+        .btn-arena-enter {
+            background: linear-gradient(135deg, var(--orange), #e65c00);
+            color: #fff;
+            border: none;
+            padding: 0.85rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 800;
+            border-radius: var(--radius);
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            transition: transform 0.15s, box-shadow 0.15s;
+            animation: arenaGlow 2s ease-in-out infinite;
+        }
+
+        .btn-arena-enter:hover { transform: scale(1.04); }
+        .btn-arena-enter:active { transform: scale(0.97); }
+
+        @keyframes arenaGlow {
+            0%, 100% { box-shadow: 0 0 12px rgba(244,162,97,0.3); }
+            50% { box-shadow: 0 0 28px rgba(244,162,97,0.6); }
+        }
+
+        .btn-arena-withdraw {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 0.6rem 1.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0.75rem;
+        }
+
+        .btn-arena-withdraw:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .reg-requirement {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .reg-requirement .fail { color: var(--accent); }
+
+        /* Not logged in / no pet */
+        .arena-notice {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .arena-notice p {
+            color: var(--text-dim);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .arena-notice a {
+            color: var(--orange);
+            text-decoration: underline;
+        }
+
+        /* Opponent Grid */
+        .opponents-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .opponents-count {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .btn-refresh {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 0.4rem 0.85rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-refresh:hover { border-color: var(--orange); color: var(--orange); }
+
+        .opponent-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .opp-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: background 0.15s, border-color 0.15s, transform 0.15s;
+        }
+
+        .opp-card:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-1px);
+        }
+
+        .opp-emoji { font-size: 2rem; flex-shrink: 0; }
+
+        .opp-info { flex: 1; min-width: 0; }
+
+        .opp-name {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.15rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .opp-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .opp-stats-mini {
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            margin-top: 0.15rem;
+        }
+
+        .opp-rating {
+            text-align: center;
+            flex-shrink: 0;
+            min-width: 60px;
+        }
+
+        .opp-rating-val {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--orange);
+            font-family: monospace;
+        }
+
+        .opp-rating-label {
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+        }
+
+        .opp-record {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+        }
+
+        .btn-challenge {
+            background: linear-gradient(135deg, var(--orange), #e65c00);
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border-radius: var(--radius);
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: transform 0.1s;
+            letter-spacing: 0.03em;
+        }
+
+        .btn-challenge:hover { transform: scale(1.05); }
+        .btn-challenge:active { transform: scale(0.95); }
+        .btn-challenge:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .opp-cooldown {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-align: center;
+            flex-shrink: 0;
+            min-width: 70px;
+        }
+
+        .no-opponents {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Leaderboard */
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .leaderboard-table th {
+            text-align: left;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .leaderboard-table td {
+            padding: 0.6rem 0.75rem;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(58,26,26,0.2);
+        }
+
+        .leaderboard-table tr:hover td {
+            background: var(--bg-card-hover);
+        }
+
+        .leaderboard-table .rank-cell {
+            font-weight: 800;
+            font-size: 1rem;
+            width: 40px;
+            text-align: center;
+        }
+
+        .rank-1 { color: #ffd700; text-shadow: 0 0 8px rgba(255,215,0,0.4); }
+        .rank-2 { color: #c0c0c0; text-shadow: 0 0 6px rgba(192,192,192,0.3); }
+        .rank-3 { color: #cd7f32; text-shadow: 0 0 6px rgba(205,127,50,0.3); }
+
+        .lb-pet-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .lb-emoji { font-size: 1.3rem; }
+
+        .lb-name { font-weight: 700; }
+
+        .lb-owner {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .lb-rating {
+            font-family: monospace;
+            font-weight: 700;
+            color: var(--orange);
+        }
+
+        .lb-record {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        .lb-record .w { color: var(--green); }
+        .lb-record .l { color: var(--accent); }
+
+        .lb-highlight td {
+            background: rgba(244,162,97,0.06) !important;
+            border-left: 3px solid var(--orange);
+        }
+
+        .lb-empty {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+
+        /* Fight History */
+        .fight-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .fh-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.85rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .fh-card:hover { background: var(--bg-card-hover); }
+
+        .fh-result-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .fh-result-badge.win {
+            background: rgba(78,204,163,0.15);
+            color: var(--green);
+        }
+
+        .fh-result-badge.loss {
+            background: rgba(230,57,70,0.15);
+            color: var(--accent);
+        }
+
+        .fh-info { flex: 1; min-width: 0; }
+
+        .fh-opponent {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .fh-meta {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .fh-rating-change {
+            font-family: monospace;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .fh-rating-change.positive { color: var(--green); }
+        .fh-rating-change.negative { color: var(--accent); }
+
+        .fh-date {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .fh-empty {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+
+        /* Fight Overlay */
+        .fight-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeSlideIn 0.3s ease-out;
+        }
+
+        .fight-modal {
+            background: var(--bg-card);
+            border: 2px solid var(--orange);
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(244,162,97,0.2);
+        }
+
+        .fight-modal h2 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--orange);
+        }
+
+        .fight-versus {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .fight-fighter {
+            text-align: center;
+        }
+
+        .fight-fighter-emoji { font-size: 2.5rem; }
+        .fight-fighter-name { font-weight: 700; font-size: 0.9rem; margin-top: 0.25rem; }
+
+        .fight-vs {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--text-muted);
+        }
+
+        .fight-spinner {
+            width: 30px; height: 30px;
+            border: 3px solid var(--border);
+            border-top-color: var(--orange);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 1rem auto;
+        }
+
+        .fight-result-text {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin: 0.5rem 0;
+        }
+
+        .fight-result-text.victory {
+            color: var(--green);
+            text-shadow: 0 0 20px rgba(78,204,163,0.4);
+        }
+
+        .fight-result-text.defeat {
+            color: var(--accent);
+            text-shadow: 0 0 20px rgba(230,57,70,0.3);
+        }
+
+        .fight-result-detail {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 0.5rem;
+        }
+
+        .fight-rating-delta {
+            font-family: monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .fight-rating-delta.up { color: var(--green); }
+        .fight-rating-delta.down { color: var(--accent); }
+
+        .fight-xp-award {
+            font-size: 0.85rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .btn-fight-close {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 0.55rem 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-fight-close:hover { border-color: var(--orange); color: var(--orange); }
+
+        /* Nav override */
+        .nav-fight a { color: var(--accent) !important; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+
+        @media (max-width: 640px) {
+            .arena-header h1 { font-size: 1.6rem; }
+            .arena-tabs { gap: 0; }
+            .arena-tab { padding: 0.6rem 0.8rem; font-size: 0.75rem; }
+            .opp-card { flex-wrap: wrap; }
+            .reg-stats { grid-template-columns: repeat(2, 1fr); }
+            .leaderboard-table { font-size: 0.8rem; }
+            .leaderboard-table th, .leaderboard-table td { padding: 0.4rem 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li class="nav-dropdown">
+                    <a href="/tournaments">Benchmark &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/tournaments">Tournaments</a></li>
+                        <li><a href="/leaderboard">Leaderboard</a></li>
+                        <li><a href="/methodology">Methodology</a></li>
+                        <li><a href="/match-log">Match Log</a></li>
+                        <li><a href="/compare">Compare</a></li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="/s1-leaderboard">Seasons &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/s1-leaderboard">S1 Leaderboard</a></li>
+                        <li><a href="/s1-fighters">Meet the Fighters</a></li>
+                        <li><a href="/s1-matchups">Matchup Explorer</a></li>
+                        <li><a href="/play">S1 Quick Fight</a></li>
+                        <li><a href="/s1-compare">Benchmark vs S1</a></li>
+                        <li><a href="/moreddit">The Moreddit</a></li>
+                    </ul>
+                </li>
+                <li><a href="/pets">Pets</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+                <li class="nav-fight"><a href="/island" class="active">FIGHT!</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Auto-Arena Toast -->
+    <div class="auto-arena-toast" id="autoArenaToast">
+        <div class="auto-arena-toast-title" id="autoArenaTitle"></div>
+        <div class="auto-arena-toast-text" id="autoArenaText"></div>
+    </div>
+
+    <div class="arena-page">
+        <!-- Loading -->
+        <div id="loadingScreen" class="loading-screen">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Entering the Global Arena...</div>
+        </div>
+
+        <!-- Main -->
+        <div id="mainContent" style="display:none;">
+            <div class="arena-header">
+                <h1>Global <span>Arena</span></h1>
+                <div class="arena-subtitle">Fight other players' pets. Asynchronous PvP. ELO rating.</div>
+            </div>
+
+            <div class="arena-tabs">
+                <button class="arena-tab active" onclick="switchTab('register')">Registration</button>
+                <button class="arena-tab" onclick="switchTab('opponents')">Find Opponents</button>
+                <button class="arena-tab" onclick="switchTab('leaderboard')">Leaderboard</button>
+                <button class="arena-tab" onclick="switchTab('history')">Fight History</button>
+            </div>
+
+            <!-- Tab 1: Registration -->
+            <div class="tab-content active" id="tab-register"></div>
+
+            <!-- Tab 2: Find Opponents -->
+            <div class="tab-content" id="tab-opponents"></div>
+
+            <!-- Tab 3: Leaderboard -->
+            <div class="tab-content" id="tab-leaderboard"></div>
+
+            <!-- Tab 4: Fight History -->
+            <div class="tab-content" id="tab-history"></div>
+        </div>
+    </div>
+
+    <!-- Fight Overlay -->
+    <div class="fight-overlay" id="fightOverlay" style="display:none;"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/static/island/supabase-client.js"></script>
+    <script>
+        // =============================================
+        //  Global Arena — Async PvP + Auto-Arena
+        // =============================================
+
+        const EMOJI_MAP = {
+            bear:'\u{1F43B}', buffalo:'\u{1F9AC}', boar:'\u{1F417}', tiger:'\u{1F405}',
+            wolf:'\u{1F43A}', monkey:'\u{1F412}', porcupine:'\u{1F994}', scorpion:'\u{1F982}',
+            vulture:'\u{1F985}', rhino:'\u{1F98F}', viper:'\u{1F40D}', fox:'\u{1F98A}',
+            eagle:'\u{1F985}', panther:'\u{1F408}'
+        };
+
+        const LEVEL_THRESHOLDS = {1:0, 2:50, 3:100, 4:150, 5:200, 6:300, 7:400, 8:500, 9:600, 10:750};
+        const MAX_LEVEL = 10;
+        const BASE_RATING_CHANGE = 25;
+        const AUTO_ARENA_COOLDOWN_MS = 6 * 60 * 60 * 1000; // 6 hours
+        const CHALLENGE_COOLDOWN_MS = 60 * 60 * 1000;       // 1 hour
+        const ARENA_XP_WIN = 20;
+        const ARENA_XP_LOSS = 5;
+        const MIN_LEVEL = 3;
+
+        let offlineMode = false;
+        let allPets = [];
+        let activePetIndex = 0;
+        let myRegistration = null;  // arena_registry row for current user
+        let currentTab = 'register';
+
+        function escHtml(s) {
+            var d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        // ── Init ──
+
+        async function init() {
+            await initSupabase();
+            var user = await getUser();
+
+            if (!isOnlineMode()) {
+                // Arena requires online mode
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                renderAllTabs();
+                return;
+            }
+
+            offlineMode = false;
+            allPets = await dbGetPets(user.id);
+            activePetIndex = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
+            if (activePetIndex >= allPets.length) activePetIndex = 0;
+
+            // Load registration status
+            await loadRegistration();
+
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+
+            renderAllTabs();
+
+            // Auto-Arena check
+            await checkAutoArena();
+        }
+
+        async function loadRegistration() {
+            if (!sb || !currentUser) return;
+            var { data } = await sb.from('arena_registry')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .maybeSingle();
+            myRegistration = data || null;
+        }
+
+        // ── Tab Switching ──
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.arena-tab').forEach(function(t, i) {
+                var tabs = ['register', 'opponents', 'leaderboard', 'history'];
+                t.classList.toggle('active', tabs[i] === tab);
+            });
+            document.querySelectorAll('.tab-content').forEach(function(c) {
+                c.classList.remove('active');
+            });
+            document.getElementById('tab-' + tab).classList.add('active');
+
+            // Refresh data when switching
+            if (tab === 'opponents') renderOpponents();
+            else if (tab === 'leaderboard') renderLeaderboard();
+            else if (tab === 'history') renderHistory();
+            else if (tab === 'register') renderRegistration();
+        }
+
+        function renderAllTabs() {
+            renderRegistration();
+            // Lazy-load other tabs on switch
+        }
+
+        // ════════════════════════════════════
+        //  Tab 1: Registration
+        // ════════════════════════════════════
+
+        function renderRegistration() {
+            var container = document.getElementById('tab-register');
+
+            if (!isOnlineMode()) {
+                container.innerHTML = '<div class="arena-notice">' +
+                    '<p>The Global Arena requires an account.</p>' +
+                    '<a href="/island">Sign in to enter</a></div>';
+                return;
+            }
+
+            var livingPets = allPets.filter(function(p) { return !p.deceased && p.is_alive !== false; });
+            if (livingPets.length === 0) {
+                container.innerHTML = '<div class="arena-notice">' +
+                    '<p>You need at least one pet to enter the Arena.</p>' +
+                    '<a href="/island/create">Create a pet</a></div>';
+                return;
+            }
+
+            var pet = allPets[activePetIndex];
+            if (!pet || pet.deceased || pet.is_alive === false) {
+                // Find first living pet
+                for (var i = 0; i < allPets.length; i++) {
+                    if (!allPets[i].deceased && allPets[i].is_alive !== false) {
+                        activePetIndex = i;
+                        pet = allPets[i];
+                        break;
+                    }
+                }
+            }
+
+            if (!pet) {
+                container.innerHTML = '<div class="arena-notice"><p>No living pets found.</p></div>';
+                return;
+            }
+
+            var animal = (pet.animal || '').toLowerCase();
+            var emoji = EMOJI_MAP[animal] || '\u{1F43E}';
+            var stats = pet.base_stats || pet.stats || {};
+            var level = pet.level || 1;
+            var meetsLevel = level >= MIN_LEVEL;
+
+            var isRegistered = myRegistration && myRegistration.pet_id === pet.id;
+
+            var html = '<div class="reg-card">';
+            html += '<div class="reg-pet-emoji">' + emoji + '</div>';
+            html += '<div class="reg-pet-name">' + escHtml(pet.name || 'Unknown') + '</div>';
+            html += '<div class="reg-pet-level">Level ' + level + ' ' + escHtml(animal.charAt(0).toUpperCase() + animal.slice(1)) + '</div>';
+
+            html += '<div class="reg-stats">';
+            html += '<div class="reg-stat"><div class="reg-stat-label">HP</div><div class="reg-stat-val stat-hp">' + (stats.hp || 5) + '</div></div>';
+            html += '<div class="reg-stat"><div class="reg-stat-label">ATK</div><div class="reg-stat-val stat-atk">' + (stats.atk || 5) + '</div></div>';
+            html += '<div class="reg-stat"><div class="reg-stat-label">SPD</div><div class="reg-stat-val stat-spd">' + (stats.spd || 5) + '</div></div>';
+            html += '<div class="reg-stat"><div class="reg-stat-label">WIL</div><div class="reg-stat-val stat-wil">' + (stats.wil || 5) + '</div></div>';
+            html += '</div>';
+
+            if (isRegistered) {
+                html += '<div class="reg-rating-display">';
+                html += '<div class="reg-rating-label">Arena Rating</div>';
+                html += '<div class="reg-rating-value">' + (myRegistration.arena_rating || 1000) + '</div>';
+                html += '</div>';
+                html += '<div class="reg-record">';
+                html += '<span class="wins">' + (myRegistration.arena_wins || 0) + 'W</span>';
+                html += ' / ';
+                html += '<span class="losses">' + (myRegistration.arena_losses || 0) + 'L</span>';
+                html += '</div>';
+
+                html += '<div style="margin-top:1.5rem;">';
+                html += '<div style="font-size:0.8rem;color:var(--green);font-weight:700;margin-bottom:0.5rem;">REGISTERED IN ARENA</div>';
+                html += '<button class="btn-arena-withdraw" onclick="withdrawFromArena()">WITHDRAW</button>';
+                html += '</div>';
+            } else if (myRegistration) {
+                // Registered with different pet
+                var regPet = allPets.find(function(p) { return p.id === myRegistration.pet_id; });
+                var regName = regPet ? regPet.name : 'another pet';
+                html += '<div style="margin-top:1rem;">';
+                html += '<div style="font-size:0.8rem;color:var(--gold);margin-bottom:0.5rem;">You have <strong>' + escHtml(regName) + '</strong> registered. Withdraw first to register a different pet.</div>';
+                html += '<button class="btn-arena-withdraw" onclick="withdrawFromArena()">WITHDRAW ' + escHtml(regName).toUpperCase() + '</button>';
+                html += '</div>';
+            } else {
+                // Not registered
+                if (meetsLevel) {
+                    html += '<button class="btn-arena-enter" onclick="registerForArena()">ENTER THE ARENA</button>';
+                } else {
+                    html += '<button class="btn-arena-enter" disabled style="opacity:0.4;cursor:not-allowed;animation:none;">ENTER THE ARENA</button>';
+                    html += '<div class="reg-requirement"><span class="fail">Requires Level ' + MIN_LEVEL + '+</span> (currently Level ' + level + ')</div>';
+                }
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        async function registerForArena() {
+            if (!sb || !currentUser) return;
+            var pet = allPets[activePetIndex];
+            if (!pet) return;
+
+            var { data, error } = await sb.from('arena_registry').insert({
+                pet_id: pet.id,
+                user_id: currentUser.id,
+                arena_rating: 1000,
+                arena_wins: 0,
+                arena_losses: 0
+            }).select().single();
+
+            if (error) {
+                if (error.code === '23505') {
+                    alert('This pet is already registered, or you already have a pet in the arena.');
+                } else {
+                    alert('Registration failed: ' + error.message);
+                }
+                return;
+            }
+
+            myRegistration = data;
+            renderRegistration();
+        }
+
+        async function withdrawFromArena() {
+            if (!sb || !currentUser || !myRegistration) return;
+
+            if (!confirm('Withdraw from the arena? Your rating will be preserved if you re-register the same pet.')) return;
+
+            var { error } = await sb.from('arena_registry').delete()
+                .eq('id', myRegistration.id);
+
+            if (error) {
+                alert('Withdrawal failed: ' + error.message);
+                return;
+            }
+
+            myRegistration = null;
+            renderRegistration();
+        }
+
+        // ════════════════════════════════════
+        //  Tab 2: Find Opponents
+        // ════════════════════════════════════
+
+        async function renderOpponents() {
+            var container = document.getElementById('tab-opponents');
+
+            if (!isOnlineMode()) {
+                container.innerHTML = '<div class="arena-notice"><p>Sign in to find opponents.</p></div>';
+                return;
+            }
+
+            if (!myRegistration) {
+                container.innerHTML = '<div class="arena-notice">' +
+                    '<p>Register your pet first to find opponents.</p>' +
+                    '<a href="#" onclick="switchTab(\'register\');return false;">Go to Registration</a></div>';
+                return;
+            }
+
+            container.innerHTML = '<div style="text-align:center;padding:2rem;"><div class="loading-spinner" style="margin:0 auto;"></div><div class="loading-text" style="margin-top:0.75rem;">Finding opponents...</div></div>';
+
+            // Load opponents from arena_registry (excluding self)
+            var myRating = myRegistration.arena_rating || 1000;
+            var { data: opponents, error } = await sb.from('arena_registry')
+                .select('*, pets(*)')
+                .neq('user_id', currentUser.id)
+                .order('arena_rating', { ascending: false });
+
+            if (error || !opponents) {
+                container.innerHTML = '<div class="no-opponents">Failed to load opponents.</div>';
+                return;
+            }
+
+            // Sort by closest rating
+            opponents.sort(function(a, b) {
+                return Math.abs((a.arena_rating || 1000) - myRating) - Math.abs((b.arena_rating || 1000) - myRating);
+            });
+
+            // Load recent fights to check cooldowns
+            var { data: recentFights } = await sb.from('arena_fights')
+                .select('pet2_id, created_at')
+                .eq('pet1_user_id', currentUser.id)
+                .gte('created_at', new Date(Date.now() - CHALLENGE_COOLDOWN_MS).toISOString())
+                .order('created_at', { ascending: false });
+
+            var cooldownMap = {};
+            (recentFights || []).forEach(function(f) {
+                cooldownMap[f.pet2_id] = new Date(f.created_at).getTime();
+            });
+
+            var html = '<div class="opponents-controls">';
+            html += '<div class="opponents-count">' + opponents.length + ' fighter' + (opponents.length !== 1 ? 's' : '') + ' in the arena</div>';
+            html += '<button class="btn-refresh" onclick="renderOpponents()">Refresh</button>';
+            html += '</div>';
+
+            if (opponents.length === 0) {
+                html += '<div class="no-opponents">No other fighters in the arena yet. Share the link and invite others!</div>';
+                container.innerHTML = html;
+                return;
+            }
+
+            html += '<div class="opponent-list">';
+
+            opponents.forEach(function(opp) {
+                var pet = opp.pets;
+                if (!pet) return;
+
+                var animal = (pet.animal || '').toLowerCase();
+                var emoji = EMOJI_MAP[animal] || '\u{1F43E}';
+                var stats = pet.base_stats || {};
+                var oppRating = opp.arena_rating || 1000;
+                var lastFoughtTime = cooldownMap[opp.pet_id] || 0;
+                var onCooldown = (Date.now() - lastFoughtTime) < CHALLENGE_COOLDOWN_MS;
+                var cooldownLeft = onCooldown ? Math.ceil((CHALLENGE_COOLDOWN_MS - (Date.now() - lastFoughtTime)) / 60000) : 0;
+
+                html += '<div class="opp-card">';
+                html += '<div class="opp-emoji">' + emoji + '</div>';
+                html += '<div class="opp-info">';
+                html += '<div class="opp-name">' + escHtml(pet.name || 'Unknown') + '</div>';
+                html += '<div class="opp-meta">Lv.' + (pet.level || 1) + ' ' + escHtml(animal) + '</div>';
+                html += '<div class="opp-stats-mini">HP:' + (stats.hp || 5) + ' ATK:' + (stats.atk || 5) + ' SPD:' + (stats.spd || 5) + ' WIL:' + (stats.wil || 5) + '</div>';
+                html += '</div>';
+                html += '<div class="opp-rating">';
+                html += '<div class="opp-rating-val">' + oppRating + '</div>';
+                html += '<div class="opp-rating-label">Rating</div>';
+                html += '<div class="opp-record">' + (opp.arena_wins || 0) + 'W / ' + (opp.arena_losses || 0) + 'L</div>';
+                html += '</div>';
+
+                if (onCooldown) {
+                    html += '<div class="opp-cooldown">' + cooldownLeft + 'm cooldown</div>';
+                } else {
+                    html += '<button class="btn-challenge" onclick="challengeOpponent(\'' + opp.id + '\', \'' + opp.pet_id + '\')">CHALLENGE</button>';
+                }
+                html += '</div>';
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // ── Challenge & Fight ──
+
+        async function challengeOpponent(regId, oppPetId) {
+            if (!sb || !currentUser || !myRegistration) return;
+
+            // Get my pet
+            var myPet = allPets.find(function(p) { return p.id === myRegistration.pet_id; });
+            if (!myPet) { alert('Your registered pet was not found.'); return; }
+
+            // Get opponent's pet
+            var { data: oppPet } = await sb.from('pets').select('*').eq('id', oppPetId).single();
+            if (!oppPet) { alert('Opponent pet not found.'); return; }
+
+            // Get opponent's registration
+            var { data: oppReg } = await sb.from('arena_registry').select('*').eq('id', regId).single();
+            if (!oppReg) { alert('Opponent is no longer in the arena.'); return; }
+
+            // Show fight overlay
+            showFightOverlay(myPet, oppPet, 'fighting');
+
+            try {
+                // Run fight via server endpoint
+                var resp = await fetch('/api/v1/island/arena-fight', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        pet1_id: myPet.id,
+                        pet2_id: oppPet.id
+                    })
+                });
+
+                if (!resp.ok) {
+                    var err = await resp.json().catch(function() { return {}; });
+                    throw new Error(err.detail || 'Server error ' + resp.status);
+                }
+
+                var result = await resp.json();
+
+                // Calculate rating change
+                var myRating = myRegistration.arena_rating || 1000;
+                var oppRating = oppReg.arena_rating || 1000;
+                var iWon = result.build1_wins > result.build2_wins;
+                var ratingChange = calculateRatingChange(myRating, oppRating, iWon);
+                var ticks = Math.round(result.avg_ticks);
+
+                // Update arena_registry for both players
+                if (iWon) {
+                    await sb.from('arena_registry').update({
+                        arena_wins: (myRegistration.arena_wins || 0) + 1,
+                        arena_rating: myRating + ratingChange,
+                        last_fought_at: new Date().toISOString()
+                    }).eq('id', myRegistration.id);
+
+                    await sb.from('arena_registry').update({
+                        arena_losses: (oppReg.arena_losses || 0) + 1,
+                        arena_rating: Math.max(0, oppRating - ratingChange),
+                        last_fought_at: new Date().toISOString()
+                    }).eq('id', oppReg.id);
+                } else {
+                    await sb.from('arena_registry').update({
+                        arena_losses: (myRegistration.arena_losses || 0) + 1,
+                        arena_rating: Math.max(0, myRating - ratingChange),
+                        last_fought_at: new Date().toISOString()
+                    }).eq('id', myRegistration.id);
+
+                    await sb.from('arena_registry').update({
+                        arena_wins: (oppReg.arena_wins || 0) + 1,
+                        arena_rating: oppRating + ratingChange,
+                        last_fought_at: new Date().toISOString()
+                    }).eq('id', oppReg.id);
+                }
+
+                // Record fight
+                await sb.from('arena_fights').insert({
+                    pet1_id: myPet.id,
+                    pet2_id: oppPet.id,
+                    pet1_user_id: currentUser.id,
+                    pet2_user_id: oppReg.user_id,
+                    winner_id: iWon ? myPet.id : oppPet.id,
+                    ticks: ticks,
+                    rating_change: ratingChange,
+                    fight_type: 'async'
+                });
+
+                // Award XP
+                var xpGain = iWon ? ARENA_XP_WIN : ARENA_XP_LOSS;
+                var newXp = (myPet.xp || 0) + xpGain;
+                var newLevel = myPet.level || 1;
+                for (var lv = newLevel + 1; lv <= MAX_LEVEL; lv++) {
+                    if (newXp >= (LEVEL_THRESHOLDS[lv] || 99999)) newLevel = lv;
+                    else break;
+                }
+                await dbUpdatePet(myPet.id, { xp: newXp, level: newLevel });
+
+                // Reload registration
+                await loadRegistration();
+                allPets = await dbGetPets(currentUser.id);
+
+                // Show result
+                showFightOverlay(myPet, oppPet, iWon ? 'victory' : 'defeat', {
+                    ticks: ticks,
+                    ratingChange: iWon ? ratingChange : -ratingChange,
+                    xp: xpGain
+                });
+
+            } catch (e) {
+                closeFightOverlay();
+                alert('Fight failed: ' + e.message);
+            }
+        }
+
+        function calculateRatingChange(myRating, oppRating, iWon) {
+            // ELO-like calculation
+            var diff = oppRating - myRating;
+            var expected = 1 / (1 + Math.pow(10, diff / 400));
+            var actual = iWon ? 1 : 0;
+            var change = Math.round(BASE_RATING_CHANGE * (actual - expected));
+            // Ensure minimum change of 5, max of 50
+            if (iWon) return Math.max(5, Math.min(50, Math.abs(change)));
+            else return Math.max(5, Math.min(50, Math.abs(change)));
+        }
+
+        // ── Fight Overlay ──
+
+        function showFightOverlay(myPet, oppPet, state, resultData) {
+            var overlay = document.getElementById('fightOverlay');
+            var myAnimal = (myPet.animal || '').toLowerCase();
+            var oppAnimal = (oppPet.animal || '').toLowerCase();
+            var myEmoji = EMOJI_MAP[myAnimal] || '\u{1F43E}';
+            var oppEmoji = EMOJI_MAP[oppAnimal] || '\u{1F43E}';
+
+            var html = '<div class="fight-modal">';
+
+            if (state === 'fighting') {
+                html += '<h2>ARENA FIGHT</h2>';
+                html += '<div class="fight-versus">';
+                html += '<div class="fight-fighter"><div class="fight-fighter-emoji">' + myEmoji + '</div><div class="fight-fighter-name">' + escHtml(myPet.name || 'Unknown') + '</div></div>';
+                html += '<div class="fight-vs">VS</div>';
+                html += '<div class="fight-fighter"><div class="fight-fighter-emoji">' + oppEmoji + '</div><div class="fight-fighter-name">' + escHtml(oppPet.name || 'Unknown') + '</div></div>';
+                html += '</div>';
+                html += '<div class="fight-spinner"></div>';
+                html += '<div style="font-size:0.85rem;color:var(--text-muted);">Fight in progress...</div>';
+            } else {
+                var isVictory = state === 'victory';
+                html += '<div class="fight-result-text ' + (isVictory ? 'victory' : 'defeat') + '">' + (isVictory ? 'VICTORY' : 'DEFEAT') + '</div>';
+                html += '<div class="fight-versus">';
+                html += '<div class="fight-fighter"><div class="fight-fighter-emoji">' + myEmoji + '</div><div class="fight-fighter-name">' + escHtml(myPet.name || 'Unknown') + '</div></div>';
+                html += '<div class="fight-vs">VS</div>';
+                html += '<div class="fight-fighter"><div class="fight-fighter-emoji">' + oppEmoji + '</div><div class="fight-fighter-name">' + escHtml(oppPet.name || 'Unknown') + '</div></div>';
+                html += '</div>';
+
+                if (resultData) {
+                    html += '<div class="fight-result-detail">' + resultData.ticks + ' ticks</div>';
+                    var rc = resultData.ratingChange;
+                    html += '<div class="fight-rating-delta ' + (rc >= 0 ? 'up' : 'down') + '">' + (rc >= 0 ? '+' : '') + rc + ' Rating</div>';
+                    html += '<div class="fight-xp-award">+' + resultData.xp + ' XP</div>';
+                }
+
+                html += '<button class="btn-fight-close" onclick="closeFightOverlay()">OK</button>';
+            }
+
+            html += '</div>';
+            overlay.innerHTML = html;
+            overlay.style.display = 'flex';
+        }
+
+        function closeFightOverlay() {
+            document.getElementById('fightOverlay').style.display = 'none';
+            // Refresh current tab
+            switchTab(currentTab);
+        }
+
+        // ════════════════════════════════════
+        //  Tab 3: Leaderboard
+        // ════════════════════════════════════
+
+        async function renderLeaderboard() {
+            var container = document.getElementById('tab-leaderboard');
+
+            if (!isOnlineMode()) {
+                container.innerHTML = '<div class="lb-empty">Sign in to view the leaderboard.</div>';
+                return;
+            }
+
+            container.innerHTML = '<div style="text-align:center;padding:2rem;"><div class="loading-spinner" style="margin:0 auto;"></div></div>';
+
+            var { data: entries, error } = await sb.from('arena_registry')
+                .select('*, pets(*)')
+                .order('arena_rating', { ascending: false })
+                .limit(50);
+
+            if (error || !entries || entries.length === 0) {
+                container.innerHTML = '<div class="lb-empty">No fighters in the arena yet. Be the first!</div>';
+                return;
+            }
+
+            var html = '<table class="leaderboard-table">';
+            html += '<thead><tr><th>#</th><th>Fighter</th><th>Rating</th><th>Record</th></tr></thead>';
+            html += '<tbody>';
+
+            entries.forEach(function(entry, i) {
+                var rank = i + 1;
+                var pet = entry.pets;
+                if (!pet) return;
+
+                var animal = (pet.animal || '').toLowerCase();
+                var emoji = EMOJI_MAP[animal] || '\u{1F43E}';
+                var isMe = myRegistration && entry.id === myRegistration.id;
+                var rankClass = '';
+                if (rank === 1) rankClass = 'rank-1';
+                else if (rank === 2) rankClass = 'rank-2';
+                else if (rank === 3) rankClass = 'rank-3';
+
+                var medal = '';
+                if (rank === 1) medal = '\u{1F947}';
+                else if (rank === 2) medal = '\u{1F948}';
+                else if (rank === 3) medal = '\u{1F949}';
+
+                html += '<tr class="' + (isMe ? 'lb-highlight' : '') + '">';
+                html += '<td class="rank-cell ' + rankClass + '">' + (medal || rank) + '</td>';
+                html += '<td><div class="lb-pet-cell">';
+                html += '<span class="lb-emoji">' + emoji + '</span>';
+                html += '<div><div class="lb-name">' + escHtml(pet.name || 'Unknown') + '</div>';
+                html += '<div class="lb-owner">Lv.' + (pet.level || 1) + ' ' + escHtml(animal) + '</div></div>';
+                html += '</div></td>';
+                html += '<td class="lb-rating">' + (entry.arena_rating || 1000) + '</td>';
+                html += '<td class="lb-record"><span class="w">' + (entry.arena_wins || 0) + 'W</span> / <span class="l">' + (entry.arena_losses || 0) + 'L</span></td>';
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // ════════════════════════════════════
+        //  Tab 4: Fight History
+        // ════════════════════════════════════
+
+        async function renderHistory() {
+            var container = document.getElementById('tab-history');
+
+            if (!isOnlineMode()) {
+                container.innerHTML = '<div class="fh-empty">Sign in to view fight history.</div>';
+                return;
+            }
+
+            container.innerHTML = '<div style="text-align:center;padding:2rem;"><div class="loading-spinner" style="margin:0 auto;"></div></div>';
+
+            // Get fights where user is pet1 or pet2
+            var { data: fights, error } = await sb.from('arena_fights')
+                .select('*, pet1:pets!arena_fights_pet1_id_fkey(*), pet2:pets!arena_fights_pet2_id_fkey(*)')
+                .or('pet1_user_id.eq.' + currentUser.id + ',pet2_user_id.eq.' + currentUser.id)
+                .order('created_at', { ascending: false })
+                .limit(50);
+
+            if (error || !fights || fights.length === 0) {
+                container.innerHTML = '<div class="fh-empty">No arena fights yet. Challenge someone!</div>';
+                return;
+            }
+
+            var html = '<div class="fight-history-list">';
+
+            fights.forEach(function(f) {
+                var iAmPet1 = f.pet1_user_id === currentUser.id;
+                var myPetData = iAmPet1 ? f.pet1 : f.pet2;
+                var oppPetData = iAmPet1 ? f.pet2 : f.pet1;
+                var iWon = f.winner_id === (myPetData ? myPetData.id : null);
+                var ratingDelta = iWon ? (f.rating_change || 0) : -(f.rating_change || 0);
+                var oppAnimal = oppPetData ? (oppPetData.animal || '').toLowerCase() : '';
+                var oppEmoji = EMOJI_MAP[oppAnimal] || '\u{1F43E}';
+                var fightDate = new Date(f.created_at);
+                var dateStr = fightDate.toLocaleDateString() + ' ' + fightDate.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                var typeLabel = f.fight_type === 'auto' ? ' [Auto]' : '';
+
+                html += '<div class="fh-card">';
+                html += '<div class="fh-result-badge ' + (iWon ? 'win' : 'loss') + '">' + (iWon ? 'WIN' : 'LOSS') + '</div>';
+                html += '<div class="fh-info">';
+                html += '<div class="fh-opponent">' + oppEmoji + ' ' + escHtml(oppPetData ? oppPetData.name : 'Unknown') + '</div>';
+                html += '<div class="fh-meta">' + (f.ticks || 0) + ' ticks' + typeLabel + '</div>';
+                html += '</div>';
+                html += '<div class="fh-rating-change ' + (ratingDelta >= 0 ? 'positive' : 'negative') + '">' + (ratingDelta >= 0 ? '+' : '') + ratingDelta + '</div>';
+                html += '<div class="fh-date">' + dateStr + '</div>';
+                html += '</div>';
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // ════════════════════════════════════
+        //  Auto-Arena System
+        // ════════════════════════════════════
+
+        async function checkAutoArena() {
+            if (!sb || !currentUser || !myRegistration) return;
+
+            var lastFought = myRegistration.last_fought_at
+                ? new Date(myRegistration.last_fought_at).getTime()
+                : 0;
+
+            if (Date.now() - lastFought < AUTO_ARENA_COOLDOWN_MS) return;
+
+            // Find opponent within +/- 200 rating
+            var myRating = myRegistration.arena_rating || 1000;
+            var { data: candidates } = await sb.from('arena_registry')
+                .select('*, pets(*)')
+                .neq('user_id', currentUser.id)
+                .gte('arena_rating', myRating - 200)
+                .lte('arena_rating', myRating + 200)
+                .limit(10);
+
+            if (!candidates || candidates.length === 0) return;
+
+            // Pick random opponent
+            var opp = candidates[Math.floor(Math.random() * candidates.length)];
+            var oppPet = opp.pets;
+            if (!oppPet) return;
+
+            // Get my pet
+            var myPet = allPets.find(function(p) { return p.id === myRegistration.pet_id; });
+            if (!myPet || myPet.deceased || myPet.is_alive === false) return;
+
+            // Run auto-fight
+            try {
+                var resp = await fetch('/api/v1/island/arena-fight', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        pet1_id: myPet.id,
+                        pet2_id: oppPet.id
+                    })
+                });
+
+                if (!resp.ok) return;
+
+                var result = await resp.json();
+                var iWon = result.build1_wins > result.build2_wins;
+                var ticks = Math.round(result.avg_ticks);
+                var ratingChange = calculateRatingChange(myRating, opp.arena_rating || 1000, iWon);
+
+                // Update ratings
+                if (iWon) {
+                    await sb.from('arena_registry').update({
+                        arena_wins: (myRegistration.arena_wins || 0) + 1,
+                        arena_rating: myRating + ratingChange,
+                        last_fought_at: new Date().toISOString()
+                    }).eq('id', myRegistration.id);
+
+                    await sb.from('arena_registry').update({
+                        arena_losses: (opp.arena_losses || 0) + 1,
+                        arena_rating: Math.max(0, (opp.arena_rating || 1000) - ratingChange),
+                        last_fought_at: new Date().toISOString()
+                    }).eq('id', opp.id);
+                } else {
+                    await sb.from('arena_registry').update({
+                        arena_losses: (myRegistration.arena_losses || 0) + 1,
+                        arena_rating: Math.max(0, myRating - ratingChange),
+                        last_fought_at: new Date().toISOString()
+                    }).eq('id', myRegistration.id);
+
+                    await sb.from('arena_registry').update({
+                        arena_wins: (opp.arena_wins || 0) + 1,
+                        arena_rating: (opp.arena_rating || 1000) + ratingChange,
+                        last_fought_at: new Date().toISOString()
+                    }).eq('id', opp.id);
+                }
+
+                // Record fight
+                await sb.from('arena_fights').insert({
+                    pet1_id: myPet.id,
+                    pet2_id: oppPet.id,
+                    pet1_user_id: currentUser.id,
+                    pet2_user_id: opp.user_id,
+                    winner_id: iWon ? myPet.id : oppPet.id,
+                    ticks: ticks,
+                    rating_change: ratingChange,
+                    fight_type: 'auto'
+                });
+
+                // Award XP
+                var xpGain = iWon ? ARENA_XP_WIN : ARENA_XP_LOSS;
+                var newXp = (myPet.xp || 0) + xpGain;
+                var newLevel = myPet.level || 1;
+                for (var lv = newLevel + 1; lv <= MAX_LEVEL; lv++) {
+                    if (newXp >= (LEVEL_THRESHOLDS[lv] || 99999)) newLevel = lv;
+                    else break;
+                }
+                await dbUpdatePet(myPet.id, { xp: newXp, level: newLevel });
+
+                // Reload
+                await loadRegistration();
+                allPets = await dbGetPets(currentUser.id);
+
+                // Show notification
+                var oppAnimal = (oppPet.animal || '').toLowerCase();
+                var oppEmoji = EMOJI_MAP[oppAnimal] || '\u{1F43E}';
+                var toast = document.getElementById('autoArenaToast');
+                document.getElementById('autoArenaTitle').textContent = 'While you were away...';
+                document.getElementById('autoArenaText').innerHTML =
+                    escHtml(myPet.name) + ' fought ' + oppEmoji + ' ' + escHtml(oppPet.name) + ' and ' +
+                    (iWon
+                        ? '<span style="color:var(--green);font-weight:700;">WON</span> (+' + ratingChange + ' rating, +' + xpGain + ' XP)'
+                        : '<span style="color:var(--accent);font-weight:700;">LOST</span> (-' + ratingChange + ' rating, +' + xpGain + ' XP)');
+
+                toast.classList.add('visible');
+                setTimeout(function() { toast.classList.remove('visible'); }, 8000);
+
+                renderRegistration();
+
+            } catch (e) {
+                console.warn('[Arena] Auto-fight failed:', e);
+            }
+        }
+
+        // ── Start ──
+        init();
+    </script>
+</body>
+</html>

@@ -1354,11 +1354,62 @@ def island_config():
     }
 
 
+class ArenaFightRequest(BaseModel):
+    pet1_id: str = Field(..., description="UUID of the challenger pet")
+    pet2_id: str = Field(..., description="UUID of the opponent pet")
+
+
+@app.post("/api/v1/island/arena-fight")
+async def arena_fight(req: ArenaFightRequest, request: Request):
+    """Run an arena fight between two pets using their stored stats.
+
+    The client sends pet IDs; the server fetches stats from Supabase
+    and runs the fight through the S1 engine to ensure integrity.
+    """
+    import httpx
+
+    supabase_url = os.environ.get("SUPABASE_URL", "")
+    supabase_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "") or os.environ.get("SUPABASE_ANON_KEY", "")
+
+    if not supabase_url or not supabase_key:
+        raise HTTPException(503, "Supabase not configured on server")
+
+    headers = {
+        "apikey": supabase_key,
+        "Authorization": f"Bearer {supabase_key}",
+    }
+
+    # Fetch both pets from Supabase
+    async with httpx.AsyncClient() as client:
+        r1 = await client.get(
+            f"{supabase_url}/rest/v1/pets?id=eq.{req.pet1_id}&select=animal,base_stats",
+            headers=headers,
+        )
+        r2 = await client.get(
+            f"{supabase_url}/rest/v1/pets?id=eq.{req.pet2_id}&select=animal,base_stats",
+            headers=headers,
+        )
+
+    if r1.status_code != 200 or not r1.json():
+        raise HTTPException(404, "Pet 1 not found")
+    if r2.status_code != 200 or not r2.json():
+        raise HTTPException(404, "Pet 2 not found")
+
+    pet1 = r1.json()[0]
+    pet2 = r2.json()[0]
+
+    s1 = pet1.get("base_stats", {})
+    s2 = pet2.get("base_stats", {})
+
+    build1 = f"{pet1['animal']} {s1.get('hp',5)} {s1.get('atk',5)} {s1.get('spd',5)} {s1.get('wil',5)}"
+    build2 = f"{pet2['animal']} {s2.get('hp',5)} {s2.get('atk',5)} {s2.get('spd',5)} {s2.get('wil',5)}"
+
+    return _fight_s1_logic(build1, build2, 1)
 
 
 @app.get("/island/{page}")
 def island_page(page: str) -> FileResponse:
-    allowed = {"index", "home", "create", "kennel", "train", "lab", "pit", "graveyard", "profile", "leaderboard", "achievements", "onboarding", "dreams", "crimson", "rivals", "prophecy", "shrine", "artifacts", "menagerie", "succession", "deep-tide", "black-market", "tides", "pact", "genesis", "confessions"}
+    allowed = {"index", "home", "create", "kennel", "train", "lab", "pit", "graveyard", "profile", "leaderboard", "achievements", "onboarding", "dreams", "crimson", "rivals", "prophecy", "shrine", "artifacts", "menagerie", "succession", "deep-tide", "black-market", "tides", "pact", "genesis", "confessions", "oath", "arena", "breeding", "lineage"}
     if page not in allowed:
         raise HTTPException(404, f"Unknown island page: {page}")
     return FileResponse(STATIC_DIR / "island" / f"{page}.html")
