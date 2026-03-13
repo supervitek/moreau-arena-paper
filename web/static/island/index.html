@@ -173,6 +173,133 @@
             margin-top: 0.75rem;
         }
 
+        /* ── Email form ── */
+        .email-form {
+            display: none;
+            max-width: 320px;
+            margin: 1.25rem auto 0;
+            text-align: left;
+        }
+
+        .email-form.visible { display: block; }
+
+        .email-form input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--bg-card);
+            color: var(--text);
+            font-size: 0.95rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .email-form input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-glow);
+        }
+
+        .email-form input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .auth-btn-submit {
+            width: 100%;
+            padding: 0.8rem;
+            border: none;
+            border-radius: var(--radius);
+            background: var(--accent);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: inherit;
+        }
+
+        .auth-btn-submit:hover {
+            background: #d42e3b;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .auth-btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .auth-btn-submit.loading {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .auth-toggle {
+            display: block;
+            text-align: center;
+            margin-top: 0.75rem;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        .auth-toggle a {
+            color: var(--accent);
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .auth-toggle a:hover {
+            text-decoration: underline;
+        }
+
+        .auth-error {
+            color: var(--accent);
+            font-size: 0.85rem;
+            margin-bottom: 0.75rem;
+            display: none;
+            text-align: center;
+        }
+
+        .auth-error.visible { display: block; }
+
+        .auth-success {
+            color: var(--green);
+            font-size: 0.85rem;
+            margin-bottom: 0.75rem;
+            display: none;
+            text-align: center;
+        }
+
+        .auth-success.visible { display: block; }
+
+        /* ── Offline mode ── */
+        .offline-section {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .offline-section.visible { display: block; }
+
+        .auth-btn-offline {
+            background: var(--bg-card);
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+
+        .auth-btn-offline:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--text-muted);
+        }
+
+        .offline-note {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
         /* ── Feature cards ── */
         .features {
             display: grid;
@@ -341,16 +468,35 @@
         </section>
 
         <!-- Auth -->
-        <section class="auth-section">
-            <div class="auth-buttons">
-                <button class="auth-btn auth-btn-google" onclick="alert('Google auth coming soon.')">
+        <section class="auth-section" id="authSection">
+            <div class="auth-buttons" id="authButtons">
+                <button class="auth-btn auth-btn-google" id="btnGoogle" onclick="handleGoogle()">
                     <span class="g-logo"><span class="g-b">G</span><span class="g-r">o</span><span class="g-y">o</span><span class="g-b">g</span><span class="g-g">l</span><span class="g-r">e</span></span>
                     Enter with Google
                 </button>
-                <button class="auth-btn auth-btn-email" onclick="alert('Email auth coming soon.')">
+                <button class="auth-btn auth-btn-email" id="btnEmail" onclick="toggleEmailForm()">
                     Enter with Email
                 </button>
             </div>
+
+            <div class="email-form" id="emailForm">
+                <div class="auth-error" id="authError"></div>
+                <div class="auth-success" id="authSuccess"></div>
+                <input type="email" id="inputEmail" placeholder="Email" autocomplete="email">
+                <input type="password" id="inputPassword" placeholder="Password" autocomplete="current-password">
+                <button class="auth-btn-submit" id="btnSubmit" onclick="handleEmailSubmit()">Sign In</button>
+                <div class="auth-toggle" id="authToggle">
+                    No account? <a onclick="toggleAuthMode()">Create Account</a>
+                </div>
+            </div>
+
+            <div class="offline-section" id="offlineSection">
+                <button class="auth-btn auth-btn-offline" onclick="window.location.href='/island/home'">
+                    Play Offline
+                </button>
+                <p class="offline-note">Online features coming soon</p>
+            </div>
+
             <p class="auth-tagline">Your pets. Your mutations. Your legacy.</p>
         </section>
 
@@ -386,5 +532,161 @@
             </div>
         </footer>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/static/island/supabase-client.js"></script>
+    <script>
+        let isSignUp = false;
+
+        function toggleEmailForm() {
+            const form = document.getElementById('emailForm');
+            form.classList.toggle('visible');
+            if (form.classList.contains('visible')) {
+                document.getElementById('inputEmail').focus();
+            }
+            clearMessages();
+        }
+
+        function toggleAuthMode() {
+            isSignUp = !isSignUp;
+            const btn = document.getElementById('btnSubmit');
+            const toggle = document.getElementById('authToggle');
+            if (isSignUp) {
+                btn.textContent = 'Create Account';
+                toggle.innerHTML = 'Have an account? <a onclick="toggleAuthMode()">Sign In</a>';
+                document.getElementById('inputPassword').autocomplete = 'new-password';
+            } else {
+                btn.textContent = 'Sign In';
+                toggle.innerHTML = 'No account? <a onclick="toggleAuthMode()">Create Account</a>';
+                document.getElementById('inputPassword').autocomplete = 'current-password';
+            }
+            clearMessages();
+        }
+
+        function clearMessages() {
+            const err = document.getElementById('authError');
+            const suc = document.getElementById('authSuccess');
+            err.textContent = '';
+            err.classList.remove('visible');
+            suc.textContent = '';
+            suc.classList.remove('visible');
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('authError');
+            el.textContent = msg;
+            el.classList.add('visible');
+            document.getElementById('authSuccess').classList.remove('visible');
+        }
+
+        function showSuccess(msg) {
+            const el = document.getElementById('authSuccess');
+            el.textContent = msg;
+            el.classList.add('visible');
+            document.getElementById('authError').classList.remove('visible');
+        }
+
+        function setLoading(loading) {
+            const btn = document.getElementById('btnSubmit');
+            if (loading) {
+                btn.classList.add('loading');
+                btn.disabled = true;
+                btn.dataset.originalText = btn.textContent;
+                btn.textContent = 'Loading...';
+            } else {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+                btn.textContent = btn.dataset.originalText || (isSignUp ? 'Create Account' : 'Sign In');
+            }
+        }
+
+        async function handleGoogle() {
+            if (!sb) {
+                showError('Supabase not configured. Use offline mode.');
+                return;
+            }
+            await signInWithGoogle();
+        }
+
+        async function handleEmailSubmit() {
+            const email = document.getElementById('inputEmail').value.trim();
+            const password = document.getElementById('inputPassword').value;
+
+            if (!email || !password) {
+                showError('Please enter email and password.');
+                return;
+            }
+            if (password.length < 6) {
+                showError('Password must be at least 6 characters.');
+                return;
+            }
+            if (!sb) {
+                showError('Supabase not configured. Use offline mode.');
+                return;
+            }
+
+            clearMessages();
+            setLoading(true);
+
+            try {
+                if (isSignUp) {
+                    const { data, error } = await sb.auth.signUp({
+                        email, password,
+                        options: { emailRedirectTo: window.location.origin + '/island/home' }
+                    });
+                    if (error) {
+                        showError(error.message);
+                    } else if (data.user && data.user.identities && data.user.identities.length === 0) {
+                        showError('An account with this email already exists.');
+                    } else if (data.session) {
+                        // Auto-confirmed — redirect immediately
+                        window.location.href = '/island/home';
+                        return;
+                    } else {
+                        showSuccess('Check your email for a verification link.');
+                    }
+                } else {
+                    const { error } = await sb.auth.signInWithPassword({ email, password });
+                    if (error) {
+                        showError(error.message);
+                    } else {
+                        window.location.href = '/island/home';
+                        return;
+                    }
+                }
+            } catch (e) {
+                showError('Something went wrong. Try again.');
+            }
+
+            setLoading(false);
+        }
+
+        // Submit on Enter
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && document.getElementById('emailForm').classList.contains('visible')) {
+                const active = document.activeElement;
+                if (active && (active.id === 'inputEmail' || active.id === 'inputPassword')) {
+                    handleEmailSubmit();
+                }
+            }
+        });
+
+        // Init
+        (async function() {
+            await initSupabase();
+
+            // Auto-redirect if already logged in
+            const user = await getUser();
+            if (user) {
+                window.location.href = '/island/home';
+                return;
+            }
+
+            // If no Supabase, show offline option and hide auth buttons
+            if (!sb) {
+                document.getElementById('authButtons').style.display = 'none';
+                document.getElementById('offlineSection').classList.add('visible');
+            }
+        })();
+    </script>
 </body>
 </html>

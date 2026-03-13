@@ -206,6 +206,84 @@
             color: var(--accent);
         }
 
+        /* ── Migration Modal ── */
+        .migration-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeSlideIn 0.3s ease-out;
+        }
+
+        .migration-modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .migration-modal h2 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--green);
+        }
+
+        .migration-modal p {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .migration-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+
+        .migration-btn {
+            padding: 0.6rem 1.4rem;
+            border-radius: var(--radius);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .migration-btn-import {
+            background: var(--green);
+            color: #000;
+            border-color: var(--green);
+        }
+
+        .migration-btn-import:hover {
+            background: #3db88e;
+        }
+
+        .migration-btn-skip {
+            background: transparent;
+            color: var(--text-dim);
+            border-color: var(--border);
+        }
+
+        .migration-btn-skip:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .migration-result {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--green);
+        }
+
         /* ── Active Pet Card ── */
         .active-pet-card {
             background: var(--bg-card);
@@ -1479,8 +1557,12 @@
                 activePetIndex = allPets.length > 0 ? 0 : -1;
                 showDashboard(user);
                 checkLocalStorageMigration();
+            } else if (sb && !user) {
+                // Supabase is configured but user not logged in -> redirect to login
+                window.location.href = '/island';
+                return;
             } else if (hasLocalPets()) {
-                // Offline fallback: load from localStorage
+                // Offline fallback (no Supabase configured): load from localStorage
                 offlineMode = true;
                 loadLocalPets();
                 showDashboard(null);
@@ -1489,6 +1571,13 @@
                 window.location.href = '/island';
                 return;
             }
+
+            // Listen for auth state changes (e.g. session expiry)
+            onAuthChange(function(event, session, user) {
+                if (event === 'SIGNED_OUT') {
+                    window.location.href = '/island';
+                }
+            });
         }
 
         function hasLocalPets() {
@@ -1654,23 +1743,62 @@
             try {
                 const localPets = JSON.parse(raw);
                 if (!Array.isArray(localPets) || localPets.length === 0) return;
-                showBanner('migrate',
-                    'We found ' + localPets.length + ' pet' + (localPets.length > 1 ? 's' : '') + ' in your browser. Import them?',
-                    'Import',
-                    async function() {
-                        const result = await migrateLocalStorageToDB(currentUser.id);
-                        if (result.migrated > 0) {
-                            allPets = await dbGetPets(currentUser.id);
-                            activePetIndex = 0;
-                            renderActivePet();
-                            renderActions();
-                            renderPetsSection();
-                            // Remove the banner
-                            this.closest('.banner').remove();
-                        }
-                    }
-                );
+                showMigrationModal(currentUser.id, localPets.length);
             } catch {}
+        }
+
+        function showMigrationModal(userId, petCount) {
+            const overlay = document.createElement('div');
+            overlay.className = 'migration-overlay';
+            overlay.id = 'migrationOverlay';
+
+            const petWord = petCount === 1 ? 'pet' : 'pets';
+            overlay.innerHTML =
+                '<div class="migration-modal">' +
+                    '<h2>Pets Found in Browser</h2>' +
+                    '<p>We found ' + petCount + ' ' + petWord + ' in your browser storage! Import them to your account?</p>' +
+                    '<div class="migration-actions" id="migrationActions">' +
+                        '<button class="migration-btn migration-btn-import" onclick="doMigrationImport(\'' + userId + '\')">Import Pets</button>' +
+                        '<button class="migration-btn migration-btn-skip" onclick="doMigrationSkip()">Start Fresh</button>' +
+                    '</div>' +
+                    '<div class="migration-result" id="migrationResult" style="display:none;"></div>' +
+                '</div>';
+
+            document.body.appendChild(overlay);
+        }
+
+        async function doMigrationImport(userId) {
+            const actions = document.getElementById('migrationActions');
+            const result = document.getElementById('migrationResult');
+            actions.innerHTML = '<span style="color:var(--text-dim);">Importing...</span>';
+
+            const res = await migrateLocalStorageToDB(userId);
+            if (res.migrated > 0) {
+                result.style.display = 'block';
+                result.textContent = res.migrated + ' pet' + (res.migrated === 1 ? '' : 's') + ' imported successfully!';
+                actions.innerHTML = '';
+                setTimeout(function() {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                actions.innerHTML = '<span style="color:var(--accent);">Import failed. Try again later.</span>';
+                setTimeout(closeMigrationModal, 2000);
+            }
+        }
+
+        function doMigrationSkip() {
+            localStorage.removeItem('moreau_pets');
+            localStorage.removeItem('moreau_active_pet');
+            localStorage.removeItem('moreau_pet');
+            localStorage.removeItem('moreau_codex');
+            localStorage.removeItem('moreau_pit_history');
+            localStorage.removeItem('moreau_ultra_rare_post');
+            window.location.reload();
+        }
+
+        function closeMigrationModal() {
+            const overlay = document.getElementById('migrationOverlay');
+            if (overlay) overlay.remove();
         }
 
         // ── Active Pet Card ──
