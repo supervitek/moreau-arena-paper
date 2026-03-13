@@ -170,7 +170,7 @@
         // Average player stats for inversion
         var avgStats = { hp: 0, atk: 0, spd: 0, wil: 0 };
         for (var j = 0; j < playerPets.length; j++) {
-            var bs = playerPets[j].base_stats || playerPets[j].stats || {};
+            var bs = playerPets[j].base_stats || {};
             avgStats.hp += (bs.hp || 5);
             avgStats.atk += (bs.atk || 5);
             avgStats.spd += (bs.spd || 5);

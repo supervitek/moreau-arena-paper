@@ -513,6 +513,7 @@
     </div>
 
 <script>
+function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 const EMOJI_MAP = {
     bear:'🐻', buffalo:'🦬', boar:'🐗', tiger:'🐯', wolf:'🐺', monkey:'🐒',
     porcupine:'🦔', scorpion:'🦂', vulture:'🦅', rhino:'🦏', viper:'🐍',
@@ -587,7 +588,7 @@ function getOpponentData() {
 // --- Start Fight ---
 async function startFight() {
     const opp = getOpponentData();
-    const bs = pet.base_stats || pet.stats || {};
+    const bs = pet.base_stats || {};
     const petBuild = pet.animal + ' ' + (bs.hp || 5) + ' ' + (bs.atk || 5) + ' ' + (bs.spd || 5) + ' ' + (bs.wil || 5);
 
     // Show phase 2
@@ -764,7 +765,7 @@ async function fetchSoul(won, oppName) {
         const text = data.message || data.response || data.text || '';
         bubble.classList.add('visible');
         if (!text) {
-            bubble.innerHTML = '<em>* ' + (pet.name || 'Your pet') + ' stares at you silently. The soul awaits awakening... *</em>';
+            bubble.innerHTML = '<em>* ' + esc(pet.name || 'Your pet') + ' stares at you silently. The soul awaits awakening... *</em>';
             return;
         }
 
@@ -777,7 +778,7 @@ async function fetchSoul(won, oppName) {
     } catch {
         const bubble = document.getElementById('soul-bubble');
         bubble.classList.add('visible');
-        bubble.innerHTML = '<em>* ' + (pet.name || 'Your pet') + ' stares at you silently. The soul awaits awakening... *</em>';
+        bubble.innerHTML = '<em>* ' + esc(pet.name || 'Your pet') + ' stares at you silently. The soul awaits awakening... *</em>';
     }
 }
 

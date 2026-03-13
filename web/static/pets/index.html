@@ -453,7 +453,7 @@
 
     <script>
         // Redirect if at max pets (6)
-        const existingPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+        var existingPets; try { existingPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) { existingPets = []; }
         if (existingPets.length >= 6) {
             window.location.href = '/pets';
         }
@@ -626,7 +626,7 @@
                         mood: 'excited',
                         created_at: new Date().toISOString()
                     };
-                    const pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                    var pets; try { pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) { pets = []; }
                     pets.push(pet);
                     localStorage.setItem('moreau_pets', JSON.stringify(pets));
                     localStorage.setItem('moreau_active_pet', String(pets.length - 1));

@@ -739,27 +739,27 @@
 
         // Mutation tree data with stat_changes
         const MUTATION_TREE = {
-            bloodrage: {
+            blood_rage: {
                 name: 'Bloodrage', tier: 1,
-                stat_changes: { atk: 3, hp: -1 },
+                stat_changes: { atk: 2, spd: -1 },
                 children: {
                     frenzy: {
                         name: 'Frenzy', tier: 2,
-                        stat_changes: { atk: 4, spd: 2, hp: -2 },
+                        stat_changes: {},
                         children: {
-                            berserker_mode: {
+                            berserker: {
                                 name: 'BERSERKER MODE', tier: 3,
-                                stat_changes: { atk: 6, spd: 3, hp: -3, wil: -1 }
+                                stat_changes: {}
                             }
                         }
                     },
                     intimidate: {
                         name: 'Intimidate', tier: 2,
-                        stat_changes: { atk: 2, wil: 3, hp: -1 },
+                        stat_changes: {},
                         children: {
                             warlord: {
                                 name: 'WARLORD', tier: 3,
-                                stat_changes: { atk: 4, wil: 5, spd: 1 }
+                                stat_changes: {}
                             }
                         }
                     }
@@ -767,25 +767,25 @@
             },
             thick_hide: {
                 name: 'Thick Hide', tier: 1,
-                stat_changes: { hp: 3, wil: 1, spd: -1 },
+                stat_changes: { hp: 2, atk: -1 },
                 children: {
                     regeneration: {
                         name: 'Regeneration', tier: 2,
-                        stat_changes: { hp: 5, wil: 2, spd: -2 },
+                        stat_changes: {},
                         children: {
                             immortal: {
                                 name: 'IMMORTAL', tier: 3,
-                                stat_changes: { hp: 8, wil: 3, atk: -2, spd: -3 }
+                                stat_changes: {}
                             }
                         }
                     },
                     fortress: {
                         name: 'Fortress', tier: 2,
-                        stat_changes: { hp: 3, wil: 3, atk: 1, spd: -2 },
+                        stat_changes: {},
                         children: {
                             juggernaut: {
                                 name: 'JUGGERNAUT', tier: 3,
-                                stat_changes: { hp: 5, wil: 4, atk: 2, spd: -3 }
+                                stat_changes: {}
                             }
                         }
                     }
@@ -793,25 +793,25 @@
             },
             quick_feet: {
                 name: 'Quick Feet', tier: 1,
-                stat_changes: { spd: 3, atk: 1, hp: -1 },
+                stat_changes: { spd: 2, hp: -1 },
                 children: {
                     ambush: {
                         name: 'Ambush', tier: 2,
-                        stat_changes: { spd: 3, atk: 3, wil: -1 },
+                        stat_changes: {},
                         children: {
                             phantom_strike: {
                                 name: 'PHANTOM STRIKE', tier: 3,
-                                stat_changes: { spd: 5, atk: 5, hp: -2, wil: -2 }
+                                stat_changes: {}
                             }
                         }
                     },
                     evasion: {
                         name: 'Evasion', tier: 2,
-                        stat_changes: { spd: 4, wil: 2, atk: -1 },
+                        stat_changes: {},
                         children: {
                             ghost: {
                                 name: 'GHOST', tier: 3,
-                                stat_changes: { spd: 7, wil: 3, atk: -2, hp: -1 }
+                                stat_changes: {}
                             }
                         }
                     }

@@ -619,6 +619,7 @@
     </div>
 
 <script>
+function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 const EMOJI_MAP = {
     bear:'\u{1F43B}', buffalo:'\u{1F9AC}', boar:'\u{1F417}', tiger:'\u{1F405}', wolf:'\u{1F43A}', monkey:'\u{1F412}',
     porcupine:'\u{1F994}', scorpion:'\u{1F982}', vulture:'\u{1F985}', rhino:'\u{1F98F}', viper:'\u{1F40D}',
@@ -952,7 +953,7 @@ async function fetchSoul(pet, context, opponentName, elementId) {
         const text = data.message || data.response || data.text || '';
         bubble.classList.add('visible');
         if (!text) {
-            textEl.innerHTML = '<em>* ' + (pet.name || 'Pet') + ' stares silently... *</em>';
+            textEl.innerHTML = '<em>* ' + esc(pet.name || 'Pet') + ' stares silently... *</em>';
             return;
         }
         textEl.textContent = '';
@@ -962,7 +963,7 @@ async function fetchSoul(pet, context, opponentName, elementId) {
         }
     } catch {
         bubble.classList.add('visible');
-        textEl.innerHTML = '<em>* ' + (pet.name || 'Pet') + ' stares silently... *</em>';
+        textEl.innerHTML = '<em>* ' + esc(pet.name || 'Pet') + ' stares silently... *</em>';
     }
 }
 

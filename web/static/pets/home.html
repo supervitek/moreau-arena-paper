@@ -758,6 +758,7 @@
     </div>
 
     <script>
+        function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
         const ANIMAL_EMOJIS = {
             bear: '🐻', buffalo: '🦬', boar: '🐗', tiger: '🐯',
             wolf: '🐺', monkey: '🐒', porcupine: '🦔', scorpion: '🦂',
@@ -852,7 +853,7 @@
             document.getElementById('xpBar').style.width = xp.pct + '%';
 
             // Stat bars
-            const stats = pet.base_stats || pet.stats || {};
+            const stats = pet.base_stats || {};
             const maxStat = 30;
             ['HP', 'ATK', 'SPD', 'WIL'].forEach(s => {
                 const key = s.toLowerCase();
@@ -997,14 +998,14 @@
             .then(data => {
                 const text = data.text || data.message || data.response || '';
                 if (!text || text.includes('stares at you silently')) {
-                    body.innerHTML = '<em>* ' + (pet.name || 'Your pet') + ' stares at you silently. The soul awaits awakening... *</em>';
+                    body.innerHTML = '<em>* ' + esc(pet.name || 'Your pet') + ' stares at you silently. The soul awaits awakening... *</em>';
                 } else {
                     typewriter(body, text);
                 }
             })
             .catch(err => {
                 if (err.name === 'AbortError') return;
-                body.innerHTML = '<em>* ' + (pet.name || 'Your pet') + ' stares at you silently. The soul awaits awakening... *</em>';
+                body.innerHTML = '<em>* ' + esc(pet.name || 'Your pet') + ' stares at you silently. The soul awaits awakening... *</em>';
             });
         }
 

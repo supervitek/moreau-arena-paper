@@ -722,7 +722,7 @@
 
                 <div class="level-up-flash" id="level-up-flash"></div>
                 <div class="mutation-notice" id="mutation-notice">
-                    New mutation available! Visit <a href="/island/mutate">Dr. Moreau's Lab</a>.
+                    New mutation available! Visit <a href="/island/lab">Dr. Moreau's Lab</a>.
                 </div>
 
                 <div class="xp-section">
@@ -909,7 +909,7 @@
                 return;
             }
             var opp = getOpponentData();
-            var bs = pet.base_stats || pet.stats || {};
+            var bs = pet.base_stats || {};
             var petBuild = (pet.animal || 'fox') + ' ' + (bs.hp || 5) + ' ' + (bs.atk || 5) + ' ' + (bs.spd || 5) + ' ' + (bs.wil || 5);
 
             // Show phase 2

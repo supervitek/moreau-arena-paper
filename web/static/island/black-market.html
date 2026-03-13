@@ -1594,7 +1594,7 @@
 
     function generateMoredditPost(pet, drainedStats, item) {
         try {
-            var posts = JSON.parse(localStorage.getItem('moreau_moreddit') || '[]');
+            var posts = JSON.parse(localStorage.getItem('moreau_moreddit_feed') || '[]');
             var costParts = [];
             for (var k in drainedStats) {
                 if (drainedStats[k] > 0) costParts.push(k.toUpperCase() + ' -' + drainedStats[k]);
@@ -1624,7 +1624,7 @@
                 timestamp: new Date().toISOString(),
                 flair: item.isBad ? 'SCAM' : 'CONTRABAND'
             });
-            localStorage.setItem('moreau_moreddit', JSON.stringify(posts));
+            localStorage.setItem('moreau_moreddit_feed', JSON.stringify(posts));
         } catch(e) {}
     }
 

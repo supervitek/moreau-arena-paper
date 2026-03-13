@@ -1910,7 +1910,7 @@
                 localStorage.removeItem('moreau_pet');
             } catch(e) { localStorage.removeItem('moreau_pet'); }
         }
-        const pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+        var pets; try { pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) { pets = []; }
         if (pets.length === 0) return null;
         let idx = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
         if (idx < 0 || idx >= pets.length) idx = 0;
@@ -1918,7 +1918,7 @@
     }
 
     function saveActivePet(p) {
-        const pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+        var pets; try { pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) { pets = []; }
         let idx = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
         if (idx < 0 || idx >= pets.length) idx = 0;
         pets[idx] = p;

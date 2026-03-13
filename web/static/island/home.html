@@ -1614,7 +1614,7 @@
         async function init() {
             // Check if onboarding needed
             if (!localStorage.getItem('moreau_onboarding_complete')) {
-                const pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                var pets; try { pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) { pets = []; }
                 if (pets.length === 0 && !localStorage.getItem('moreau_pet')) {
                     window.location.href = '/island/onboarding';
                     return;
@@ -1680,7 +1680,7 @@
                 } catch (e) { localStorage.removeItem('moreau_pet'); }
             }
 
-            allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            try { allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) { allPets = []; }
             activePetIndex = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
             if (activePetIndex < 0 || activePetIndex >= allPets.length) activePetIndex = 0;
         }
@@ -1898,7 +1898,7 @@
             const name = pet.name || 'Unknown';
             const level = pet.level || 1;
             const mood = pet.mood || 'neutral';
-            const stats = pet.base_stats || pet.stats || {};
+            const stats = pet.base_stats || {};
             const deceased = pet.deceased || pet.is_alive === false;
 
             const xp = xpProgress(pet);
@@ -1931,7 +1931,7 @@
             }
 
             // Dream indicator next to pet name
-            var _dreamData = JSON.parse(localStorage.getItem('moreau_dreams') || '{"dreams":[],"unread_count":0}');
+            var _dreamData; try { _dreamData = JSON.parse(localStorage.getItem('moreau_dreams') || '{"dreams":[],"unread_count":0}'); } catch(e) { _dreamData = {dreams:[],unread_count:0}; }
             var _unreadDreams = _dreamData.dreams ? _dreamData.dreams.filter(function(d) { return !d.read; }).length : 0;
             var _dreamBadge = _unreadDreams > 0
                 ? ' <a href="/island/dreams" style="color:#9b59b6;text-decoration:none;font-size:0.9em;" title="' + _unreadDreams + ' unread dream' + (_unreadDreams > 1 ? 's' : '') + '">&#10022;</a>'
@@ -2114,7 +2114,7 @@
 
             // MUTATE
             if (canMut) {
-                html += '<a href="/island/mutate" class="action-btn action-mutate ready">' +
+                html += '<a href="/island/lab" class="action-btn action-mutate ready">' +
                     '<span class="ready-badge">READY</span>' +
                     '<span class="action-icon">&#9850;</span>MUTATE</a>';
             } else {

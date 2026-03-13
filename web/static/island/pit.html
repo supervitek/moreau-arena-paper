@@ -853,7 +853,7 @@
             rightGrid.innerHTML = '';
 
             allPets.forEach(function(p, i) {
-                var bs = p.base_stats || p.stats || {};
+                var bs = p.base_stats || {};
                 var statsStr = 'HP:' + (bs.hp||5) + ' ATK:' + (bs.atk||5) + ' SPD:' + (bs.spd||5) + ' WIL:' + (bs.wil||5);
                 var mutCount = Object.keys(p.lab_mutations || {}).length + (p.mutations || []).length;
 

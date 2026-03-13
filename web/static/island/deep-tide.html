@@ -1174,6 +1174,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/static/island/supabase-client.js"></script>
     <script>
+    function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
     // =====================================================
     //  THE DEEP TIDE — 7-Chamber Roguelike Expedition
     // =====================================================
@@ -1634,7 +1635,7 @@
 
         var html = '<div class="expedition-hud">';
         html += '<div class="hud-top">';
-        html += '<div class="hud-pet-info"><span class="hud-pet-emoji">' + emoji + '</span><span class="hud-pet-name">' + (pet.name || 'Pet') + '</span></div>';
+        html += '<div class="hud-pet-info"><span class="hud-pet-emoji">' + emoji + '</span><span class="hud-pet-name">' + esc(pet.name || 'Pet') + '</span></div>';
         html += '<div class="hud-depth">DEPTH ' + run.currentChamber + ' / ' + TOTAL_CHAMBERS + '</div>';
         html += '</div>';
 

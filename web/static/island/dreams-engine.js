@@ -162,6 +162,129 @@ var DREAM_LIBRARY = {
         signatures: {
             'default': "'I am [APEX_NAME]. I was always [APEX_NAME]. The mutations didn't change me. They revealed me.'"
         }
+    },
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    //  8. SPIRIT_IMMORTALIZED — Menagerie immortalization
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    spirit_immortalized: {
+        opening: "The Menagerie glows. A pedestal rises from the ground. Something eternal is being carved.",
+        revelations: {
+            fox:       "Your spirit flickers into the stone, grinning. The Menagerie will remember that smile forever.",
+            tiger:     "Stripes etch themselves into marble. The arena's fiercest, preserved in eternal roar.",
+            bear:      "A gentle giant, frozen mid-stride. The books in the Menagerie rustle in recognition.",
+            wolf:      "Moonlight catches the statue's eyes. The pack howls somewhere beyond the walls.",
+            scorpion:  "The tail curls upward in stone, venom glistening even in death. A warning for eternity.",
+            boar:      "The charge captured forever. Visitors feel the ground tremble when they stand too close.",
+            monkey:    "The statue is smiling. No — laughing. Even immortality can't make you serious.",
+            vulture:   "Wings spread wide in obsidian. From this height, even time looks small.",
+            rhino:     "The pedestal cracked when they placed you. Even stone respects your weight.",
+            viper:     "Coiled in jade, silent and patient. Visitors whisper that the eyes follow them.",
+            eagle:     "Carved from wind and memory. The Menagerie's highest perch, claimed forever.",
+            buffalo:   "Steady and immovable. The Menagerie's foundation stone, they'll call you.",
+            panther:   "A shadow pressed into crystal. You're there if you look. Most don't look.",
+            porcupine: "Every quill rendered in silver. Touch the statue. We dare you.",
+            'default': "Your form is captured in the Menagerie. Not as you were — as you truly are."
+        },
+        signatures: {
+            fox:       "'Immortal. I always knew I was too good to forget.'",
+            tiger:     "'Let them see what the arena made. Let them remember.'",
+            bear:      "'A story that never ends. I like that.'",
+            wolf:      "'The moon will always find me here.'",
+            scorpion:  "'Even in stone, I sting.'",
+            boar:      "'FOREVER. That's how long I'll charge.'",
+            monkey:    "'A statue of ME? This is the best joke yet.'",
+            vulture:   "'From up here, I can see everything. Even tomorrow.'",
+            rhino:     "'Unbreakable in life. Unbreakable in stone.'",
+            viper:     "'Sssilence. For eternity. Perfect.'",
+            eagle:     "'Freedom, carved in permanence. Ironic. Beautiful.'",
+            buffalo:   "'I'll stand here. I'll stand here forever. I don't mind.'",
+            panther:   "'...' (The plaque reads: HERE. ALWAYS.)",
+            porcupine: "'Touch it. Go on. Some lessons are eternal.'",
+            'default': "'This is what forever feels like. It feels like home.'"
+        }
+    },
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    //  9. SPIRIT_BONDED — Spirit bond events
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    spirit_bonded: {
+        opening: "A presence brushes against yours. Not physical — deeper. A spirit reaches out.",
+        revelations: {
+            fox:       "The spirit mirrors your cunning. Two foxes, circling, then merging into one shared instinct.",
+            tiger:     "Raw power meets raw power. The spirit bond crackles like lightning between two storms.",
+            bear:      "The spirit settles beside you like a second heartbeat. Warm. Patient. Knowing.",
+            wolf:      "The spirit howls in a frequency only you can hear. Your bond is the pack itself.",
+            scorpion:  "The spirit coils around your venom gland. Your poison deepens, your patience sharpens.",
+            boar:      "Impact. The spirit hits you like a wall, then flows through you. You are harder now.",
+            monkey:    "The spirit laughs with you. Or at you. Hard to tell. The bond is chaos, and it's perfect.",
+            vulture:   "The spirit lifts you higher. From this vantage, you see patterns no one else can read.",
+            rhino:     "The ground shakes as the spirit merges. Two unstoppable forces, now one.",
+            viper:     "The spirit slides along your scales. Silent. Lethal. The bond needs no words.",
+            eagle:     "Wind carries the spirit into you. Your wings stretch wider, your vision sharper.",
+            buffalo:   "The spirit anchors into your stance. Roots grow from your hooves. Immovable.",
+            panther:   "Shadow meets shadow. The bond is invisible. That's the point.",
+            porcupine: "The spirit wraps around your quills. Each one hums with borrowed resonance.",
+            'default': "The spirit bond forms — a thread of light connecting you to something ancient and alive."
+        },
+        signatures: {
+            fox:       "'Two minds. One hunt. I like these odds.'",
+            tiger:     "'The spirit knows my strength. It fears nothing. Neither do I.'",
+            bear:      "'A friend. In this place, that means everything.'",
+            wolf:      "'The pack grows. Even beyond death.'",
+            scorpion:  "'Our patience is doubled now. Pity them.'",
+            boar:      "'Harder. Faster. More. MORE.'",
+            monkey:    "'It gets my jokes. FINALLY.'",
+            vulture:   "'I see further than ever. The horizon bows.'",
+            rhino:     "'Two forces. One direction. Forward.'",
+            viper:     "'The silence between us says everything.'",
+            eagle:     "'Higher. Always higher.'",
+            buffalo:   "'Rooted. Together. Unshakable.'",
+            panther:   "'We vanish together. Twice the shadow.'",
+            porcupine: "'Touch us. I double-dare you.'",
+            'default': "'Connected. Not alone anymore. That changes things.'"
+        }
+    },
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    //  10. DISCOVERY — Artifact/shrine discoveries
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    discovery: {
+        opening: "Something gleams in the undergrowth. The Island has revealed one of its secrets.",
+        revelations: {
+            fox:       "Your nose found it first. Buried under roots, wrapped in old cloth. An artifact from before the arena.",
+            tiger:     "You tore through the brush and there it was — glowing, ancient, waiting for something strong enough to claim it.",
+            bear:      "You were reading the moss patterns when you noticed it. Hidden in plain sight. A relic with a story.",
+            wolf:      "The moon pointed you here. A clearing, a shrine, a gift the Island saved for the worthy.",
+            scorpion:  "You dug. Patiently, carefully. Beneath the sand, a prize the impatient would never find.",
+            boar:      "You crashed through the wall and it fell into your lap. Sometimes brute force IS the answer.",
+            monkey:    "You found it hanging from a vine. Or it found you. Either way — finders keepers.",
+            vulture:   "You spotted it from above. A glint between the trees. Down you swooped. Yours now.",
+            rhino:     "The ground cracked open and there it was. The Island knows you don't do subtle.",
+            viper:     "You sensed it — a vibration in the earth. You followed it to a hidden shrine.",
+            eagle:     "Wind carried a scent. You followed it to a cliff ledge. An artifact, sun-bleached and powerful.",
+            buffalo:   "You stood in one place long enough for the Island to trust you. It opened. You received.",
+            panther:   "In the deepest shadow, something shimmered. Only you could have found it. Only shadow sees shadow.",
+            porcupine: "Your quills tingled near the old tree. You investigated. The shrine was inside the trunk.",
+            'default': "The Island reveals its secrets to those who explore. Today, it chose you."
+        },
+        signatures: {
+            fox:       "'Hidden things find me. It's a gift.'",
+            tiger:     "'The Island gives its treasures to the strong. Naturally.'",
+            bear:      "'Every artifact has a story. I want to know all of them.'",
+            wolf:      "'The moon guides. I follow. It never leads me wrong.'",
+            scorpion:  "'Patience pays. It always pays.'",
+            boar:      "'I didn't find it. I MADE the Island give it up.'",
+            monkey:    "'Ooh, shiny. MINE.'",
+            vulture:   "'Nothing escapes my eyes. Nothing.'",
+            rhino:     "'The ground opens for me. Smart ground.'",
+            viper:     "'I felt it before I saw it. The vibration never lies.'",
+            eagle:     "'From above, everything is visible. Even secrets.'",
+            buffalo:   "'Patience. The Island respects patience.'",
+            panther:   "'Shadows hide things. Shadows also reveal them. To me.'",
+            porcupine: "'My quills sensed it. They sense everything.'",
+            'default': "'Found something. The Island has more secrets. I'll find those too.'"
+        }
     }
 };
 
@@ -190,7 +313,7 @@ function generateDream(type, pet, extra) {
     } else if (type === 'prophecy') {
         var personalities = ['confident', 'cautious', 'berserker'];
         // Pick based on pet stats
-        var bs = pet.base_stats || pet.stats || {};
+        var bs = pet.base_stats || {};
         if ((bs.atk || 0) >= 7) sigKey = 'berserker';
         else if ((bs.wil || 0) >= 6) sigKey = 'cautious';
         else sigKey = 'confident';
@@ -236,7 +359,10 @@ function showDreamToast(dream) {
         trauma: '#e63946',
         corruption: '#e63946',
         death: '#6a5a5a',
-        transcendence: '#d4a017'
+        transcendence: '#d4a017',
+        spirit_immortalized: '#d4a017',
+        spirit_bonded: '#9b59b6',
+        discovery: '#4ecca3'
     };
     var color = typeColors[dream.type] || '#9b59b6';
 

@@ -381,6 +381,7 @@
     </div>
 
     <script>
+        function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
         const ANIMAL_EMOJIS = {
             bear: '\u{1F43B}', buffalo: '\u{1F9AC}', boar: '\u{1F417}', tiger: '\u{1F42F}',
             wolf: '\u{1F43A}', monkey: '\u{1F412}', porcupine: '\u{1F994}', scorpion: '\u{1F982}',
@@ -452,7 +453,7 @@
                     html += '<span class="active-badge">Active</span>';
                 }
                 html += '<div class="pet-card-emoji">' + emoji + '</div>';
-                html += '<div class="pet-card-name">' + (pet.name || 'Unknown') + '</div>';
+                html += '<div class="pet-card-name">' + esc(pet.name || 'Unknown') + '</div>';
                 html += '<div class="pet-card-info">' + (pet.animal || 'Creature') + '</div>';
                 html += '<div class="pet-card-level">' + (isDeceased ? 'Deceased' : 'Level ' + (pet.level || 1)) + '</div>';
                 html += '<button class="pet-card-release" onclick="event.stopPropagation(); showReleaseModal(' + idx + ')">' + (isDeceased ? 'Remove' : 'Release') + '</button>';
