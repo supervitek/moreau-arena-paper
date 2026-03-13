@@ -819,6 +819,45 @@
             50% { box-shadow: 0 0 12px rgba(212,160,23,0.4); }
         }
 
+        /* ── Synergy / Shop button styles ── */
+        .action-synergy { border-color: rgba(180,77,255,0.5); }
+        .action-synergy:hover { border-color: #b44dff; box-shadow: 0 4px 16px rgba(180,77,255,0.25); }
+        .action-synergy .action-icon { color: #b44dff; }
+        .action-synergy .action-sub { color: #b44dff; }
+
+        .action-shop { border-color: rgba(212,160,23,0.5); }
+        .action-shop:hover { border-color: var(--gold); box-shadow: 0 4px 16px rgba(212,160,23,0.25); }
+        .action-shop .action-icon { color: var(--gold); }
+        .action-shop .action-sub { color: var(--gold); }
+
+        /* ── Cosmetic Aura on pet card ── */
+        .pet-aura-ring {
+            display: inline-block;
+            border-radius: 50%;
+            padding: 6px;
+            margin-bottom: 0.25rem;
+        }
+        .pet-cosmetic-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.15rem;
+        }
+
+        /* Aura effects (cosmetics) */
+        .aura-crimson_flame { box-shadow: 0 0 20px rgba(230,57,70,0.6), 0 0 40px rgba(230,57,70,0.3); }
+        .aura-shadow_veil { box-shadow: 0 0 20px rgba(20,20,40,0.8), 0 0 40px rgba(60,40,80,0.4); }
+        .aura-golden_light { box-shadow: 0 0 20px rgba(212,160,23,0.6), 0 0 40px rgba(212,160,23,0.3); }
+        .aura-frost_crown { box-shadow: 0 0 20px rgba(150,200,255,0.6), 0 0 40px rgba(150,200,255,0.3); }
+        .aura-storm_charge { box-shadow: 0 0 20px rgba(255,255,100,0.5), 0 0 40px rgba(200,200,50,0.3); }
+        .aura-void_rift { box-shadow: 0 0 20px rgba(100,0,200,0.6), 0 0 40px rgba(80,0,160,0.3); }
+        .aura-biolume { box-shadow: 0 0 20px rgba(0,255,247,0.5), 0 0 40px rgba(0,200,200,0.3); }
+        .aura-blood_moon { box-shadow: 0 0 20px rgba(200,0,0,0.5), 0 0 40px rgba(180,0,0,0.3); }
+        .aura-spirit_chain { box-shadow: 0 0 20px rgba(180,200,255,0.4), 0 0 40px rgba(150,180,230,0.2); }
+        .aura-genesis_ring { box-shadow: 0 0 25px rgba(212,180,50,0.7), 0 0 50px rgba(212,160,23,0.4); }
+
         @media (max-width: 640px) {
             .actions { grid-template-columns: repeat(3, 1fr); }
             .welcome-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; padding: 2rem 0 1.25rem; }
@@ -1877,7 +1916,19 @@
                 html += '<style>.active-pet-card.deceased::before { content: "IN MEMORIAM"; color: var(--text-muted); border-color: var(--text-muted); }</style>';
             }
 
-            html += '<div class="pet-emoji">' + emoji + '</div>';
+            // Equipped aura from cosmetics
+            var _auraClass = '';
+            var _cosDataEmoji = null;
+            try { _cosDataEmoji = JSON.parse(localStorage.getItem('moreau_cosmetics') || 'null'); } catch(e) {}
+            if (_cosDataEmoji && _cosDataEmoji.equipped && _cosDataEmoji.equipped.aura) {
+                _auraClass = 'aura-' + _cosDataEmoji.equipped.aura;
+            }
+
+            if (_auraClass) {
+                html += '<div class="pet-emoji"><span class="pet-aura-ring ' + _auraClass + '">' + emoji + '</span></div>';
+            } else {
+                html += '<div class="pet-emoji">' + emoji + '</div>';
+            }
 
             // Dream indicator next to pet name
             var _dreamData = JSON.parse(localStorage.getItem('moreau_dreams') || '{"dreams":[],"unread_count":0}');
@@ -1903,6 +1954,17 @@
                 var _markDots = '';
                 for (var _mi = 0; _mi < _gData.marks; _mi++) _markDots += '\u2726';
                 html += '<div class="genesis-mark-badge">' + _markDots + ' Genesis Mark ' + _gData.marks + '</div>';
+            }
+
+            // Equipped cosmetic title
+            var _cosData = null;
+            try { _cosData = JSON.parse(localStorage.getItem('moreau_cosmetics') || 'null'); } catch(e) {}
+            if (_cosData && _cosData.equipped) {
+                if (_cosData.equipped.title) {
+                    var _titleNames = {the_undying:'The Undying',nightmare:'Nightmare',kingslayer:'Kingslayer',the_hollow_one:'The Hollow One',stormborn:'Stormborn',dr_moreaus_favorite:"Dr. Moreau's Favorite",last_one_standing:'Last One Standing',the_architect:'The Architect',night_terror:'Night Terror',genesis_walker:'Genesis Walker'};
+                    var _tName = _titleNames[_cosData.equipped.title] || _cosData.equipped.title;
+                    html += '<div class="pet-cosmetic-title">\u2014 ' + escHtml(_tName) + ' \u2014</div>';
+                }
             }
 
             html += '<div class="pet-mood">Mood: ' + mood + '</div>';
@@ -2163,6 +2225,26 @@
             var _tideSub = _tideState ? '<span class="action-sub" style="color:' + _tideState.phaseColor + ';">' + _tideState.phaseName + '</span>' : '';
             html += '<a href="/island/tides" class="action-btn action-tides" style="border-color:rgba(0,180,216,0.3);">' +
                 '<span class="action-icon" style="color:#00b4d8;">&#127754;</span>TIDES' + _tideSub + '</a>';
+
+            // QUESTS (Arcane Synergies)
+            var _sqData = null;
+            try { _sqData = JSON.parse(localStorage.getItem('moreau_synergy_quests') || 'null'); } catch(e) {}
+            var _sqActive = 0;
+            var _sqUnclaimed = 0;
+            if (_sqData && _sqData.quests) {
+                _sqActive = _sqData.quests.filter(function(q) { return !q.completed; }).length;
+                _sqUnclaimed = _sqData.quests.filter(function(q) { return q.completed && !q.claimed; }).length;
+            }
+            html += '<a href="/island/synergies" class="action-btn action-synergy' + (_sqUnclaimed > 0 ? ' ready' : '') + '">' +
+                (_sqUnclaimed > 0 ? '<span class="ready-badge" style="background:#b44dff;">' + _sqUnclaimed + '</span>' : '') +
+                '<span class="action-icon">&#10070;</span>QUESTS' +
+                (_sqActive > 0 ? '<span class="action-sub">' + _sqActive + ' active</span>' : '') + '</a>';
+
+            // SHOP (Cosmetics Store)
+            var _cosTokens = parseInt(localStorage.getItem('moreau_synergy_tokens') || '0', 10);
+            html += '<a href="/island/cosmetics" class="action-btn action-shop">' +
+                '<span class="action-icon">&#128722;</span>SHOP' +
+                (_cosTokens > 0 ? '<span class="action-sub">' + _cosTokens + ' tokens</span>' : '') + '</a>';
 
             // BLACK MARKET (only visible 22:00 - 04:00)
             var _bmHour = new Date().getHours();

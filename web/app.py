@@ -1409,7 +1409,7 @@ async def arena_fight(req: ArenaFightRequest, request: Request):
 
 @app.get("/island/{page}")
 def island_page(page: str) -> FileResponse:
-    allowed = {"index", "home", "create", "kennel", "train", "lab", "pit", "graveyard", "profile", "leaderboard", "achievements", "onboarding", "dreams", "crimson", "rivals", "prophecy", "shrine", "artifacts", "menagerie", "succession", "deep-tide", "black-market", "tides", "pact", "genesis", "confessions", "oath", "arena", "breeding", "lineage"}
+    allowed = {"index", "home", "create", "kennel", "train", "lab", "pit", "graveyard", "profile", "leaderboard", "achievements", "onboarding", "dreams", "crimson", "rivals", "prophecy", "shrine", "artifacts", "menagerie", "succession", "deep-tide", "black-market", "tides", "pact", "genesis", "confessions", "oath", "arena", "breeding", "lineage", "synergies", "cosmetics"}
     if page not in allowed:
         raise HTTPException(404, f"Unknown island page: {page}")
     return FileResponse(STATIC_DIR / "island" / f"{page}.html")

@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcane Synergies — The Island — Moreau Arena</title>
+    <meta property="og:title" content="Arcane Synergies — The Island">
+    <meta property="og:description" content="Weekly combat challenges. Prove your mastery.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Arcane Synergies — The Island">
+    <meta name="twitter:description" content="Weekly combat challenges. Prove your mastery.">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --bg-primary: #0a0505;
+            --bg-secondary: #0f0a0a;
+            --bg-card: #1a1010;
+            --bg-card-hover: #221515;
+            --bg-code: #1e1218;
+            --border: #3a1a1a;
+            --accent: #e63946;
+            --accent-glow: rgba(230, 57, 70, 0.4);
+            --text: #f1faee;
+            --text-dim: #a8a0a0;
+            --text-muted: #6a5a5a;
+            --green: #4ecca3;
+            --blue: #457b9d;
+            --gold: #d4a017;
+            --purple: #9b59b6;
+            --radius: 8px;
+            --synergy: #b44dff;
+            --synergy-glow: rgba(180, 77, 255, 0.4);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(170deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #0d0707 100%);
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                radial-gradient(1px 1px at 10% 20%, rgba(180,77,255,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 30% 60%, rgba(180,77,255,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 50% 10%, rgba(255,180,255,0.15) 0%, transparent 100%),
+                radial-gradient(1px 1px at 70% 80%, rgba(180,77,255,0.25) 0%, transparent 100%),
+                radial-gradient(1px 1px at 90% 40%, rgba(200,150,255,0.1) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 15% 85%, rgba(180,77,255,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 85% 15%, rgba(180,77,255,0.15) 0%, transparent 100%);
+            animation: particleDrift 20s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes particleDrift {
+            0% { transform: translateY(0) translateX(0); opacity: 0.6; }
+            33% { transform: translateY(-15px) translateX(8px); opacity: 0.8; }
+            66% { transform: translateY(10px) translateX(-5px); opacity: 0.5; }
+            100% { transform: translateY(-8px) translateX(12px); opacity: 0.7; }
+        }
+
+        .island-page {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Nav (same as home) ── */
+        .nav { background: rgba(10, 5, 5, 0.95); border-bottom: 1px solid var(--border); padding: 0 2rem; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); }
+        .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+        .nav-logo { color: var(--text); text-decoration: none; font-weight: 700; font-size: 1.1rem; }
+        .nav-logo span { color: var(--accent); }
+        .nav-links { list-style: none; display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: color 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--text); }
+        .nav-hamburger { display: none; background: none; border: none; color: var(--text); font-size: 1.5rem; cursor: pointer; }
+        .nav-dropdown { position: relative; }
+        .nav-dropdown > a::after { content: ' \25BE'; font-size: 0.7em; }
+        .nav-dropdown-menu { display: none; position: absolute; top: 100%; left: 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.5rem 0; min-width: 160px; z-index: 200; }
+        .nav-dropdown:hover .nav-dropdown-menu { display: block; }
+        .nav-dropdown-menu li { list-style: none; }
+        .nav-dropdown-menu a { display: block; padding: 0.4rem 1rem; font-size: 0.85rem; }
+        .nav-fight a { background: var(--accent); color: #fff !important; padding: 0.35rem 1rem; border-radius: var(--radius); font-weight: 700; font-size: 0.85rem; }
+        .nav-fight a.active { background: #ff4d5a; }
+        @media (max-width: 768px) {
+            .nav-hamburger { display: block; }
+            .nav-links { display: none; flex-direction: column; position: absolute; top: 56px; left: 0; right: 0; background: var(--bg-primary); border-bottom: 1px solid var(--border); padding: 1rem 2rem; gap: 0.75rem; }
+            .nav-links.open { display: flex; }
+        }
+
+        /* ── Page Header ── */
+        .page-header {
+            padding: 2.5rem 0 1.5rem;
+            animation: fadeSlideIn 0.5s ease-out both;
+        }
+
+        .page-header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .page-title-icon {
+            color: var(--synergy);
+            margin-right: 0.5rem;
+        }
+
+        .back-link {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: var(--text); }
+
+        .page-subtitle {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        /* ── Token Balance ── */
+        .token-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 1.5rem;
+            animation: fadeSlideIn 0.5s ease-out 0.1s both;
+        }
+
+        .token-balance {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .token-icon {
+            font-size: 1.3rem;
+            color: var(--synergy);
+            text-shadow: 0 0 8px var(--synergy-glow);
+        }
+
+        .token-count {
+            color: var(--synergy);
+        }
+
+        .token-label {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            font-weight: 400;
+        }
+
+        .shop-link {
+            color: var(--gold);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.35rem 0.85rem;
+            border: 1px solid rgba(212, 160, 23, 0.4);
+            border-radius: var(--radius);
+            transition: all 0.2s;
+        }
+
+        .shop-link:hover {
+            background: rgba(212, 160, 23, 0.1);
+            border-color: var(--gold);
+        }
+
+        /* ── Weekly Timer ── */
+        .reset-timer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 1.5rem;
+            animation: fadeSlideIn 0.5s ease-out 0.15s both;
+        }
+
+        .reset-timer-value {
+            color: var(--synergy);
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+        }
+
+        /* ── Weekly Bonus ── */
+        .weekly-bonus {
+            background: linear-gradient(135deg, rgba(180, 77, 255, 0.08), rgba(180, 77, 255, 0.02));
+            border: 1px solid rgba(180, 77, 255, 0.25);
+            border-radius: var(--radius);
+            padding: 0.85rem 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            animation: fadeSlideIn 0.5s ease-out 0.2s both;
+        }
+
+        .weekly-bonus-text {
+            font-size: 0.85rem;
+            color: var(--synergy);
+            font-weight: 600;
+        }
+
+        .weekly-bonus-reward {
+            font-size: 0.8rem;
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        .weekly-bonus-progress {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .weekly-bonus.completed {
+            border-color: var(--gold);
+            background: linear-gradient(135deg, rgba(212, 160, 23, 0.1), rgba(212, 160, 23, 0.03));
+        }
+
+        .weekly-bonus-claim {
+            padding: 0.35rem 0.85rem;
+            background: var(--gold);
+            border: none;
+            border-radius: 4px;
+            color: #000;
+            font-weight: 700;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .weekly-bonus-claim:hover { background: #e8b520; }
+
+        /* ── Quest Cards ── */
+        .quests-grid {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .quest-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            animation: fadeSlideIn 0.5s ease-out both;
+        }
+
+        .quest-card:nth-child(1) { animation-delay: 0.25s; }
+        .quest-card:nth-child(2) { animation-delay: 0.35s; }
+        .quest-card:nth-child(3) { animation-delay: 0.45s; }
+
+        .quest-card:hover {
+            border-color: rgba(180, 77, 255, 0.3);
+        }
+
+        .quest-card.completed {
+            border-color: var(--green);
+            box-shadow: 0 0 12px rgba(78, 204, 163, 0.15);
+        }
+
+        .quest-card.claimed {
+            opacity: 0.6;
+            border-color: var(--border);
+        }
+
+        .quest-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .quest-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .quest-reward {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--synergy);
+            white-space: nowrap;
+            padding: 0.2rem 0.5rem;
+            background: rgba(180, 77, 255, 0.1);
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .quest-desc {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .quest-requirement {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            padding: 0.4rem 0.6rem;
+            background: var(--bg-code);
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .quest-progress-bar {
+            height: 10px;
+            background: var(--bg-code);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .quest-progress-fill {
+            height: 100%;
+            border-radius: 5px;
+            background: linear-gradient(90deg, var(--synergy), #d480ff);
+            transition: width 0.6s ease;
+        }
+
+        .quest-card.completed .quest-progress-fill {
+            background: linear-gradient(90deg, var(--green), #6de8c0);
+        }
+
+        .quest-progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .quest-progress-text .progress-frac {
+            font-weight: 600;
+            color: var(--synergy);
+        }
+
+        .quest-card.completed .quest-progress-text .progress-frac {
+            color: var(--green);
+        }
+
+        .quest-claim-btn {
+            margin-top: 0.75rem;
+            width: 100%;
+            padding: 0.6rem;
+            background: linear-gradient(135deg, var(--synergy), #9b30ff);
+            border: none;
+            border-radius: var(--radius);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        .quest-claim-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .quest-claimed-badge {
+            margin-top: 0.75rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* ── Archive Section ── */
+        .archive-section {
+            animation: fadeSlideIn 0.5s ease-out 0.55s both;
+        }
+
+        .archive-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .archive-title .toggle-icon {
+            font-size: 0.7rem;
+            transition: transform 0.2s;
+        }
+
+        .archive-title.open .toggle-icon {
+            transform: rotate(90deg);
+        }
+
+        .archive-weeks {
+            display: none;
+        }
+
+        .archive-weeks.open {
+            display: block;
+        }
+
+        .archive-week {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .archive-week-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .archive-week-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dim);
+        }
+
+        .archive-week-score {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--synergy);
+        }
+
+        .archive-quest {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.3rem 0;
+            font-size: 0.8rem;
+        }
+
+        .archive-quest-name {
+            color: var(--text-dim);
+        }
+
+        .archive-quest-status {
+            font-weight: 600;
+        }
+
+        .archive-quest-status.done { color: var(--green); }
+        .archive-quest-status.missed { color: var(--text-muted); }
+
+        /* ── Toast ── */
+        .synergy-toast {
+            position: fixed;
+            top: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(-120px);
+            background: linear-gradient(135deg, #1a0520, #200a28);
+            border: 2px solid var(--synergy);
+            border-radius: var(--radius);
+            padding: 1rem 1.5rem;
+            max-width: 400px;
+            width: 90%;
+            z-index: 250;
+            text-align: center;
+            box-shadow: 0 8px 30px var(--synergy-glow);
+            transition: transform 0.5s ease-out;
+        }
+
+        .synergy-toast.visible {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .synergy-toast-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--synergy);
+            margin-bottom: 0.3rem;
+        }
+
+        .synergy-toast-text {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        /* ── No Pet Warning ── */
+        .no-pet-warning {
+            background: var(--bg-card);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 3rem 2rem;
+            text-align: center;
+            animation: fadeSlideIn 0.5s ease-out both;
+        }
+
+        .no-pet-warning h2 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .no-pet-warning p {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .no-pet-warning a {
+            display: inline-block;
+            padding: 0.6rem 1.5rem;
+            background: var(--accent);
+            color: #fff;
+            border-radius: var(--radius);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* ── Footer ── */
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        .footer a {
+            color: var(--text-dim);
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+
+        .footer a:hover { color: var(--text); }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li class="nav-dropdown">
+                    <a href="#">Benchmark</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/leaderboard">Leaderboard</a></li>
+                        <li><a href="/matchups">Matchup Matrix</a></li>
+                        <li><a href="/cycles">Intransitivity</a></li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="#">Seasons</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/s1">Season 1</a></li>
+                        <li><a href="/s1-fighters">S1 Fighters</a></li>
+                        <li><a href="/s1-matchups">S1 Matchups</a></li>
+                        <li><a href="/s1-compare">Benchmark vs S1</a></li>
+                        <li><a href="/moreddit">The Moreddit</a></li>
+                    </ul>
+                </li>
+                <li><a href="/pets">Pets</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+                <li class="nav-fight"><a href="/island" class="active">FIGHT!</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="island-page">
+        <!-- Toast -->
+        <div class="synergy-toast" id="synergyToast">
+            <div class="synergy-toast-title" id="toastTitle"></div>
+            <div class="synergy-toast-text" id="toastText"></div>
+        </div>
+
+        <!-- Header -->
+        <div class="page-header">
+            <div class="page-header-top">
+                <h1 class="page-title"><span class="page-title-icon">&#10070;</span> Arcane Synergies</h1>
+                <a href="/island/home" class="back-link">&larr; Dashboard</a>
+            </div>
+            <p class="page-subtitle">Weekly combat challenges. Force new builds. Earn Synergy Tokens.</p>
+        </div>
+
+        <!-- Token Balance -->
+        <div class="token-bar">
+            <div class="token-balance">
+                <span class="token-icon">&#10070;</span>
+                <span class="token-count" id="tokenCount">0</span>
+                <span class="token-label">Synergy Tokens</span>
+            </div>
+            <a href="/island/cosmetics" class="shop-link">&#128722; Shop</a>
+        </div>
+
+        <!-- Weekly Reset Timer -->
+        <div class="reset-timer">
+            Weekly reset in <span class="reset-timer-value" id="resetTimer">--:--:--</span>
+        </div>
+
+        <!-- Weekly Bonus -->
+        <div class="weekly-bonus" id="weeklyBonus"></div>
+
+        <!-- Quest Cards -->
+        <div class="quests-grid" id="questsGrid"></div>
+
+        <!-- Archive -->
+        <div class="archive-section">
+            <div class="archive-title" id="archiveToggle" onclick="toggleArchive()">
+                <span class="toggle-icon">&#9654;</span> Previous Weeks
+            </div>
+            <div class="archive-weeks" id="archiveWeeks"></div>
+        </div>
+
+        <footer class="footer">
+            <div>Moreau Arena &mdash; The Island</div>
+            <div style="margin-top: 0.5rem;">
+                <a href="/island/home">Dashboard</a>
+                <a href="/island/cosmetics">Shop</a>
+                <a href="/paper">Paper</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+    (function() {
+        'use strict';
+
+        // ── Constants ──
+
+        var EMOJI_MAP = {wolf:'\u{1F43A}',bear:'\u{1F43B}',fox:'\u{1F98A}',hawk:'\u{1F985}',snake:'\u{1F40D}',panther:'\u{1F406}',shark:'\u{1F988}',eagle:'\u{1F985}',tiger:'\u{1F405}',croc:'\u{1F40A}',rhino:'\u{1F98F}',mantis:'\u{1F997}',scorpion:'\u{1F982}',chameleon:'\u{1F98E}'};
+
+        var QUEST_POOL = [
+            {
+                id: 'glass_cannon',
+                name: 'Glass Cannon',
+                desc: 'Win fights with ATK > 12 and HP < 4. Raw power, fragile frame.',
+                requirement: 'ATK > 12, HP < 4',
+                target: 3,
+                reward: 2,
+                check: function(pet, result) {
+                    if (!result || !result.won) return false;
+                    var s = pet.base_stats || pet.stats || {};
+                    return (s.atk || 0) > 12 && (s.hp || 0) < 4;
+                }
+            },
+            {
+                id: 'tank_protocol',
+                name: 'Tank Protocol',
+                desc: 'Win fights with HP > 10 that take 50+ ticks. Outlast everything.',
+                requirement: 'HP > 10, fight > 50 ticks',
+                target: 3,
+                reward: 2,
+                check: function(pet, result) {
+                    if (!result || !result.won) return false;
+                    var s = pet.base_stats || pet.stats || {};
+                    return (s.hp || 0) > 10 && (result.ticks || 0) >= 50;
+                }
+            },
+            {
+                id: 'speed_demon',
+                name: 'Speed Demon',
+                desc: 'Win fights in under 20 ticks each. Blitz them before they blink.',
+                requirement: 'Win in < 20 ticks',
+                target: 5,
+                reward: 3,
+                check: function(pet, result) {
+                    return result && result.won && (result.ticks || 999) < 20;
+                }
+            },
+            {
+                id: 'the_underdog',
+                name: 'The Underdog',
+                desc: 'Win a fight against an opponent 3+ levels higher. David vs Goliath.',
+                requirement: 'Opponent 3+ levels higher',
+                target: 1,
+                reward: 3,
+                check: function(pet, result) {
+                    if (!result || !result.won) return false;
+                    var opLevel = result.opponent_level || result.opponentLevel || 1;
+                    return opLevel >= (pet.level || 1) + 3;
+                }
+            },
+            {
+                id: 'pacifist_paradox',
+                name: "Pacifist's Paradox",
+                desc: 'Win with WIL as your highest stat. The mind is the strongest weapon.',
+                requirement: 'WIL = highest stat',
+                target: 3,
+                reward: 2,
+                check: function(pet, result) {
+                    if (!result || !result.won) return false;
+                    var s = pet.base_stats || pet.stats || {};
+                    var wil = s.wil || 0;
+                    return wil >= (s.hp || 0) && wil >= (s.atk || 0) && wil >= (s.spd || 0) && wil > 0;
+                }
+            },
+            {
+                id: 'equal_footing',
+                name: 'Equal Footing',
+                desc: 'Win with all stats within 2 points of each other. Perfect balance.',
+                requirement: 'All stats within 2 pts',
+                target: 3,
+                reward: 2,
+                check: function(pet, result) {
+                    if (!result || !result.won) return false;
+                    var s = pet.base_stats || pet.stats || {};
+                    var vals = [s.hp || 0, s.atk || 0, s.spd || 0, s.wil || 0];
+                    var mx = Math.max.apply(null, vals);
+                    var mn = Math.min.apply(null, vals);
+                    return (mx - mn) <= 2;
+                }
+            },
+            {
+                id: 'one_trick',
+                name: 'One-Trick',
+                desc: 'Win 5 fights with the same animal species. Loyalty to form.',
+                requirement: 'Same species, 5 wins',
+                target: 5,
+                reward: 2,
+                check: function(pet, result) {
+                    return result && result.won;
+                },
+                trackSpecies: true
+            },
+            {
+                id: 'chameleon_quest',
+                name: 'Chameleon',
+                desc: 'Win fights with 3 different species in one week. Versatility.',
+                requirement: '3 different species',
+                target: 3,
+                reward: 2,
+                check: function(pet, result) {
+                    return result && result.won;
+                },
+                trackDistinctSpecies: true
+            },
+            {
+                id: 'corruption_master',
+                name: 'Corruption Master',
+                desc: 'Win with corruption/instability above 50. Dance with darkness.',
+                requirement: 'Corruption > 50%',
+                target: 3,
+                reward: 3,
+                check: function(pet, result) {
+                    if (!result || !result.won) return false;
+                    return (pet.instability || pet.corruption || 0) > 50;
+                }
+            },
+            {
+                id: 'night_stalker',
+                name: 'Night Stalker',
+                desc: 'Win fights between 10PM and 4AM. The darkness is your ally.',
+                requirement: '22:00 - 04:00 fights',
+                target: 3,
+                reward: 2,
+                check: function(pet, result) {
+                    if (!result || !result.won) return false;
+                    var h = new Date().getHours();
+                    return h >= 22 || h < 4;
+                }
+            },
+            {
+                id: 'apex_predator',
+                name: 'Apex Predator',
+                desc: 'Win with a pet that has achieved Apex Form. Show them true power.',
+                requirement: 'Apex Form required',
+                target: 1,
+                reward: 3,
+                check: function(pet, result) {
+                    return result && result.won && pet.apex_form;
+                }
+            },
+            {
+                id: 'from_the_deep',
+                name: 'From the Deep',
+                desc: 'Win a Deep Tide chamber challenge. Prove you can survive the abyss.',
+                requirement: 'Deep Tide victory',
+                target: 1,
+                reward: 3,
+                check: function(pet, result) {
+                    return result && result.won && result.source === 'deep_tide';
+                }
+            },
+            {
+                id: 'the_scarred',
+                name: 'The Scarred',
+                desc: 'Win fights with a pet that has 3+ scars. Beauty in damage.',
+                requirement: '3+ scars on pet',
+                target: 3,
+                reward: 2,
+                check: function(pet, result) {
+                    if (!result || !result.won) return false;
+                    return (pet.scars || []).length >= 3;
+                }
+            },
+            {
+                id: 'bloodline_warrior',
+                name: 'Bloodline Warrior',
+                desc: 'Win with a Gen 3+ succession pet. Legacy is strength.',
+                requirement: 'Generation 3+',
+                target: 3,
+                reward: 3,
+                check: function(pet, result) {
+                    if (!result || !result.won) return false;
+                    return (pet.generation || 0) >= 3;
+                }
+            },
+            {
+                id: 'prophecy_fulfilled',
+                name: 'Prophecy Fulfilled',
+                desc: 'Get correct prophecy predictions. The Oracle sees true.',
+                requirement: 'Correct prophecies',
+                target: 3,
+                reward: 2,
+                check: function(pet, result) {
+                    return result && result.prophecy_correct;
+                }
+            },
+            {
+                id: 'market_rat',
+                name: 'Market Rat',
+                desc: 'Buy from the Black Market and win with the purchased mutation active.',
+                requirement: 'Black Market mutation',
+                target: 1,
+                reward: 2,
+                check: function(pet, result) {
+                    if (!result || !result.won) return false;
+                    var purchases = [];
+                    try { purchases = JSON.parse(localStorage.getItem('moreau_market_log') || '[]'); } catch(e) {}
+                    return purchases.length > 0 && (pet.lab_mutations || pet.mutations || []).length > 0;
+                }
+            },
+            {
+                id: 'pact_power',
+                name: 'Pact Power',
+                desc: 'Win fights with a pacted pet. The bond makes you stronger.',
+                requirement: 'Pet has active pact',
+                target: 3,
+                reward: 2,
+                check: function(pet, result) {
+                    return result && result.won && pet.pact;
+                }
+            },
+            {
+                id: 'oathkeeper',
+                name: 'Oathkeeper',
+                desc: 'Win oath fights in one week. Honor demands victory.',
+                requirement: 'Oath fights won',
+                target: 3,
+                reward: 2,
+                check: function(pet, result) {
+                    return result && result.won && result.source === 'oath';
+                }
+            },
+            {
+                id: 'survivor',
+                name: 'Survivor',
+                desc: 'Win 5 fights without your pet dying. Endurance is everything.',
+                requirement: '5 wins, no deaths',
+                target: 5,
+                reward: 2,
+                check: function(pet, result) {
+                    return result && result.won && !pet.deceased && pet.is_alive !== false;
+                }
+            },
+            {
+                id: 'the_experimenter',
+                name: 'The Experimenter',
+                desc: 'Perform lab mutations in one week. Science waits for no one.',
+                requirement: 'Lab mutations performed',
+                target: 3,
+                reward: 2,
+                check: function(pet, result) {
+                    return result && result.source === 'lab_mutation';
+                }
+            },
+            {
+                id: 'stat_ceiling',
+                name: 'Stat Ceiling',
+                desc: 'Win a fight with a single stat at 15+. Push past natural limits.',
+                requirement: 'Any stat >= 15',
+                target: 2,
+                reward: 3,
+                check: function(pet, result) {
+                    if (!result || !result.won) return false;
+                    var s = pet.base_stats || pet.stats || {};
+                    return (s.hp || 0) >= 15 || (s.atk || 0) >= 15 || (s.spd || 0) >= 15 || (s.wil || 0) >= 15;
+                }
+            },
+            {
+                id: 'triple_threat',
+                name: 'Triple Threat',
+                desc: 'Win 3 fights in a row with 3 different pets. Depth of roster.',
+                requirement: '3 different pets, 3 wins',
+                target: 3,
+                reward: 2,
+                check: function(pet, result) {
+                    return result && result.won;
+                },
+                trackDistinctPets: true
+            },
+            {
+                id: 'minimalist',
+                name: 'Minimalist',
+                desc: 'Win with total stats under 16. Do more with less.',
+                requirement: 'Total stats < 16',
+                target: 3,
+                reward: 3,
+                check: function(pet, result) {
+                    if (!result || !result.won) return false;
+                    var s = pet.base_stats || pet.stats || {};
+                    var total = (s.hp || 0) + (s.atk || 0) + (s.spd || 0) + (s.wil || 0);
+                    return total < 16;
+                }
+            },
+            {
+                id: 'twilight_warrior',
+                name: 'Twilight Warrior',
+                desc: 'Win during a Blood Tide phase. The tides favor the bold.',
+                requirement: 'Blood Tide active',
+                target: 2,
+                reward: 3,
+                check: function(pet, result) {
+                    if (!result || !result.won) return false;
+                    if (typeof TideEngine !== 'undefined') {
+                        var ts = TideEngine.getTideState();
+                        return ts && ts.phaseName === 'Blood Tide';
+                    }
+                    return false;
+                }
+            }
+        ];
+
+        // ── Week Number Calculation ──
+
+        function getWeekNumber() {
+            var epoch = new Date(Date.UTC(2025, 0, 6, 0, 0, 0)); // Monday Jan 6, 2025
+            var now = new Date();
+            var diff = now.getTime() - epoch.getTime();
+            return Math.floor(diff / (7 * 24 * 60 * 60 * 1000));
+        }
+
+        function getNextSundayUTC() {
+            var now = new Date();
+            var dayOfWeek = now.getUTCDay(); // 0 = Sunday
+            var daysUntilSunday = dayOfWeek === 0 ? 7 : (7 - dayOfWeek);
+            var next = new Date(now);
+            next.setUTCDate(next.getUTCDate() + daysUntilSunday);
+            next.setUTCHours(0, 0, 0, 0);
+            return next;
+        }
+
+        // ── Deterministic Quest Selection ──
+
+        function selectWeeklyQuests(weekNum) {
+            // Seeded pseudo-random from week number
+            var seed = weekNum * 2654435761; // Knuth multiplicative hash
+            function nextRand() {
+                seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+                return seed / 0x7fffffff;
+            }
+
+            // Pick 3 non-repeating quests
+            var pool = QUEST_POOL.slice();
+            var selected = [];
+            for (var i = 0; i < 3 && pool.length > 0; i++) {
+                var idx = Math.floor(nextRand() * pool.length);
+                selected.push(pool[idx]);
+                pool.splice(idx, 1);
+            }
+            return selected;
+        }
+
+        // ── LocalStorage ──
+
+        function getTokens() {
+            return parseInt(localStorage.getItem('moreau_synergy_tokens') || '0', 10);
+        }
+
+        function setTokens(n) {
+            localStorage.setItem('moreau_synergy_tokens', String(n));
+        }
+
+        function getSynergyData() {
+            var raw = localStorage.getItem('moreau_synergy_quests');
+            if (!raw) return null;
+            try { return JSON.parse(raw); } catch(e) { return null; }
+        }
+
+        function saveSynergyData(data) {
+            localStorage.setItem('moreau_synergy_quests', JSON.stringify(data));
+        }
+
+        function getArchive() {
+            try { return JSON.parse(localStorage.getItem('moreau_synergy_archive') || '[]'); } catch(e) { return []; }
+        }
+
+        function saveArchive(archive) {
+            localStorage.setItem('moreau_synergy_archive', JSON.stringify(archive));
+        }
+
+        function getAllPets() {
+            try { return JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) { return []; }
+        }
+
+        function getActivePet() {
+            var pets = getAllPets();
+            var idx = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
+            if (idx >= 0 && idx < pets.length) return pets[idx];
+            return pets[0] || null;
+        }
+
+        // ── Initialize / Refresh Weekly Quests ──
+
+        function initQuests() {
+            var weekNum = getWeekNumber();
+            var data = getSynergyData();
+
+            if (!data || data.weekNumber !== weekNum) {
+                // Archive old week if exists
+                if (data && data.quests) {
+                    var archive = getArchive();
+                    archive.unshift({
+                        weekNumber: data.weekNumber,
+                        quests: data.quests.map(function(q) {
+                            return { id: q.id, name: q.name, completed: q.completed, claimed: !!q.claimed };
+                        }),
+                        bonusClaimed: !!data.bonusClaimed
+                    });
+                    // Keep only last 4 weeks
+                    if (archive.length > 4) archive = archive.slice(0, 4);
+                    saveArchive(archive);
+                }
+
+                // Generate new week
+                var selected = selectWeeklyQuests(weekNum);
+                data = {
+                    weekNumber: weekNum,
+                    quests: selected.map(function(q) {
+                        return {
+                            id: q.id,
+                            name: q.name,
+                            desc: q.desc,
+                            requirement: q.requirement,
+                            target: q.target,
+                            reward: q.reward,
+                            progress: 0,
+                            completed: false,
+                            claimed: false,
+                            species_tracker: [],
+                            pet_tracker: []
+                        };
+                    }),
+                    bonusClaimed: false
+                };
+                saveSynergyData(data);
+            }
+
+            return data;
+        }
+
+        // ── Render ──
+
+        function renderTokens() {
+            document.getElementById('tokenCount').textContent = getTokens();
+        }
+
+        function renderTimer() {
+            var timerEl = document.getElementById('resetTimer');
+            function update() {
+                var now = new Date();
+                var next = getNextSundayUTC();
+                var diff = next.getTime() - now.getTime();
+                if (diff <= 0) {
+                    timerEl.textContent = 'Resetting...';
+                    setTimeout(function() { location.reload(); }, 2000);
+                    return;
+                }
+                var d = Math.floor(diff / 86400000);
+                var h = Math.floor((diff % 86400000) / 3600000);
+                var m = Math.floor((diff % 3600000) / 60000);
+                var s = Math.floor((diff % 60000) / 1000);
+                var parts = [];
+                if (d > 0) parts.push(d + 'd');
+                parts.push(String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0'));
+                timerEl.textContent = parts.join(' ');
+            }
+            update();
+            setInterval(update, 1000);
+        }
+
+        function renderWeeklyBonus(data) {
+            var el = document.getElementById('weeklyBonus');
+            var completedCount = data.quests.filter(function(q) { return q.completed; }).length;
+            var allDone = completedCount === 3;
+
+            if (data.bonusClaimed) {
+                el.className = 'weekly-bonus completed';
+                el.innerHTML = '<span class="weekly-bonus-text">&#9733; Weekly Bonus Claimed!</span>' +
+                    '<span class="weekly-bonus-progress">3/3 quests completed</span>';
+            } else if (allDone) {
+                el.className = 'weekly-bonus completed';
+                el.innerHTML = '<span class="weekly-bonus-text">&#9733; All Quests Complete!</span>' +
+                    '<button class="weekly-bonus-claim" onclick="claimWeeklyBonus()">CLAIM +5 TOKENS</button>';
+            } else {
+                el.className = 'weekly-bonus';
+                el.innerHTML = '<span class="weekly-bonus-text">Weekly Bonus: Complete all 3 quests</span>' +
+                    '<span class="weekly-bonus-progress">' + completedCount + '/3</span>' +
+                    '<span class="weekly-bonus-reward">+5 Tokens</span>';
+            }
+        }
+
+        function renderQuests(data) {
+            var grid = document.getElementById('questsGrid');
+            var html = '';
+
+            data.quests.forEach(function(quest, idx) {
+                var pct = quest.target > 0 ? Math.min(100, (quest.progress / quest.target) * 100) : 0;
+                var cardClass = 'quest-card';
+                if (quest.claimed) cardClass += ' claimed';
+                else if (quest.completed) cardClass += ' completed';
+
+                html += '<div class="' + cardClass + '">';
+                html += '<div class="quest-header">';
+                html += '<div class="quest-name">' + escHtml(quest.name) + '</div>';
+                html += '<div class="quest-reward">&#10070; ' + quest.reward + '</div>';
+                html += '</div>';
+                html += '<div class="quest-desc">' + escHtml(quest.desc) + '</div>';
+                html += '<div class="quest-requirement">' + escHtml(quest.requirement) + '</div>';
+                html += '<div class="quest-progress-bar"><div class="quest-progress-fill" style="width:' + pct + '%;"></div></div>';
+                html += '<div class="quest-progress-text">';
+                html += '<span class="progress-frac">' + quest.progress + ' / ' + quest.target + '</span>';
+                html += '<span>' + (quest.completed ? 'Complete!' : Math.round(pct) + '%') + '</span>';
+                html += '</div>';
+
+                if (quest.completed && !quest.claimed) {
+                    html += '<button class="quest-claim-btn" onclick="claimQuest(' + idx + ')">CLAIM REWARD</button>';
+                } else if (quest.claimed) {
+                    html += '<div class="quest-claimed-badge">&#10003; Claimed</div>';
+                }
+
+                html += '</div>';
+            });
+
+            grid.innerHTML = html;
+        }
+
+        function renderArchive() {
+            var archive = getArchive();
+            var container = document.getElementById('archiveWeeks');
+            if (archive.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;padding:0.5rem 0;">No previous weeks yet.</p>';
+                return;
+            }
+
+            var html = '';
+            archive.forEach(function(week) {
+                var completedCount = week.quests.filter(function(q) { return q.completed; }).length;
+                html += '<div class="archive-week">';
+                html += '<div class="archive-week-header">';
+                html += '<span class="archive-week-label">Week #' + week.weekNumber + '</span>';
+                html += '<span class="archive-week-score">' + completedCount + '/3' + (week.bonusClaimed ? ' + Bonus' : '') + '</span>';
+                html += '</div>';
+                week.quests.forEach(function(q) {
+                    html += '<div class="archive-quest">';
+                    html += '<span class="archive-quest-name">' + escHtml(q.name) + '</span>';
+                    html += '<span class="archive-quest-status ' + (q.completed ? 'done' : 'missed') + '">' + (q.completed ? '\u2713 Done' : 'Missed') + '</span>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            });
+            container.innerHTML = html;
+        }
+
+        // ── Actions ──
+
+        window.claimQuest = function(idx) {
+            var data = getSynergyData();
+            if (!data || !data.quests[idx]) return;
+            var quest = data.quests[idx];
+            if (!quest.completed || quest.claimed) return;
+
+            quest.claimed = true;
+            saveSynergyData(data);
+
+            var tokens = getTokens();
+            setTokens(tokens + quest.reward);
+
+            showToast('Quest Complete!', '+' + quest.reward + ' Synergy Tokens earned for "' + quest.name + '"');
+            renderAll(data);
+        };
+
+        window.claimWeeklyBonus = function() {
+            var data = getSynergyData();
+            if (!data || data.bonusClaimed) return;
+            var allDone = data.quests.every(function(q) { return q.completed; });
+            if (!allDone) return;
+
+            data.bonusClaimed = true;
+            saveSynergyData(data);
+
+            var tokens = getTokens();
+            setTokens(tokens + 5);
+
+            showToast('Weekly Bonus!', '+5 Synergy Tokens for completing all 3 quests!');
+            renderAll(data);
+        };
+
+        window.toggleArchive = function() {
+            var toggle = document.getElementById('archiveToggle');
+            var weeks = document.getElementById('archiveWeeks');
+            toggle.classList.toggle('open');
+            weeks.classList.toggle('open');
+        };
+
+        function showToast(title, text) {
+            document.getElementById('toastTitle').textContent = title;
+            document.getElementById('toastText').textContent = text;
+            var toast = document.getElementById('synergyToast');
+            toast.classList.add('visible');
+            setTimeout(function() { toast.classList.remove('visible'); }, 4000);
+        }
+
+        // ── Quest Progress Update (called externally) ──
+
+        // Global function for other pages to call after fights / events
+        window.SynergyEngine = {
+            recordFightResult: function(pet, result) {
+                var data = getSynergyData();
+                if (!data) return;
+
+                var weekNum = getWeekNumber();
+                if (data.weekNumber !== weekNum) return; // stale week
+
+                var changed = false;
+                data.quests.forEach(function(quest) {
+                    if (quest.completed) return;
+
+                    var questDef = QUEST_POOL.find(function(q) { return q.id === quest.id; });
+                    if (!questDef) return;
+
+                    if (questDef.check(pet, result)) {
+                        // Handle special tracking
+                        if (questDef.trackDistinctSpecies) {
+                            var species = (pet.animal || '').toLowerCase();
+                            if (!quest.species_tracker) quest.species_tracker = [];
+                            if (quest.species_tracker.indexOf(species) === -1) {
+                                quest.species_tracker.push(species);
+                                quest.progress = quest.species_tracker.length;
+                                changed = true;
+                            }
+                        } else if (questDef.trackDistinctPets) {
+                            var petName = pet.name || '';
+                            if (!quest.pet_tracker) quest.pet_tracker = [];
+                            if (quest.pet_tracker.indexOf(petName) === -1) {
+                                quest.pet_tracker.push(petName);
+                                quest.progress = quest.pet_tracker.length;
+                                changed = true;
+                            }
+                        } else if (questDef.trackSpecies) {
+                            // One-trick: all wins must be same species
+                            var sp = (pet.animal || '').toLowerCase();
+                            if (!quest.species_tracker) quest.species_tracker = [];
+                            if (quest.species_tracker.length === 0 || quest.species_tracker[0] === sp) {
+                                if (quest.species_tracker.length === 0) quest.species_tracker.push(sp);
+                                quest.progress++;
+                                changed = true;
+                            }
+                            // Different species resets for one-trick
+                            if (quest.species_tracker.length > 0 && quest.species_tracker[0] !== sp) {
+                                quest.species_tracker = [sp];
+                                quest.progress = 1;
+                                changed = true;
+                            }
+                        } else {
+                            quest.progress++;
+                            changed = true;
+                        }
+
+                        if (quest.progress >= quest.target) {
+                            quest.completed = true;
+                        }
+                    }
+                });
+
+                if (changed) {
+                    saveSynergyData(data);
+                }
+            },
+
+            recordLabMutation: function(pet) {
+                this.recordFightResult(pet, { won: false, source: 'lab_mutation' });
+            },
+
+            recordProphecyCorrect: function(pet) {
+                this.recordFightResult(pet, { won: false, prophecy_correct: true });
+            },
+
+            getActiveQuestCount: function() {
+                var data = getSynergyData();
+                if (!data) return 0;
+                return data.quests.filter(function(q) { return !q.completed; }).length;
+            },
+
+            getCompletedUnclaimedCount: function() {
+                var data = getSynergyData();
+                if (!data) return 0;
+                return data.quests.filter(function(q) { return q.completed && !q.claimed; }).length;
+            }
+        };
+
+        // ── Util ──
+
+        function escHtml(s) {
+            var d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        // ── Render All ──
+
+        function renderAll(data) {
+            renderTokens();
+            renderWeeklyBonus(data);
+            renderQuests(data);
+            renderArchive();
+        }
+
+        // ── Init ──
+
+        var pet = getActivePet();
+        if (!pet || pet.deceased || pet.is_alive === false) {
+            document.querySelector('.island-page').innerHTML =
+                '<div class="page-header"><div class="page-header-top"><h1 class="page-title"><span class="page-title-icon">&#10070;</span> Arcane Synergies</h1><a href="/island/home" class="back-link">&larr; Dashboard</a></div></div>' +
+                '<div class="no-pet-warning"><h2>No Active Pet</h2><p>You need a living pet to take on weekly challenges.</p><a href="/island/create">Create a Pet</a></div>';
+        } else {
+            var data = initQuests();
+            renderAll(data);
+            renderTimer();
+        }
+
+    })();
+    </script>
+</body>
+</html>

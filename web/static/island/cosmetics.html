@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmetics Store — The Island — Moreau Arena</title>
+    <meta property="og:title" content="Cosmetics Store — The Island">
+    <meta property="og:description" content="Customize your pets. Auras, titles, skins.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Cosmetics Store — The Island">
+    <meta name="twitter:description" content="Customize your pets. Auras, titles, skins.">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --bg-primary: #0a0505;
+            --bg-secondary: #0f0a0a;
+            --bg-card: #1a1010;
+            --bg-card-hover: #221515;
+            --bg-code: #1e1218;
+            --border: #3a1a1a;
+            --accent: #e63946;
+            --accent-glow: rgba(230, 57, 70, 0.4);
+            --text: #f1faee;
+            --text-dim: #a8a0a0;
+            --text-muted: #6a5a5a;
+            --green: #4ecca3;
+            --blue: #457b9d;
+            --gold: #d4a017;
+            --purple: #9b59b6;
+            --radius: 8px;
+            --synergy: #b44dff;
+            --synergy-glow: rgba(180, 77, 255, 0.4);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(170deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #0d0707 100%);
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                radial-gradient(1px 1px at 10% 20%, rgba(212,160,23,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 30% 60%, rgba(212,160,23,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 50% 10%, rgba(255,220,150,0.15) 0%, transparent 100%),
+                radial-gradient(1px 1px at 70% 80%, rgba(212,160,23,0.25) 0%, transparent 100%),
+                radial-gradient(1px 1px at 90% 40%, rgba(200,180,100,0.1) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 15% 85%, rgba(212,160,23,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 85% 15%, rgba(212,160,23,0.15) 0%, transparent 100%);
+            animation: particleDrift 20s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes particleDrift {
+            0% { transform: translateY(0) translateX(0); opacity: 0.6; }
+            33% { transform: translateY(-15px) translateX(8px); opacity: 0.8; }
+            66% { transform: translateY(10px) translateX(-5px); opacity: 0.5; }
+            100% { transform: translateY(-8px) translateX(12px); opacity: 0.7; }
+        }
+
+        .island-page {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Nav ── */
+        .nav { background: rgba(10, 5, 5, 0.95); border-bottom: 1px solid var(--border); padding: 0 2rem; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px); }
+        .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+        .nav-logo { color: var(--text); text-decoration: none; font-weight: 700; font-size: 1.1rem; }
+        .nav-logo span { color: var(--accent); }
+        .nav-links { list-style: none; display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: color 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--text); }
+        .nav-hamburger { display: none; background: none; border: none; color: var(--text); font-size: 1.5rem; cursor: pointer; }
+        .nav-dropdown { position: relative; }
+        .nav-dropdown > a::after { content: ' \25BE'; font-size: 0.7em; }
+        .nav-dropdown-menu { display: none; position: absolute; top: 100%; left: 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.5rem 0; min-width: 160px; z-index: 200; }
+        .nav-dropdown:hover .nav-dropdown-menu { display: block; }
+        .nav-dropdown-menu li { list-style: none; }
+        .nav-dropdown-menu a { display: block; padding: 0.4rem 1rem; font-size: 0.85rem; }
+        .nav-fight a { background: var(--accent); color: #fff !important; padding: 0.35rem 1rem; border-radius: var(--radius); font-weight: 700; font-size: 0.85rem; }
+        .nav-fight a.active { background: #ff4d5a; }
+        @media (max-width: 768px) {
+            .nav-hamburger { display: block; }
+            .nav-links { display: none; flex-direction: column; position: absolute; top: 56px; left: 0; right: 0; background: var(--bg-primary); border-bottom: 1px solid var(--border); padding: 1rem 2rem; gap: 0.75rem; }
+            .nav-links.open { display: flex; }
+        }
+
+        /* ── Page Header ── */
+        .page-header {
+            padding: 2.5rem 0 1.5rem;
+            animation: fadeSlideIn 0.5s ease-out both;
+        }
+
+        .page-header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .page-title-icon {
+            color: var(--gold);
+            margin-right: 0.5rem;
+        }
+
+        .back-link {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: var(--text); }
+
+        .page-subtitle {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        /* ── Token Balance ── */
+        .token-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 1.5rem;
+            animation: fadeSlideIn 0.5s ease-out 0.1s both;
+        }
+
+        .token-balance {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .token-icon {
+            font-size: 1.3rem;
+            color: var(--synergy);
+            text-shadow: 0 0 8px var(--synergy-glow);
+        }
+
+        .token-count {
+            color: var(--synergy);
+        }
+
+        .token-label {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            font-weight: 400;
+        }
+
+        .quests-link {
+            color: var(--synergy);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.35rem 0.85rem;
+            border: 1px solid rgba(180, 77, 255, 0.4);
+            border-radius: var(--radius);
+            transition: all 0.2s;
+        }
+
+        .quests-link:hover {
+            background: rgba(180, 77, 255, 0.1);
+            border-color: var(--synergy);
+        }
+
+        /* ── Tabs ── */
+        .shop-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+            animation: fadeSlideIn 0.5s ease-out 0.15s both;
+        }
+
+        .shop-tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            position: relative;
+        }
+
+        .shop-tab:hover { color: var(--text); }
+
+        .shop-tab.active {
+            color: var(--gold);
+            border-bottom-color: var(--gold);
+        }
+
+        .shop-tab .tab-count {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            font-size: 0.55rem;
+            background: var(--gold);
+            color: #000;
+            padding: 0.05rem 0.3rem;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+
+        /* ── Equipped Preview ── */
+        .equipped-preview {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            animation: fadeSlideIn 0.5s ease-out 0.2s both;
+        }
+
+        .equipped-title {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+
+        .equipped-items {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .equipped-slot {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.75rem;
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            font-size: 0.8rem;
+        }
+
+        .equipped-slot-label {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        .equipped-slot-value {
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        .equipped-slot-none {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .equipped-unequip {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 0.7rem;
+            padding: 0.1rem 0.3rem;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .equipped-unequip:hover { opacity: 1; }
+
+        /* ── Item Grid ── */
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            animation: fadeSlideIn 0.5s ease-out 0.25s both;
+        }
+
+        .item-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            text-align: center;
+            transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+
+        .item-card:hover {
+            border-color: rgba(212, 160, 23, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .item-card.owned {
+            border-color: var(--green);
+        }
+
+        .item-card.equipped {
+            border-color: var(--gold);
+            box-shadow: 0 0 12px rgba(212, 160, 23, 0.2);
+        }
+
+        .item-card.locked {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .item-preview {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+            font-size: 2rem;
+            position: relative;
+        }
+
+        /* Aura previews */
+        .aura-preview {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .aura-crimson_flame { box-shadow: 0 0 20px rgba(230, 57, 70, 0.6), 0 0 40px rgba(230, 57, 70, 0.3); background: radial-gradient(circle, rgba(230,57,70,0.2), transparent); }
+        .aura-shadow_veil { box-shadow: 0 0 20px rgba(20, 20, 40, 0.8), 0 0 40px rgba(60, 40, 80, 0.4); background: radial-gradient(circle, rgba(30,20,40,0.6), transparent); }
+        .aura-golden_light { box-shadow: 0 0 20px rgba(212, 160, 23, 0.6), 0 0 40px rgba(212, 160, 23, 0.3); background: radial-gradient(circle, rgba(212,160,23,0.2), transparent); }
+        .aura-frost_crown { box-shadow: 0 0 20px rgba(150, 200, 255, 0.6), 0 0 40px rgba(150, 200, 255, 0.3); background: radial-gradient(circle, rgba(150,200,255,0.2), transparent); }
+        .aura-storm_charge { box-shadow: 0 0 20px rgba(255, 255, 100, 0.5), 0 0 40px rgba(200, 200, 50, 0.3); background: radial-gradient(circle, rgba(255,255,100,0.15), transparent); }
+        .aura-void_rift { box-shadow: 0 0 20px rgba(100, 0, 200, 0.6), 0 0 40px rgba(80, 0, 160, 0.3); background: radial-gradient(circle, rgba(100,0,200,0.3), transparent); }
+        .aura-biolume { box-shadow: 0 0 20px rgba(0, 255, 247, 0.5), 0 0 40px rgba(0, 200, 200, 0.3); background: radial-gradient(circle, rgba(0,255,247,0.15), transparent); }
+        .aura-blood_moon { box-shadow: 0 0 20px rgba(200, 0, 0, 0.5), 0 0 40px rgba(180, 0, 0, 0.3); background: radial-gradient(circle, rgba(200,0,0,0.2), transparent); }
+        .aura-spirit_chain { box-shadow: 0 0 20px rgba(180, 200, 255, 0.4), 0 0 40px rgba(150, 180, 230, 0.2); background: radial-gradient(circle, rgba(180,200,255,0.15), transparent); }
+        .aura-genesis_ring { box-shadow: 0 0 25px rgba(212, 180, 50, 0.7), 0 0 50px rgba(212, 160, 23, 0.4), inset 0 0 15px rgba(212, 160, 23, 0.2); background: radial-gradient(circle, rgba(212,160,23,0.25), transparent); }
+
+        /* Skin preview colors */
+        .skin-swatch {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+        }
+
+        .skin-albino { background: linear-gradient(135deg, #f0e8e0, #fff, #f5efe5); }
+        .skin-shadow { background: linear-gradient(135deg, #0a0a0a, #1a1a2a, #0a0a0a); border-color: #333; }
+        .skin-crimson { background: linear-gradient(135deg, #8b0000, #cc0000, #8b0000); }
+        .skin-arctic { background: linear-gradient(135deg, #b0d0ff, #e0f0ff, #a0c8ff); }
+        .skin-toxic { background: linear-gradient(135deg, #00cc00, #40ff40, #00cc00); border-color: #00aa00; }
+        .skin-royal { background: linear-gradient(135deg, #6a0dad, #9b59b6, #c9a227); }
+        .skin-spectral { background: linear-gradient(135deg, rgba(200,200,255,0.3), rgba(255,255,255,0.1), rgba(200,200,255,0.3)); border-color: rgba(200,200,255,0.4); }
+        .skin-volcanic { background: linear-gradient(135deg, #cc4400, #ff6600, #ff3300); }
+        .skin-abyssal { background: linear-gradient(135deg, #0a0520, #1a0a30, #050210); border-color: #2a1a4a; }
+        .skin-progenitor { background: linear-gradient(135deg, #c9a227, #f0d060, #c9a227); border-color: #d4a017; }
+
+        .item-name {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .item-desc {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .item-price {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+            font-size: 0.8rem;
+            color: var(--synergy);
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .item-requirement {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-style: italic;
+        }
+
+        .item-btn {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: var(--radius);
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+            border: none;
+        }
+
+        .item-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .item-btn-buy {
+            background: linear-gradient(135deg, var(--synergy), #9b30ff);
+            color: #fff;
+        }
+
+        .item-btn-buy.insufficient {
+            background: var(--bg-code);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .item-btn-buy.insufficient:hover { transform: none; opacity: 1; }
+
+        .item-btn-equip {
+            background: linear-gradient(135deg, var(--gold), #e8b520);
+            color: #000;
+        }
+
+        .item-btn-equipped {
+            background: var(--bg-code);
+            color: var(--green);
+            cursor: default;
+            border: 1px solid var(--green);
+        }
+
+        .item-btn-equipped:hover { transform: none; }
+
+        .item-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 0.55rem;
+            font-weight: 700;
+            padding: 0.1rem 0.35rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .badge-owned {
+            background: rgba(78, 204, 163, 0.15);
+            color: var(--green);
+            border: 1px solid rgba(78, 204, 163, 0.3);
+        }
+
+        .badge-equipped {
+            background: rgba(212, 160, 23, 0.15);
+            color: var(--gold);
+            border: 1px solid rgba(212, 160, 23, 0.3);
+        }
+
+        .badge-exclusive {
+            background: rgba(230, 57, 70, 0.15);
+            color: var(--accent);
+            border: 1px solid rgba(230, 57, 70, 0.3);
+        }
+
+        /* ── Toast ── */
+        .shop-toast {
+            position: fixed;
+            top: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(-120px);
+            background: linear-gradient(135deg, #1a1400, #201a08);
+            border: 2px solid var(--gold);
+            border-radius: var(--radius);
+            padding: 1rem 1.5rem;
+            max-width: 400px;
+            width: 90%;
+            z-index: 250;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(212, 160, 23, 0.3);
+            transition: transform 0.5s ease-out;
+        }
+
+        .shop-toast.visible {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .shop-toast-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 0.3rem;
+        }
+
+        .shop-toast-text {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        /* ── Confirm Modal ── */
+        .confirm-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeSlideIn 0.3s ease-out;
+        }
+
+        .confirm-modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 380px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .confirm-modal h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .confirm-modal p {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+
+        .confirm-btn {
+            padding: 0.5rem 1.25rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .confirm-btn-buy {
+            background: var(--synergy);
+            color: #fff;
+        }
+
+        .confirm-btn-cancel {
+            background: transparent;
+            color: var(--text-dim);
+            border-color: var(--border);
+        }
+
+        .confirm-btn-cancel:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* ── Footer ── */
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        .footer a {
+            color: var(--text-dim);
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+
+        .footer a:hover { color: var(--text); }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .items-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+            .item-card { padding: 1rem; }
+            .equipped-items { flex-direction: column; gap: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li class="nav-dropdown">
+                    <a href="#">Benchmark</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/leaderboard">Leaderboard</a></li>
+                        <li><a href="/matchups">Matchup Matrix</a></li>
+                        <li><a href="/cycles">Intransitivity</a></li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="#">Seasons</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/s1">Season 1</a></li>
+                        <li><a href="/s1-fighters">S1 Fighters</a></li>
+                        <li><a href="/s1-matchups">S1 Matchups</a></li>
+                        <li><a href="/s1-compare">Benchmark vs S1</a></li>
+                        <li><a href="/moreddit">The Moreddit</a></li>
+                    </ul>
+                </li>
+                <li><a href="/pets">Pets</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+                <li class="nav-fight"><a href="/island" class="active">FIGHT!</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="island-page">
+        <!-- Toast -->
+        <div class="shop-toast" id="shopToast">
+            <div class="shop-toast-title" id="toastTitle"></div>
+            <div class="shop-toast-text" id="toastText"></div>
+        </div>
+
+        <!-- Confirm Modal -->
+        <div id="confirmOverlay" style="display:none;"></div>
+
+        <!-- Header -->
+        <div class="page-header">
+            <div class="page-header-top">
+                <h1 class="page-title"><span class="page-title-icon">&#128722;</span> Cosmetics Store</h1>
+                <a href="/island/home" class="back-link">&larr; Dashboard</a>
+            </div>
+            <p class="page-subtitle">Auras. Titles. Skins. Make your pet legendary.</p>
+        </div>
+
+        <!-- Token Balance -->
+        <div class="token-bar">
+            <div class="token-balance">
+                <span class="token-icon">&#10070;</span>
+                <span class="token-count" id="tokenCount">0</span>
+                <span class="token-label">Synergy Tokens</span>
+            </div>
+            <a href="/island/synergies" class="quests-link">&#10070; Earn More</a>
+        </div>
+
+        <!-- Equipped Preview -->
+        <div class="equipped-preview" id="equippedPreview"></div>
+
+        <!-- Tabs -->
+        <div class="shop-tabs">
+            <button class="shop-tab active" data-tab="auras" onclick="switchTab('auras')">&#10024; Auras<span class="tab-count" id="auraCount"></span></button>
+            <button class="shop-tab" data-tab="titles" onclick="switchTab('titles')">&#128221; Titles<span class="tab-count" id="titleCount"></span></button>
+            <button class="shop-tab" data-tab="skins" onclick="switchTab('skins')">&#127912; Skins<span class="tab-count" id="skinCount"></span></button>
+        </div>
+
+        <!-- Items Grid -->
+        <div class="items-grid" id="itemsGrid"></div>
+
+        <footer class="footer">
+            <div>Moreau Arena &mdash; The Island</div>
+            <div style="margin-top: 0.5rem;">
+                <a href="/island/home">Dashboard</a>
+                <a href="/island/synergies">Quests</a>
+                <a href="/paper">Paper</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+    (function() {
+        'use strict';
+
+        // ── Cosmetics Data ──
+
+        var COSMETICS = {
+            auras: [
+                { id: 'crimson_flame', name: 'Crimson Flame', desc: 'A smoldering red glow surrounds your pet.', price: 5, cssClass: 'aura-crimson_flame', preview: '&#128293;' },
+                { id: 'shadow_veil', name: 'Shadow Veil', desc: 'Dark mist clings to every step.', price: 5, cssClass: 'aura-shadow_veil', preview: '&#127761;' },
+                { id: 'golden_light', name: 'Golden Light', desc: 'Golden particles dance in the air.', price: 8, cssClass: 'aura-golden_light', preview: '&#10024;' },
+                { id: 'frost_crown', name: 'Frost Crown', desc: 'Crystalline ice formations orbit your pet.', price: 8, cssClass: 'aura-frost_crown', preview: '&#10052;' },
+                { id: 'storm_charge', name: 'Storm Charge', desc: 'Lightning sparks crackle across the fur.', price: 10, cssClass: 'aura-storm_charge', preview: '&#9889;' },
+                { id: 'void_rift', name: 'Void Rift', desc: 'A dark purple portal shimmers behind.', price: 15, cssClass: 'aura-void_rift', preview: '&#127756;' },
+                { id: 'biolume', name: 'Biolume', desc: 'Cyan deep-sea bioluminescence.', price: 10, cssClass: 'aura-biolume', preview: '&#128167;' },
+                { id: 'blood_moon', name: 'Blood Moon', desc: 'A red moon halo rises behind your pet.', price: 12, cssClass: 'aura-blood_moon', preview: '&#127761;' },
+                { id: 'spirit_chain', name: 'Spirit Chain', desc: 'Ghostly chains rattle with each movement.', price: 10, cssClass: 'aura-spirit_chain', preview: '&#9935;' },
+                { id: 'genesis_ring', name: 'Genesis Ring', desc: 'Golden concentric circles of creation.', price: 20, cssClass: 'aura-genesis_ring', preview: '&#11044;', exclusive: 'genesis' }
+            ],
+            titles: [
+                { id: 'the_undying', name: 'The Undying', desc: 'Survived 10+ fights at critical HP.', price: 3 },
+                { id: 'nightmare', name: 'Nightmare', desc: 'Your opponents dread the sight of you.', price: 5 },
+                { id: 'kingslayer', name: 'Kingslayer', desc: 'Toppled giants. Dethroned kings.', price: 8 },
+                { id: 'the_hollow_one', name: 'The Hollow One', desc: 'Empty inside. Unstoppable outside.', price: 5 },
+                { id: 'stormborn', name: 'Stormborn', desc: 'Born from chaos. Shaped by lightning.', price: 10 },
+                { id: 'dr_moreaus_favorite', name: "Dr. Moreau's Favorite", desc: 'The doctor has taken a special interest.', price: 15 },
+                { id: 'last_one_standing', name: 'Last One Standing', desc: 'When everyone falls, you remain.', price: 8 },
+                { id: 'the_architect', name: 'The Architect', desc: 'You build. You plan. You conquer.', price: 10 },
+                { id: 'night_terror', name: 'Night Terror', desc: 'What hunts in the dark fears you.', price: 12 },
+                { id: 'genesis_walker', name: 'Genesis Walker', desc: 'Walked through the gate of creation.', price: 20, exclusive: 'genesis' }
+            ],
+            skins: [
+                { id: 'albino', name: 'Albino', desc: 'Pure white. Ghost of the wild.', price: 5, cssClass: 'skin-albino' },
+                { id: 'shadow', name: 'Shadow', desc: 'Void black. One with the dark.', price: 5, cssClass: 'skin-shadow' },
+                { id: 'crimson', name: 'Crimson', desc: 'Deep red. Blood-soaked fury.', price: 8, cssClass: 'skin-crimson' },
+                { id: 'arctic', name: 'Arctic', desc: 'Ice blue. Cold as death.', price: 8, cssClass: 'skin-arctic' },
+                { id: 'toxic', name: 'Toxic', desc: 'Neon green. Radiating danger.', price: 10, cssClass: 'skin-toxic' },
+                { id: 'royal', name: 'Royal', desc: 'Purple and gold. Born to rule.', price: 12, cssClass: 'skin-royal' },
+                { id: 'spectral', name: 'Spectral', desc: 'Translucent. Between worlds.', price: 15, cssClass: 'skin-spectral' },
+                { id: 'volcanic', name: 'Volcanic', desc: 'Lava orange. Molten core.', price: 12, cssClass: 'skin-volcanic' },
+                { id: 'abyssal', name: 'Abyssal', desc: 'Deep ocean darkness. Crushing depth.', price: 15, cssClass: 'skin-abyssal' },
+                { id: 'progenitor', name: 'Progenitor', desc: 'Golden. The first of its kind.', price: 20, cssClass: 'skin-progenitor', exclusive: 'succession' }
+            ]
+        };
+
+        var currentTab = 'auras';
+
+        // ── LocalStorage ──
+
+        function getTokens() {
+            return parseInt(localStorage.getItem('moreau_synergy_tokens') || '0', 10);
+        }
+
+        function setTokens(n) {
+            localStorage.setItem('moreau_synergy_tokens', String(n));
+        }
+
+        function getCosmeticsData() {
+            try {
+                return JSON.parse(localStorage.getItem('moreau_cosmetics') || '{"owned":[],"equipped":{"aura":null,"title":null,"skin":null}}');
+            } catch(e) {
+                return { owned: [], equipped: { aura: null, title: null, skin: null } };
+            }
+        }
+
+        function saveCosmeticsData(data) {
+            localStorage.setItem('moreau_cosmetics', JSON.stringify(data));
+        }
+
+        function isOwned(type, id) {
+            var data = getCosmeticsData();
+            return data.owned.indexOf(type + '_' + id) !== -1;
+        }
+
+        function isEquipped(type, id) {
+            var data = getCosmeticsData();
+            return data.equipped[type] === id;
+        }
+
+        function checkExclusive(item) {
+            if (!item.exclusive) return true;
+            if (item.exclusive === 'genesis') {
+                try {
+                    var g = JSON.parse(localStorage.getItem('moreau_genesis') || 'null');
+                    return g && (g.marks || 0) > 0;
+                } catch(e) { return false; }
+            }
+            if (item.exclusive === 'succession') {
+                try {
+                    var bl = JSON.parse(localStorage.getItem('moreau_bloodlines') || '{}');
+                    return Object.keys(bl).some(function(k) { return (bl[k].generation || 0) >= 3; });
+                } catch(e) { return false; }
+            }
+            return true;
+        }
+
+        // ── Render ──
+
+        function renderTokens() {
+            document.getElementById('tokenCount').textContent = getTokens();
+        }
+
+        function renderEquipped() {
+            var data = getCosmeticsData();
+            var el = document.getElementById('equippedPreview');
+
+            function slotHtml(label, type) {
+                var id = data.equipped[type];
+                if (!id) {
+                    return '<div class="equipped-slot"><span class="equipped-slot-label">' + label + ':</span><span class="equipped-slot-none">None</span></div>';
+                }
+                var items = COSMETICS[type + 's'];
+                var item = items ? items.find(function(i) { return i.id === id; }) : null;
+                var name = item ? item.name : id;
+                return '<div class="equipped-slot"><span class="equipped-slot-label">' + label + ':</span><span class="equipped-slot-value">' + escHtml(name) + '</span>' +
+                    '<button class="equipped-unequip" onclick="unequipCosmetic(\'' + type + '\')">&times;</button></div>';
+            }
+
+            el.innerHTML = '<div class="equipped-title">Currently Equipped</div>' +
+                '<div class="equipped-items">' +
+                slotHtml('Aura', 'aura') +
+                slotHtml('Title', 'title') +
+                slotHtml('Skin', 'skin') +
+                '</div>';
+        }
+
+        function renderTabCounts() {
+            var data = getCosmeticsData();
+            function count(type) {
+                return COSMETICS[type].filter(function(item) {
+                    return data.owned.indexOf(type.replace(/s$/, '') + '_' + item.id) !== -1;
+                }).length;
+            }
+            var ac = count('auras');
+            var tc = count('titles');
+            var sc = count('skins');
+            document.getElementById('auraCount').textContent = ac > 0 ? ac : '';
+            document.getElementById('titleCount').textContent = tc > 0 ? tc : '';
+            document.getElementById('skinCount').textContent = sc > 0 ? sc : '';
+        }
+
+        function renderItems() {
+            var items = COSMETICS[currentTab];
+            var type = currentTab.replace(/s$/, ''); // aura, title, skin
+            var tokens = getTokens();
+            var data = getCosmeticsData();
+            var grid = document.getElementById('itemsGrid');
+
+            var html = '';
+            items.forEach(function(item) {
+                var key = type + '_' + item.id;
+                var owned = data.owned.indexOf(key) !== -1;
+                var equipped = data.equipped[type] === item.id;
+                var canBuy = !owned && tokens >= item.price;
+                var meetsExclusive = checkExclusive(item);
+                var locked = !meetsExclusive && !owned;
+
+                var cardClass = 'item-card';
+                if (equipped) cardClass += ' equipped';
+                else if (owned) cardClass += ' owned';
+                if (locked) cardClass += ' locked';
+
+                html += '<div class="' + cardClass + '">';
+
+                // Badge
+                if (equipped) {
+                    html += '<span class="item-badge badge-equipped">EQUIPPED</span>';
+                } else if (owned) {
+                    html += '<span class="item-badge badge-owned">OWNED</span>';
+                } else if (item.exclusive) {
+                    html += '<span class="item-badge badge-exclusive">EXCLUSIVE</span>';
+                }
+
+                // Preview
+                html += '<div class="item-preview">';
+                if (type === 'aura') {
+                    html += '<div class="aura-preview ' + (item.cssClass || '') + '">' + (item.preview || '&#10024;') + '</div>';
+                } else if (type === 'skin') {
+                    html += '<div class="skin-swatch ' + (item.cssClass || '') + '"></div>';
+                } else {
+                    html += '<span style="font-size:1.5rem;color:var(--gold);">&#128221;</span>';
+                }
+                html += '</div>';
+
+                html += '<div class="item-name">' + escHtml(item.name) + '</div>';
+                html += '<div class="item-desc">' + escHtml(item.desc) + '</div>';
+
+                if (!owned) {
+                    html += '<div class="item-price">&#10070; ' + item.price + ' tokens</div>';
+                }
+
+                if (locked) {
+                    var reqText = item.exclusive === 'genesis' ? 'Requires Genesis Mark' : 'Requires Gen 3+ Succession';
+                    html += '<div class="item-requirement">' + reqText + '</div>';
+                }
+
+                // Button
+                if (equipped) {
+                    html += '<button class="item-btn item-btn-equipped">&#10003; Equipped</button>';
+                } else if (owned) {
+                    html += '<button class="item-btn item-btn-equip" onclick="equipCosmetic(\'' + type + '\',\'' + item.id + '\')">EQUIP</button>';
+                } else if (!locked) {
+                    html += '<button class="item-btn item-btn-buy' + (canBuy ? '' : ' insufficient') + '" ' +
+                        (canBuy ? 'onclick="confirmBuy(\'' + type + '\',\'' + item.id + '\',' + item.price + ',\'' + escAttr(item.name) + '\')"' : '') + '>' +
+                        (canBuy ? 'BUY' : 'Not enough tokens') + '</button>';
+                }
+
+                html += '</div>';
+            });
+
+            grid.innerHTML = html;
+        }
+
+        // ── Actions ──
+
+        window.switchTab = function(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.shop-tab').forEach(function(t) {
+                t.classList.toggle('active', t.dataset.tab === tab);
+            });
+            renderItems();
+        };
+
+        window.confirmBuy = function(type, id, price, name) {
+            var overlay = document.getElementById('confirmOverlay');
+            overlay.style.display = '';
+            overlay.innerHTML = '<div class="confirm-overlay" onclick="if(event.target===this)closeBuyModal()">' +
+                '<div class="confirm-modal">' +
+                '<h3>Buy ' + name + '?</h3>' +
+                '<p>This will cost <strong style="color:var(--synergy);">' + price + ' Synergy Tokens</strong>.</p>' +
+                '<div class="confirm-actions">' +
+                '<button class="confirm-btn confirm-btn-buy" onclick="executeBuy(\'' + type + '\',\'' + id + '\',' + price + ')">Buy</button>' +
+                '<button class="confirm-btn confirm-btn-cancel" onclick="closeBuyModal()">Cancel</button>' +
+                '</div></div></div>';
+        };
+
+        window.closeBuyModal = function() {
+            document.getElementById('confirmOverlay').style.display = 'none';
+        };
+
+        window.executeBuy = function(type, id, price) {
+            var tokens = getTokens();
+            if (tokens < price) return;
+
+            var data = getCosmeticsData();
+            var key = type + '_' + id;
+            if (data.owned.indexOf(key) !== -1) return;
+
+            data.owned.push(key);
+            saveCosmeticsData(data);
+            setTokens(tokens - price);
+
+            closeBuyModal();
+
+            var items = COSMETICS[type + 's'];
+            var item = items ? items.find(function(i) { return i.id === id; }) : null;
+            showToast('Purchased!', (item ? item.name : id) + ' added to your collection.');
+            renderAll();
+        };
+
+        window.equipCosmetic = function(type, id) {
+            var data = getCosmeticsData();
+            var key = type + '_' + id;
+            if (data.owned.indexOf(key) === -1) return;
+
+            data.equipped[type] = id;
+            saveCosmeticsData(data);
+            renderAll();
+        };
+
+        window.unequipCosmetic = function(type) {
+            var data = getCosmeticsData();
+            data.equipped[type] = null;
+            saveCosmeticsData(data);
+            renderAll();
+        };
+
+        function showToast(title, text) {
+            document.getElementById('toastTitle').textContent = title;
+            document.getElementById('toastText').textContent = text;
+            var toast = document.getElementById('shopToast');
+            toast.classList.add('visible');
+            setTimeout(function() { toast.classList.remove('visible'); }, 4000);
+        }
+
+        // ── Util ──
+
+        function escHtml(s) {
+            var d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        function escAttr(s) {
+            return s.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+
+        // ── Global API for home.html ──
+        window.CosmeticsEngine = {
+            getEquipped: function() {
+                return getCosmeticsData().equipped;
+            },
+            getAuraClass: function(auraId) {
+                if (!auraId) return '';
+                var item = COSMETICS.auras.find(function(a) { return a.id === auraId; });
+                return item ? item.cssClass : '';
+            },
+            getTitleName: function(titleId) {
+                if (!titleId) return '';
+                var item = COSMETICS.titles.find(function(t) { return t.id === titleId; });
+                return item ? item.name : '';
+            },
+            getSkinClass: function(skinId) {
+                if (!skinId) return '';
+                var item = COSMETICS.skins.find(function(s) { return s.id === skinId; });
+                return item ? item.cssClass : '';
+            }
+        };
+
+        // ── Render All ──
+
+        function renderAll() {
+            renderTokens();
+            renderEquipped();
+            renderTabCounts();
+            renderItems();
+        }
+
+        // ── Init ──
+        renderAll();
+
+    })();
+    </script>
+</body>
+</html>

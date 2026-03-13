@@ -275,30 +275,33 @@
 - [x] Bloodline synergies (Dual Legends, Dynasty, Sacrifice Chain)
 - [x] Memorial rituals (Immortalize for Soul Points)
 
-**6B. Arena Oath** — Social rivalry covenants (needs Supabase)
-- [ ] Oath declaration system (swear enmity against another player's pet)
-- [ ] Auto-fights every 24h between oathbound pairs
-- [ ] Oath levels 1-5 (escalation with stat bonuses)
-- [ ] `/island/oath-feed` — public oath chronicle
-- [ ] Oath-breaking mechanics (Oathbreaker's Curse: -15% stats for 48h)
-- [ ] Ally oaths (coalitions)
+**6B. Arena Oath** — Social rivalry covenants (DONE)
+- [x] Oath declaration system (browse players, swear enmity, max 3 active)
+- [x] Oath levels 1-5 (escalation with ATK bonuses: +1/+2/+3/+5)
+- [x] `/island/oath` — 4 tabs: Declare, Active, Chronicle, Hall of Oaths
+- [x] Oathbreaker's Curse (-15% stats for 48h on oath break)
+- [x] SQL schema: `docs/SUPABASE_PHASE6B_SQL.md`
+- [ ] Ally oaths (coalitions) — future
 
-**6C. The Scar Garden** — Breeding & genetic inheritance (needs Supabase)
-- [ ] Breeding: active pet + dead pet donor → egg (12h incubation)
-- [ ] Genetic Memory (inherited mutations, stat bonuses, soul voice)
-- [ ] `/island/breeding` — Breeding Lab page
-- [ ] `/island/lineage` — Bloodline tree visualization
-- [ ] Scar system (breeding depletes breeder, max 5 breeds)
-- [ ] Memory Shards currency
+**6C. The Scar Garden** — Breeding & genetic inheritance (DONE)
+- [x] Breeding: living pet + dead donor → egg (12h real incubation)
+- [x] Genetic inheritance (averaged stats, 30% mutation carry, Glorious bonus)
+- [x] `/island/breeding` — 3 tabs: Breeding, Incubation, Lineage mini
+- [x] `/island/lineage` — Full family tree visualization (color-coded nodes)
+- [x] Scar system (max 5 breeds, +1 scar per breed)
+- [x] Memory Shards currency (+5 per hatch, spend on boosts)
+- [x] SQL schema: `docs/SUPABASE_PHASE6C_SQL.md`
 
-### Phase 7 — Premium + Polish
-- [ ] Soul premium toggle (Stripe, $3/mo)
+### Phase 7 — Premium + Polish (PARTIAL)
+- [ ] Soul premium toggle (Stripe, $3/mo) — needs Stripe keys
 - [ ] Cosmetics store (pet skins from rivals, auras, effects)
 - [ ] Arcane Synergies (weekly rotating combat quests, build diversity)
-- [ ] Global PvP (async matchmaking) — needs Supabase
-- [ ] Auto-arena cron job — needs Supabase
-- [ ] Live matchmaking
-- [ ] Mobile app considerations
+- [x] Global PvP — `/island/arena` (ELO matchmaking, server-side fight endpoint)
+- [x] Auto-arena (client-triggered on page visit, 6h cooldown)
+- [x] Arena leaderboard (top-50 by rating)
+- [x] SQL schema: `docs/SUPABASE_PHASE7_PVP_SQL.md`
+- [ ] Live matchmaking — future
+- [ ] Mobile app — future
 
 ### Phase 8 — The Deep Island (DONE — localStorage, no Supabase needed)
 
