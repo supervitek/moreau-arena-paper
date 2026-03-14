@@ -365,6 +365,54 @@
 - [x] `/island/confessions` — journal page, CRT terminal aesthetic
 - [x] Integration with lab.html death sequence
 
+### Phase 10 — The Caretaker (🔨 Building)
+
+**10A. Caretaker Engine** — Needs system, decay, actions, overnight 🔨 Building
+- [ ] `caretaker-engine.js` — needs system (hunger/health/morale/energy), time-based decay
+- [ ] Caretaker actions: feed, heal, rest, train, motivate, autoManage (premium stub)
+- [ ] Overnight training: simulated fights (local win probability), 3/5/7/10 rounds
+- [ ] Contextual advice engine (30+ strings based on pet state)
+
+**10B. Caretaker Page** — Dashboard, quick actions, advice, overnight UI 🔨 Building
+- [ ] `/island/caretaker` — main Caretaker page (~1800 lines)
+- [ ] Needs dashboard with 4 bars (hunger, health, morale, energy)
+- [ ] Quick action buttons (feed/heal/rest/train/motivate)
+- [ ] Overnight training UI (start, progress, report on return)
+- [ ] Advice panel with context-aware tips
+
+**10C. Home Integration** — Needs bars, alerts, banners 🔨 Building
+- [ ] Needs bars on `/island/home` dashboard for active pet
+- [ ] Urgent alerts (hunger=0, health critical)
+- [ ] Decay calculation on page load (hours since last_checked)
+- [ ] Caretaker button in dashboard quick actions
+
+**10D. Diary + Trust System** — Approve/override, trust 0-10 🔨 Building
+- [ ] Caretaker diary log (6 entry types: report, opinion, warning, apology, decision, observation)
+- [ ] Approve (+0.5 trust) / Override (-1 trust) mechanic
+- [ ] Trust levels affect Caretaker behavior (0=refuses, 7+=creative, 10=unsanctioned mutations)
+- [ ] Diary entries with personality (Caretaker as character)
+
+**10E. Mercy Clause** — Sacrifice mechanic, debts, abomination 🔨 Building
+- [ ] Trigger: hunger=0 + health<20, OR instability>90 + health<30
+- [ ] 1 tidal cycle (6hr) to decide — sacrifice one pet to save another
+- [ ] Survivor's Guilt mutation (-2 WIL, +3 ATK, permanent)
+- [ ] Debts tracking: 3+ debts = "Abomination" tag (NPC interactions blocked)
+- [ ] Auto-resolve on timer expiry (Caretaker sacrifices lowest-level pet)
+
+**10F. Feeding Ledger / Aleph** — 12-page hidden lore, streak tracking 🔨 Building
+- [ ] 7 consecutive care days → page 1 unlock (2+ visits/day)
+- [ ] Each subsequent week: +1 page (12 total)
+- [ ] Page 6: the "15th animal" — Aleph; Page 9: redacted if Forbidden Lab user
+- [ ] Page 12: The Nursery reveal — Caretaker IS Aleph
+- [ ] Streak resets silently if any pet drops below 30% HP unhealed for 1 cycle
+
+**Brainstormed but deferred:**
+- Standing Orders (programmable caretaker rules) — deferred
+- Caretaker's Price / Workshop (hybrid mutations) — deferred
+- Caretaker's Drift (progressive AI divergence) — partially captured in Trust system (10D)
+- Sleep Dialect (constructed language for overnight logs) — deferred
+- Weight of Keeping (30-day hidden pixel on home page) — deferred
+
 ---
 
 ## 5. TECH DECISIONS
