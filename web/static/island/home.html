@@ -858,6 +858,16 @@
         .aura-spirit_chain { box-shadow: 0 0 20px rgba(180,200,255,0.4), 0 0 40px rgba(150,180,230,0.2); }
         .aura-genesis_ring { box-shadow: 0 0 25px rgba(212,180,50,0.7), 0 0 50px rgba(212,160,23,0.4); }
 
+        /* ── Caretaker pulse animation ── */
+        @keyframes caretakerPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .action-caretaker { border-color: rgba(76,175,80,0.5); }
+        .action-caretaker:hover { border-color: #4caf50; box-shadow: 0 4px 16px rgba(76,175,80,0.25); }
+        .action-caretaker .action-icon { color: #4caf50; }
+
         @media (max-width: 640px) {
             .actions { grid-template-columns: repeat(3, 1fr); }
             .welcome-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; padding: 2rem 0 1.25rem; }
@@ -1444,6 +1454,25 @@
             <!-- Feral Warning Banner -->
             <div id="feralBannerArea"></div>
 
+            <!-- Caretaker Urgent Alert -->
+            <div id="caretakerAlert" style="display:none; background:#d32f2f; color:white; padding:12px; text-align:center; border-radius:8px; margin-bottom:16px; animation: caretakerPulse 1.5s infinite;">
+                <span id="caretakerAlertText"></span>
+                <a href="/island/caretaker" style="color:#fff;text-decoration:underline;margin-left:8px;">Visit the Caretaker &rarr;</a>
+            </div>
+
+            <!-- Caretaker Overnight Report -->
+            <div id="overnightBanner" style="display:none; background:linear-gradient(135deg,#5d4e37,#8b7355); color:#ffd700; padding:12px; text-align:center; border-radius:8px; margin-bottom:16px;">
+                <span id="overnightBannerText">&#127769; Overnight report ready!</span>
+                <a href="/island/caretaker" style="color:#ffd700;text-decoration:underline;margin-left:8px;">View Results &rarr;</a>
+            </div>
+
+            <!-- Caretaker Mercy Clause -->
+            <div id="mercyBanner" style="display:none; background:linear-gradient(135deg,#4a0000,#8b0000); color:#ff4444; padding:16px; text-align:center; border-radius:8px; margin-bottom:16px; border:2px solid #ff0000; animation: caretakerPulse 1s infinite;">
+                <div style="font-size:18px;font-weight:bold;">&#9888;&#65039; THE MERCY CLAUSE</div>
+                <div id="mercyBannerText" style="margin-top:4px;color:#ffcccc;"></div>
+                <a href="/island/caretaker" style="color:#ff6666;text-decoration:underline;margin-top:8px;display:inline-block;">Make your choice &rarr;</a>
+            </div>
+
             <!-- Feral Attack Toast -->
             <div class="feral-toast-home" id="feralToastHome">
                 <div class="feral-toast-home-title" id="feralToastHomeTitle"></div>
@@ -1473,6 +1502,11 @@
 
             <!-- Your Pets -->
             <div class="pets-section" id="petsSection"></div>
+
+            <!-- Caretaker Ledger Hint -->
+            <div id="ledgerHint" style="display:none; text-align:center; color:#666; font-size:11px; font-style:italic; margin-top:20px;">
+                The Caretaker left something in the Shrine...
+            </div>
 
             <!-- Footer -->
             <footer class="footer">
@@ -1591,6 +1625,7 @@
     <script src="/static/island/tide-engine.js"></script>
     <script src="/static/island/m-engine.js"></script>
     <script src="/static/island/confession-engine.js"></script>
+    <script src="/static/island/caretaker-engine.js"></script>
     <script>
         // ══════════════════════════════════════
         //  Island Home — Player Dashboard
@@ -1725,8 +1760,18 @@
             checkFeralAttackHome();
             renderFeralBanner();
 
+            // Initialize Caretaker needs for all pets
+            if (typeof CaretakerEngine !== 'undefined') {
+                CaretakerEngine.decayAll();
+                CaretakerEngine.updateCareStreak();
+            }
+
+            // Check caretaker banners
+            checkCaretakerBanners();
+
             // Render everything
             renderActivePet();
+            updateCaretakerBars();
             renderActions();
             renderEggBanner();
             renderPetsSection();
@@ -1992,6 +2037,26 @@
                 });
                 html += '</div>';
 
+                // Caretaker mini needs bars
+                html += '<div id="caretakerMiniStatus" style="margin-top:8px;">';
+                html += '<div style="display:flex;gap:4px;align-items:center;font-size:11px;margin-bottom:2px;">';
+                html += '<span>&#127830;</span><div style="flex:1;height:6px;background:#333;border-radius:3px;overflow:hidden;">';
+                html += '<div id="bar-hunger" style="height:100%;border-radius:3px;transition:width 0.5s;"></div>';
+                html += '</div><span id="val-hunger" style="width:30px;text-align:right;"></span></div>';
+                html += '<div style="display:flex;gap:4px;align-items:center;font-size:11px;margin-bottom:2px;">';
+                html += '<span>&#128138;</span><div style="flex:1;height:6px;background:#333;border-radius:3px;overflow:hidden;">';
+                html += '<div id="bar-health" style="height:100%;border-radius:3px;transition:width 0.5s;"></div>';
+                html += '</div><span id="val-health" style="width:30px;text-align:right;"></span></div>';
+                html += '<div style="display:flex;gap:4px;align-items:center;font-size:11px;margin-bottom:2px;">';
+                html += '<span>&#128522;</span><div style="flex:1;height:6px;background:#333;border-radius:3px;overflow:hidden;">';
+                html += '<div id="bar-morale" style="height:100%;border-radius:3px;transition:width 0.5s;"></div>';
+                html += '</div><span id="val-morale" style="width:30px;text-align:right;"></span></div>';
+                html += '<div style="display:flex;gap:4px;align-items:center;font-size:11px;margin-bottom:2px;">';
+                html += '<span>&#9889;</span><div style="flex:1;height:6px;background:#333;border-radius:3px;overflow:hidden;">';
+                html += '<div id="bar-energy" style="height:100%;border-radius:3px;transition:width 0.5s;"></div>';
+                html += '</div><span id="val-energy" style="width:30px;text-align:right;"></span></div>';
+                html += '</div>';
+
                 // Corruption bar (show if corruption > 0)
                 if (corruption > 0) {
                     html += '<div class="corruption-section">';
@@ -2092,6 +2157,10 @@
             // TRAIN
             html += '<a href="' + (hasPet ? '/island/train' : '#') + '" class="action-btn action-train' + (hasPet ? '' : ' disabled') + '">' +
                 '<span class="action-icon">&#9876;</span>TRAIN</a>';
+
+            // CARETAKER
+            html += '<a href="' + (hasPet ? '/island/caretaker' : '#') + '" class="action-btn action-caretaker' + (hasPet ? '' : ' disabled') + '">' +
+                '<span class="action-icon">&#127807;</span>CARETAKER</a>';
 
             // THE PIT
             var livingCount = allPets.filter(function(p) { return !p.deceased && p.is_alive !== false; }).length;
@@ -2380,6 +2449,8 @@
             renderActivePet();
             renderActions();
             renderPetsSection();
+            updateCaretakerBars();
+            checkCaretakerBanners();
         }
 
         // ── Sign Out ──
@@ -2677,6 +2748,99 @@
             }
         }
 
+        // ── Caretaker Integration ──
+
+        function updateCaretakerBars() {
+            if (typeof CaretakerEngine === 'undefined') return;
+            var pet = getActivePet();
+            if (!pet || pet.deceased || pet.is_alive === false) return;
+
+            var needs = pet.needs || {};
+            var bars = [
+                { key: 'hunger', barId: 'bar-hunger', valId: 'val-hunger' },
+                { key: 'health', barId: 'bar-health', valId: 'val-health' },
+                { key: 'morale', barId: 'bar-morale', valId: 'val-morale' },
+                { key: 'energy', barId: 'bar-energy', valId: 'val-energy' }
+            ];
+
+            bars.forEach(function(b) {
+                var val = needs[b.key] !== undefined ? needs[b.key] : 100;
+                var pct = Math.min(100, Math.max(0, val));
+                var barEl = document.getElementById(b.barId);
+                var valEl = document.getElementById(b.valId);
+                if (barEl) {
+                    barEl.style.width = pct + '%';
+                    if (pct < 20) {
+                        barEl.style.background = '#d32f2f';
+                    } else if (pct < 50) {
+                        barEl.style.background = '#ff9800';
+                    } else {
+                        barEl.style.background = '#4caf50';
+                    }
+                }
+                if (valEl) {
+                    valEl.textContent = Math.round(pct) + '%';
+                    valEl.style.color = pct < 20 ? '#d32f2f' : (pct < 50 ? '#ff9800' : 'var(--text-dim)');
+                }
+            });
+        }
+
+        function checkCaretakerBanners() {
+            if (typeof CaretakerEngine === 'undefined') return;
+            var pet = getActivePet();
+            if (!pet || pet.deceased || pet.is_alive === false) return;
+
+            // Urgent alert (any need < 20%)
+            var status = CaretakerEngine.getStatus(pet);
+            if (status && status.urgent && status.urgent.length > 0) {
+                var alertEl = document.getElementById('caretakerAlert');
+                var alertText = document.getElementById('caretakerAlertText');
+                if (alertEl && alertText) {
+                    alertEl.style.display = 'block';
+                    alertText.textContent = '\u26A0\uFE0F ' + status.urgent[0];
+                }
+            }
+
+            // Overnight report
+            if (typeof CaretakerEngine.getOvernightReport === 'function') {
+                var report = CaretakerEngine.getOvernightReport();
+                if (report && report.completed) {
+                    var overnightEl = document.getElementById('overnightBanner');
+                    var overnightText = document.getElementById('overnightBannerText');
+                    if (overnightEl) {
+                        overnightEl.style.display = 'block';
+                        if (overnightText && report.summary) {
+                            overnightText.textContent = '\u{1F319} ' + report.summary;
+                        }
+                    }
+                }
+            }
+
+            // Mercy Clause
+            if (typeof CaretakerEngine.getMercyPending === 'function') {
+                var mercy = CaretakerEngine.getMercyPending();
+                if (mercy) {
+                    var mercyEl = document.getElementById('mercyBanner');
+                    var mercyText = document.getElementById('mercyBannerText');
+                    if (mercyEl) {
+                        mercyEl.style.display = 'block';
+                        if (mercyText) {
+                            mercyText.textContent = mercy.message || 'A pet is suffering. You must decide.';
+                        }
+                    }
+                }
+            }
+
+            // Feeding Ledger hint
+            if (typeof CaretakerEngine.getLedgerPages === 'function') {
+                var pages = CaretakerEngine.getLedgerPages();
+                if (pages > 0 && pages < 12) {
+                    var hint = document.getElementById('ledgerHint');
+                    if (hint) hint.style.display = 'block';
+                }
+            }
+        }
+
         // ── Start ──
         init().then(function() {
             // Show help auto-popup on first visit (after dashboard is loaded)
@@ -2686,6 +2850,8 @@
                 MEngine.process();
                 setTimeout(renderMPresence, 800);
             }
+            // Update caretaker bars after render
+            updateCaretakerBars();
         }).catch(function() {});
 
         // ── Achievement checks ──

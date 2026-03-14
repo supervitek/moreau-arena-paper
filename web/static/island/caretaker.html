@@ -1,0 +1,2644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Caretaker's Lodge — The Island — Moreau Arena</title>
+    <meta property="og:title" content="The Caretaker's Lodge — The Island">
+    <meta property="og:description" content="Even monsters need someone who cares.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="The Caretaker's Lodge — Moreau Arena">
+    <meta name="twitter:description" content="Even monsters need someone who cares.">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        /* ── Theme: Green/Brown Nature ── */
+        :root {
+            --bg-primary: #0d2d0d;
+            --bg-secondary: #1a4a1a;
+            --bg-card: rgba(26, 42, 26, 0.92);
+            --bg-card-hover: rgba(34, 56, 34, 0.95);
+            --border: #2a5a2a;
+            --border-light: #3a7a3a;
+            --accent: #4CAF50;
+            --accent-light: #8BC34A;
+            --accent-glow: rgba(76, 175, 80, 0.4);
+            --text: #e0e8e0;
+            --text-dim: #a0b8a0;
+            --text-muted: #5a7a5a;
+            --green: #4CAF50;
+            --amber: #FF9800;
+            --red: #f44336;
+            --blue: #457b9d;
+            --gold: #d4a017;
+            --purple: #9b59b6;
+            --brown: #8d6e63;
+            --sepia: #d4a76a;
+            --radius: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(170deg, var(--bg-primary) 0%, var(--bg-secondary) 40%, #0d2d0d 100%);
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ── Particle background (nature) ── */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                radial-gradient(1px 1px at 10% 20%, rgba(76,175,80,0.25) 0%, transparent 100%),
+                radial-gradient(1px 1px at 30% 60%, rgba(139,195,74,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 50% 10%, rgba(200,230,200,0.12) 0%, transparent 100%),
+                radial-gradient(1px 1px at 70% 80%, rgba(76,175,80,0.2) 0%, transparent 100%),
+                radial-gradient(1px 1px at 90% 40%, rgba(180,220,180,0.1) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 15% 85%, rgba(76,175,80,0.18) 0%, transparent 100%),
+                radial-gradient(1px 1px at 85% 15%, rgba(139,195,74,0.15) 0%, transparent 100%),
+                radial-gradient(1px 1px at 45% 45%, rgba(200,255,200,0.08) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 65% 30%, rgba(76,175,80,0.15) 0%, transparent 100%),
+                radial-gradient(1px 1px at 25% 70%, rgba(100,200,100,0.1) 0%, transparent 100%);
+            animation: particleDrift 25s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes particleDrift {
+            0% { transform: translateY(0) translateX(0); opacity: 0.5; }
+            33% { transform: translateY(-10px) translateX(6px); opacity: 0.7; }
+            66% { transform: translateY(8px) translateX(-4px); opacity: 0.4; }
+            100% { transform: translateY(-6px) translateX(10px); opacity: 0.6; }
+        }
+
+        /* ── Layout ── */
+        .lodge-page {
+            position: relative;
+            z-index: 1;
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        /* ── Loading ── */
+        .loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 1rem;
+        }
+
+        .loading-spinner {
+            width: 40px; height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-text { color: var(--text-muted); font-size: 0.9rem; }
+
+        /* ── Nav override ── */
+        .nav-fight a {
+            color: var(--accent) !important;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-fight a.active {
+            text-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        /* ── Lodge Header ── */
+        .lodge-header {
+            text-align: center;
+            padding: 3.5rem 0 2rem;
+            animation: fadeSlideIn 0.5s ease-out both;
+        }
+
+        .lodge-header h1 {
+            font-size: 2.4rem;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+            color: var(--text);
+        }
+
+        .lodge-header h1 .leaf { color: var(--accent-light); }
+
+        .lodge-subtitle {
+            color: var(--text-dim);
+            font-size: 1rem;
+            font-style: italic;
+            margin-top: 0.4rem;
+        }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Section Base ── */
+        .lodge-section {
+            margin-bottom: 2rem;
+            animation: fadeSlideIn 0.5s ease-out both;
+        }
+
+        .lodge-section:nth-child(2) { animation-delay: 0.1s; }
+        .lodge-section:nth-child(3) { animation-delay: 0.15s; }
+        .lodge-section:nth-child(4) { animation-delay: 0.2s; }
+        .lodge-section:nth-child(5) { animation-delay: 0.25s; }
+        .lodge-section:nth-child(6) { animation-delay: 0.3s; }
+
+        .section-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--accent-light);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* ── Cards ── */
+        .lodge-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .lodge-card:hover {
+            border-color: var(--border-light);
+        }
+
+        /* ── Empty State ── */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-dim);
+        }
+
+        .empty-state .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+
+        .empty-state p { font-size: 1rem; margin-bottom: 1.5rem; }
+
+        .empty-state a {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background: var(--accent);
+            color: #fff;
+            text-decoration: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+
+        .empty-state a:hover {
+            background: #43A047;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        /* ── Critical Alert ── */
+        .critical-alert {
+            display: none;
+            background: rgba(244, 67, 54, 0.12);
+            border: 1px solid rgba(244, 67, 54, 0.4);
+            border-radius: var(--radius);
+            padding: 0.75rem 1.25rem;
+            color: var(--red);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 1rem;
+            animation: criticalPulse 1.5s ease-in-out infinite;
+        }
+
+        .critical-alert.visible { display: block; }
+
+        @keyframes criticalPulse {
+            0%, 100% { box-shadow: 0 0 0 rgba(244,67,54,0); }
+            50% { box-shadow: 0 0 20px rgba(244,67,54,0.25); }
+        }
+
+        /* ── Pet Selector ── */
+        .pet-selector-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .pet-selector-row label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dim);
+        }
+
+        .pet-selector-row select {
+            flex: 1;
+            min-width: 180px;
+            padding: 0.6rem 1rem;
+            background: rgba(20, 40, 20, 0.9);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-size: 0.9rem;
+            font-family: inherit;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .pet-selector-row select:focus {
+            border-color: var(--accent);
+        }
+
+        .pet-selector-row select option {
+            background: #142814;
+            color: var(--text);
+        }
+
+        /* ── Pet Mini Card ── */
+        .pet-mini-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: rgba(20, 40, 20, 0.6);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 1.25rem;
+        }
+
+        .pet-mini-avatar {
+            font-size: 2.8rem;
+            line-height: 1;
+            filter: drop-shadow(0 0 6px var(--accent-glow));
+        }
+
+        .pet-mini-info { flex: 1; }
+
+        .pet-mini-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        .pet-mini-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: capitalize;
+        }
+
+        .pet-mini-level {
+            font-size: 0.75rem;
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        /* ── Need Bars ── */
+        .needs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem 1.5rem;
+        }
+
+        .need-row {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .need-icon { font-size: 1.1rem; width: 1.4rem; text-align: center; flex-shrink: 0; }
+
+        .need-bar-wrap {
+            flex: 1;
+            height: 14px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 7px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .need-bar-fill {
+            height: 100%;
+            border-radius: 7px;
+            transition: width 0.6s ease-out, background-color 0.4s;
+            position: relative;
+        }
+
+        .need-bar-fill.bar-green { background: linear-gradient(90deg, #43A047, #66BB6A); }
+        .need-bar-fill.bar-amber { background: linear-gradient(90deg, #E65100, #FF9800); }
+        .need-bar-fill.bar-red { background: linear-gradient(90deg, #C62828, #f44336); animation: barPulseRed 1s ease-in-out infinite; }
+
+        @keyframes barPulseRed {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .need-pct {
+            font-size: 0.75rem;
+            font-weight: 700;
+            min-width: 2.5rem;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .need-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            min-width: 3rem;
+        }
+
+        /* ── Quick Actions ── */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.75rem;
+        }
+
+        .action-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+        }
+
+        .action-card:hover:not(.disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .action-card.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            filter: grayscale(0.5);
+        }
+
+        .action-card .action-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .action-card .action-name { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.25rem; }
+        .action-card .action-desc { font-size: 0.65rem; color: var(--text-muted); line-height: 1.3; }
+        .action-card .action-timer { font-size: 0.7rem; color: var(--amber); font-weight: 600; margin-top: 0.3rem; }
+
+        .action-card.act-feed { border-color: rgba(76,175,80,0.3); }
+        .action-card.act-feed:hover:not(.disabled) { border-color: var(--green); box-shadow: 0 0 16px rgba(76,175,80,0.2); }
+
+        .action-card.act-heal { border-color: rgba(255,152,0,0.3); }
+        .action-card.act-heal:hover:not(.disabled) { border-color: var(--amber); box-shadow: 0 0 16px rgba(255,152,0,0.2); }
+
+        .action-card.act-rest { border-color: rgba(69,123,157,0.3); }
+        .action-card.act-rest:hover:not(.disabled) { border-color: var(--blue); box-shadow: 0 0 16px rgba(69,123,157,0.2); }
+
+        .action-card.act-train { border-color: rgba(230,57,70,0.3); }
+        .action-card.act-train:hover:not(.disabled) { border-color: #e63946; box-shadow: 0 0 16px rgba(230,57,70,0.2); }
+
+        .action-card.act-motivate { border-color: rgba(155,89,182,0.3); }
+        .action-card.act-motivate:hover:not(.disabled) { border-color: var(--purple); box-shadow: 0 0 16px rgba(155,89,182,0.2); }
+
+        .action-tooltip {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a2a1a;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            white-space: nowrap;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .action-card:hover .action-tooltip { display: block; }
+
+        /* ── Toast ── */
+        .toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .toast {
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius);
+            font-size: 0.85rem;
+            font-weight: 600;
+            animation: toastIn 0.3s ease-out, toastOut 0.3s ease-in 2.7s forwards;
+            max-width: 340px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        .toast-success { background: rgba(76,175,80,0.95); color: #fff; }
+        .toast-warning { background: rgba(255,152,0,0.95); color: #fff; }
+        .toast-error { background: rgba(244,67,54,0.95); color: #fff; }
+        .toast-info { background: rgba(69,123,157,0.95); color: #fff; }
+
+        @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-10px); } }
+
+        /* ── Advice Box ── */
+        .advice-box {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .advice-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light), var(--accent));
+        }
+
+        .advice-box::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, var(--accent), transparent);
+        }
+
+        .advice-header {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent-light);
+            margin-bottom: 0.75rem;
+        }
+
+        .advice-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            padding: 0.4rem 0;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.4;
+        }
+
+        .advice-item .advice-icon { flex-shrink: 0; font-size: 0.9rem; margin-top: 0.1rem; }
+
+        /* ── Overnight Training ── */
+        .overnight-card {
+            background: linear-gradient(135deg, #0d1b2a 0%, #1b2838 100%);
+            border: 1px solid #2a3a5a;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+        }
+
+        .overnight-card .overnight-header {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #b0c4de;
+            margin-bottom: 0.4rem;
+        }
+
+        .overnight-card .overnight-desc {
+            font-size: 0.85rem;
+            color: #6a8aaa;
+            margin-bottom: 1.25rem;
+            font-style: italic;
+        }
+
+        .overnight-rounds {
+            display: flex;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .round-btn {
+            padding: 0.5rem 1.2rem;
+            border: 1px solid #2a3a5a;
+            border-radius: var(--radius);
+            background: rgba(20, 30, 50, 0.8);
+            color: #8aa0c0;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .round-btn:hover { border-color: #4a7aaa; color: #b0d0ff; }
+        .round-btn.selected { border-color: #4a9fff; color: #fff; background: rgba(74, 159, 255, 0.15); box-shadow: 0 0 12px rgba(74,159,255,0.2); }
+        .round-btn.premium { border-color: rgba(212,160,23,0.4); color: var(--gold); }
+        .round-btn.premium:hover { border-color: var(--gold); }
+        .round-btn.premium.selected { border-color: var(--gold); background: rgba(212,160,23,0.12); box-shadow: 0 0 12px rgba(212,160,23,0.2); }
+
+        .overnight-start {
+            padding: 0.65rem 2rem;
+            background: linear-gradient(135deg, #1a3a6a, #2a4a8a);
+            border: 1px solid #3a5aaa;
+            border-radius: var(--radius);
+            color: #c0d8ff;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .overnight-start:hover { background: linear-gradient(135deg, #2a4a7a, #3a5a9a); box-shadow: 0 0 16px rgba(74,159,255,0.2); }
+        .overnight-start:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* Overnight Report */
+        .overnight-report {
+            display: none;
+            background: linear-gradient(135deg, rgba(212,160,23,0.08), rgba(212,160,23,0.02));
+            border: 1px solid rgba(212,160,23,0.3);
+            border-radius: var(--radius);
+            padding: 1.25rem 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .overnight-report.visible { display: block; }
+
+        .overnight-report .report-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .overnight-report .report-text {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+        }
+
+        .overnight-report .report-dismiss {
+            padding: 0.4rem 1.2rem;
+            background: transparent;
+            border: 1px solid rgba(212,160,23,0.3);
+            border-radius: var(--radius);
+            color: var(--gold);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .overnight-report .report-dismiss:hover { border-color: var(--gold); background: rgba(212,160,23,0.08); }
+
+        /* ── Trust / Diary ── */
+        .diary-section { }
+
+        .diary-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+
+        .diary-tab {
+            padding: 0.6rem 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .diary-tab.active { color: var(--accent-light); border-bottom-color: var(--accent); }
+        .diary-tab:hover { color: var(--text-dim); }
+
+        .trust-meter {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .trust-meter .trust-label {
+            font-weight: 600;
+            color: var(--text-dim);
+        }
+
+        .trust-stars { letter-spacing: 0.1rem; font-size: 1rem; }
+        .trust-star-filled { color: var(--gold); }
+        .trust-star-empty { color: var(--text-muted); opacity: 0.3; }
+
+        .trust-value {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-left: 0.25rem;
+        }
+
+        .diary-entries {
+            max-height: 360px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .diary-entries::-webkit-scrollbar { width: 4px; }
+        .diary-entries::-webkit-scrollbar-track { background: transparent; }
+        .diary-entries::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        .diary-entry {
+            padding: 0.75rem 1rem;
+            background: rgba(20, 40, 20, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            transition: border-color 0.2s;
+        }
+
+        .diary-entry:hover { border-color: var(--border-light); }
+
+        .diary-entry-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .diary-time {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .diary-badge {
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .diary-badge-report { background: rgba(100,100,100,0.2); color: #999; }
+        .diary-badge-opinion { background: rgba(69,123,157,0.2); color: var(--blue); }
+        .diary-badge-warning { background: rgba(255,152,0,0.2); color: var(--amber); }
+        .diary-badge-apology { background: rgba(155,89,182,0.2); color: var(--purple); }
+        .diary-badge-decision { background: rgba(244,67,54,0.15); color: var(--red); }
+
+        .diary-entry-text {
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            line-height: 1.45;
+        }
+
+        .diary-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .diary-btn {
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .diary-btn-approve {
+            background: rgba(76,175,80,0.15);
+            color: var(--green);
+            border-color: rgba(76,175,80,0.3);
+        }
+
+        .diary-btn-approve:hover { background: rgba(76,175,80,0.25); }
+
+        .diary-btn-override {
+            background: rgba(244,67,54,0.12);
+            color: var(--red);
+            border-color: rgba(244,67,54,0.3);
+        }
+
+        .diary-btn-override:hover { background: rgba(244,67,54,0.2); }
+
+        .diary-approved {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            margin-top: 0.4rem;
+            display: inline-block;
+        }
+
+        .diary-approved.yes { background: rgba(76,175,80,0.12); color: var(--green); }
+        .diary-approved.no { background: rgba(244,67,54,0.12); color: var(--red); }
+
+        .trust-change {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-left: 0.5rem;
+            animation: trustPop 0.5s ease-out;
+        }
+
+        .trust-change.positive { color: var(--green); }
+        .trust-change.negative { color: var(--red); }
+
+        @keyframes trustPop {
+            0% { transform: scale(1.8); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        /* ── Mercy Clause ── */
+        .mercy-section {
+            display: none;
+        }
+
+        .mercy-section.visible { display: block; }
+
+        .mercy-banner {
+            background: linear-gradient(135deg, rgba(244,67,54,0.12), rgba(183,28,28,0.15));
+            border: 2px solid rgba(244,67,54,0.5);
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            animation: mercyPulse 2s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mercy-banner::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(244,67,54,0.05) 50%, transparent 70%);
+            animation: mercySweep 3s ease-in-out infinite;
+        }
+
+        @keyframes mercyPulse {
+            0%, 100% { box-shadow: 0 0 0 rgba(244,67,54,0); }
+            50% { box-shadow: 0 0 40px rgba(244,67,54,0.2); }
+        }
+
+        @keyframes mercySweep {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .mercy-title {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--red);
+            letter-spacing: 0.08em;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            position: relative;
+        }
+
+        .mercy-desc {
+            font-size: 0.95rem;
+            color: #d09090;
+            margin-bottom: 1rem;
+            font-style: italic;
+            position: relative;
+        }
+
+        .mercy-countdown {
+            font-size: 1.6rem;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            color: var(--red);
+            margin-bottom: 1.5rem;
+            font-family: monospace;
+            position: relative;
+        }
+
+        .mercy-pets {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .mercy-pet-card {
+            padding: 1.25rem;
+            border-radius: var(--radius);
+            text-align: center;
+        }
+
+        .mercy-pet-dying {
+            background: rgba(244,67,54,0.08);
+            border: 1px solid rgba(244,67,54,0.3);
+            box-shadow: 0 0 20px rgba(244,67,54,0.15);
+        }
+
+        .mercy-pet-sacrifice {
+            background: rgba(100,100,100,0.08);
+            border: 1px solid rgba(100,100,100,0.3);
+            filter: grayscale(0.3);
+        }
+
+        .mercy-pet-emoji { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .mercy-pet-name { font-weight: 700; font-size: 1rem; }
+        .mercy-pet-stats { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.3rem; }
+
+        .mercy-vs {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--red);
+            opacity: 0.6;
+        }
+
+        .mercy-override {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .mercy-override select {
+            padding: 0.5rem 1rem;
+            background: rgba(40, 20, 20, 0.9);
+            border: 1px solid rgba(244,67,54,0.3);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-size: 0.85rem;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .mercy-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .mercy-btn {
+            padding: 0.75rem 1.75rem;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .mercy-btn-sacrifice {
+            background: linear-gradient(135deg, #b71c1c, #c62828);
+            border-color: var(--red);
+            color: #fff;
+        }
+
+        .mercy-btn-sacrifice:hover { box-shadow: 0 0 20px rgba(244,67,54,0.4); }
+
+        .mercy-btn-let {
+            background: rgba(100,100,100,0.15);
+            border-color: rgba(100,100,100,0.3);
+            color: #999;
+        }
+
+        .mercy-btn-let:hover { border-color: #888; color: #bbb; }
+
+        .mercy-fine-print {
+            font-size: 0.7rem;
+            color: #6a4a4a;
+            font-style: italic;
+            margin-top: 1rem;
+            position: relative;
+        }
+
+        /* ── Premium / Auto-Manage ── */
+        .premium-card {
+            background: linear-gradient(135deg, rgba(212,160,23,0.06), rgba(212,160,23,0.02));
+            border: 1px solid rgba(212,160,23,0.25);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+        }
+
+        .premium-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .premium-btn {
+            padding: 0.65rem 2rem;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid rgba(212,160,23,0.4);
+            margin-top: 0.75rem;
+        }
+
+        .premium-btn.active {
+            background: linear-gradient(135deg, rgba(212,160,23,0.2), rgba(212,160,23,0.08));
+            color: var(--gold);
+        }
+
+        .premium-btn.active:hover { box-shadow: 0 0 16px rgba(212,160,23,0.2); }
+
+        .premium-btn.locked {
+            background: rgba(100,100,100,0.1);
+            color: #666;
+            border-color: #333;
+            cursor: not-allowed;
+        }
+
+        .premium-log {
+            max-height: 240px;
+            overflow-y: auto;
+            margin-top: 1rem;
+            padding-right: 0.25rem;
+        }
+
+        .premium-log-entry {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            padding: 0.25rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+
+        /* ── Caretaker's Log ── */
+        .log-section { }
+
+        .log-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0.5rem 0;
+            width: 100%;
+            text-align: left;
+        }
+
+        .log-toggle:hover { color: var(--text); }
+
+        .log-toggle .log-arrow {
+            transition: transform 0.2s;
+            font-size: 0.7rem;
+        }
+
+        .log-toggle.open .log-arrow { transform: rotate(90deg); }
+
+        .log-entries {
+            display: none;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 0.25rem;
+        }
+
+        .log-entries.visible { display: block; }
+
+        .log-entry {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            padding: 0.4rem 0;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(255,255,255,0.02);
+        }
+
+        .log-entry-time {
+            flex-shrink: 0;
+            color: var(--text-muted);
+            opacity: 0.6;
+            font-variant-numeric: tabular-nums;
+            min-width: 3.5rem;
+        }
+
+        .log-entry-icon { flex-shrink: 0; }
+
+        /* ── Feeding Ledger (Hidden Discovery) ── */
+        .ledger-section {
+            display: none;
+        }
+
+        .ledger-section.visible { display: block; }
+
+        .ledger-card {
+            background: linear-gradient(135deg, #2a2010, #1a1508);
+            border: 1px solid rgba(180, 140, 80, 0.25);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .ledger-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--sepia);
+            font-style: italic;
+            margin-bottom: 0.75rem;
+        }
+
+        .ledger-tabs {
+            display: flex;
+            gap: 0.25rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .ledger-tab {
+            padding: 0.35rem 0.75rem;
+            background: rgba(180,140,80,0.08);
+            border: 1px solid rgba(180,140,80,0.2);
+            border-radius: 4px;
+            color: var(--sepia);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Georgia', serif;
+        }
+
+        .ledger-tab:hover { background: rgba(180,140,80,0.15); }
+        .ledger-tab.active { background: rgba(180,140,80,0.2); border-color: var(--sepia); }
+        .ledger-tab.locked { color: #5a4a30; cursor: default; font-style: italic; }
+        .ledger-tab.locked:hover { background: rgba(180,140,80,0.08); }
+
+        .ledger-tab.page12 {
+            animation: page12glow 2s ease-in-out infinite;
+        }
+
+        @keyframes page12glow {
+            0%, 100% { box-shadow: 0 0 0 rgba(212,160,23,0); }
+            50% { box-shadow: 0 0 12px rgba(212,160,23,0.3); }
+        }
+
+        .ledger-content {
+            font-family: 'Georgia', serif;
+            font-style: italic;
+            font-size: 0.88rem;
+            color: rgba(180, 140, 80, 0.75);
+            line-height: 1.7;
+            padding: 1rem;
+            background: rgba(20, 15, 5, 0.4);
+            border-radius: 6px;
+            min-height: 100px;
+        }
+
+        .ledger-streak {
+            font-size: 0.7rem;
+            color: #5a4a30;
+            margin-top: 0.75rem;
+            text-align: right;
+        }
+
+        /* ── Footer ── */
+        .lodge-footer {
+            border-top: 1px solid var(--border);
+            padding: 1.5rem 0;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .lodge-footer a {
+            color: var(--text-dim);
+            text-decoration: none;
+            margin: 0 0.75rem;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .lodge-footer a:hover { color: var(--accent-light); }
+
+        .lodge-footer .footer-back {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+
+        .lodge-footer .footer-back:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        /* ── Confirmation Modal ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.visible { display: flex; }
+
+        .modal-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            animation: fadeSlideIn 0.3s ease-out;
+        }
+
+        .modal-box h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .modal-box p {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 0.6rem 1.5rem;
+            border-radius: var(--radius);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .modal-btn-confirm {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .modal-btn-confirm:hover { background: #43A047; }
+
+        .modal-btn-cancel {
+            background: transparent;
+            color: var(--text-dim);
+            border-color: var(--border);
+        }
+
+        .modal-btn-cancel:hover { border-color: var(--red); color: var(--red); }
+
+        .modal-btn-danger {
+            background: linear-gradient(135deg, #b71c1c, #c62828);
+            color: #fff;
+            border-color: var(--red);
+        }
+
+        .modal-btn-danger:hover { box-shadow: 0 0 16px rgba(244,67,54,0.3); }
+
+        /* ── Responsive ── */
+        @media (max-width: 700px) {
+            .actions-grid { grid-template-columns: repeat(3, 1fr); }
+            .needs-grid { grid-template-columns: 1fr; }
+            .mercy-pets { grid-template-columns: 1fr; }
+            .mercy-vs { display: none; }
+            .lodge-header h1 { font-size: 1.8rem; }
+        }
+
+        @media (max-width: 440px) {
+            .actions-grid { grid-template-columns: repeat(2, 1fr); }
+            .lodge-page { padding: 0 1rem 3rem; }
+            .lodge-header { padding: 2.5rem 0 1.5rem; }
+            .lodge-header h1 { font-size: 1.5rem; }
+            .overnight-rounds { gap: 0.4rem; }
+            .round-btn { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li class="nav-dropdown">
+                    <a href="/tournaments">Benchmark &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/tournaments">Tournaments</a></li>
+                        <li><a href="/leaderboard">Leaderboard</a></li>
+                        <li><a href="/methodology">Methodology</a></li>
+                        <li><a href="/match-log">Match Log</a></li>
+                        <li><a href="/compare">Compare</a></li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="/s1-leaderboard">Seasons &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="/s1-leaderboard">S1 Leaderboard</a></li>
+                        <li><a href="/s1-fighters">Meet the Fighters</a></li>
+                        <li><a href="/s1-matchups">Matchup Explorer</a></li>
+                        <li><a href="/play">S1 Quick Fight</a></li>
+                        <li><a href="/s1-compare">Benchmark vs S1</a></li>
+                        <li><a href="/moreddit">The Moreddit</a></li>
+                    </ul>
+                </li>
+                <li><a href="/pets">Pets</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+                <li class="nav-fight"><a href="/island" class="active">FIGHT!</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Confirmation modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-box" id="modalBox">
+            <h3 id="modalTitle">Confirm</h3>
+            <p id="modalText">Are you sure?</p>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="modal-btn modal-btn-confirm" id="modalConfirmBtn" onclick="modalConfirmAction()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="lodge-page">
+        <!-- Loading -->
+        <div id="loadingScreen" class="loading-screen">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Opening the lodge door...</div>
+        </div>
+
+        <!-- Main content (hidden until loaded) -->
+        <div id="mainContent" style="display:none;">
+
+            <!-- Header -->
+            <div class="lodge-header">
+                <h1><span class="leaf">&#127807;</span> The Caretaker's Lodge</h1>
+                <p class="lodge-subtitle">Even monsters need someone who cares.</p>
+            </div>
+
+            <!-- Empty state (no pets) -->
+            <div id="emptyState" class="empty-state" style="display:none;">
+                <div class="empty-icon">&#127793;</div>
+                <p>No pets yet. The lodge is quiet.</p>
+                <a href="/island/create">Create Your First Pet</a>
+            </div>
+
+            <!-- Dashboard (has pets) -->
+            <div id="petDashboard" style="display:none;">
+
+                <!-- Critical Alert -->
+                <div class="critical-alert" id="criticalAlert"></div>
+
+                <!-- Section 1: Pet Selector + Status -->
+                <div class="lodge-section">
+                    <div class="section-title">&#128062; Status Dashboard</div>
+                    <div class="lodge-card">
+                        <div class="pet-selector-row">
+                            <label for="petSelect">Active Pet:</label>
+                            <select id="petSelect" onchange="onPetSelect(this.value)"></select>
+                        </div>
+
+                        <div class="pet-mini-card" id="petMiniCard">
+                            <div class="pet-mini-avatar" id="petAvatar">&#128062;</div>
+                            <div class="pet-mini-info">
+                                <div class="pet-mini-name" id="petName">—</div>
+                                <div class="pet-mini-meta" id="petMeta">—</div>
+                                <div class="pet-mini-level" id="petLevel">Level 1</div>
+                            </div>
+                        </div>
+
+                        <div class="needs-grid" id="needsGrid">
+                            <div class="need-row">
+                                <span class="need-icon">&#127830;</span>
+                                <span class="need-label">Hunger</span>
+                                <div class="need-bar-wrap">
+                                    <div class="need-bar-fill" id="barHunger" style="width:0%"></div>
+                                </div>
+                                <span class="need-pct" id="pctHunger">0%</span>
+                            </div>
+                            <div class="need-row">
+                                <span class="need-icon">&#128138;</span>
+                                <span class="need-label">Health</span>
+                                <div class="need-bar-wrap">
+                                    <div class="need-bar-fill" id="barHealth" style="width:0%"></div>
+                                </div>
+                                <span class="need-pct" id="pctHealth">0%</span>
+                            </div>
+                            <div class="need-row">
+                                <span class="need-icon">&#128522;</span>
+                                <span class="need-label">Morale</span>
+                                <div class="need-bar-wrap">
+                                    <div class="need-bar-fill" id="barMorale" style="width:0%"></div>
+                                </div>
+                                <span class="need-pct" id="pctMorale">0%</span>
+                            </div>
+                            <div class="need-row">
+                                <span class="need-icon">&#9889;</span>
+                                <span class="need-label">Energy</span>
+                                <div class="need-bar-wrap">
+                                    <div class="need-bar-fill" id="barEnergy" style="width:0%"></div>
+                                </div>
+                                <span class="need-pct" id="pctEnergy">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Quick Actions -->
+                <div class="lodge-section">
+                    <div class="section-title">&#127919; Quick Actions</div>
+                    <div class="actions-grid">
+                        <div class="action-card act-feed" id="actFeed" onclick="doAction('feed')">
+                            <div class="action-icon">&#127830;</div>
+                            <div class="action-name">Feed</div>
+                            <div class="action-desc">Hunger +50</div>
+                        </div>
+                        <div class="action-card act-heal" id="actHeal" onclick="doAction('heal')">
+                            <div class="action-tooltip">Costs 1 random stat point for 5 fights</div>
+                            <div class="action-icon">&#128138;</div>
+                            <div class="action-name">Heal</div>
+                            <div class="action-desc">Health +30</div>
+                        </div>
+                        <div class="action-card act-rest" id="actRest" onclick="doAction('rest')">
+                            <div class="action-icon">&#128164;</div>
+                            <div class="action-name">Rest</div>
+                            <div class="action-desc">Energy +50</div>
+                            <div class="action-timer" id="restTimer" style="display:none;"></div>
+                        </div>
+                        <div class="action-card act-train" id="actTrain" onclick="doAction('train')">
+                            <div class="action-icon">&#127919;</div>
+                            <div class="action-name">Train</div>
+                            <div class="action-desc">Auto-fight</div>
+                        </div>
+                        <div class="action-card act-motivate" id="actMotivate" onclick="doAction('motivate')">
+                            <div class="action-icon">&#128172;</div>
+                            <div class="action-name">Motivate</div>
+                            <div class="action-desc">Morale +20</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Caretaker's Advice -->
+                <div class="lodge-section">
+                    <div class="section-title">&#127807; Caretaker's Advice</div>
+                    <div class="advice-box">
+                        <div class="advice-header">&#127807; The Caretaker says:</div>
+                        <div id="adviceList"></div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Overnight Training -->
+                <div class="lodge-section">
+                    <div class="section-title">&#127769; Overnight Training</div>
+                    <div class="overnight-card">
+                        <div class="overnight-header">&#127769; Going to sleep? Leave your pet with the Caretaker.</div>
+                        <div class="overnight-desc">Your pet will train while you rest. Results in the morning.</div>
+
+                        <div class="overnight-rounds" id="overnightRounds">
+                            <button class="round-btn" data-rounds="3" onclick="selectRounds(3)">3 rounds</button>
+                            <button class="round-btn" data-rounds="5" onclick="selectRounds(5)">5 rounds</button>
+                            <button class="round-btn" data-rounds="7" onclick="selectRounds(7)">7 rounds</button>
+                            <button class="round-btn premium" data-rounds="10" onclick="selectRounds(10)">&#128081; 10 rounds</button>
+                        </div>
+
+                        <button class="overnight-start" id="overnightStartBtn" onclick="startOvernight()" disabled>Start Overnight</button>
+
+                        <div class="overnight-report" id="overnightReport">
+                            <div class="report-title">&#127775; Morning Report</div>
+                            <div class="report-text" id="overnightReportText"></div>
+                            <button class="report-dismiss" onclick="dismissOvernightReport()">Dismiss Report</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 5: Caretaker's Diary (Trust System) -->
+                <div class="lodge-section diary-section">
+                    <div class="section-title">&#128214; Caretaker's Diary</div>
+                    <div class="lodge-card">
+                        <div class="trust-meter" id="trustMeter">
+                            <span class="trust-label">Trust:</span>
+                            <span class="trust-stars" id="trustStars"></span>
+                            <span class="trust-value" id="trustValue"></span>
+                        </div>
+                        <div class="diary-entries" id="diaryEntries">
+                            <div style="text-align:center;color:var(--text-muted);padding:2rem;font-size:0.85rem;font-style:italic;">
+                                The diary is empty. Care for your pets to earn entries.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 6: Mercy Clause -->
+                <div class="lodge-section mercy-section" id="mercySection">
+                    <div class="mercy-banner">
+                        <div class="mercy-title">&#9888;&#65039; THE MERCY CLAUSE</div>
+                        <div class="mercy-desc" id="mercyDesc">Your pet is dying. The Caretaker offers a terrible choice.</div>
+                        <div class="mercy-countdown" id="mercyCountdown">00:00:00</div>
+
+                        <div class="mercy-pets" id="mercyPets">
+                            <div class="mercy-pet-card mercy-pet-dying" id="mercyDyingCard">
+                                <div class="mercy-pet-emoji" id="mercyDyingEmoji">&#128062;</div>
+                                <div class="mercy-pet-name" id="mercyDyingName">—</div>
+                                <div class="mercy-pet-stats" id="mercyDyingStats">—</div>
+                            </div>
+                            <div class="mercy-vs">VS</div>
+                            <div class="mercy-pet-card mercy-pet-sacrifice" id="mercySacrificeCard">
+                                <div class="mercy-pet-emoji" id="mercySacrificeEmoji">&#128062;</div>
+                                <div class="mercy-pet-name" id="mercySacrificeName">—</div>
+                                <div class="mercy-pet-stats" id="mercySacrificeStats">—</div>
+                            </div>
+                        </div>
+
+                        <div class="mercy-override">
+                            <select id="mercyOverrideSelect" onchange="onMercyOverride(this.value)"></select>
+                        </div>
+
+                        <div class="mercy-buttons">
+                            <button class="mercy-btn mercy-btn-sacrifice" id="mercySacrificeBtn" onclick="doMercySacrifice()">Sacrifice</button>
+                            <button class="mercy-btn mercy-btn-let" onclick="doMercyLetDecide()">Let the Caretaker decide</button>
+                        </div>
+                        <div class="mercy-fine-print">The saved pet will bear the debt forever. 3 debts = Abomination.</div>
+                    </div>
+                </div>
+
+                <!-- Section 7: Auto-Manage (Premium) -->
+                <div class="lodge-section">
+                    <div class="section-title">&#128081; Premium Caretaker</div>
+                    <div class="premium-card">
+                        <div class="premium-title">&#128081; Premium Caretaker — Full Autopilot</div>
+                        <div id="premiumContent"></div>
+                        <div class="premium-log" id="premiumLog"></div>
+                    </div>
+                </div>
+
+                <!-- Section 8: Caretaker's Log -->
+                <div class="lodge-section log-section">
+                    <div class="section-title">&#128203; Caretaker's Log</div>
+                    <div class="lodge-card">
+                        <button class="log-toggle" id="logToggle" onclick="toggleLog()">
+                            <span class="log-arrow">&#9654;</span>
+                            <span>Activity Log</span>
+                            <span id="logCount" style="color:var(--text-muted);font-size:0.75rem;margin-left:auto;"></span>
+                        </button>
+                        <div class="log-entries" id="logEntries"></div>
+                    </div>
+                </div>
+
+                <!-- Section 9: Feeding Ledger (Hidden Discovery) -->
+                <div class="lodge-section ledger-section" id="ledgerSection">
+                    <div class="ledger-card">
+                        <div class="ledger-title">&#128211; A Water-Damaged Notebook</div>
+                        <div class="ledger-tabs" id="ledgerTabs"></div>
+                        <div class="ledger-content" id="ledgerContent">
+                            <em>Select a page to read...</em>
+                        </div>
+                        <div class="ledger-streak" id="ledgerStreak"></div>
+                    </div>
+                </div>
+
+            </div> <!-- /petDashboard -->
+
+            <!-- Footer -->
+            <div class="lodge-footer">
+                <a href="/island/home" class="footer-back">&#8592; Back to Home</a>
+                <div style="margin-top:0.75rem;">
+                    <a href="/island/train">Train</a>
+                    <a href="/island/lab">Lab</a>
+                    <a href="/island/kennel">Kennel</a>
+                </div>
+            </div>
+
+        </div> <!-- /mainContent -->
+    </div> <!-- /lodge-page -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/static/island/supabase-client.js"></script>
+    <script src="/static/island/caretaker-engine.js"></script>
+    <script>
+    (function() {
+        'use strict';
+
+        // ── Constants ──
+        const ANIMAL_EMOJIS = {
+            bear: '\u{1F43B}', buffalo: '\u{1F9AC}', boar: '\u{1F417}', tiger: '\u{1F42F}',
+            wolf: '\u{1F43A}', monkey: '\u{1F412}', porcupine: '\u{1F994}', scorpion: '\u{1F982}',
+            vulture: '\u{1F985}', rhino: '\u{1F98F}', viper: '\u{1F40D}', fox: '\u{1F98A}',
+            eagle: '\u{1F985}', panther: '\u{1F408}\u200D\u2B1B'
+        };
+
+        const MOTIVATE_QUOTES = [
+            "You're not just a fighter. You're a survivor.",
+            "The arena remembers your name.",
+            "Every scar tells a story of strength.",
+            "Pain is temporary. Glory is forever.",
+            "The Caretaker believes in you. Always has.",
+            "Even the strongest need rest. But not you. Not yet.",
+            "They'll write songs about you. Or warnings.",
+            "Your eyes say you've seen things. Good.",
+            "The island chose you. Don't forget that.",
+            "Fight like you've got nothing to lose. Because you don't.",
+            "There's a fire in you that no water can touch.",
+            "Some monsters are born. You were made.",
+            "Tomorrow they'll fear what today they mock.",
+            "Legends don't rest. But the Caretaker says you should.",
+            "You carry the weight of the island on your shoulders. Gladly."
+        ];
+
+        // ── State ──
+        let allPets = [];
+        let activePetIdx = 0;
+        let selectedRounds = null;
+        let modalCallback = null;
+        let restTimerInterval = null;
+        let mercyCountdownInterval = null;
+
+        // ── Init ──
+        async function init() {
+            try {
+                if (typeof initSupabase === 'function') {
+                    await initSupabase();
+                }
+            } catch(e) {
+                // Offline / no supabase — continue
+            }
+
+            loadPets();
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+
+            if (allPets.length === 0) {
+                document.getElementById('emptyState').style.display = 'block';
+                document.getElementById('petDashboard').style.display = 'none';
+            } else {
+                document.getElementById('emptyState').style.display = 'none';
+                document.getElementById('petDashboard').style.display = 'block';
+                buildPetSelector();
+                checkOvernightResults();
+                refreshAll();
+            }
+        }
+
+        function loadPets() {
+            try {
+                const raw = localStorage.getItem('moreau_pets');
+                allPets = raw ? JSON.parse(raw) : [];
+                // Filter out deceased
+                const idxRaw = localStorage.getItem('moreau_active_pet');
+                activePetIdx = idxRaw !== null ? parseInt(idxRaw, 10) : 0;
+                // Ensure valid index among living pets
+                const livingIndices = allPets.map((p, i) => (!p.deceased ? i : -1)).filter(i => i >= 0);
+                if (livingIndices.length > 0 && !livingIndices.includes(activePetIdx)) {
+                    activePetIdx = livingIndices[0];
+                }
+            } catch(e) {
+                allPets = [];
+                activePetIdx = 0;
+            }
+        }
+
+        function savePets() {
+            localStorage.setItem('moreau_pets', JSON.stringify(allPets));
+            localStorage.setItem('moreau_active_pet', String(activePetIdx));
+        }
+
+        function getActivePet() {
+            if (activePetIdx >= 0 && activePetIdx < allPets.length && !allPets[activePetIdx].deceased) {
+                return allPets[activePetIdx];
+            }
+            // Fallback to first living pet
+            for (let i = 0; i < allPets.length; i++) {
+                if (!allPets[i].deceased) { activePetIdx = i; return allPets[i]; }
+            }
+            return null;
+        }
+
+        function getAnimalEmoji(animal) {
+            return ANIMAL_EMOJIS[animal] || '\u{1F43E}';
+        }
+
+        // ── Pet Selector ──
+        function buildPetSelector() {
+            const sel = document.getElementById('petSelect');
+            sel.innerHTML = '';
+            allPets.forEach(function(pet, i) {
+                if (pet.deceased) return;
+                var opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = getAnimalEmoji(pet.animal) + ' ' + (pet.name || 'Unnamed') + ' (Lv.' + (pet.level || 1) + ')';
+                if (i === activePetIdx) opt.selected = true;
+                sel.appendChild(opt);
+            });
+        }
+
+        window.onPetSelect = function(val) {
+            activePetIdx = parseInt(val, 10);
+            savePets();
+            refreshAll();
+        };
+
+        // ── Refresh Everything ──
+        function refreshAll() {
+            var pet = getActivePet();
+            if (!pet) return;
+
+            // Ensure needs exist
+            if (!pet.needs) {
+                pet.needs = { hunger: 80, health: 100, morale: 70, energy: 60, last_checked: Date.now() };
+                savePets();
+            }
+
+            // Decay needs over time
+            if (typeof CaretakerEngine !== 'undefined' && CaretakerEngine.decayNeeds) {
+                CaretakerEngine.decayNeeds(pet);
+                savePets();
+            }
+
+            updatePetCard(pet);
+            updateNeedBars(pet);
+            updateCriticalAlert(pet);
+            updateActions(pet);
+            updateAdvice(pet);
+            updateTrust(pet);
+            updateDiary(pet);
+            updateMercy();
+            updatePremium();
+            updateLog();
+            updateLedger();
+        }
+
+        // ── Pet Card ──
+        function updatePetCard(pet) {
+            document.getElementById('petAvatar').textContent = getAnimalEmoji(pet.animal);
+            document.getElementById('petName').textContent = pet.name || 'Unnamed';
+            document.getElementById('petMeta').textContent = (pet.animal || 'unknown') + (pet.corruption ? ' \u2022 Corruption: ' + pet.corruption : '');
+            document.getElementById('petLevel').textContent = 'Level ' + (pet.level || 1) + (pet.xp !== undefined ? ' \u2022 ' + pet.xp + ' XP' : '');
+        }
+
+        // ── Need Bars ──
+        function updateNeedBars(pet) {
+            var needs = pet.needs || {};
+            updateBar('Hunger', needs.hunger);
+            updateBar('Health', needs.health);
+            updateBar('Morale', needs.morale);
+            updateBar('Energy', needs.energy);
+        }
+
+        function updateBar(name, value) {
+            value = Math.max(0, Math.min(100, Math.round(value || 0)));
+            var bar = document.getElementById('bar' + name);
+            var pct = document.getElementById('pct' + name);
+            if (!bar || !pct) return;
+
+            bar.style.width = value + '%';
+            pct.textContent = value + '%';
+
+            // Color class
+            bar.className = 'need-bar-fill';
+            if (value > 70) {
+                bar.classList.add('bar-green');
+                pct.style.color = 'var(--green)';
+            } else if (value >= 30) {
+                bar.classList.add('bar-amber');
+                pct.style.color = 'var(--amber)';
+            } else {
+                bar.classList.add('bar-red');
+                pct.style.color = 'var(--red)';
+            }
+        }
+
+        // ── Critical Alert ──
+        function updateCriticalAlert(pet) {
+            var alert = document.getElementById('criticalAlert');
+            var needs = pet.needs || {};
+            var criticals = [];
+            if ((needs.hunger || 0) < 20) criticals.push('hunger');
+            if ((needs.health || 0) < 20) criticals.push('health');
+            if ((needs.morale || 0) < 20) criticals.push('morale');
+            if ((needs.energy || 0) < 20) criticals.push('energy');
+
+            if (criticals.length > 0) {
+                alert.textContent = '\u26A0\uFE0F CRITICAL: ' + (pet.name || 'Your pet') + ' needs immediate attention! (' + criticals.join(', ') + ')';
+                alert.classList.add('visible');
+            } else {
+                alert.classList.remove('visible');
+            }
+        }
+
+        // ── Quick Actions ──
+        function updateActions(pet) {
+            var needs = pet.needs || {};
+
+            // Rest timer
+            var restUntil = pet.resting_until || 0;
+            var restCard = document.getElementById('actRest');
+            var restTimerEl = document.getElementById('restTimer');
+
+            if (restTimerInterval) { clearInterval(restTimerInterval); restTimerInterval = null; }
+
+            if (restUntil > Date.now()) {
+                restCard.classList.add('disabled');
+                restTimerEl.style.display = 'block';
+                updateRestTimer(restUntil);
+                restTimerInterval = setInterval(function() {
+                    if (restUntil <= Date.now()) {
+                        clearInterval(restTimerInterval);
+                        restTimerInterval = null;
+                        restCard.classList.remove('disabled');
+                        restTimerEl.style.display = 'none';
+                    } else {
+                        updateRestTimer(restUntil);
+                    }
+                }, 1000);
+            } else {
+                restCard.classList.remove('disabled');
+                restTimerEl.style.display = 'none';
+            }
+
+            // Train disabled if energy < 20 or resting
+            var trainCard = document.getElementById('actTrain');
+            if ((needs.energy || 0) < 20 || restUntil > Date.now()) {
+                trainCard.classList.add('disabled');
+            } else {
+                trainCard.classList.remove('disabled');
+            }
+        }
+
+        function updateRestTimer(until) {
+            var remaining = Math.max(0, until - Date.now());
+            var mins = Math.floor(remaining / 60000);
+            var secs = Math.floor((remaining % 60000) / 1000);
+            document.getElementById('restTimer').textContent = mins + 'm ' + secs + 's';
+        }
+
+        // ── Do Action ──
+        window.doAction = function(action) {
+            var pet = getActivePet();
+            if (!pet) return;
+            if (!pet.needs) pet.needs = { hunger: 50, health: 50, morale: 50, energy: 50, last_checked: Date.now() };
+
+            var result = null;
+
+            // Try engine first
+            if (typeof CaretakerEngine !== 'undefined') {
+                switch(action) {
+                    case 'feed':
+                        result = CaretakerEngine.feed ? CaretakerEngine.feed(pet) : null;
+                        break;
+                    case 'heal':
+                        result = CaretakerEngine.heal ? CaretakerEngine.heal(pet) : null;
+                        break;
+                    case 'rest':
+                        if (pet.resting_until && pet.resting_until > Date.now()) {
+                            showToast('Still resting...', 'warning');
+                            return;
+                        }
+                        result = CaretakerEngine.rest ? CaretakerEngine.rest(pet) : null;
+                        break;
+                    case 'train':
+                        if ((pet.needs.energy || 0) < 20) {
+                            showToast('Too tired to train. Rest first.', 'warning');
+                            return;
+                        }
+                        if (pet.resting_until && pet.resting_until > Date.now()) {
+                            showToast('Currently resting.', 'warning');
+                            return;
+                        }
+                        result = CaretakerEngine.train ? CaretakerEngine.train(pet) : null;
+                        break;
+                    case 'motivate':
+                        result = CaretakerEngine.motivate ? CaretakerEngine.motivate(pet) : null;
+                        break;
+                }
+            }
+
+            // Fallback if engine not available or returned null
+            if (!result) {
+                result = fallbackAction(pet, action);
+            }
+
+            savePets();
+            addLogEntry(result.icon || '\u2705', result.message || (action + ' done'));
+            showToast(result.message || 'Done!', result.type || 'success');
+            refreshAll();
+        };
+
+        function fallbackAction(pet, action) {
+            var n = pet.needs;
+            switch(action) {
+                case 'feed':
+                    var gain = Math.min(50, 100 - (n.hunger || 0));
+                    n.hunger = Math.min(100, (n.hunger || 0) + 50);
+                    n.last_checked = Date.now();
+                    return { icon: '\u{1F356}', message: 'Fed ' + pet.name + '! Hunger +' + gain, type: 'success' };
+
+                case 'heal':
+                    var hGain = Math.min(30, 100 - (n.health || 0));
+                    n.health = Math.min(100, (n.health || 0) + 30);
+                    // Apply stat cost
+                    var stats = pet.base_stats || pet.stats || {};
+                    var statKeys = Object.keys(stats).filter(function(k) { return stats[k] > 1; });
+                    if (statKeys.length > 0) {
+                        var rk = statKeys[Math.floor(Math.random() * statKeys.length)];
+                        if (!pet.heal_debuff) pet.heal_debuff = [];
+                        pet.heal_debuff.push({ stat: rk, fights_remaining: 5 });
+                    }
+                    n.last_checked = Date.now();
+                    return { icon: '\u{1F48A}', message: 'Healed ' + pet.name + '! Health +' + hGain + ' (stat cost for 5 fights)', type: 'success' };
+
+                case 'rest':
+                    var eGain = Math.min(50, 100 - (n.energy || 0));
+                    n.energy = Math.min(100, (n.energy || 0) + 50);
+                    pet.resting_until = Date.now() + 3600000; // 1 hour
+                    n.last_checked = Date.now();
+                    return { icon: '\u{1F4A4}', message: pet.name + ' is resting. Energy +' + eGain + '. Available in 1 hour.', type: 'info' };
+
+                case 'train':
+                    // Simulate quick fight vs random agent
+                    var won = Math.random() > 0.4;
+                    var xpGain = won ? 30 : 10;
+                    pet.xp = (pet.xp || 0) + xpGain;
+                    n.energy = Math.max(0, (n.energy || 0) - 15);
+                    if (won) {
+                        n.morale = Math.min(100, (n.morale || 0) + 5);
+                    } else {
+                        n.morale = Math.max(0, (n.morale || 0) - 3);
+                    }
+                    n.hunger = Math.max(0, (n.hunger || 0) - 8);
+                    n.last_checked = Date.now();
+                    // Record fight
+                    if (!pet.fights) pet.fights = [];
+                    pet.fights.push({ opponent: 'RandomAgent', result: won ? 'win' : 'loss', timestamp: new Date().toISOString() });
+                    return {
+                        icon: '\u{1F3AF}',
+                        message: pet.name + ' vs RandomAgent: ' + (won ? 'WIN' : 'LOSS') + '! +' + xpGain + ' XP',
+                        type: won ? 'success' : 'warning'
+                    };
+
+                case 'motivate':
+                    var mGain = Math.min(20, 100 - (n.morale || 0));
+                    n.morale = Math.min(100, (n.morale || 0) + 20);
+                    n.last_checked = Date.now();
+                    var quote = MOTIVATE_QUOTES[Math.floor(Math.random() * MOTIVATE_QUOTES.length)];
+                    return { icon: '\u{1F4AC}', message: '"' + quote + '" Morale +' + mGain, type: 'success' };
+
+                default:
+                    return { icon: '\u2753', message: 'Unknown action', type: 'info' };
+            }
+        }
+
+        // ── Advice ──
+        function updateAdvice(pet) {
+            var container = document.getElementById('adviceList');
+            var items = [];
+
+            if (typeof CaretakerEngine !== 'undefined' && CaretakerEngine.getAdvice) {
+                items = CaretakerEngine.getAdvice(pet);
+            }
+
+            // Fallback advice
+            if (!items || items.length === 0) {
+                items = generateAdvice(pet);
+            }
+
+            container.innerHTML = '';
+            items.forEach(function(item) {
+                var div = document.createElement('div');
+                div.className = 'advice-item';
+                var iconMap = { urgent: '\u{1F534}', warning: '\u{1F7E1}', tip: '\u{1F7E2}' };
+                div.innerHTML = '<span class="advice-icon">' + (iconMap[item.priority] || '\u{1F7E2}') + '</span><span>' + escapeHtml(item.text) + '</span>';
+                container.appendChild(div);
+            });
+        }
+
+        function generateAdvice(pet) {
+            var advice = [];
+            var n = pet.needs || {};
+
+            if ((n.hunger || 0) < 20) {
+                advice.push({ priority: 'urgent', text: pet.name + ' is starving! Feed immediately or health will drop.' });
+            } else if ((n.hunger || 0) < 40) {
+                advice.push({ priority: 'warning', text: pet.name + ' is getting hungry. Consider feeding soon.' });
+            }
+
+            if ((n.health || 0) < 20) {
+                advice.push({ priority: 'urgent', text: pet.name + ' is critically injured. Heal now!' });
+            } else if ((n.health || 0) < 50) {
+                advice.push({ priority: 'warning', text: 'Health is below half. Healing would be wise.' });
+            }
+
+            if ((n.energy || 0) < 20) {
+                advice.push({ priority: 'warning', text: 'Too exhausted to train. Rest is recommended.' });
+            }
+
+            if ((n.morale || 0) < 30) {
+                advice.push({ priority: 'warning', text: pet.name + ' seems depressed. A motivational word would help.' });
+            }
+
+            if ((n.hunger || 0) > 70 && (n.health || 0) > 70 && (n.energy || 0) > 50) {
+                advice.push({ priority: 'tip', text: 'Good condition for training! Use it wisely.' });
+            }
+
+            if (pet.instability && pet.instability > 60) {
+                advice.push({ priority: 'urgent', text: 'Instability is dangerously high (' + pet.instability + '%). Avoid the lab.' });
+            } else if (pet.instability && pet.instability > 30) {
+                advice.push({ priority: 'warning', text: 'Instability at ' + pet.instability + '%. Be careful with mutations.' });
+            }
+
+            if (pet.debts && pet.debts.length >= 2) {
+                advice.push({ priority: 'urgent', text: pet.name + ' carries ' + pet.debts.length + ' debt(s). One more means Abomination.' });
+            }
+
+            if (advice.length === 0) {
+                advice.push({ priority: 'tip', text: 'Everything looks good. ' + pet.name + ' is content.' });
+                advice.push({ priority: 'tip', text: 'Consider overnight training to maximize downtime.' });
+            }
+
+            return advice.slice(0, 5);
+        }
+
+        // ── Overnight Training ──
+        window.selectRounds = function(n) {
+            // Check premium for 10 rounds
+            if (n === 10 && !isPremium()) {
+                showToast('Premium required for 10 rounds.', 'warning');
+                return;
+            }
+
+            selectedRounds = n;
+            var btns = document.querySelectorAll('#overnightRounds .round-btn');
+            btns.forEach(function(btn) {
+                btn.classList.toggle('selected', parseInt(btn.dataset.rounds) === n);
+            });
+            document.getElementById('overnightStartBtn').disabled = false;
+        };
+
+        window.startOvernight = function() {
+            if (!selectedRounds) return;
+            var pet = getActivePet();
+            if (!pet) return;
+
+            showModal(
+                'Start Overnight Training?',
+                pet.name + ' will fight ' + selectedRounds + ' rounds while you\'re away. They\'ll be tired and hungry when you return.',
+                function() {
+                    var results = simulateOvernight(pet, selectedRounds);
+                    pet._overnight_results = results;
+                    pet._overnight_time = Date.now();
+                    savePets();
+                    showToast(pet.name + ' begins training in the moonlight...', 'info');
+                    addLogEntry('\u{1F319}', 'Started overnight training: ' + selectedRounds + ' rounds');
+                    selectedRounds = null;
+                    document.querySelectorAll('#overnightRounds .round-btn').forEach(function(b) { b.classList.remove('selected'); });
+                    document.getElementById('overnightStartBtn').disabled = true;
+                    checkOvernightResults();
+                    refreshAll();
+                }
+            );
+        };
+
+        function simulateOvernight(pet, rounds) {
+            var wins = 0, losses = 0, totalXp = 0;
+            for (var i = 0; i < rounds; i++) {
+                var won = Math.random() > 0.45;
+                var xp = won ? 25 : 8;
+                if (won) wins++; else losses++;
+                totalXp += xp;
+            }
+            pet.xp = (pet.xp || 0) + totalXp;
+            if (!pet.needs) pet.needs = { hunger: 50, health: 50, morale: 50, energy: 50, last_checked: Date.now() };
+            pet.needs.hunger = Math.max(5, (pet.needs.hunger || 50) - rounds * 6);
+            pet.needs.energy = Math.max(5, (pet.needs.energy || 50) - rounds * 8);
+            pet.needs.health = Math.max(10, (pet.needs.health || 50) - losses * 5);
+            if (wins > losses) pet.needs.morale = Math.min(100, (pet.needs.morale || 50) + 10);
+            pet.needs.last_checked = Date.now();
+
+            if (!pet.fights) pet.fights = [];
+            for (var j = 0; j < rounds; j++) {
+                pet.fights.push({
+                    opponent: 'OvernightAgent',
+                    result: j < wins ? 'win' : 'loss',
+                    timestamp: new Date().toISOString()
+                });
+            }
+
+            return { wins: wins, losses: losses, xp: totalXp, rounds: rounds, hunger: Math.round(pet.needs.hunger) };
+        }
+
+        function checkOvernightResults() {
+            var pet = getActivePet();
+            if (!pet || !pet._overnight_results) {
+                document.getElementById('overnightReport').classList.remove('visible');
+                return;
+            }
+
+            var r = pet._overnight_results;
+            var reportEl = document.getElementById('overnightReport');
+            var textEl = document.getElementById('overnightReportText');
+            textEl.textContent = 'While you slept, ' + (pet.name || 'your pet') + ' fought ' + r.rounds +
+                ' times: ' + r.wins + 'W ' + r.losses + 'L. +' + r.xp + ' XP. Hunger dropped to ' + r.hunger + '%.';
+            reportEl.classList.add('visible');
+        }
+
+        window.dismissOvernightReport = function() {
+            var pet = getActivePet();
+            if (pet) {
+                delete pet._overnight_results;
+                delete pet._overnight_time;
+                savePets();
+            }
+            document.getElementById('overnightReport').classList.remove('visible');
+        };
+
+        // ── Trust & Diary ──
+        function getCaretakerData() {
+            try {
+                var raw = localStorage.getItem('moreau_caretaker');
+                return raw ? JSON.parse(raw) : { trust: 5, diary: [], log: [], care_streak: 0, last_care_date: null };
+            } catch(e) {
+                return { trust: 5, diary: [], log: [], care_streak: 0, last_care_date: null };
+            }
+        }
+
+        function saveCaretakerData(data) {
+            localStorage.setItem('moreau_caretaker', JSON.stringify(data));
+        }
+
+        function updateTrust(pet) {
+            var data = getCaretakerData();
+            var trust = Math.max(0, Math.min(10, data.trust || 5));
+            var starsEl = document.getElementById('trustStars');
+            var valueEl = document.getElementById('trustValue');
+
+            var html = '';
+            for (var i = 0; i < 10; i++) {
+                if (i < trust) {
+                    html += '<span class="trust-star-filled">\u2605</span>';
+                } else {
+                    html += '<span class="trust-star-empty">\u2606</span>';
+                }
+            }
+            starsEl.innerHTML = html;
+            valueEl.textContent = '(' + trust + '/10)';
+        }
+
+        function updateDiary(pet) {
+            var data = getCaretakerData();
+            var entries = data.diary || [];
+            var container = document.getElementById('diaryEntries');
+
+            if (entries.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:2rem;font-size:0.85rem;font-style:italic;">The diary is empty. Care for your pets to earn entries.</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            // Newest first
+            var sorted = entries.slice().sort(function(a, b) { return (b.timestamp || 0) - (a.timestamp || 0); });
+
+            sorted.forEach(function(entry, idx) {
+                var div = document.createElement('div');
+                div.className = 'diary-entry';
+
+                var badgeClass = 'diary-badge-' + (entry.type || 'report');
+                var time = entry.timestamp ? timeAgo(entry.timestamp) : 'unknown';
+
+                var headerHtml = '<div class="diary-entry-header">' +
+                    '<span class="diary-time">' + time + '</span>' +
+                    '<span class="diary-badge ' + badgeClass + '">' + (entry.type || 'report') + '</span>' +
+                    '</div>';
+
+                var textHtml = '<div class="diary-entry-text">' + escapeHtml(entry.text || '') + '</div>';
+
+                var actionsHtml = '';
+                if (entry.approved === null || entry.approved === undefined) {
+                    var entryIdx = entries.indexOf(entry);
+                    actionsHtml = '<div class="diary-actions">' +
+                        '<button class="diary-btn diary-btn-approve" onclick="approveDiary(' + entryIdx + ')">&#10003; Approve</button>' +
+                        '<button class="diary-btn diary-btn-override" onclick="overrideDiary(' + entryIdx + ')">&#10007; Override</button>' +
+                        '</div>';
+                } else if (entry.approved === true) {
+                    actionsHtml = '<div class="diary-approved yes">&#10003; Approved</div>';
+                } else {
+                    actionsHtml = '<div class="diary-approved no">&#10007; Overridden</div>';
+                }
+
+                div.innerHTML = headerHtml + textHtml + actionsHtml;
+                container.appendChild(div);
+            });
+        }
+
+        window.approveDiary = function(idx) {
+            var data = getCaretakerData();
+            if (data.diary[idx]) {
+                data.diary[idx].approved = true;
+                data.trust = Math.min(10, (data.trust || 5) + 1);
+                saveCaretakerData(data);
+                showToast('Approved. Trust +1', 'success');
+                addLogEntry('\u2705', 'Approved diary entry');
+                refreshAll();
+            }
+        };
+
+        window.overrideDiary = function(idx) {
+            var data = getCaretakerData();
+            if (data.diary[idx]) {
+                data.diary[idx].approved = false;
+                data.trust = Math.max(0, (data.trust || 5) - 1);
+                saveCaretakerData(data);
+                showToast('Overridden. Trust -1', 'warning');
+                addLogEntry('\u274C', 'Overrode diary entry');
+                refreshAll();
+            }
+        };
+
+        // ── Mercy Clause ──
+        function updateMercy() {
+            var mercyData = null;
+            if (typeof CaretakerEngine !== 'undefined' && CaretakerEngine.getMercyPending) {
+                mercyData = CaretakerEngine.getMercyPending();
+            }
+
+            // Also check localStorage fallback
+            if (!mercyData) {
+                try {
+                    var raw = localStorage.getItem('moreau_mercy_pending');
+                    mercyData = raw ? JSON.parse(raw) : null;
+                } catch(e) { mercyData = null; }
+            }
+
+            var section = document.getElementById('mercySection');
+            if (!mercyData) {
+                section.classList.remove('visible');
+                if (mercyCountdownInterval) { clearInterval(mercyCountdownInterval); mercyCountdownInterval = null; }
+                return;
+            }
+
+            section.classList.add('visible');
+
+            // Populate dying pet
+            var dyingPet = allPets[mercyData.dyingIdx] || {};
+            document.getElementById('mercyDyingEmoji').textContent = getAnimalEmoji(dyingPet.animal);
+            document.getElementById('mercyDyingName').textContent = dyingPet.name || 'Unknown';
+            var dStats = dyingPet.base_stats || dyingPet.stats || {};
+            document.getElementById('mercyDyingStats').textContent = 'HP:' + (dStats.hp||0) + ' ATK:' + (dStats.atk||0) + ' SPD:' + (dStats.spd||0) + ' WIL:' + (dStats.wil||0);
+
+            document.getElementById('mercyDesc').textContent = 'Your ' + (dyingPet.name || 'pet') + ' is dying. The Caretaker offers a terrible choice.';
+
+            // Suggested sacrifice
+            var sacrificeIdx = mercyData.sacrificeIdx;
+            var sacrificePet = allPets[sacrificeIdx] || {};
+            document.getElementById('mercySacrificeEmoji').textContent = getAnimalEmoji(sacrificePet.animal);
+            document.getElementById('mercySacrificeName').textContent = (sacrificePet.name || 'Unknown') + ' (Caretaker\'s choice)';
+            var sStats = sacrificePet.base_stats || sacrificePet.stats || {};
+            document.getElementById('mercySacrificeStats').textContent = 'HP:' + (sStats.hp||0) + ' ATK:' + (sStats.atk||0) + ' SPD:' + (sStats.spd||0) + ' WIL:' + (sStats.wil||0);
+
+            // Override dropdown
+            var overrideSel = document.getElementById('mercyOverrideSelect');
+            overrideSel.innerHTML = '<option value="">Override sacrifice choice...</option>';
+            allPets.forEach(function(p, i) {
+                if (p.deceased || i === mercyData.dyingIdx) return;
+                var opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = getAnimalEmoji(p.animal) + ' ' + (p.name || 'Unnamed');
+                if (i === sacrificeIdx) opt.selected = true;
+                overrideSel.appendChild(opt);
+            });
+
+            // Update sacrifice button text
+            document.getElementById('mercySacrificeBtn').textContent = 'Sacrifice ' + (sacrificePet.name||'?') + ' to save ' + (dyingPet.name||'?');
+
+            // Countdown
+            if (mercyCountdownInterval) clearInterval(mercyCountdownInterval);
+            var deadline = mercyData.deadline || (Date.now() + 86400000);
+            updateMercyCountdown(deadline);
+            mercyCountdownInterval = setInterval(function() {
+                updateMercyCountdown(deadline);
+            }, 1000);
+        }
+
+        function updateMercyCountdown(deadline) {
+            var remaining = Math.max(0, deadline - Date.now());
+            var hours = Math.floor(remaining / 3600000);
+            var mins = Math.floor((remaining % 3600000) / 60000);
+            var secs = Math.floor((remaining % 60000) / 1000);
+            document.getElementById('mercyCountdown').textContent =
+                String(hours).padStart(2, '0') + ':' + String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+
+            if (remaining <= 0) {
+                // Time's up — caretaker decides
+                clearInterval(mercyCountdownInterval);
+                mercyCountdownInterval = null;
+                doMercyLetDecide();
+            }
+        }
+
+        window.onMercyOverride = function(val) {
+            if (!val) return;
+            try {
+                var raw = localStorage.getItem('moreau_mercy_pending');
+                var data = raw ? JSON.parse(raw) : null;
+                if (data) {
+                    data.sacrificeIdx = parseInt(val, 10);
+                    localStorage.setItem('moreau_mercy_pending', JSON.stringify(data));
+                    updateMercy();
+                }
+            } catch(e) {}
+        };
+
+        window.doMercySacrifice = function() {
+            var mercyRaw = localStorage.getItem('moreau_mercy_pending');
+            if (!mercyRaw) return;
+            var mercyData = JSON.parse(mercyRaw);
+
+            var dyingPet = allPets[mercyData.dyingIdx];
+            var sacrificePet = allPets[mercyData.sacrificeIdx];
+            if (!dyingPet || !sacrificePet) return;
+
+            showModal(
+                'Confirm Sacrifice',
+                sacrificePet.name + ' will die so that ' + dyingPet.name + ' may live. ' + dyingPet.name + ' will carry this debt forever. This cannot be undone.',
+                function() {
+                    // Kill sacrifice
+                    sacrificePet.deceased = true;
+                    sacrificePet.cause_of_death = 'Sacrificed to save ' + dyingPet.name;
+
+                    // Save dying pet, add debt
+                    if (!dyingPet.debts) dyingPet.debts = [];
+                    dyingPet.debts.push({
+                        type: 'mercy',
+                        sacrificed: sacrificePet.name,
+                        timestamp: Date.now()
+                    });
+                    dyingPet.needs = dyingPet.needs || {};
+                    dyingPet.needs.health = 50;
+                    dyingPet.needs.hunger = 40;
+
+                    // Check abomination
+                    if (dyingPet.debts.length >= 3) {
+                        dyingPet.abomination = true;
+                        showToast(dyingPet.name + ' has become an ABOMINATION. 3 debts fulfilled.', 'error');
+                    }
+
+                    localStorage.removeItem('moreau_mercy_pending');
+                    savePets();
+                    addLogEntry('\u{1F480}', 'Sacrificed ' + sacrificePet.name + ' to save ' + dyingPet.name);
+                    showToast(sacrificePet.name + ' is gone. ' + dyingPet.name + ' lives... with a debt.', 'error');
+                    loadPets();
+                    buildPetSelector();
+                    refreshAll();
+                },
+                'danger'
+            );
+        };
+
+        window.doMercyLetDecide = function() {
+            var mercyRaw = localStorage.getItem('moreau_mercy_pending');
+            if (!mercyRaw) return;
+            var mercyData = JSON.parse(mercyRaw);
+            // Caretaker decides = use the suggested sacrifice
+            var overrideSel = document.getElementById('mercyOverrideSelect');
+            // Just perform the sacrifice with caretaker's pick
+            doMercySacrifice();
+        };
+
+        // ── Premium / Auto-Manage ──
+        function isPremium() {
+            return localStorage.getItem('moreau_caretaker_premium') === 'true';
+        }
+
+        function updatePremium() {
+            var container = document.getElementById('premiumContent');
+            if (isPremium()) {
+                container.innerHTML = '<button class="premium-btn active" onclick="doAutoManage()">Auto-Manage All Pets</button>';
+            } else {
+                container.innerHTML = '<button class="premium-btn locked" disabled>Unlock with Soul Premium (coming soon)</button>';
+            }
+
+            // Show last 20 auto-manage entries
+            var logEl = document.getElementById('premiumLog');
+            var data = getCaretakerData();
+            var autoLog = (data.auto_manage_log || []).slice(-20).reverse();
+            if (autoLog.length === 0) {
+                logEl.innerHTML = '<div style="color:var(--text-muted);font-size:0.75rem;padding:0.5rem 0;font-style:italic;">No auto-manage actions yet.</div>';
+            } else {
+                logEl.innerHTML = autoLog.map(function(e) {
+                    return '<div class="premium-log-entry">' + formatTime(e.timestamp) + ' \u2014 ' + escapeHtml(e.text) + '</div>';
+                }).join('');
+            }
+        }
+
+        window.doAutoManage = function() {
+            if (!isPremium()) return;
+            var data = getCaretakerData();
+            if (!data.auto_manage_log) data.auto_manage_log = [];
+
+            var results = [];
+            allPets.forEach(function(pet, i) {
+                if (pet.deceased) return;
+                if (!pet.needs) pet.needs = { hunger: 50, health: 50, morale: 50, energy: 50, last_checked: Date.now() };
+
+                var actions = [];
+                if (pet.needs.hunger < 40) {
+                    pet.needs.hunger = Math.min(100, pet.needs.hunger + 50);
+                    actions.push('Fed');
+                }
+                if (pet.needs.health < 40) {
+                    pet.needs.health = Math.min(100, pet.needs.health + 30);
+                    actions.push('Healed');
+                }
+                if (pet.needs.morale < 30) {
+                    pet.needs.morale = Math.min(100, pet.needs.morale + 20);
+                    actions.push('Motivated');
+                }
+                if (pet.needs.energy < 20) {
+                    pet.needs.energy = Math.min(100, pet.needs.energy + 50);
+                    pet.resting_until = Date.now() + 3600000;
+                    actions.push('Put to rest');
+                }
+
+                if (actions.length > 0) {
+                    var msg = pet.name + ': ' + actions.join(', ');
+                    results.push(msg);
+                    data.auto_manage_log.push({ timestamp: Date.now(), text: msg });
+                }
+            });
+
+            if (results.length === 0) {
+                showToast('All pets are in good condition. Nothing to do.', 'info');
+                data.auto_manage_log.push({ timestamp: Date.now(), text: 'All pets OK \u2014 no actions needed.' });
+            } else {
+                showToast('Auto-managed ' + results.length + ' pet(s).', 'success');
+            }
+
+            saveCaretakerData(data);
+            savePets();
+            refreshAll();
+        };
+
+        // ── Caretaker's Log ──
+        function addLogEntry(icon, message) {
+            var data = getCaretakerData();
+            if (!data.log) data.log = [];
+            data.log.push({ timestamp: Date.now(), icon: icon, message: message });
+            // Keep max 100
+            if (data.log.length > 100) data.log = data.log.slice(-100);
+
+            // Update care streak
+            var today = new Date().toDateString();
+            if (data.last_care_date !== today) {
+                var yesterday = new Date(Date.now() - 86400000).toDateString();
+                if (data.last_care_date === yesterday) {
+                    data.care_streak = (data.care_streak || 0) + 1;
+                } else if (data.last_care_date !== today) {
+                    data.care_streak = 1;
+                }
+                data.last_care_date = today;
+            }
+
+            // Maybe add diary entry based on actions
+            maybeAddDiaryEntry(data, message);
+
+            saveCaretakerData(data);
+        }
+
+        function maybeAddDiaryEntry(data, message) {
+            if (!data.diary) data.diary = [];
+
+            // Every 5th action, caretaker writes a note
+            var actionCount = data.log ? data.log.length : 0;
+            if (actionCount % 5 === 0 && actionCount > 0) {
+                var pet = getActivePet();
+                var notes = [
+                    { type: 'report', text: 'Routine check on ' + (pet ? pet.name : 'the animals') + '. All seems stable.' },
+                    { type: 'opinion', text: 'I think ' + (pet ? pet.name : 'this one') + ' is ready for something more challenging.' },
+                    { type: 'report', text: 'Fed and watered. The usual rounds.' },
+                    { type: 'opinion', text: (pet ? pet.name : 'The creature') + ' looked at me differently today. Recognition? Or hunger?' },
+                    { type: 'warning', text: 'I worry about pushing them too hard. There are limits even monsters shouldn\'t cross.' },
+                    { type: 'report', text: 'Another day in the lodge. The walls remember everything.' },
+                    { type: 'apology', text: 'I should have noticed sooner. I\'ll do better.' },
+                    { type: 'opinion', text: 'They fight because we ask them to. I wonder if that\'s enough reason.' }
+                ];
+                var note = notes[Math.floor(Math.random() * notes.length)];
+                data.diary.push({
+                    timestamp: Date.now(),
+                    type: note.type,
+                    text: note.text,
+                    approved: null
+                });
+            }
+
+            // Urgent diary if near death
+            if (message && message.includes('CRITICAL')) {
+                data.diary.push({
+                    timestamp: Date.now(),
+                    type: 'warning',
+                    text: 'Something is very wrong. Please check the lodge immediately.',
+                    approved: null
+                });
+            }
+        }
+
+        function updateLog() {
+            var data = getCaretakerData();
+            var entries = (data.log || []).slice(-100).reverse();
+            var container = document.getElementById('logEntries');
+            var countEl = document.getElementById('logCount');
+
+            countEl.textContent = entries.length + ' entries';
+
+            if (entries.length === 0) {
+                container.innerHTML = '<div style="color:var(--text-muted);font-size:0.8rem;padding:0.5rem 0;font-style:italic;">No activity yet.</div>';
+                return;
+            }
+
+            container.innerHTML = entries.map(function(e) {
+                return '<div class="log-entry">' +
+                    '<span class="log-entry-time">' + formatTime(e.timestamp) + '</span>' +
+                    '<span class="log-entry-icon">' + (e.icon || '\u2022') + '</span>' +
+                    '<span>' + escapeHtml(e.message || '') + '</span>' +
+                    '</div>';
+            }).join('');
+        }
+
+        window.toggleLog = function() {
+            var btn = document.getElementById('logToggle');
+            var entries = document.getElementById('logEntries');
+            btn.classList.toggle('open');
+            entries.classList.toggle('visible');
+        };
+
+        // ── Feeding Ledger (Hidden Discovery) ──
+        function updateLedger() {
+            var pages = 0;
+            if (typeof CaretakerEngine !== 'undefined' && CaretakerEngine.getLedgerPages) {
+                pages = CaretakerEngine.getLedgerPages();
+            } else {
+                // Fallback: care streak determines pages
+                var data = getCaretakerData();
+                var streak = data.care_streak || 0;
+                pages = Math.min(12, Math.floor(streak / 2));
+            }
+
+            var section = document.getElementById('ledgerSection');
+            if (pages <= 0) {
+                section.classList.remove('visible');
+                return;
+            }
+            section.classList.add('visible');
+
+            var tabsEl = document.getElementById('ledgerTabs');
+            tabsEl.innerHTML = '';
+            for (var i = 1; i <= 12; i++) {
+                var tab = document.createElement('button');
+                tab.className = 'ledger-tab';
+                if (i <= pages) {
+                    tab.textContent = 'Page ' + i;
+                    tab.onclick = (function(pageNum) { return function() { showLedgerPage(pageNum); }; })(i);
+                    if (i === 12) tab.classList.add('page12');
+                } else {
+                    tab.textContent = '???';
+                    tab.classList.add('locked');
+                }
+                tabsEl.appendChild(tab);
+            }
+
+            // Streak
+            var data = getCaretakerData();
+            document.getElementById('ledgerStreak').textContent = 'Care streak: ' + (data.care_streak || 0) + ' days';
+        }
+
+        var LEDGER_PAGES = {
+            1: "The first thing I noticed about them was their eyes. Not angry. Not afraid. Just... waiting. As if they knew something we didn't. I started keeping notes that day.",
+            2: "They eat more when it rains. I don't know why. The feeding schedules say nothing about weather. But I've learned to trust what I see over what I'm told.",
+            3: "One of them — the fox, I think — brought me a stone today. Placed it at my feet and sat there. I kept the stone. It felt important.",
+            4: "The new ones always fight at first. Not with each other. With themselves. They thrash against the walls of what they are. Eventually they stop. I don't know if that's growth or surrender.",
+            5: "I found claw marks on the inside of the walls. Deep ones. Old ones. From before my time. Someone was here before. Someone who also cared.",
+            6: "They dream. I know this because they twitch and whimper in their sleep. What do monsters dream about? I think they dream about being something else.",
+            7: "Feeding time is the only honest moment. No pretending. No posturing. Just hunger and gratitude. I wish the rest of life were that simple.",
+            8: "The bear won again today. But after the fight, it sat in the corner and wouldn't eat. Victory without joy. I know that feeling.",
+            9: "Someone asked me why I do this. Why I spend my days with creatures that could kill me. I told them it's because they choose not to. Every day, they choose not to. That's more trust than most humans give.",
+            10: "I've been here long enough to see patterns. The ones who are loved fight differently. Not harder. But with something behind their eyes. Purpose, maybe. Or debt.",
+            11: "There's a room in the lodge I'm not supposed to open. The key is behind the third stone. I haven't used it. Yet. But I think about it. The sounds that come from behind that door... they're not screams. They're songs.",
+            12: "I know what happens to them. After. When the arena is done with them and the crowds move on. I know because I'm the one who stays. I'm the one who closes the door and sits with them in the dark. If you're reading this, you stayed too. That means something. The Caretaker sees everything. The Caretaker remembers."
+        };
+
+        window.showLedgerPage = function(num) {
+            var content = document.getElementById('ledgerContent');
+            content.textContent = LEDGER_PAGES[num] || 'Page is unreadable...';
+
+            // Update active tab
+            var tabs = document.querySelectorAll('#ledgerTabs .ledger-tab');
+            tabs.forEach(function(t, i) {
+                t.classList.toggle('active', (i + 1) === num);
+            });
+        };
+
+        // ── Modal ──
+        function showModal(title, text, callback, type) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalText').textContent = text;
+            var btn = document.getElementById('modalConfirmBtn');
+            btn.className = 'modal-btn ' + (type === 'danger' ? 'modal-btn-danger' : 'modal-btn-confirm');
+            btn.textContent = type === 'danger' ? 'Confirm' : 'OK';
+            modalCallback = callback;
+            document.getElementById('modalOverlay').classList.add('visible');
+        }
+
+        window.closeModal = function() {
+            document.getElementById('modalOverlay').classList.remove('visible');
+            modalCallback = null;
+        };
+
+        window.modalConfirmAction = function() {
+            var cb = modalCallback;
+            closeModal();
+            if (cb) cb();
+        };
+
+        // ── Toast ──
+        function showToast(message, type) {
+            type = type || 'success';
+            var container = document.getElementById('toastContainer');
+            var toast = document.createElement('div');
+            toast.className = 'toast toast-' + type;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(function() {
+                if (toast.parentNode) toast.parentNode.removeChild(toast);
+            }, 3200);
+        }
+
+        // ── Utilities ──
+        function escapeHtml(str) {
+            var d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        function timeAgo(ts) {
+            var diff = Date.now() - ts;
+            if (diff < 60000) return 'just now';
+            if (diff < 3600000) return Math.floor(diff / 60000) + ' min ago';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + ' hours ago';
+            if (diff < 604800000) return Math.floor(diff / 86400000) + ' days ago';
+            return new Date(ts).toLocaleDateString();
+        }
+
+        function formatTime(ts) {
+            if (!ts) return '--:--';
+            var d = new Date(ts);
+            return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+        }
+
+        // ── Start ──
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+
+    })();
+    </script>
+</body>
+</html>
