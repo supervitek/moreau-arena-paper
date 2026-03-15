@@ -603,7 +603,8 @@
 
         // ── Achievement: gravedigger ──
         (function() {
-            var stored = JSON.parse(localStorage.getItem('moreau_achievements') || '{}');
+            var stored;
+            try { stored = JSON.parse(localStorage.getItem('moreau_achievements') || '{}'); } catch(e) { stored = {}; }
             if (!stored.gravedigger) {
                 stored.gravedigger = { unlocked: true, date: new Date().toISOString() };
                 localStorage.setItem('moreau_achievements', JSON.stringify(stored));

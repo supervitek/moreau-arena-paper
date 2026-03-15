@@ -830,14 +830,15 @@
             if (oldRaw) {
                 try {
                     var oldPet = JSON.parse(oldRaw);
-                    var existing = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                    var existing = [];
+                    try { existing = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(err) {}
                     if (existing.length < 6) existing.push(oldPet);
                     localStorage.setItem('moreau_pets', JSON.stringify(existing));
                     localStorage.setItem('moreau_active_pet', String(existing.length - 1));
                     localStorage.removeItem('moreau_pet');
                 } catch (e) { localStorage.removeItem('moreau_pet'); }
             }
-            allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            try { allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) { allPets = []; }
         }
 
         function savePetsLocal(pets) {
@@ -1302,7 +1303,7 @@
 
         async function reloadPets() {
             if (offlineMode) {
-                allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                try { allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) { allPets = []; }
             } else {
                 allPets = await dbGetPets(currentUser.id);
             }
@@ -1693,7 +1694,8 @@
             var _origPitResult = showResult;
             showResult = async function(data, leftPet, rightPet) {
                 await _origPitResult(data, leftPet, rightPet);
-                var stored = JSON.parse(localStorage.getItem('moreau_achievements') || '{}');
+                var stored;
+                try { stored = JSON.parse(localStorage.getItem('moreau_achievements') || '{}'); } catch(e) { stored = {}; }
                 if (!stored.civil_war) {
                     stored.civil_war = { unlocked: true, date: new Date().toISOString() };
                     localStorage.setItem('moreau_achievements', JSON.stringify(stored));

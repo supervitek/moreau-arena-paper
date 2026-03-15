@@ -581,7 +581,8 @@
         }
 
         function checkApexForms(localPets) {
-            var apexForms = JSON.parse(localStorage.getItem('moreau_apex_forms') || '{}');
+            var apexForms = {};
+            try { apexForms = JSON.parse(localStorage.getItem('moreau_apex_forms') || '{}'); } catch(e) {}
             for (var i = 0; i < localPets.length; i++) {
                 var pet = localPets[i];
                 if (pet.deceased || pet.is_alive === false) continue;

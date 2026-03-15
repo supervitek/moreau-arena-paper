@@ -837,7 +837,8 @@
             if (oldRaw) {
                 try {
                     const oldPet = JSON.parse(oldRaw);
-                    const existing = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                    let existing = [];
+                    try { existing = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) {}
                     if (existing.length < 6) existing.push(oldPet);
                     localStorage.setItem('moreau_pets', JSON.stringify(existing));
                     localStorage.setItem('moreau_active_pet', String(existing.length - 1));
@@ -845,7 +846,8 @@
                 } catch(e) { localStorage.removeItem('moreau_pet'); }
             }
 
-            const pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            let pets = [];
+            try { pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) {}
             if (pets.length === 0) return null;
             let idx = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
             if (idx < 0 || idx >= pets.length) idx = 0;
@@ -853,7 +855,8 @@
         }
 
         function saveLocalActivePet(p) {
-            const pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            let pets = [];
+            try { pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) {}
             let idx = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
             if (idx < 0 || idx >= pets.length) idx = 0;
             pets[idx] = p;
@@ -1620,7 +1623,8 @@
         }
 
         function _checkAch(id, icon, name) {
-            var stored = JSON.parse(localStorage.getItem('moreau_achievements') || '{}');
+            var stored;
+            try { stored = JSON.parse(localStorage.getItem('moreau_achievements') || '{}'); } catch(e) { stored = {}; }
             if (stored[id]) return false;
             stored[id] = { unlocked: true, date: new Date().toISOString() };
             localStorage.setItem('moreau_achievements', JSON.stringify(stored));

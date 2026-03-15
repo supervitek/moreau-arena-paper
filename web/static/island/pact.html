@@ -974,7 +974,7 @@
         // ── Data ──
 
         function loadPets() {
-            allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            try { allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) { allPets = []; }
             activePetIndex = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
         }
 
@@ -1418,7 +1418,8 @@
                 html += '</div>';
 
                 // Feral attack log
-                var log = JSON.parse(localStorage.getItem('moreau_feral_log') || '[]');
+                var log = [];
+                try { log = JSON.parse(localStorage.getItem('moreau_feral_log') || '[]'); } catch(e) {}
                 var petLog = log.filter(function(entry) { return entry.attacker === pet.name; });
 
                 if (petLog.length > 0) {
@@ -1548,7 +1549,8 @@
             victim.base_stats = stats;
 
             // Log the attack
-            var log = JSON.parse(localStorage.getItem('moreau_feral_log') || '[]');
+            var log = [];
+            try { log = JSON.parse(localStorage.getItem('moreau_feral_log') || '[]'); } catch(e) {}
             var entry = {
                 attacker: feralPet.name,
                 victim: victim.name,

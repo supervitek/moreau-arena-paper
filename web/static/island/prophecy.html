@@ -1797,8 +1797,7 @@
             { text: "Letters pile on the desk, unread and restless...", predicts: 'letter_arrives', desc: 'A new Caretaker letter will arrive' },
             { text: "One pet sleeps easier than the others tonight...", predicts: 'favoritism', desc: 'Drift will favor a specific pet next auto-manage' },
             { text: "The ledger turns another page in the darkness...", predicts: 'ledger_progress', desc: 'A new Feeding Ledger page will be unlocked' },
-            { text: "Orders will be... interpreted creatively...", predicts: 'order_misfire', desc: 'A Standing Order will misfire in the next Deep Tide' },
-            { text: "Something stirs in the nursery. Patience...", predicts: 'aleph_stirs', desc: 'Aleph\'s influence will manifest unexpectedly' }
+            { text: "Orders will be... interpreted creatively...", predicts: 'order_misfire', desc: 'A Standing Order will misfire in the next Deep Tide' }
         ];
 
         // ── Caretaker Prophecy State ──
@@ -1902,7 +1901,7 @@
                         return false;
                     } catch(e) { return false; }
                 default:
-                    return Math.random() > 0.5; // fallback
+                    return false;
             }
         }
 
@@ -2123,7 +2122,8 @@
         }
 
         function generateMatchup() {
-            var allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            var allPets = [];
+            try { allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) {}
             var activeIdx = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
             var pet = allPets[activeIdx];
             var fighters = [];
@@ -2673,6 +2673,17 @@
         }
 
         function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+        setInterval(function() {
+            if (document.hidden) return;
+            var now = Date.now();
+            var lock = parseInt(localStorage.getItem('moreau_island_time_lock') || '0', 10);
+            if (now - lock < 25000) return;
+            localStorage.setItem('moreau_island_time_lock', String(now));
+            var t = parseInt(localStorage.getItem('moreau_island_time') || '0', 10);
+            t += 30;
+            localStorage.setItem('moreau_island_time', String(t));
+        }, 30000);
 
         // ── Init ──
         function init() {

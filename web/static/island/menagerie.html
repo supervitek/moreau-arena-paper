@@ -1189,13 +1189,14 @@
             if (oldRaw) {
                 try {
                     var oldPet = JSON.parse(oldRaw);
-                    var existing = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                    var existing = [];
+                    try { existing = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(err) {}
                     if (existing.length < 6) existing.push(oldPet);
                     localStorage.setItem('moreau_pets', JSON.stringify(existing));
                     localStorage.removeItem('moreau_pet');
                 } catch(e) { localStorage.removeItem('moreau_pet'); }
             }
-            allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            try { allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) { allPets = []; }
         }
 
         // ══ Tabs ══
@@ -2194,7 +2195,8 @@
         }
 
         function _checkAch(id, icon, name) {
-            var stored = JSON.parse(localStorage.getItem('moreau_achievements') || '{}');
+            var stored;
+            try { stored = JSON.parse(localStorage.getItem('moreau_achievements') || '{}'); } catch(e) { stored = {}; }
             if (stored[id]) return false;
             stored[id] = { unlocked: true, date: new Date().toISOString() };
             localStorage.setItem('moreau_achievements', JSON.stringify(stored));

@@ -816,7 +816,8 @@
         // ── Bone Flats ──
         function renderBoneFlats(container) {
             var cycleKey = _getCycleKey();
-            var scavengeData = JSON.parse(localStorage.getItem('moreau_bone_flats') || '{}');
+            var scavengeData = {};
+            try { scavengeData = JSON.parse(localStorage.getItem('moreau_bone_flats') || '{}'); } catch(e) {}
             if (scavengeData.cycle !== cycleKey) {
                 scavengeData = { cycle: cycleKey, scavenged: [], count: 0 };
             }
@@ -886,7 +887,8 @@
             if (!pet) { showToast('No pet selected!', 'danger'); return; }
 
             var cycleKey = _getCycleKey();
-            var scavengeData = JSON.parse(localStorage.getItem('moreau_bone_flats') || '{}');
+            var scavengeData = {};
+            try { scavengeData = JSON.parse(localStorage.getItem('moreau_bone_flats') || '{}'); } catch(e) {}
             if (scavengeData.cycle !== cycleKey) scavengeData = { cycle: cycleKey, scavenged: [], count: 0 };
             if (scavengeData.count >= 2) { showToast('No scavenges left this cycle!', 'danger'); return; }
             if (scavengeData.scavenged.indexOf(remainId) !== -1) return;
@@ -917,7 +919,8 @@
         // ── Dreaming Pools ──
         function renderDreamingPools(container) {
             var cycleKey = _getCycleKey();
-            var poolData = JSON.parse(localStorage.getItem('moreau_dreaming_pools') || '{}');
+            var poolData = {};
+            try { poolData = JSON.parse(localStorage.getItem('moreau_dreaming_pools') || '{}'); } catch(e) {}
             if (poolData.cycle !== cycleKey) poolData = { cycle: cycleKey, healed: false };
             var canHeal = !poolData.healed;
 
@@ -972,7 +975,8 @@
             if (!pet) return;
 
             var cycleKey = _getCycleKey();
-            var poolData = JSON.parse(localStorage.getItem('moreau_dreaming_pools') || '{}');
+            var poolData = {};
+            try { poolData = JSON.parse(localStorage.getItem('moreau_dreaming_pools') || '{}'); } catch(e) {}
             if (poolData.cycle !== cycleKey) poolData = { cycle: cycleKey, healed: false };
             if (poolData.healed) { showToast('Already healed this cycle!', 'danger'); return; }
 
@@ -1002,7 +1006,8 @@
         // ── Driftwood Market ──
         function renderDriftwoodMarket(container) {
             var cycleKey = _getCycleKey();
-            var marketData = JSON.parse(localStorage.getItem('moreau_driftwood_market') || '{}');
+            var marketData = {};
+            try { marketData = JSON.parse(localStorage.getItem('moreau_driftwood_market') || '{}'); } catch(e) {}
             if (marketData.cycle !== cycleKey) marketData = { cycle: cycleKey, transferred: false };
             var canTransfer = !marketData.transferred;
 
@@ -1089,7 +1094,8 @@
             }
 
             var cycleKey = _getCycleKey();
-            var marketData = JSON.parse(localStorage.getItem('moreau_driftwood_market') || '{}');
+            var marketData = {};
+            try { marketData = JSON.parse(localStorage.getItem('moreau_driftwood_market') || '{}'); } catch(e) {}
             if (marketData.cycle !== cycleKey) marketData = { cycle: cycleKey, transferred: false };
             if (marketData.transferred) { showToast('Already transferred this cycle!', 'danger'); return; }
 

@@ -1770,7 +1770,8 @@
             if (oldRaw) {
                 try {
                     const oldPet = JSON.parse(oldRaw);
-                    const existing = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                    let existing = [];
+                    try { existing = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(err) {}
                     if (existing.length < 6) existing.push(oldPet);
                     localStorage.setItem('moreau_pets', JSON.stringify(existing));
                     localStorage.setItem('moreau_active_pet', String(existing.length - 1));
@@ -2612,7 +2613,8 @@
 
                     if (losses.length > 0) {
                         victim.base_stats = vstats;
-                        var log = JSON.parse(localStorage.getItem('moreau_feral_log') || '[]');
+                        var log = [];
+                        try { log = JSON.parse(localStorage.getItem('moreau_feral_log') || '[]'); } catch(e) {}
                         var entry = { attacker: pet.name, victim: victim.name, losses: losses, timestamp: new Date().toISOString() };
                         log.push(entry);
                         localStorage.setItem('moreau_feral_log', JSON.stringify(log));
@@ -3028,7 +3030,8 @@
         }
 
         function _checkAch(id, icon, name) {
-            var stored = JSON.parse(localStorage.getItem('moreau_achievements') || '{}');
+            var stored;
+            try { stored = JSON.parse(localStorage.getItem('moreau_achievements') || '{}'); } catch(e) { stored = {}; }
             if (stored[id]) return false;
             stored[id] = { unlocked: true, date: new Date().toISOString() };
             localStorage.setItem('moreau_achievements', JSON.stringify(stored));

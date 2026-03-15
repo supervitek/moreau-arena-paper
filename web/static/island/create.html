@@ -1027,7 +1027,8 @@
                 if (!saved) {
                     // Offline fallback
                     pet.created_at = new Date().toISOString();
-                    var pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                    var pets = [];
+                    try { pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) {}
                     pets.push(pet);
                     localStorage.setItem('moreau_pets', JSON.stringify(pets));
                     localStorage.setItem('moreau_active_pet', String(pets.length - 1));
@@ -1035,7 +1036,8 @@
 
                 // Achievement: first_pet
                 (function() {
-                    var stored = JSON.parse(localStorage.getItem('moreau_achievements') || '{}');
+                    var stored;
+                    try { stored = JSON.parse(localStorage.getItem('moreau_achievements') || '{}'); } catch(e) { stored = {}; }
                     if (!stored.first_pet) {
                         stored.first_pet = { unlocked: true, date: new Date().toISOString() };
                         localStorage.setItem('moreau_achievements', JSON.stringify(stored));

@@ -1380,7 +1380,7 @@
             allPets = await dbGetPets(user.id);
         } else if (hasLocalPets()) {
             offlineMode = true;
-            allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            try { allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) { allPets = []; }
         } else {
             window.location.href = '/island';
             return;
