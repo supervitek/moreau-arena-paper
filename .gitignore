@@ -34,3 +34,13 @@ a.claudestartup_message.txt
 
 # Virtual environment
 .venv/
+
+# Local agent orchestration runtime
+coord/archive/*
+coord/claims/*
+coord/outbox/*
+coord/status/*
+!coord/archive/.gitkeep
+!coord/claims/.gitkeep
+!coord/outbox/.gitkeep
+!coord/status/.gitkeep
