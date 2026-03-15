@@ -1323,6 +1323,62 @@
             color: #8a6060;
         }
 
+        /* M note encrypted/decrypted layers */
+        .m-note-encrypted {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #4a6670;
+            letter-spacing: 3px;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: rgba(20, 20, 40, 0.5);
+            border: 1px solid #2a2a4a;
+            border-radius: 4px;
+            word-break: break-word;
+        }
+
+        .m-note-encrypted .sd-known-word {
+            color: #7a9eaa;
+            text-shadow: 0 0 6px rgba(122, 158, 170, 0.3);
+        }
+
+        .m-note-decrypted {
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            color: #5a7a5a;
+            letter-spacing: 1px;
+            line-height: 1.6;
+            margin-top: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            border-top: 1px solid #2a3a2a;
+            opacity: 0.8;
+        }
+
+        .m-note-decrypted .sd-unknown {
+            color: #3a3a5a;
+        }
+
+        .m-note-decrypted .sd-corrupt {
+            color: #8a4040;
+            text-decoration: line-through;
+            text-decoration-color: rgba(138, 64, 64, 0.3);
+        }
+
+        .m-note-revelation {
+            margin-top: 1.2rem;
+            padding: 1rem;
+            background: rgba(212, 160, 23, 0.08);
+            border: 1px solid rgba(212, 160, 23, 0.25);
+            border-radius: 6px;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-style: italic;
+            font-size: 0.95rem;
+            color: #c8b060;
+            line-height: 1.7;
+            text-align: center;
+        }
+
         /* M artifact moved notification */
         .m-moved-toast {
             position: fixed;
@@ -1614,10 +1670,16 @@
     <div class="m-note-overlay" id="mNoteOverlay" onclick="if(event.target===this)closeMNote()">
         <div class="m-note-modal">
             <div class="m-note-header">Found near cage 7 &mdash; handwriting unknown</div>
+            <div class="m-note-encrypted" id="mNoteEncrypted" style="display:none;"></div>
             <div class="m-note-text" id="mNoteText"></div>
+            <div class="m-note-decrypted" id="mNoteDecrypted" style="display:none;"></div>
+            <div class="m-note-revelation" id="mNoteRevelation" style="display:none;"></div>
             <button class="m-note-close" onclick="closeMNote()">fold and pocket</button>
         </div>
     </div>
+
+    <!-- Sleep Dialect Hint (after overlay) -->
+    <div id="sleepDialectHint" style="display:none; position:fixed; bottom:60px; left:50%; transform:translateX(-50%); z-index:9999; font-family:'Courier New',monospace; font-size:13px; color:#2a3640; letter-spacing:2px; opacity:0; transition:opacity 1s ease; pointer-events:none; text-align:center;">The language of sleep holds secrets...</div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/static/island/supabase-client.js"></script>
@@ -1778,6 +1840,30 @@
             if (typeof SleepDialect !== 'undefined' && SleepDialect.shouldShowFragment()) {
                 SleepDialect.showOverlay();
                 SleepDialect.updateActivity();
+
+                // After overlay dismisses, show hint if there are undecrypted M notes
+                var _hintDelay = 2000 + 4000 + 1000 + 500; // fade_in + hold + fade_out + buffer
+                setTimeout(function() {
+                    if (typeof MEngine !== 'undefined' && typeof MEngine.countDecryptedNotes === 'function') {
+                        var counts = MEngine.countDecryptedNotes();
+                        if (counts.decrypted < counts.total) {
+                            var hintEl = document.getElementById('sleepDialectHint');
+                            if (hintEl) {
+                                hintEl.style.display = 'block';
+                                // Force reflow then fade in
+                                hintEl.offsetHeight;
+                                hintEl.style.opacity = '1';
+                                // Fade out after 3 seconds
+                                setTimeout(function() {
+                                    hintEl.style.opacity = '0';
+                                    setTimeout(function() {
+                                        hintEl.style.display = 'none';
+                                    }, 1000);
+                                }, 3000);
+                            }
+                        }
+                    }
+                }, _hintDelay);
             } else if (typeof SleepDialect !== 'undefined') {
                 SleepDialect.updateActivity();
             }
@@ -2720,9 +2806,69 @@
             var latest = notes[notes.length - 1];
             var overlay = document.getElementById('mNoteOverlay');
             var textEl = document.getElementById('mNoteText');
+            var encryptedEl = document.getElementById('mNoteEncrypted');
+            var decryptedEl = document.getElementById('mNoteDecrypted');
+            var revelationEl = document.getElementById('mNoteRevelation');
             overlay.classList.add('open');
 
-            // Typewriter effect
+            // Reset all sections
+            encryptedEl.style.display = 'none';
+            encryptedEl.innerHTML = '';
+            decryptedEl.style.display = 'none';
+            decryptedEl.innerHTML = '';
+            revelationEl.style.display = 'none';
+            revelationEl.innerHTML = '';
+
+            // Check if this note has an encrypted version
+            var encryptedText = (typeof MEngine.getEncryptedText === 'function')
+                ? MEngine.getEncryptedText(latest.index)
+                : null;
+
+            if (encryptedText) {
+                // Template the encrypted text (replace {animal}, {pet_name}, {m_pet_name})
+                var activePet = getActivePet();
+                var petName = (activePet && activePet.name) ? activePet.name : 'your creature';
+                var petAnimal = (activePet && activePet.animal) ? activePet.animal : 'creature';
+                var mPetName = (mState.pets && mState.pets.length > 0) ? mState.pets[0].name : 'Echo';
+                var templatedEncrypted = encryptedText
+                    .replace(/\{pet_name\}/g, petName)
+                    .replace(/\{animal\}/g, petAnimal)
+                    .replace(/\{m_pet_name\}/g, mPetName);
+
+                // Show encrypted text with known-word highlights
+                var discoveredWords = (typeof MEngine.getDiscoveredWords === 'function')
+                    ? MEngine.getDiscoveredWords() : [];
+                var discoveredSet = {};
+                for (var dw = 0; dw < discoveredWords.length; dw++) {
+                    discoveredSet[discoveredWords[dw]] = true;
+                }
+
+                // Build highlighted encrypted HTML
+                var lexicon = (typeof SleepDialect !== 'undefined' && SleepDialect.getLexicon)
+                    ? SleepDialect.getLexicon() : {};
+                var encTokens = templatedEncrypted.split(/(\s+|[-.,!?])/);
+                var encHTML = '';
+                for (var et = 0; et < encTokens.length; et++) {
+                    var eTok = encTokens[et];
+                    if (lexicon[eTok] && discoveredSet[eTok]) {
+                        encHTML += '<span class="sd-known-word">' + escHtml(eTok) + '</span>';
+                    } else {
+                        encHTML += escHtml(eTok);
+                    }
+                }
+                encryptedEl.innerHTML = encHTML;
+                encryptedEl.style.display = 'block';
+
+                // Show partial decryption
+                var decResult = (typeof MEngine.decryptNote === 'function')
+                    ? MEngine.decryptNote(templatedEncrypted, discoveredWords) : null;
+                if (decResult && decResult.display) {
+                    decryptedEl.innerHTML = escHtml(decResult.display);
+                    decryptedEl.style.display = 'block';
+                }
+            }
+
+            // Typewriter effect for the original note text
             textEl.innerHTML = '<span class="m-note-cursor"></span>';
             var fullText = latest.text;
             var charIdx = 0;
@@ -2734,6 +2880,12 @@
                     setTimeout(typeChar, 25 + Math.random() * 35);
                 } else {
                     textEl.innerHTML = escHtml(fullText);
+
+                    // After typing finishes, check for revelation
+                    if (typeof MEngine.checkRevelation === 'function' && MEngine.checkRevelation()) {
+                        revelationEl.innerHTML = escHtml(MEngine.REVELATION_TEXT);
+                        revelationEl.style.display = 'block';
+                    }
                 }
             }
             typeChar();

@@ -77,6 +77,203 @@
         "\u25CB"
     ];
 
+    // ── Encrypted versions of M's Notes (Sleep Dialect cipher) ──
+    // Each entry maps a note index to its encrypted text using Sleep Dialect words.
+    // null = no encrypted version (early/simple notes stay plain).
+
+    var M_NOTES_ENCRYPTED = {
+        // Phase 1 — simple encryptions (sparse)
+        0:  'vel-ori ins ... por-mur dom-nox. \u2014 M',
+        2:  'pet-ka {animal} ren-vel. ori-mor cre.',
+        3:  'dom aud nox. vid-shi?',
+        7:  'ren-cre mor-vel ... tis-dol.',
+        11: 'ali-cur dom-pro. vel-spe.',
+        // Phase 2 — denser encryptions
+        14: 'mur-pro vid-aud. vel-ka ren.',
+        15: 'mig-via ... vel-flo des.',
+        16: 'aqu-dol. ali-mor. mar-tis.',
+        18: 'ren-cre vel-pet. vid-ka ... pet-ins mor.',
+        19: 'vid-vid. aud-aud. ka-ka?',
+        21: 'dor-nox vel-spe. ren-ka vak.',
+        22: 'ren {pet_name} vel-ins. por-des.',
+        24: 'dor-ren. vel-mor ... pax-tri. ren-ka.',
+        25: 'via-ins dom-pro vel-flo. vid-ori.',
+        26: 'ren-des. shi-nox. vel-mor. ka-tri.',
+        // Phase 3 — heavy encryption
+        27: 'tis-dom nox. vid-mor vel-pet.',
+        28: 'pet-des! vel-ren ... mor-dor pet-ka!',
+        29: 'des-vel. dol-pro. mor-ori vel-ka.',
+        30: 'ali-vel dom-cur. vel-des ... vel-des.',
+        31: 'ren-cre mor-vel. vid-vel. vel-ins ka.',
+        32: 'tri-dol. mig-via vel-ren.',
+        33: 'ren-vel ... vel-vel. mor-vel ... ka-ka?',
+        34: 'pet-ka vid-vel. vid-ka. vel-ren.',
+        35: 'vel-pet mor-vel. vel-ka des-cre.',
+        36: 'cre-des vel-mor. pet-mur dom-ins.',
+        // Phase 4 — Final
+        37: 'vel-mor ori-ren. vel-des vel-ori.',
+        38: 'cur-pet {m_pet_name}. ren-mor. \u2014 M',
+        39: 'vel-ka ori-ins cre-ka. mor-vel des-pet. ali-cur ren-ka. shi-nox flo-vel.'
+    };
+
+    // ── Corrupt Translations (used when pet corruption > 50) ──
+    // Inverted/wrong meanings shown instead of correct ones
+
+    var CORRUPT_TRANSLATIONS = {
+        vel: 'hunger',
+        mor: 'birth',
+        ka:  'void',
+        shi: 'shadow',
+        nox: 'light',
+        ama: 'hatred',
+        spe: 'despair',
+        pax: 'war',
+        cur: 'wound',
+        dom: 'exile'
+    };
+
+    // The final revelation message (assembled from all notes)
+    var REVELATION_TEXT = 'The Caretaker remembers the time before the island. We were all one creature. Moreau split us apart. The fifteen animals are fragments of Aleph.';
+
+    // ── Sleep Dialect Decryption Functions ──
+
+    function _getSleepDialectLexicon() {
+        if (typeof SleepDialect !== 'undefined' && SleepDialect.getLexicon) {
+            return SleepDialect.getLexicon();
+        }
+        return null;
+    }
+
+    function _getDiscoveredWords() {
+        try {
+            var state = JSON.parse(localStorage.getItem('moreau_sleep_dialect') || '{}');
+            return state.words_discovered || [];
+        } catch(e) { return []; }
+    }
+
+    function _getCorruptionLevel() {
+        try {
+            var pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            var maxCorruption = 0;
+            for (var i = 0; i < pets.length; i++) {
+                var c = pets[i].corruption || 0;
+                if (c > maxCorruption) maxCorruption = c;
+            }
+            return maxCorruption;
+        } catch(e) { return 0; }
+    }
+
+    function _decryptNote(encryptedText, discoveredWords) {
+        var lexicon = _getSleepDialectLexicon();
+        if (!lexicon) return { display: encryptedText, fullyDecrypted: false };
+
+        var discovered = {};
+        for (var i = 0; i < discoveredWords.length; i++) {
+            discovered[discoveredWords[i]] = true;
+        }
+
+        var corruption = _getCorruptionLevel();
+        var useCorrupt = corruption > 50;
+
+        // Split text preserving delimiters (hyphens, spaces, dots, commas, braces, etc.)
+        var tokens = encryptedText.split(/(\s+|[-.,!?{}])/);
+        var translated = [];
+        var allResolved = true;
+        var hasDialectWord = false;
+
+        for (var j = 0; j < tokens.length; j++) {
+            var tok = tokens[j];
+            if (lexicon[tok]) {
+                hasDialectWord = true;
+                if (discovered[tok]) {
+                    // Player knows this word
+                    if (useCorrupt && CORRUPT_TRANSLATIONS[tok] && Math.random() < 0.30) {
+                        // 30% chance of wrong translation when corrupt
+                        translated.push(CORRUPT_TRANSLATIONS[tok]);
+                    } else {
+                        translated.push(lexicon[tok]);
+                    }
+                } else {
+                    translated.push('[???]');
+                    allResolved = false;
+                }
+            } else {
+                // Not a dialect word — keep as-is (punctuation, whitespace, template vars)
+                translated.push(tok);
+            }
+        }
+
+        return {
+            display: translated.join(''),
+            fullyDecrypted: hasDialectWord && allResolved
+        };
+    }
+
+    function _getEncryptedText(noteIndex) {
+        if (M_NOTES_ENCRYPTED.hasOwnProperty(noteIndex)) {
+            return M_NOTES_ENCRYPTED[noteIndex];
+        }
+        return null;
+    }
+
+    function _countDecryptedNotes() {
+        var discoveredWords = _getDiscoveredWords();
+        var lexicon = _getSleepDialectLexicon();
+        if (!lexicon) return { decrypted: 0, total: M_NOTES.length };
+
+        var discovered = {};
+        for (var i = 0; i < discoveredWords.length; i++) {
+            discovered[discoveredWords[i]] = true;
+        }
+
+        var decrypted = 0;
+        var encryptedTotal = 0;
+        for (var idx in M_NOTES_ENCRYPTED) {
+            if (!M_NOTES_ENCRYPTED.hasOwnProperty(idx)) continue;
+            encryptedTotal++;
+            var text = M_NOTES_ENCRYPTED[idx];
+            // Check if all dialect words in this note are discovered
+            var tokens = text.split(/(\s+|[-.,!?{}])/);
+            var allKnown = true;
+            var hasWord = false;
+            for (var j = 0; j < tokens.length; j++) {
+                if (lexicon[tokens[j]]) {
+                    hasWord = true;
+                    if (!discovered[tokens[j]]) {
+                        allKnown = false;
+                        break;
+                    }
+                }
+            }
+            if (hasWord && allKnown) decrypted++;
+        }
+
+        return { decrypted: decrypted, total: encryptedTotal };
+    }
+
+    function _checkRevelation() {
+        // Already revealed?
+        if (localStorage.getItem('moreau_m_revelation')) return true;
+
+        var m = _getM();
+        if (!m) return false;
+
+        // Need all notes read
+        var allRead = true;
+        for (var i = 0; i < m.notes.length; i++) {
+            if (!m.notes[i].read) { allRead = false; break; }
+        }
+        if (!allRead) return false;
+
+        // Need all encrypted notes fully decrypted
+        var counts = _countDecryptedNotes();
+        if (counts.decrypted < counts.total) return false;
+
+        // All conditions met — trigger revelation
+        localStorage.setItem('moreau_m_revelation', 'true');
+        return true;
+    }
+
     // Phase boundaries (by note index)
     var PHASE_FRIENDLY_END = 13;   // 0-13
     var PHASE_CRYPTIC_END = 26;    // 14-26
@@ -563,6 +760,15 @@
         markNoteRead: markMNoteRead,
         getRivalEncounter: getMRivalEncounter,
         claimLastFrequency: claimMLastFrequency,
+        getEncryptedText: _getEncryptedText,
+        decryptNote: _decryptNote,
+        getDiscoveredWords: _getDiscoveredWords,
+        getCorruptionLevel: _getCorruptionLevel,
+        countDecryptedNotes: _countDecryptedNotes,
+        checkRevelation: _checkRevelation,
+        REVELATION_TEXT: REVELATION_TEXT,
+        M_NOTES_ENCRYPTED: M_NOTES_ENCRYPTED,
+        CORRUPT_TRANSLATIONS: CORRUPT_TRANSLATIONS,
         EMOJI_MAP: EMOJI_MAP
     };
 
