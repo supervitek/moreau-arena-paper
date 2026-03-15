@@ -931,6 +931,50 @@
             position: relative;
         }
 
+        /* ── Proposition 1: Drift-biased mercy UI ── */
+        .mercy-pet-card.drift-suggested {
+            border: 2px solid var(--red) !important;
+            box-shadow: 0 0 24px rgba(244,67,54,0.3);
+        }
+
+        .mercy-drift-hint {
+            font-size: 0.7rem;
+            color: #9a5a5a;
+            font-style: italic;
+            margin-top: 0.4rem;
+        }
+
+        .mercy-override-warning {
+            display: none;
+            font-size: 0.75rem;
+            color: var(--red);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            position: relative;
+        }
+
+        .mercy-override-warning.visible { display: block; }
+
+        .abomination-badge {
+            display: inline-block;
+            font-size: 0.6rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            background: rgba(100, 0, 0, 0.5);
+            color: #ff4444;
+            border: 1px solid rgba(244,67,54,0.6);
+            margin-top: 0.4rem;
+            animation: abomPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes abomPulse {
+            0%, 100% { box-shadow: 0 0 0 rgba(244,67,54,0); }
+            50% { box-shadow: 0 0 12px rgba(244,67,54,0.35); }
+        }
+
         /* ── Premium / Auto-Manage ── */
         .premium-card {
             background: linear-gradient(135deg, rgba(212,160,23,0.06), rgba(212,160,23,0.02));
@@ -1481,14 +1525,19 @@
                                 <div class="mercy-pet-emoji" id="mercyDyingEmoji">&#128062;</div>
                                 <div class="mercy-pet-name" id="mercyDyingName">—</div>
                                 <div class="mercy-pet-stats" id="mercyDyingStats">—</div>
+                                <div class="abomination-badge" id="mercyDyingAbom" style="display:none;">ABOMINATION</div>
                             </div>
                             <div class="mercy-vs">VS</div>
                             <div class="mercy-pet-card mercy-pet-sacrifice" id="mercySacrificeCard">
                                 <div class="mercy-pet-emoji" id="mercySacrificeEmoji">&#128062;</div>
                                 <div class="mercy-pet-name" id="mercySacrificeName">—</div>
                                 <div class="mercy-pet-stats" id="mercySacrificeStats">—</div>
+                                <div class="mercy-drift-hint" id="mercyDriftHint" style="display:none;">The Caretaker suggests this one.</div>
+                                <div class="abomination-badge" id="mercySacrificeAbom" style="display:none;">ABOMINATION</div>
                             </div>
                         </div>
+
+                        <div class="mercy-override-warning" id="mercyOverrideWarning">Overriding the Caretaker's choice costs double trust (-2).</div>
 
                         <div class="mercy-override">
                             <select id="mercyOverrideSelect" onchange="onMercyOverride(this.value)"></select>
@@ -1580,6 +1629,7 @@
                         <span>Sleep Dialect Lexicon</span>
                     </div>
                     <div id="lexiconContainer"></div>
+                    <div id="mNotesDecryptCounter" style="margin-top:12px; font-family:'Courier New',monospace; font-size:12px; color:#5a5a8a; letter-spacing:1px; padding:0 4px;"></div>
                 </div>
 
             </div> <!-- /petDashboard -->
@@ -1605,6 +1655,7 @@
     <script src="/static/island/caretaker-drift.js"></script>
     <script src="/static/island/caretaker-letters.js"></script>
     <script src="/static/island/sleep-dialect.js"></script>
+    <script src="/static/island/m-engine.js"></script>
     <script src="/static/island/weight-of-keeping.js"></script>
     <script>
     (function() {
@@ -1673,6 +1724,18 @@
                 if (typeof CaretakerDrift !== 'undefined') CaretakerDrift.render('driftContainer');
                 if (typeof CaretakerLetters !== 'undefined') CaretakerLetters.render('lettersContainer');
                 if (typeof SleepDialect !== 'undefined') SleepDialect.renderLexicon('lexiconContainer');
+
+                // M's Notes decrypted counter
+                if (typeof MEngine !== 'undefined' && typeof MEngine.countDecryptedNotes === 'function') {
+                    var mCounts = MEngine.countDecryptedNotes();
+                    var counterEl = document.getElementById('mNotesDecryptCounter');
+                    if (counterEl && mCounts.total > 0) {
+                        counterEl.textContent = "M's Notes: " + mCounts.decrypted + '/' + mCounts.total + ' decrypted';
+                        if (mCounts.decrypted >= mCounts.total) {
+                            counterEl.style.color = '#d4a017';
+                        }
+                    }
+                }
             }
         }
 
@@ -1767,8 +1830,13 @@
         // ── Pet Card ──
         function updatePetCard(pet) {
             document.getElementById('petAvatar').textContent = getAnimalEmoji(pet.animal);
-            document.getElementById('petName').textContent = pet.name || 'Unnamed';
-            document.getElementById('petMeta').textContent = (pet.animal || 'unknown') + (pet.corruption ? ' \u2022 Corruption: ' + pet.corruption : '');
+            var nameText = pet.name || 'Unnamed';
+            // Proposition 1: show ABOMINATION badge on pet card
+            if (pet.abomination) {
+                nameText += ' [ABOMINATION]';
+            }
+            document.getElementById('petName').textContent = nameText;
+            document.getElementById('petMeta').textContent = (pet.animal || 'unknown') + (pet.corruption ? ' \u2022 Corruption: ' + pet.corruption : '') + (pet.mercy_debts ? ' \u2022 Mercy Debts: ' + pet.mercy_debts : '');
             document.getElementById('petLevel').textContent = 'Level ' + (pet.level || 1) + (pet.xp !== undefined ? ' \u2022 ' + pet.xp + ' XP' : '');
         }
 
@@ -2280,6 +2348,14 @@
             var dStats = dyingPet.base_stats || dyingPet.stats || {};
             document.getElementById('mercyDyingStats').textContent = 'HP:' + (dStats.hp||0) + ' ATK:' + (dStats.atk||0) + ' SPD:' + (dStats.spd||0) + ' WIL:' + (dStats.wil||0);
 
+            // Proposition 1: Show ABOMINATION badge on dying pet if applicable
+            var dyingAbomEl = document.getElementById('mercyDyingAbom');
+            if (dyingPet.abomination) {
+                dyingAbomEl.style.display = 'inline-block';
+            } else {
+                dyingAbomEl.style.display = 'none';
+            }
+
             document.getElementById('mercyDesc').textContent = 'Your ' + (dyingPet.name || 'pet') + ' is dying. The Caretaker offers a terrible choice.';
 
             // Suggested sacrifice
@@ -2290,6 +2366,39 @@
             var sStats = sacrificePet.base_stats || sacrificePet.stats || {};
             document.getElementById('mercySacrificeStats').textContent = 'HP:' + (sStats.hp||0) + ' ATK:' + (sStats.atk||0) + ' SPD:' + (sStats.spd||0) + ' WIL:' + (sStats.wil||0);
 
+            // Proposition 1: Show ABOMINATION badge on sacrifice pet if applicable
+            var sacAbomEl = document.getElementById('mercySacrificeAbom');
+            if (sacrificePet.abomination) {
+                sacAbomEl.style.display = 'inline-block';
+            } else {
+                sacAbomEl.style.display = 'none';
+            }
+
+            // Proposition 1: drift-biased suggestion styling
+            var sacrificeCard = document.getElementById('mercySacrificeCard');
+            var driftHint = document.getElementById('mercyDriftHint');
+            var overrideWarning = document.getElementById('mercyOverrideWarning');
+            var isDriftBiased = mercyData.drift_biased === true;
+            var suggestedIdx = typeof mercyData.suggested_sacrifice === 'number' ? mercyData.suggested_sacrifice : -1;
+
+            if (isDriftBiased && suggestedIdx >= 0) {
+                // Highlight the suggested pet card with red border
+                if (sacrificeIdx === suggestedIdx) {
+                    sacrificeCard.classList.add('drift-suggested');
+                    driftHint.style.display = 'block';
+                    overrideWarning.classList.remove('visible');
+                } else {
+                    // Player has overridden the suggestion
+                    sacrificeCard.classList.remove('drift-suggested');
+                    driftHint.style.display = 'none';
+                    overrideWarning.classList.add('visible');
+                }
+            } else {
+                sacrificeCard.classList.remove('drift-suggested');
+                driftHint.style.display = 'none';
+                overrideWarning.classList.remove('visible');
+            }
+
             // Override dropdown
             var overrideSel = document.getElementById('mercyOverrideSelect');
             overrideSel.innerHTML = '<option value="">Override sacrifice choice...</option>';
@@ -2297,7 +2406,7 @@
                 if (p.deceased || i === mercyData.dyingIdx) return;
                 var opt = document.createElement('option');
                 opt.value = i;
-                opt.textContent = getAnimalEmoji(p.animal) + ' ' + (p.name || 'Unnamed');
+                opt.textContent = getAnimalEmoji(p.animal) + ' ' + (p.name || 'Unnamed') + (p.abomination ? ' [ABOMINATION]' : '');
                 if (i === sacrificeIdx) opt.selected = true;
                 overrideSel.appendChild(opt);
             });
@@ -2352,13 +2461,30 @@
             var sacrificePet = allPets[mercyData.sacrificeIdx];
             if (!dyingPet || !sacrificePet) return;
 
+            // Proposition 1: check for drift-biased override
+            var isDriftBiased = mercyData.drift_biased === true;
+            var suggestedIdx = typeof mercyData.suggested_sacrifice === 'number' ? mercyData.suggested_sacrifice : -1;
+            var overrodeSuggestion = isDriftBiased && (mercyData.sacrificeIdx !== suggestedIdx);
+            var overrideMsg = overrodeSuggestion
+                ? ' WARNING: You are overriding the Caretaker\'s drift-biased choice. Trust cost will be DOUBLE (-2).'
+                : '';
+
             showModal(
                 'Confirm Sacrifice',
-                sacrificePet.name + ' will die so that ' + dyingPet.name + ' may live. ' + dyingPet.name + ' will carry this debt forever. This cannot be undone.',
+                sacrificePet.name + ' will die so that ' + dyingPet.name + ' may live. ' + dyingPet.name + ' will carry this debt forever. This cannot be undone.' + overrideMsg,
                 function() {
+                    // Read drift score for Survivor's Guilt intensity
+                    var driftScore = 0;
+                    try {
+                        var driftRaw = JSON.parse(localStorage.getItem('moreau_caretaker_drift'));
+                        if (driftRaw && typeof driftRaw.score === 'number') driftScore = driftRaw.score;
+                    } catch(e) {}
+
                     // Kill sacrifice
                     sacrificePet.deceased = true;
                     sacrificePet.cause_of_death = 'Sacrificed to save ' + dyingPet.name;
+                    // Proposition 1: mark sacrificed pet
+                    sacrificePet.mercy_sacrificed = true;
 
                     // Save dying pet, add debt
                     if (!dyingPet.debts) dyingPet.debts = [];
@@ -2371,16 +2497,45 @@
                     dyingPet.needs.health = 50;
                     dyingPet.needs.hunger = 40;
 
-                    // Check abomination
+                    // Proposition 1: mark saved pet and track mercy debts
+                    dyingPet.mercy_saved = true;
+                    dyingPet.mercy_debts = (dyingPet.mercy_debts || 0) + 1;
+
+                    // Proposition 1: add Survivor's Guilt side effect
+                    if (!dyingPet.side_effects) dyingPet.side_effects = [];
+                    dyingPet.side_effects.push({
+                        name: "Survivor's Guilt",
+                        desc: "Haunted by the one who was taken",
+                        category: "psychological",
+                        stats: { wil: -2, atk: 3 },
+                        intensity: Math.floor(driftScore / 10)
+                    });
+
+                    // Proposition 1: Abomination check based on mercy_debts
+                    if (dyingPet.mercy_debts >= 3) {
+                        dyingPet.abomination = true;
+                        showToast(dyingPet.name + ' has become an ABOMINATION. 3 mercy debts fulfilled.', 'error');
+                    }
+
+                    // Legacy abomination check (debts array)
                     if (dyingPet.debts.length >= 3) {
                         dyingPet.abomination = true;
                         showToast(dyingPet.name + ' has become an ABOMINATION. 3 debts fulfilled.', 'error');
                     }
 
+                    // Proposition 1: trust cost — double if override
+                    var trustCost = overrodeSuggestion ? -2 : -1;
+                    try {
+                        var currentTrust = parseFloat(localStorage.getItem('moreau_caretaker_trust') || '5');
+                        if (isNaN(currentTrust)) currentTrust = 5;
+                        var newTrust = Math.max(0, Math.min(10, currentTrust + trustCost));
+                        localStorage.setItem('moreau_caretaker_trust', String(newTrust));
+                    } catch(e) {}
+
                     localStorage.removeItem('moreau_mercy_pending');
                     savePets();
-                    addLogEntry('\u{1F480}', 'Sacrificed ' + sacrificePet.name + ' to save ' + dyingPet.name);
-                    showToast(sacrificePet.name + ' is gone. ' + dyingPet.name + ' lives... with a debt.', 'error');
+                    addLogEntry('\u{1F480}', 'Sacrificed ' + sacrificePet.name + ' to save ' + dyingPet.name + (overrodeSuggestion ? ' (override, trust -2)' : ''));
+                    showToast(sacrificePet.name + ' is gone. ' + dyingPet.name + ' lives... with a debt.' + (overrodeSuggestion ? ' Trust -2.' : ''), 'error');
                     loadPets();
                     buildPetSelector();
                     refreshAll();

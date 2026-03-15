@@ -1710,6 +1710,27 @@
             if (parentIdx >= 0) parentGen = allPets[parentIdx].generation || 0;
             var newGen = parentGen + 1;
 
+            // Proposition 1: lineage consequence — check if parent or donor
+            // has mercy_saved flag. If yes, new pet starts with +10 corruption.
+            // This is the "lineage consequence" from Proposition 1: Drift-Biased
+            // Mercy with Menagerie Lineage Consequences.
+            var lineageCorruption = 0;
+            try {
+                var ancestorPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                var parentAncestor = ancestorPets.find(function(p) {
+                    return (egg.parent_pet_id && p.id === egg.parent_pet_id) ||
+                           (egg.parent_name && p.name === egg.parent_name);
+                });
+                var donorAncestor = ancestorPets.find(function(p) {
+                    return (egg.donor_pet_id && p.id === egg.donor_pet_id) ||
+                           (egg.donor_name && p.name === egg.donor_name);
+                });
+                if ((parentAncestor && parentAncestor.mercy_saved === true) ||
+                    (donorAncestor && donorAncestor.mercy_saved === true)) {
+                    lineageCorruption = 10;
+                }
+            } catch(e) {}
+
             // Create new pet
             var newPet = {
                 name: name,
@@ -1721,6 +1742,7 @@
                 lab_mutations: egg.inherited_mutations || {},
                 side_effects: [],
                 instability: 0,
+                corruption: lineageCorruption, // Proposition 1: inherited mercy debt corruption
                 scars: 0,
                 mercy_used: false,
                 mood: 'neutral',

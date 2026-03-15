@@ -1282,15 +1282,42 @@
 
         if (criticalIdx === -1) return; // No crisis
 
-        // Caretaker picks: lowest level pet (not the critical one)
-        var caretakerPick = -1;
-        var lowestLevel = Infinity;
-        living.forEach(function(entry) {
-            if (entry.index !== criticalIdx && (entry.pet.level || 1) < lowestLevel) {
-                lowestLevel = entry.pet.level || 1;
-                caretakerPick = entry.index;
+        // ── Drift-biased pre-selection (Proposition 1) ──
+        // If drift score > 40, the Caretaker suggests the pet with the
+        // lowest average needs as sacrifice instead of lowest level.
+        var driftScore = 0;
+        try {
+            var driftRaw = JSON.parse(localStorage.getItem('moreau_caretaker_drift'));
+            if (driftRaw && typeof driftRaw.score === 'number') {
+                driftScore = driftRaw.score;
             }
-        });
+        } catch(e) {}
+
+        var driftBiased = driftScore > 40;
+        var caretakerPick = -1;
+
+        if (driftBiased) {
+            // Drift-biased: pick pet with lowest average needs (hunger+health+morale+energy)/4
+            var lowestAvg = Infinity;
+            living.forEach(function(entry) {
+                if (entry.index === criticalIdx) return;
+                var needs = entry.pet.needs || {};
+                var avg = ((needs.hunger || 0) + (needs.health || 0) + (needs.morale || 0) + (needs.energy || 0)) / 4;
+                if (avg < lowestAvg) {
+                    lowestAvg = avg;
+                    caretakerPick = entry.index;
+                }
+            });
+        } else {
+            // Default: lowest level pet (not the critical one)
+            var lowestLevel = Infinity;
+            living.forEach(function(entry) {
+                if (entry.index !== criticalIdx && (entry.pet.level || 1) < lowestLevel) {
+                    lowestLevel = entry.pet.level || 1;
+                    caretakerPick = entry.index;
+                }
+            });
+        }
 
         if (caretakerPick === -1) return; // No valid sacrifice candidate
 
@@ -1300,7 +1327,11 @@
             presentedAt: Date.now(),
             expiresAt: Date.now() + MERCY_WINDOW_MS,
             caretakerPick: caretakerPick,
-            resolved: false
+            resolved: false,
+            // Proposition 1: drift-biased mercy fields
+            suggested_sacrifice: caretakerPick,
+            drift_biased: driftBiased,
+            drift_score: driftScore
         };
 
         localStorage.setItem(MERCY_KEY, JSON.stringify(pending));
@@ -1312,15 +1343,19 @@
             ? 'is starving and fading'
             : 'is destabilizing beyond recovery';
 
+        var driftNote = driftBiased
+            ? ' I chose ' + (pickPet.name || 'the weakest') + ' because they were already fading. Drift guided my hand.'
+            : '';
+
         this.addDiaryEntry('warning',
             'MERCY CLAUSE TRIGGERED. ' + (critPet.name || 'A pet') + ' ' + reason + '. ' +
             'One must be sacrificed so the other survives. ' +
             'I recommend sacrificing ' + (pickPet.name || 'the weakest') + ' (Level ' + (pickPet.level || 1) + '). ' +
-            'You have 6 hours to decide. If you don\'t, I will.',
+            'You have 6 hours to decide. If you don\'t, I will.' + driftNote,
             criticalIdx
         );
 
-        this._addLog({ action: 'mercy_triggered', petIndex: criticalIdx, detail: triggerReason + ', pick=' + caretakerPick });
+        this._addLog({ action: 'mercy_triggered', petIndex: criticalIdx, detail: triggerReason + ', pick=' + caretakerPick + (driftBiased ? ', drift_biased' : '') });
     };
 
     /**
@@ -1354,10 +1389,23 @@
         if (!sacrifice || !saved) return { success: false, message: 'Invalid pet selection.' };
         if (sacrifice.deceased) return { success: false, message: sacrifice.name + ' is already dead.' };
 
+        // ── Proposition 1: Check if player overrode the drift-biased suggestion ──
+        var pending;
+        try { pending = JSON.parse(localStorage.getItem(MERCY_KEY)); } catch(e) { pending = {}; }
+        var driftBiased = pending && pending.drift_biased;
+        var suggestedSacrifice = pending ? pending.suggested_sacrifice : -1;
+        var overrodeSuggestion = driftBiased && (sacrificeIdx !== suggestedSacrifice);
+        var driftScore = (pending && pending.drift_score) || 0;
+
+        // Trust cost: -2 if overriding drift-biased suggestion, -1 otherwise
+        var trustCost = overrodeSuggestion ? -2 : -1;
+
         // Kill sacrifice
         sacrifice.deceased = true;
         sacrifice.cause_of_death = 'Mercy Clause sacrifice';
         sacrifice.death_timestamp = new Date().toISOString();
+        // Proposition 1: mark sacrificed pet
+        sacrifice.mercy_sacrificed = true;
 
         // Save the other pet
         saved = this.initNeeds(saved);
@@ -1369,6 +1417,20 @@
         sbs.wil = Math.max(0, (sbs.wil || 5) - 2);
         saved.base_stats = sbs;
 
+        // Proposition 1: mark saved pet and track mercy debts
+        saved.mercy_saved = true;
+        saved.mercy_debts = (saved.mercy_debts || 0) + 1;
+
+        // Proposition 1: add Survivor's Guilt side effect
+        if (!saved.side_effects) saved.side_effects = [];
+        saved.side_effects.push({
+            name: "Survivor's Guilt",
+            desc: "Haunted by the one who was taken",
+            category: "psychological",
+            stats: { wil: -2, atk: 3 },
+            intensity: Math.floor(driftScore / 10)
+        });
+
         // Add debt record
         if (!saved.debts) saved.debts = [];
         saved.debts.push({
@@ -1378,7 +1440,12 @@
             sacrificed_at: new Date().toISOString()
         });
 
-        // Abomination check
+        // Proposition 1: Abomination check based on mercy_debts (>= 3)
+        if (saved.mercy_debts >= 3) {
+            saved.abomination = true;
+        }
+
+        // Legacy abomination check (debts array)
         if (saved.debts.length >= 3) {
             saved.abomination = true;
         }
@@ -1387,30 +1454,40 @@
         pets[saveIdx] = saved;
         this._savePets(pets);
 
+        // Apply trust cost
+        var currentTrust = this.getTrust();
+        this._setTrust(clamp(currentTrust + trustCost, TRUST_MIN, TRUST_MAX));
+
         // Clear pending
-        var pending;
-        try { pending = JSON.parse(localStorage.getItem(MERCY_KEY)); } catch(e) { pending = {}; }
         pending.resolved = true;
         pending.choice = 'player';
         pending.sacrificeIdx = sacrificeIdx;
         pending.saveIdx = saveIdx;
+        pending.overrode_suggestion = overrodeSuggestion;
         localStorage.setItem(MERCY_KEY, JSON.stringify(pending));
 
         // Diary
+        var overrideNote = overrodeSuggestion
+            ? ' You overrode my suggestion. Trust costs double.'
+            : '';
         this.addDiaryEntry('warning',
             sacrifice.name + ' was sacrificed to save ' + saved.name + '. ' +
-            'ATK +3, WIL -2 applied. ' +
-            (saved.abomination ? saved.name + ' is now marked as an Abomination. Three debts paid in blood.' : '') +
+            'ATK +3, WIL -2 applied. Survivor\'s Guilt afflicts ' + saved.name + '.' +
+            (saved.abomination ? ' ' + saved.name + ' is now marked as an Abomination. Three debts paid in blood.' : '') +
+            overrideNote +
             ' The arena remembers.',
             saveIdx
         );
 
-        this._addLog({ action: 'mercy_executed', petIndex: sacrificeIdx, detail: 'Sacrificed to save pet ' + saveIdx });
+        this._addLog({ action: 'mercy_executed', petIndex: sacrificeIdx, detail: 'Sacrificed to save pet ' + saveIdx + (overrodeSuggestion ? ' (override, trust -2)' : '') });
 
         return {
             success: true,
             message: sacrifice.name + ' was sacrificed. ' + saved.name + ' lives on.' +
-                (saved.abomination ? ' They are now an Abomination.' : '')
+                (saved.abomination ? ' They are now an Abomination.' : '') +
+                (overrodeSuggestion ? ' Trust -2 for overriding the Caretaker.' : ''),
+            overrodeSuggestion: overrodeSuggestion,
+            trustCost: trustCost
         };
     };
 

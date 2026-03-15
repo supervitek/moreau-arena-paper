@@ -1293,8 +1293,10 @@
         function getBondBuff(pet) {
             var tier = getSpiritTier(pet);
             var highest = getHighestStat(pet);
-            if (tier === 'glorious') return { stat: highest.stat, value: 2 };
-            if (tier === 'honored') return { stat: highest.stat, value: 1 };
+            // Proposition 1: mercy-sacrificed spirits give half buff values
+            var mercyMultiplier = pet.mercy_sacrificed === true ? 0.5 : 1;
+            if (tier === 'glorious') return { stat: highest.stat, value: Math.max(1, Math.round(2 * mercyMultiplier)) };
+            if (tier === 'honored') return { stat: highest.stat, value: Math.max(1, Math.round(1 * mercyMultiplier)) };
             // Remembered: random stat
             var statKeys = ['hp', 'atk', 'spd', 'wil'];
             var rng = hashCode(pet.name || 'x') % 4;
@@ -1410,10 +1412,18 @@
                 var epitaph = epitaphs[name] || '';
                 var isImm = !!immortalized[name];
 
-                html += '<div class="spirit-card tier-' + tier + '" onclick="showSpiritDetail(' + idx + ')">';
+                // Proposition 1: mercy-sacrificed spirits displayed at 50% opacity
+                var mercySacrificed = pet.mercy_sacrificed === true;
+                var cardStyle = mercySacrificed ? ' style="opacity:0.5;"' : '';
+                html += '<div class="spirit-card tier-' + tier + '"' + cardStyle + ' onclick="showSpiritDetail(' + idx + ')">';
 
                 if (isImm) {
                     html += '<div class="immortalized-badge">\u2734 Immortal</div>';
+                }
+
+                // Proposition 1: label for mercy-sacrificed spirits
+                if (mercySacrificed) {
+                    html += '<div style="position:absolute;top:0.5rem;left:0.5rem;font-size:0.55rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(139,0,0,0.2);color:#cc4444;border:1px solid rgba(139,0,0,0.3);z-index:2;">Spent by the Caretaker</div>';
                 }
 
                 html += '<div class="spirit-top">';
@@ -1665,10 +1675,27 @@
                     var sEmoji = EMOJI_MAP[sAnimal] || '\u{1F43E}';
                     var buff = spirit.stat ? ('+' + spirit.value + ' ' + spirit.stat.toUpperCase()) : '';
 
-                    html += '<div class="orbit-spirit" style="left:' + x + 'px;top:' + y + 'px;" title="' + escHtml(spirit.name) + '">';
+                    // Proposition 1: check if this spirit was mercy-sacrificed
+                    var spiritPet = deadPets.find(function(p) { return p.name === spirit.name; });
+                    var isMercySacrificed = spiritPet && spiritPet.mercy_sacrificed === true;
+                    // Proposition 1: if pet is abomination, all bonds become debuffs
+                    var isAbomination = activePet && activePet.abomination === true;
+                    var orbOpacity = isMercySacrificed ? 'opacity:0.5;' : '';
+                    var buffLabel = buff;
+                    if (isMercySacrificed) {
+                        buffLabel = spirit.stat ? ('+' + Math.max(1, Math.round((spirit.value || 0) * 0.5)) + ' ' + spirit.stat.toUpperCase()) : '';
+                    }
+                    if (isAbomination && spirit.stat) {
+                        buffLabel = '-1 ' + spirit.stat.toUpperCase();
+                    }
+
+                    html += '<div class="orbit-spirit" style="left:' + x + 'px;top:' + y + 'px;' + orbOpacity + '" title="' + escHtml(spirit.name) + (isMercySacrificed ? ' (Weakened Spirit)' : '') + '">';
                     html += '<div class="orbit-spirit-emoji">' + sEmoji + '</div>';
                     html += '<div class="orbit-spirit-name">' + escHtml(spirit.name) + '</div>';
-                    html += '<div class="orbit-spirit-buff">' + buff + '</div>';
+                    html += '<div class="orbit-spirit-buff"' + (isAbomination ? ' style="color:#f44336;"' : '') + '>' + buffLabel + '</div>';
+                    if (isMercySacrificed) {
+                        html += '<div style="font-size:0.5rem;color:#cc4444;margin-top:0.15rem;">Weakened</div>';
+                    }
                     html += '</div>';
 
                     // Connection line
@@ -1690,55 +1717,92 @@
 
             // Bond totals
             if (currentBonds.length > 0) {
-                var totalBuffs = { hp: 0, atk: 0, spd: 0, wil: 0 };
-                currentBonds.forEach(function(s) {
-                    if (s.stat && totalBuffs.hasOwnProperty(s.stat)) {
-                        totalBuffs[s.stat] += (s.value || 0);
-                    }
-                });
+                // Proposition 1: check if active pet is an abomination
+                var isAbomination = activePet && activePet.abomination === true;
 
-                // Add synergies
-                var synergies = calculateSynergies(currentBonds);
-                synergies.forEach(function(syn) {
-                    if (syn.stats) {
-                        Object.keys(syn.stats).forEach(function(k) {
-                            if (totalBuffs.hasOwnProperty(k)) totalBuffs[k] += syn.stats[k];
-                        });
-                    }
-                });
-
-                // Add immortalized bonuses (permanent, no cycle)
-                var immortalized = getImmortalized();
-                currentBonds.forEach(function(s) {
-                    if (immortalized[s.name]) {
-                        // Immortalized spirits get +1 to their buff stat permanently
-                        if (s.stat && totalBuffs.hasOwnProperty(s.stat)) {
-                            totalBuffs[s.stat] += 1;
+                if (isAbomination) {
+                    // ABOMINATION: all spirit bonds give debuffs (-1 random stat) instead of buffs
+                    var totalDebuffs = { hp: 0, atk: 0, spd: 0, wil: 0 };
+                    var statKeys = ['hp', 'atk', 'spd', 'wil'];
+                    currentBonds.forEach(function(s) {
+                        if (s.stat && totalDebuffs.hasOwnProperty(s.stat)) {
+                            totalDebuffs[s.stat] -= 1;
                         }
-                    }
-                });
+                    });
 
-                html += '<div class="bond-totals">';
-                html += '<div class="bond-totals-title">Spirit Bond Buffs</div>';
+                    html += '<div class="bond-totals" style="border-color:rgba(244,67,54,0.3);">';
+                    html += '<div class="bond-totals-title" style="color:#f44336;">Spirit Bond Debuffs (ABOMINATION)</div>';
+                    html += '<div style="font-size:0.7rem;color:#cc4444;font-style:italic;margin-bottom:0.75rem;">The weight of debts has turned your spirits against you.</div>';
 
-                ['hp', 'atk', 'spd', 'wil'].forEach(function(stat) {
-                    if (totalBuffs[stat] > 0) {
-                        html += '<div class="bond-stat-row">';
-                        html += '<span class="bond-stat-label">' + stat.toUpperCase() + '</span>';
-                        html += '<span class="bond-stat-value">+' + totalBuffs[stat] + '</span>';
-                        html += '</div>';
-                    }
-                });
+                    statKeys.forEach(function(stat) {
+                        if (totalDebuffs[stat] < 0) {
+                            html += '<div class="bond-stat-row">';
+                            html += '<span class="bond-stat-label">' + stat.toUpperCase() + '</span>';
+                            html += '<span class="bond-stat-value" style="color:#f44336;">' + totalDebuffs[stat] + '</span>';
+                            html += '</div>';
+                        }
+                    });
 
-                // Show synergies
-                synergies.forEach(function(syn) {
-                    html += '<div class="bond-stat-row synergy-row">';
-                    html += '<span class="synergy-label">\u2726 ' + escHtml(syn.name) + '</span>';
-                    html += '<span class="synergy-value">' + syn.bonus + '</span>';
                     html += '</div>';
-                });
+                } else {
+                    // Normal: buffs
+                    var totalBuffs = { hp: 0, atk: 0, spd: 0, wil: 0 };
+                    currentBonds.forEach(function(s) {
+                        if (s.stat && totalBuffs.hasOwnProperty(s.stat)) {
+                            // Proposition 1: halve value for mercy-sacrificed spirits
+                            var spiritPet = deadPets.find(function(p) { return p.name === s.name; });
+                            var isMercySacrificed = spiritPet && spiritPet.mercy_sacrificed === true;
+                            var value = s.value || 0;
+                            if (isMercySacrificed) {
+                                value = Math.max(1, Math.round(value * 0.5));
+                            }
+                            totalBuffs[s.stat] += value;
+                        }
+                    });
 
-                html += '</div>';
+                    // Add synergies
+                    var synergies = calculateSynergies(currentBonds);
+                    synergies.forEach(function(syn) {
+                        if (syn.stats) {
+                            Object.keys(syn.stats).forEach(function(k) {
+                                if (totalBuffs.hasOwnProperty(k)) totalBuffs[k] += syn.stats[k];
+                            });
+                        }
+                    });
+
+                    // Add immortalized bonuses (permanent, no cycle)
+                    var immortalized = getImmortalized();
+                    currentBonds.forEach(function(s) {
+                        if (immortalized[s.name]) {
+                            // Immortalized spirits get +1 to their buff stat permanently
+                            if (s.stat && totalBuffs.hasOwnProperty(s.stat)) {
+                                totalBuffs[s.stat] += 1;
+                            }
+                        }
+                    });
+
+                    html += '<div class="bond-totals">';
+                    html += '<div class="bond-totals-title">Spirit Bond Buffs</div>';
+
+                    ['hp', 'atk', 'spd', 'wil'].forEach(function(stat) {
+                        if (totalBuffs[stat] > 0) {
+                            html += '<div class="bond-stat-row">';
+                            html += '<span class="bond-stat-label">' + stat.toUpperCase() + '</span>';
+                            html += '<span class="bond-stat-value">+' + totalBuffs[stat] + '</span>';
+                            html += '</div>';
+                        }
+                    });
+
+                    // Show synergies
+                    synergies.forEach(function(syn) {
+                        html += '<div class="bond-stat-row synergy-row">';
+                        html += '<span class="synergy-label">\u2726 ' + escHtml(syn.name) + '</span>';
+                        html += '<span class="synergy-value">' + syn.bonus + '</span>';
+                        html += '</div>';
+                    });
+
+                    html += '</div>';
+                }
             }
 
             // Rebind button
