@@ -328,7 +328,7 @@ var CONVERGENCE_TEXT = "We are still here. All of us. Fox, Bear, Tiger \u2014 na
 
 function shouldGenerateHaunting() {
     try {
-        var confessions = _dreamStorage.readJSON('moreau_confessions', []);
+        var confessions = _dreamStorage.loadConfessions ? _dreamStorage.loadConfessions() : _dreamStorage.readJSON('moreau_confessions', []);
         if (confessions.length === 0) return null;
 
         // 40% chance of haunting dream after any confession exists
@@ -351,7 +351,7 @@ function shouldGenerateHaunting() {
 
 function checkConvergence() {
     try {
-        var confessions = _dreamStorage.readJSON('moreau_confessions', []);
+        var confessions = _dreamStorage.loadConfessions ? _dreamStorage.loadConfessions() : _dreamStorage.readJSON('moreau_confessions', []);
         var convergenceShown = localStorage.getItem('moreau_dream_convergence');
         if (confessions.length >= 20 && !convergenceShown) {
             localStorage.setItem('moreau_dream_convergence', 'true');
@@ -365,7 +365,7 @@ function checkConvergence() {
 
 function generateDream(type, pet, extra) {
     extra = extra || {};
-    var dreams = _dreamStorage.readJSON('moreau_dreams', { dreams: [], unread_count: 0 });
+    var dreams = _dreamStorage.loadDreamState ? _dreamStorage.loadDreamState() : _dreamStorage.readJSON('moreau_dreams', { dreams: [], unread_count: 0 });
     var animal = (pet.animal || '').toLowerCase();
 
     // ── Check for CONVERGENCE first (20+ confessions, one-time) ──
@@ -396,7 +396,8 @@ function generateDream(type, pet, extra) {
         dreams.dreams.unshift(convergenceDream);
         dreams.unread_count = dreams.dreams.filter(function(d) { return !d.read; }).length;
         if (dreams.dreams.length > 50) dreams.dreams = dreams.dreams.slice(0, 50);
-        localStorage.setItem('moreau_dreams', JSON.stringify(dreams));
+        if (_dreamStorage.saveDreamState) _dreamStorage.saveDreamState(dreams);
+        else localStorage.setItem('moreau_dreams', JSON.stringify(dreams));
         showDreamToast(convergenceDream);
         // Still generate the original dream below
     }
@@ -426,7 +427,8 @@ function generateDream(type, pet, extra) {
         dreams.dreams.unshift(hauntingDream);
         dreams.unread_count = dreams.dreams.filter(function(d) { return !d.read; }).length;
         if (dreams.dreams.length > 50) dreams.dreams = dreams.dreams.slice(0, 50);
-        localStorage.setItem('moreau_dreams', JSON.stringify(dreams));
+        if (_dreamStorage.saveDreamState) _dreamStorage.saveDreamState(dreams);
+        else localStorage.setItem('moreau_dreams', JSON.stringify(dreams));
         showDreamToast(hauntingDream);
         // Still generate the original dream below
     }
@@ -481,7 +483,8 @@ function generateDream(type, pet, extra) {
     dreams.dreams.unshift(dream);
     dreams.unread_count = dreams.dreams.filter(function(d) { return !d.read; }).length;
     if (dreams.dreams.length > 50) dreams.dreams = dreams.dreams.slice(0, 50);
-    localStorage.setItem('moreau_dreams', JSON.stringify(dreams));
+    if (_dreamStorage.saveDreamState) _dreamStorage.saveDreamState(dreams);
+    else localStorage.setItem('moreau_dreams', JSON.stringify(dreams));
 
     // Show toast
     showDreamToast(dream);

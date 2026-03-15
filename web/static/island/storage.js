@@ -4,6 +4,8 @@
     var PETS_KEY = 'moreau_pets';
     var ACTIVE_PET_KEY = 'moreau_active_pet';
     var LEGACY_PET_KEY = 'moreau_pet';
+    var DREAMS_KEY = 'moreau_dreams';
+    var CONFESSIONS_KEY = 'moreau_confessions';
 
     function readJSON(key, fallback) {
         try {
@@ -82,6 +84,32 @@
         localStorage.removeItem(LEGACY_PET_KEY);
     }
 
+    function loadDreamState() {
+        var data = readJSON(DREAMS_KEY, { dreams: [], unread_count: 0 });
+        if (!data || typeof data !== 'object') return { dreams: [], unread_count: 0 };
+        if (!Array.isArray(data.dreams)) data.dreams = [];
+        if (typeof data.unread_count !== 'number') data.unread_count = 0;
+        return data;
+    }
+
+    function saveDreamState(data) {
+        writeJSON(DREAMS_KEY, data || { dreams: [], unread_count: 0 });
+    }
+
+    function countUnreadDreams(data) {
+        var state = data || loadDreamState();
+        return (state.dreams || []).filter(function(dream) { return !dream.read; }).length;
+    }
+
+    function loadConfessions() {
+        var journal = readJSON(CONFESSIONS_KEY, []);
+        return Array.isArray(journal) ? journal : [];
+    }
+
+    function saveConfessions(journal) {
+        writeJSON(CONFESSIONS_KEY, Array.isArray(journal) ? journal : []);
+    }
+
     window.MoreauStorage = {
         readJSON: readJSON,
         writeJSON: writeJSON,
@@ -92,6 +120,11 @@
         getActivePetIndex: getActivePetIndex,
         setActivePetIndex: setActivePetIndex,
         getActivePet: getActivePet,
-        clearPets: clearPets
+        clearPets: clearPets,
+        loadDreamState: loadDreamState,
+        saveDreamState: saveDreamState,
+        countUnreadDreams: countUnreadDreams,
+        loadConfessions: loadConfessions,
+        saveConfessions: saveConfessions
     };
 })(window);

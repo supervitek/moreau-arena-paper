@@ -56,14 +56,13 @@
     // ── Storage helpers ──
 
     function getJournal() {
-        try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
-        catch(e) { return []; }
+        return MoreauStorage.loadConfessions();
     }
 
     function saveEntry(entry) {
         var journal = getJournal();
         journal.push(entry);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(journal));
+        MoreauStorage.saveConfessions(journal);
         return journal;
     }
 
@@ -95,9 +94,8 @@
     // ── Apply consequences ──
 
     function applyConsequences(path, killerPetName) {
-        var pets = [];
-        try { pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); }
-        catch(e) { return; }
+        var pets = MoreauStorage.loadPets();
+        if (!pets.length) return;
 
         var killerIdx = -1;
         for (var i = 0; i < pets.length; i++) {
@@ -141,7 +139,7 @@
         }
 
         pets[killerIdx] = pet;
-        localStorage.setItem('moreau_pets', JSON.stringify(pets));
+        MoreauStorage.savePets(pets);
     }
 
     // ── Resurrection ──
@@ -150,9 +148,8 @@
         if (localStorage.getItem(TOKEN_KEY) !== 'true') return false;
         if (localStorage.getItem(LOCKED_KEY) === 'true') return false;
 
-        var pets = [];
-        try { pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); }
-        catch(e) { return false; }
+        var pets = MoreauStorage.loadPets();
+        if (!pets.length) return false;
 
         if (petIndex < 0 || petIndex >= pets.length) return false;
         var pet = pets[petIndex];
@@ -165,7 +162,7 @@
         // Keep level, mutations, stats
         pets[petIndex] = pet;
 
-        localStorage.setItem('moreau_pets', JSON.stringify(pets));
+        MoreauStorage.savePets(pets);
         localStorage.removeItem(TOKEN_KEY);
         return true;
     }

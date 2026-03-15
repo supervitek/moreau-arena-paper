@@ -946,6 +946,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/static/island/supabase-client.js"></script>
+    <script src="/static/island/storage.js"></script>
     <script>
         // ══════════════════════════════════════
         //  Genesis Protocol — New Game+ Prestige
@@ -993,9 +994,7 @@
         let genesis = null;
 
         function loadGenesis() {
-            try {
-                genesis = JSON.parse(localStorage.getItem('moreau_genesis') || 'null');
-            } catch(e) {}
+            genesis = MoreauStorage.readJSON('moreau_genesis', null);
             if (!genesis) {
                 genesis = {
                     marks: 0,

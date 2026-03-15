@@ -495,6 +495,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/static/island/supabase-client.js"></script>
+    <script src="/static/island/storage.js"></script>
+    <script src="/static/island/island-time.js"></script>
     <script>
         // ══════════════════════════════════════
         //  Dream Journal — Echoes of the Island
@@ -692,15 +694,11 @@
         // ── Load dreams ──
 
         function getDreams() {
-            try {
-                return JSON.parse(localStorage.getItem('moreau_dreams') || '{"dreams":[],"unread_count":0}');
-            } catch (e) {
-                return { dreams: [], unread_count: 0 };
-            }
+            return MoreauStorage.loadDreamState();
         }
 
         function saveDreams(data) {
-            localStorage.setItem('moreau_dreams', JSON.stringify(data));
+            MoreauStorage.saveDreamState(data);
         }
 
         // ── Current filter ──
@@ -870,18 +868,6 @@
             btn.classList.add('active');
             render();
         });
-
-        // ── Island time tracking ──
-        setInterval(function() {
-            if (document.hidden) return;
-            var now = Date.now();
-            var lock = parseInt(localStorage.getItem('moreau_island_time_lock') || '0', 10);
-            if (now - lock < 25000) return;
-            localStorage.setItem('moreau_island_time_lock', String(now));
-            var t = parseInt(localStorage.getItem('moreau_island_time') || '0', 10);
-            t += 30;
-            localStorage.setItem('moreau_island_time', String(t));
-        }, 30000);
 
         // ── Render on load ──
         render();

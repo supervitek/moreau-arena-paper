@@ -835,6 +835,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/static/island/supabase-client.js"></script>
+<script src="/static/island/storage.js"></script>
 <script>
 (function() {
     'use strict';
@@ -1594,7 +1595,7 @@
 
     function generateMoredditPost(pet, drainedStats, item) {
         try {
-            var posts = JSON.parse(localStorage.getItem('moreau_moreddit_feed') || '[]');
+            var posts = MoreauStorage.readJSON('moreau_moreddit_feed', []);
             var costParts = [];
             for (var k in drainedStats) {
                 if (drainedStats[k] > 0) costParts.push(k.toUpperCase() + ' -' + drainedStats[k]);
@@ -1624,7 +1625,7 @@
                 timestamp: new Date().toISOString(),
                 flair: item.isBad ? 'SCAM' : 'CONTRABAND'
             });
-            localStorage.setItem('moreau_moreddit_feed', JSON.stringify(posts));
+            MoreauStorage.writeJSON('moreau_moreddit_feed', posts);
         } catch(e) {}
     }
 

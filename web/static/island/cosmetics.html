@@ -693,6 +693,8 @@
         </footer>
     </div>
 
+    <script src="/static/island/storage.js"></script>
+    <script src="/static/island/ui.js"></script>
     <script>
     (function() {
         'use strict';
@@ -751,11 +753,7 @@
         }
 
         function getCosmeticsData() {
-            try {
-                return JSON.parse(localStorage.getItem('moreau_cosmetics') || '{"owned":[],"equipped":{"aura":null,"title":null,"skin":null}}');
-            } catch(e) {
-                return { owned: [], equipped: { aura: null, title: null, skin: null } };
-            }
+            return MoreauStorage.readJSON('moreau_cosmetics', { owned: [], equipped: { aura: null, title: null, skin: null } });
         }
 
         function saveCosmeticsData(data) {
@@ -775,16 +773,12 @@
         function checkExclusive(item) {
             if (!item.exclusive) return true;
             if (item.exclusive === 'genesis') {
-                try {
-                    var g = JSON.parse(localStorage.getItem('moreau_genesis') || 'null');
-                    return g && (g.marks || 0) > 0;
-                } catch(e) { return false; }
+                var g = MoreauStorage.readJSON('moreau_genesis', null);
+                return g && (g.marks || 0) > 0;
             }
             if (item.exclusive === 'succession') {
-                try {
-                    var bl = JSON.parse(localStorage.getItem('moreau_bloodlines') || '{}');
-                    return Object.keys(bl).some(function(k) { return (bl[k].generation || 0) >= 3; });
-                } catch(e) { return false; }
+                var bl = MoreauStorage.readJSON('moreau_bloodlines', {});
+                return Object.keys(bl).some(function(k) { return (bl[k].generation || 0) >= 3; });
             }
             return true;
         }
@@ -971,11 +965,15 @@
         };
 
         function showToast(title, text) {
-            document.getElementById('toastTitle').textContent = title;
-            document.getElementById('toastText').textContent = text;
-            var toast = document.getElementById('shopToast');
-            toast.classList.add('visible');
-            setTimeout(function() { toast.classList.remove('visible'); }, 4000);
+            MoreauUI.showToast({
+                id: 'shopToast',
+                titleId: 'toastTitle',
+                textId: 'toastText',
+                title: title,
+                text: text,
+                visibleClass: 'visible',
+                duration: 4000
+            });
         }
 
         // ── Util ──

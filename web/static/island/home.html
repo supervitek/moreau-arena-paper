@@ -1684,6 +1684,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/static/island/supabase-client.js"></script>
     <script src="/static/island/storage.js"></script>
+    <script src="/static/island/island-time.js"></script>
     <script src="/static/island/dreams-engine.js"></script>
     <script src="/static/island/tide-engine.js"></script>
     <script src="/static/island/m-engine.js"></script>
@@ -1727,7 +1728,7 @@
                 // Online: load from DB
                 offlineMode = false;
                 allPets = await dbGetPets(user.id);
-                activePetIndex = allPets.length > 0 ? 0 : -1;
+                activePetIndex = allPets.length > 0 ? MoreauStorage.getActivePetIndex(allPets) : -1;
                 showDashboard(user);
                 checkLocalStorageMigration();
             } else if (sb && !user) {
@@ -2044,8 +2045,8 @@
             }
 
             // Dream indicator next to pet name
-            var _dreamData; try { _dreamData = JSON.parse(localStorage.getItem('moreau_dreams') || '{"dreams":[],"unread_count":0}'); } catch(e) { _dreamData = {dreams:[],unread_count:0}; }
-            var _unreadDreams = _dreamData.dreams ? _dreamData.dreams.filter(function(d) { return !d.read; }).length : 0;
+            var _dreamData = MoreauStorage.loadDreamState();
+            var _unreadDreams = MoreauStorage.countUnreadDreams(_dreamData);
             var _dreamBadge = _unreadDreams > 0
                 ? ' <a href="/island/dreams" style="color:#9b59b6;text-decoration:none;font-size:0.9em;" title="' + _unreadDreams + ' unread dream' + (_unreadDreams > 1 ? 's' : '') + '">&#10022;</a>'
                 : '';
@@ -2274,9 +2275,8 @@
                 '<span class="action-icon">&#127942;</span>LOGBOOK</a>';
 
             // DREAMS
-            var _dj;
-            try { _dj = JSON.parse(localStorage.getItem('moreau_dreams') || '{"dreams":[],"unread_count":0}'); } catch(e) { _dj = {"dreams":[],"unread_count":0}; }
-            var _djUnread = _dj.dreams ? _dj.dreams.filter(function(d) { return !d.read; }).length : 0;
+            var _dj = MoreauStorage.loadDreamState();
+            var _djUnread = MoreauStorage.countUnreadDreams(_dj);
             html += '<a href="/island/dreams" class="action-btn action-dreams">' +
                 (_djUnread > 0 ? '<span class="ready-badge" style="background:#9b59b6;">' + _djUnread + '</span>' : '') +
                 '<span class="action-icon">&#10022;</span>DREAMS</a>';
@@ -3016,17 +3016,9 @@
             if (h >= 0 && h < 5) _checkAch('night_owl', '\u{1F319}', 'Night Owl');
         })();
 
-        // Islander time tracking (visibility-gated to prevent multi-tab abuse)
         setInterval(function() {
-            if (document.hidden) return;
-            var now = Date.now();
-            var lock = parseInt(localStorage.getItem('moreau_island_time_lock') || '0', 10);
-            if (now - lock < 25000) return; // another tab updated recently
-            localStorage.setItem('moreau_island_time_lock', String(now));
-            var t = parseInt(localStorage.getItem('moreau_island_time') || '0', 10);
-            t += 30;
-            localStorage.setItem('moreau_island_time', String(t));
-            if (t >= 3600) _checkAch('islander', '\u{1F3DD}\uFE0F', 'Islander');
+            var total = parseInt(localStorage.getItem('moreau_island_time') || '0', 10);
+            if (total >= 3600) _checkAch('islander', '\u{1F3DD}\uFE0F', 'Islander');
         }, 30000);
     </script>
 </body>

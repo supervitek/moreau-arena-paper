@@ -589,6 +589,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/static/island/supabase-client.js"></script>
     <script src="/static/island/storage.js"></script>
+    <script src="/static/island/ui.js"></script>
     <script src="/static/island/tide-engine.js"></script>
     <script>
     (function() {
@@ -1196,11 +1197,14 @@
         }
 
         function showToast(msg, type) {
-            var toast = document.getElementById('tideToast');
-            toast.className = 'tide-toast ' + (type || '');
-            toast.innerHTML = msg;
-            toast.classList.add('show');
-            setTimeout(function() { toast.classList.remove('show'); }, 3500);
+            MoreauUI.showToast({
+                id: 'tideToast',
+                baseClass: 'tide-toast',
+                type: type || '',
+                html: msg,
+                visibleClass: 'show',
+                duration: 3500
+            });
         }
         window.showToast = showToast;
 
