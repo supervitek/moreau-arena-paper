@@ -1103,6 +1103,114 @@
 
         /* ── Hidden helper ── */
         .hidden { display: none !important; }
+
+        /* ── Standing Orders notification toasts ── */
+        .so-toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 500;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-width: 360px;
+        }
+
+        .so-toast {
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            font-size: 0.82rem;
+            font-weight: 600;
+            animation: soToastIn 0.4s ease, soToastOut 0.5s ease 3s forwards;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .so-toast.success {
+            background: rgba(78, 204, 163, 0.15);
+            border: 1px solid rgba(78, 204, 163, 0.4);
+            color: var(--green);
+        }
+
+        .so-toast.misfire {
+            background: rgba(212, 160, 23, 0.15);
+            border: 1px solid rgba(212, 160, 23, 0.4);
+            color: var(--gold);
+        }
+
+        @keyframes soToastIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes soToastOut {
+            from { opacity: 1; }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+
+        /* ── Standing Orders pre-expedition info box ── */
+        .standing-orders-info {
+            background: rgba(0, 255, 247, 0.06);
+            border: 1px solid rgba(0, 255, 247, 0.2);
+            border-radius: var(--radius);
+            padding: 1rem 1.25rem;
+            margin: 1rem auto;
+            max-width: 500px;
+            text-align: left;
+        }
+
+        .standing-orders-info h3 {
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.4rem;
+        }
+
+        .standing-orders-info p {
+            color: var(--text-dim);
+            font-size: 0.82rem;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .standing-orders-info .so-accuracy {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* ── Autopilot button ── */
+        .autopilot-btn {
+            background: linear-gradient(135deg, #0a1a2a, #102040);
+            border: 2px solid var(--purple);
+            color: var(--purple);
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 0.65rem 2rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            margin-top: 0.75rem;
+            transition: all 0.2s;
+            animation: autopilotPulse 2.5s ease-in-out infinite;
+        }
+
+        .autopilot-btn:hover {
+            background: linear-gradient(135deg, #121a30, #182850);
+            transform: scale(1.03);
+            box-shadow: 0 0 25px rgba(155, 89, 182, 0.3);
+        }
+
+        @keyframes autopilotPulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(155,89,182,0.15); }
+            50% { box-shadow: 0 0 20px rgba(155,89,182,0.35); }
+        }
+
+        .autopilot-note {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.35rem;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -1171,8 +1279,13 @@
         <div id="mainContent" style="display:none;"></div>
     </div>
 
+    <!-- Standing Orders toast container -->
+    <div class="so-toast-container" id="soToastContainer"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/static/island/supabase-client.js"></script>
+    <script src="/static/island/caretaker-engine.js"></script>
+    <script src="/static/island/standing-orders.js"></script>
     <script>
     function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
     // =====================================================
@@ -1416,6 +1529,20 @@
         html += '<li>Chamber 7: The Leviathan awaits</li>';
         html += '</ul>';
         html += '</div>';
+
+        // Standing Orders pre-expedition warning
+        if (hasStandingOrders()) {
+            var soTrust = getCaretakerTrust();
+            var soAccuracy = soTrust * 10;
+            html += '<div class="standing-orders-info">';
+            html += '<h3>STANDING ORDERS ACTIVE</h3>';
+            html += '<p>Standing Orders will attempt to assist between chambers. ';
+            html += 'Accuracy depends on Trust level (<span class="so-accuracy">' + soTrust + '/10 = ' + soAccuracy + '%</span>)</p>';
+            if (soTrust === 10) {
+                html += '<p style="margin-top:0.4rem;color:var(--purple);">Autopilot available at max Trust.</p>';
+            }
+            html += '</div>';
+        }
 
         if (living.length === 0) {
             html += '<div style="color:var(--text-muted);margin-top:2rem;">No living pets. Create one first.</div>';
@@ -1733,6 +1860,14 @@
         }
         html += '</div>';
 
+        // Autopilot button at Trust 10
+        if (canAutopilot()) {
+            html += '<div style="margin-top:1rem;">';
+            html += '<button class="autopilot-btn" onclick="startAutopilotChamber()">\u{1F916} AUTOPILOT THIS CHAMBER</button>';
+            html += '<div class="autopilot-note">The Caretaker takes the reins. (-10% XP)</div>';
+            html += '</div>';
+        }
+
         html += '<button class="fight-chamber-btn" onclick="startChamberFight()">ENGAGE</button>';
         html += '</div>';
         return html;
@@ -1889,6 +2024,7 @@
             result: won ? 'win' : 'loss',
             ticks: ticks,
             hpLost: 0,
+            autopilot: !!run.autopilotChamber,
         };
 
         if (won) {
@@ -1917,6 +2053,21 @@
 
             chamberRecord.hpLost = hpCost;
             run.expeditionHP = Math.max(0, run.expeditionHP - hpCost);
+
+            // Award XP for winning the chamber
+            var chamberXP = 5 + (run.currentChamber * 3); // 8, 11, 14, 17, 20, 23, 26
+            if (chamberRecord.autopilot) {
+                chamberXP = Math.floor(chamberXP * 0.9); // 10% autopilot tax
+            }
+            chamberRecord.xpAwarded = chamberXP;
+
+            // Apply XP to pet
+            var xpPet = findPetByName(run.petName);
+            if (xpPet) {
+                xpPet.xp = (xpPet.xp || 0) + chamberXP;
+                savePetData(xpPet);
+            }
+
             run.chambers.push(chamberRecord);
 
             if (run.currentChamber >= TOTAL_CHAMBERS) {
@@ -1962,7 +2113,9 @@
         var lastChamber = run.chambers[run.chambers.length - 1];
         var html = '<div class="choice-screen">';
         html += '<div class="choice-result">VICTORY</div>';
-        html += '<div class="choice-sub">Chamber ' + run.currentChamber + ' conquered. Lost ' + (lastChamber ? lastChamber.hpLost : 0) + ' EHP (' + (lastChamber ? lastChamber.ticks : '?') + ' ticks)</div>';
+        var xpText = lastChamber && lastChamber.xpAwarded ? ' +' + lastChamber.xpAwarded + ' XP' : '';
+        var autopilotText = lastChamber && lastChamber.autopilot ? ' (Autopilot: -10% XP)' : '';
+        html += '<div class="choice-sub">Chamber ' + run.currentChamber + ' conquered. Lost ' + (lastChamber ? lastChamber.hpLost : 0) + ' EHP (' + (lastChamber ? lastChamber.ticks : '?') + ' ticks)' + xpText + autopilotText + '</div>';
 
         html += '<div class="choice-title">CHOOSE YOUR REWARD</div>';
         html += '<div class="choice-cards">';
@@ -2009,7 +2162,20 @@
         run.currentChamber++;
         run.pendingChoice = false;
         run.pendingFight = false;
+        run.autopilotChamber = false;
         saveRun(run);
+
+        // Execute Standing Orders between chambers
+        if (hasStandingOrders()) {
+            var pet = findPetByName(run.petName);
+            if (pet) {
+                var soResults = executeStandingOrdersBetweenChambers(pet);
+                if (soResults.length > 0) {
+                    showStandingOrderToasts(soResults);
+                }
+            }
+        }
+
         prepareChamber();
     }
 
@@ -2228,6 +2394,209 @@
 
         html += '</div>';
         return html;
+    }
+
+    // ── Standing Orders between chambers ──
+
+    function getCaretakerTrust() {
+        try { return parseInt(localStorage.getItem('moreau_caretaker_trust')) || 5; }
+        catch(e) { return 5; }
+    }
+
+    function getActiveOrders() {
+        if (typeof StandingOrders === 'undefined') return [];
+        var orders = StandingOrders.getOrders ? StandingOrders.getOrders() : [];
+        return orders.filter(function(o) { return o.enabled; });
+    }
+
+    function hasStandingOrders() {
+        return getActiveOrders().length > 0;
+    }
+
+    function getPetIndexByName(petName) {
+        for (var i = 0; i < allPets.length; i++) {
+            if (allPets[i] && allPets[i].name === petName) return i;
+        }
+        return -1;
+    }
+
+    function checkOrderCondition(order, pet) {
+        if (!order || !order.condition) return false;
+        var stat = order.condition.stat;
+        var op = order.condition.operator;
+        var val = order.condition.value;
+
+        // Read the actual value from the pet's needs or fields
+        var actual;
+        if (stat === 'hunger' || stat === 'health' || stat === 'morale' || stat === 'energy') {
+            var needs = pet.needs || {};
+            actual = (needs[stat] != null) ? needs[stat] : 100;
+        } else if (stat === 'level') {
+            actual = pet.level || 1;
+        } else if (stat === 'instability') {
+            actual = pet.instability || 0;
+        } else if (stat === 'corruption') {
+            actual = pet.corruption || 0;
+        } else {
+            return false;
+        }
+
+        switch (op) {
+            case '<':  return actual < val;
+            case '>':  return actual > val;
+            case '<=': return actual <= val;
+            case '>=': return actual >= val;
+            case '==': return actual == val;
+            default:   return false;
+        }
+    }
+
+    var ACTION_NAMES = { feed: 'Fed', heal: 'Healed', rest: 'Rested', train: 'Trained', motivate: 'Motivated' };
+    var CONDITION_LABELS = { hunger: 'hunger', health: 'health', morale: 'morale', energy: 'energy', level: 'level', instability: 'instability', corruption: 'corruption' };
+
+    function executeOrderAction(order, petIndex) {
+        if (typeof CaretakerEngine === 'undefined') return null;
+        var action = order.action;
+        var fn = CaretakerEngine[action];
+        if (typeof fn !== 'function') return null;
+        return fn.call(CaretakerEngine, petIndex);
+    }
+
+    function executeStandingOrdersBetweenChambers(pet) {
+        if (typeof StandingOrders === 'undefined') return [];
+        if (typeof CaretakerEngine === 'undefined') return [];
+
+        var trust = getCaretakerTrust();
+        var orders = getActiveOrders();
+        if (orders.length === 0) return [];
+
+        var petIndex = getPetIndexByName(pet.name);
+        if (petIndex < 0) return [];
+
+        // Re-read pet from storage so needs are fresh
+        var freshPets;
+        try {
+            freshPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            if (freshPets[petIndex]) {
+                pet = freshPets[petIndex];
+                if (CaretakerEngine.initNeeds) pet = CaretakerEngine.initNeeds(pet);
+                if (CaretakerEngine.decay) pet = CaretakerEngine.decay(pet);
+            }
+        } catch(e) {}
+
+        var accuracy = trust * 10; // Trust 5 = 50%, Trust 10 = 100%
+        var results = [];
+
+        for (var i = 0; i < orders.length; i++) {
+            var order = orders[i];
+            // Only allow the 6 basic caretaker actions
+            if (!ACTION_NAMES[order.action]) continue;
+
+            var shouldExecute = checkOrderCondition(order, pet);
+            var roll = Math.random() * 100;
+
+            if (shouldExecute && roll <= accuracy) {
+                // Correct execution — condition met and roll succeeds
+                var res = executeOrderAction(order, petIndex);
+                var condLabel = CONDITION_LABELS[order.condition.stat] || order.condition.stat;
+                results.push({
+                    order: order,
+                    success: true,
+                    msg: 'Orders executed: ' + (ACTION_NAMES[order.action] || order.action) + ' (' + condLabel + ' was ' + order.condition.operator + ' ' + order.condition.value + ')'
+                });
+            } else if (shouldExecute && roll > accuracy) {
+                // Condition met but inaccuracy — order was supposed to execute but didn't
+                // This represents the Caretaker failing to notice the condition
+                results.push({
+                    order: order,
+                    success: false,
+                    msg: 'The Caretaker missed your order: ' + (ACTION_NAMES[order.action] || order.action) + ' should have triggered but wasn\'t noticed (accuracy: ' + accuracy + '%)'
+                });
+            } else if (!shouldExecute) {
+                // Misfire — condition NOT met, but at low trust, Caretaker might act anyway
+                // Chance of misfire = (100 - accuracy)%, so at Trust 10 (100%) = 0% misfire
+                var misfireChance = 100 - accuracy;
+                if (misfireChance > 0 && Math.random() * 100 <= misfireChance) {
+                    executeOrderAction(order, petIndex);
+                    results.push({
+                        order: order,
+                        success: false,
+                        msg: 'The Caretaker misread your orders: ' + (ACTION_NAMES[order.action] || order.action) + ' triggered at wrong threshold'
+                    });
+                }
+            }
+
+            // Re-read pet for next order evaluation
+            try {
+                freshPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                if (freshPets[petIndex]) {
+                    pet = freshPets[petIndex];
+                    if (CaretakerEngine.initNeeds) pet = CaretakerEngine.initNeeds(pet);
+                    if (CaretakerEngine.decay) pet = CaretakerEngine.decay(pet);
+                }
+            } catch(e) {}
+        }
+
+        // Drift += 2 per automated action
+        if (results.length > 0) {
+            try {
+                var driftData = JSON.parse(localStorage.getItem('moreau_caretaker_drift') || '{}');
+                driftData.score = (driftData.score || 0) + (results.length * 2);
+                if (driftData.score > 70) driftData.score = 70;
+                localStorage.setItem('moreau_caretaker_drift', JSON.stringify(driftData));
+            } catch(e) {}
+        }
+
+        return results;
+    }
+
+    // ── Toast notifications for Standing Orders results ──
+
+    function showStandingOrderToasts(results) {
+        var container = document.getElementById('soToastContainer');
+        if (!container || results.length === 0) return;
+
+        // Clear old toasts
+        container.innerHTML = '';
+
+        for (var i = 0; i < results.length; i++) {
+            var r = results[i];
+            var toast = document.createElement('div');
+            toast.className = 'so-toast ' + (r.success ? 'success' : 'misfire');
+            toast.textContent = r.msg;
+            container.appendChild(toast);
+        }
+
+        // Remove toasts after animation
+        setTimeout(function() {
+            if (container) container.innerHTML = '';
+        }, 4000);
+    }
+
+    // ── Autopilot logic ──
+
+    function canAutopilot() {
+        return getCaretakerTrust() === 10;
+    }
+
+    function startAutopilotChamber() {
+        if (!canAutopilot()) return;
+
+        // Execute standing orders first
+        var pet = findPetByName(run.petName);
+        if (pet) {
+            var soResults = executeStandingOrdersBetweenChambers(pet);
+            if (soResults.length > 0) {
+                showStandingOrderToasts(soResults);
+            }
+        }
+
+        // Mark this chamber as autopiloted for XP reduction
+        run.autopilotChamber = true;
+        saveRun(run);
+
+        // Auto-start the fight
+        startChamberFight();
     }
 
     // ── Initialize ──
