@@ -1,0 +1,41 @@
+{
+  "model": "qwen3-next:80b-cloud",
+  "provider": "ollama",
+  "votes": [
+    {
+      "point": "Proposition 1",
+      "vote": "AGREE",
+      "reason": "Preserves player agency through override costs while embedding meaningful lineage consequences that deepen strategic weight without removing choice."
+    },
+    {
+      "point": "Proposition 2",
+      "vote": "AGREE",
+      "reason": "Limits Standing Orders to existing actions with Trust/Drift-based reliability, avoiding unnecessary mechanical expansion as per consensus."
+    },
+    {
+      "point": "Proposition 3",
+      "vote": "AGREE",
+      "reason": "Uses Sleep Dialect as a narrative cipher for existing notes, aligning with atmospheric design over mechanical rewards."
+    },
+    {
+      "point": "Proposition 4",
+      "vote": "AGREE",
+      "reason": "Weight of Keeping persisting through Genesis is a poetically resonant, trivial-to-implement symbol of enduring care."
+    },
+    {
+      "point": "Proposition 5",
+      "vote": "AGREE",
+      "reason": "Confession Echoes in Dreams repurpose existing systems to hauntingly reflect player choices with zero new content."
+    },
+    {
+      "point": "Proposition 6",
+      "vote": "AGREE",
+      "reason": "Pact × Genesis Protocol transforms New Game+ into a haunted reincarnation of past decisions, strengthening prestige weight."
+    }
+  ],
+  "elapsed_s": 31.19275188446045,
+  "input_tokens": 1950,
+  "output_tokens": 5321,
+  "cost_usd": 0.0,
+  "error": null
+}

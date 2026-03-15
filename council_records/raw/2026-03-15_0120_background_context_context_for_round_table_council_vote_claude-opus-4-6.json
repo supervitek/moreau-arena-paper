@@ -1,0 +1,21 @@
+{
+  "model": "claude-opus-4-6",
+  "provider": "anthropic",
+  "votes": [
+    {
+      "point": "Proposition 1",
+      "vote": "AGREE",
+      "reason": "The drift-biased default with override cost elegantly preserves player agency while making delegation's corruption tangible through permanent lineage consequences, and the \"Abomination\" threshold at 3+ debts creates a meaningful inflection point without removing choice."
+    },
+    {
+      "point": "Proposition 2",
+      "vote": "AGREE",
+      "reason": "Standing Orders functioning imperfectly during Deep Tide runs, mediated by Trust level, is the single richest design tension identified by the entire council and should be implemented exactly within the existing 6-action vocabulary."
+    }
+  ],
+  "elapsed_s": 14.920084953308105,
+  "input_tokens": 2192,
+  "output_tokens": 175,
+  "cost_usd": 0.046005,
+  "error": null
+}

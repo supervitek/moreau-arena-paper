@@ -1,0 +1,21 @@
+{
+  "model": "kimi-k2.5:cloud",
+  "provider": "ollama",
+  "votes": [
+    {
+      "point": "Proposition 1",
+      "vote": "AGREE",
+      "reason": "This honors the sacred 6-hour agency window while implementing the genealogical politics that transform Mercy from a momentary horror into permanent bloodline architecture, exactly as the lineage consequences require."
+    },
+    {
+      "point": "Proposition 2",
+      "vote": "AGREE",
+      "reason": "Restricting Standing Orders to their existing six-action vocabulary during Deep Tide prevents the scope creep I warned against while allowing Trust decay and Drift spikes to create reliability variance through the Caretaker's imperfect automation."
+    }
+  ],
+  "elapsed_s": 18.017009973526,
+  "input_tokens": 1929,
+  "output_tokens": 2585,
+  "cost_usd": 0.0,
+  "error": null
+}

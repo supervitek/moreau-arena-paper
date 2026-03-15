@@ -1,0 +1,21 @@
+{
+  "model": "gemini-3.1-pro-preview",
+  "provider": "google",
+  "votes": [
+    {
+      "point": "Proposition 1",
+      "vote": "AGREE",
+      "reason": "It elegantly marries mechanical consequence with narrative weight while strictly adhering to the agreed-upon guardrail of preserving player agency during the Mercy Clause."
+    },
+    {
+      "point": "Proposition 2",
+      "vote": "AGREE",
+      "reason": "Allowing imperfect, trust-mediated automation during permadeath runs introduces exquisite risk-reward tension without requiring new action vocabularies."
+    }
+  ],
+  "elapsed_s": 9.771085977554321,
+  "input_tokens": 1931,
+  "output_tokens": 118,
+  "cost_usd": 0.00300375,
+  "error": null
+}

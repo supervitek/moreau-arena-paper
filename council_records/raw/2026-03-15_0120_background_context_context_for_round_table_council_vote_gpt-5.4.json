@@ -1,0 +1,21 @@
+{
+  "model": "gpt-5.4",
+  "provider": "openai",
+  "votes": [
+    {
+      "point": "Proposition 1",
+      "vote": "AGREE",
+      "reason": "It preserves the essential player choice while making Drift materially poisonous across lineage and remembrance, though I’d keep the “random pre-combat debuffs” portion tightly bounded to avoid violating Menagerie’s mostly passive architecture."
+    },
+    {
+      "point": "Proposition 2",
+      "vote": "ABSTAIN",
+      "reason": "The synthesis text for Proposition 2 is truncated here, so I can endorse the Standing Orders + Deep Tide principle in general but cannot vote confidently on the specific implementation."
+    }
+  ],
+  "elapsed_s": 3.6069891452789307,
+  "input_tokens": 1891,
+  "output_tokens": 126,
+  "cost_usd": 0.0059875,
+  "error": null
+}
