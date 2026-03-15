@@ -1761,7 +1761,8 @@
             localStorage.setItem('moreau_essence', '100');
         }
         var totalEarned = parseInt(localStorage.getItem('moreau_oracle_total_earned') || '0', 10);
-        var history = JSON.parse(localStorage.getItem('moreau_oracle_history') || '[]');
+        var history = [];
+        try { history = JSON.parse(localStorage.getItem('moreau_oracle_history') || '[]'); } catch(e) {}
         var currentMatchup = null;
         var currentProphecy = null;
         var activeBets = {};
@@ -1801,7 +1802,8 @@
         ];
 
         // ── Caretaker Prophecy State ──
-        var keeperProphecies = JSON.parse(localStorage.getItem('moreau_keeper_prophecies') || '[]');
+        var keeperProphecies = [];
+        try { keeperProphecies = JSON.parse(localStorage.getItem('moreau_keeper_prophecies') || '[]'); } catch(e) {}
         var activeKeeperProphecy = null;
 
         // Load active (unresolved) keeper prophecy if one exists
@@ -1856,8 +1858,9 @@
                     try { return !!JSON.parse(localStorage.getItem('moreau_mercy_pending')); } catch(e) { return false; }
                 case 'efficiency_decay':
                     try {
-                        var eff = parseFloat(localStorage.getItem('moreau_caretaker_efficiency')) || 100;
-                        return eff < 80;
+                        var eff = parseFloat(localStorage.getItem('moreau_caretaker_efficiency'));
+                        if (isNaN(eff)) return false;
+                        return eff < 0.8;
                     } catch(e) { return false; }
                 case 'new_dialect':
                     try {
@@ -1868,8 +1871,9 @@
                 case 'letter_arrives':
                     try {
                         var lettersState = JSON.parse(localStorage.getItem('moreau_caretaker_letters_state') || '{}');
-                        var letterCount = lettersState.visit_count || 0;
-                        return letterCount > (prophecy.initial_letter_count || 0);
+                        var letterVisits = lettersState.visit_count || 0;
+                        var currentLetters = Math.floor(letterVisits / 3); // VISITS_PER_LETTER = 3
+                        return currentLetters > (prophecy.initial_letter_count || 0);
                     } catch(e) { return false; }
                 case 'favoritism':
                     try {
@@ -1884,8 +1888,11 @@
                         return (ledger.pagesUnlocked || 0) > (prophecy.initial_pages || 0);
                     } catch(e) { return false; }
                 case 'order_misfire':
-                    // Resolve based on trust level: low trust (< 7) means misfires are likely
-                    return trust < 7;
+                    // Resolve: must have standing orders AND low trust (misfires likely)
+                    try {
+                        var orders = JSON.parse(localStorage.getItem('moreau_standing_orders') || '[]');
+                        return orders.length > 0 && trust < 7;
+                    } catch(e) { return false; }
                 case 'aleph_stirs':
                     try {
                         var aleph = JSON.parse(localStorage.getItem('moreau_aleph_events') || '[]');
@@ -1961,7 +1968,7 @@
 
             try {
                 var lettersState = JSON.parse(localStorage.getItem('moreau_caretaker_letters_state') || '{}');
-                newProphecy.initial_letter_count = lettersState.visit_count || 0;
+                newProphecy.initial_letter_count = Math.floor((lettersState.visit_count || 0) / 3);
             } catch(e) { newProphecy.initial_letter_count = 0; }
 
             try {

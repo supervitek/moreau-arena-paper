@@ -617,6 +617,11 @@
 
         // Islander time tracking
         setInterval(function() {
+            if (document.hidden) return;
+            var now = Date.now();
+            var lock = parseInt(localStorage.getItem('moreau_island_time_lock') || '0', 10);
+            if (now - lock < 25000) return;
+            localStorage.setItem('moreau_island_time_lock', String(now));
             var t = parseInt(localStorage.getItem('moreau_island_time') || '0', 10);
             t += 30;
             localStorage.setItem('moreau_island_time', String(t));
