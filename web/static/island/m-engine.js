@@ -8,6 +8,17 @@
 (function(window) {
     'use strict';
 
+    var _storage = window.MoreauStorage || {
+        readJSON: function(key, fallback) {
+            try {
+                var raw = localStorage.getItem(key);
+                return raw === null ? fallback : JSON.parse(raw);
+            } catch (e) {
+                return fallback;
+            }
+        }
+    };
+
     var EMOJI_MAP = {
         bear:'\u{1F43B}', buffalo:'\u{1F9AC}', boar:'\u{1F417}', tiger:'\u{1F405}',
         wolf:'\u{1F43A}', monkey:'\u{1F412}', porcupine:'\u{1F994}', scorpion:'\u{1F982}',
@@ -146,14 +157,14 @@
 
     function _getDiscoveredWords() {
         try {
-            var state = JSON.parse(localStorage.getItem('moreau_sleep_dialect') || '{}');
+            var state = _storage.readJSON('moreau_sleep_dialect', {});
             return state.words_discovered || [];
         } catch(e) { return []; }
     }
 
     function _getCorruptionLevel() {
         try {
-            var pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            var pets = _storage.readJSON('moreau_pets', []);
             var maxCorruption = 0;
             for (var i = 0; i < pets.length; i++) {
                 var c = pets[i].corruption || 0;
@@ -284,7 +295,7 @@
 
     function _getPlayerPets() {
         try {
-            return JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            return _storage.readJSON('moreau_pets', []);
         } catch(e) { return []; }
     }
 
@@ -298,7 +309,7 @@
 
     function _getM() {
         try {
-            return JSON.parse(localStorage.getItem('moreau_other_player') || 'null');
+            return _storage.readJSON('moreau_other_player', null);
         } catch(e) { return null; }
     }
 
@@ -459,7 +470,7 @@
     function _moveArtifact(m) {
         // Check player artifacts
         try {
-            var artifacts = JSON.parse(localStorage.getItem('moreau_artifacts') || '[]');
+            var artifacts = _storage.readJSON('moreau_artifacts', []);
             // Find an unequipped artifact
             var unequipped = [];
             for (var i = 0; i < artifacts.length; i++) {
@@ -479,7 +490,7 @@
             };
 
             // Save borrowed tracker
-            var borrowed = JSON.parse(localStorage.getItem('moreau_m_borrowed') || '[]');
+            var borrowed = _storage.readJSON('moreau_m_borrowed', []);
             borrowed.push({
                 artifact: artifact,
                 takenSession: m.sessionCount,
@@ -541,10 +552,10 @@
 
     function _returnBorrowedArtifacts(m) {
         try {
-            var borrowed = JSON.parse(localStorage.getItem('moreau_m_borrowed') || '[]');
+            var borrowed = _storage.readJSON('moreau_m_borrowed', []);
             if (borrowed.length === 0) return;
 
-            var artifacts = JSON.parse(localStorage.getItem('moreau_artifacts') || '[]');
+            var artifacts = _storage.readJSON('moreau_artifacts', []);
             var remaining = [];
             for (var i = 0; i < borrowed.length; i++) {
                 if (m.sessionCount >= borrowed[i].returnSession) {
@@ -702,14 +713,14 @@
 
     function claimMLastFrequency() {
         try {
-            var freq = JSON.parse(localStorage.getItem('moreau_m_last_frequency') || '{}');
+            var freq = _storage.readJSON('moreau_m_last_frequency', {});
             if (!freq.available || freq.claimed) return false;
 
             freq.claimed = true;
             localStorage.setItem('moreau_m_last_frequency', JSON.stringify(freq));
 
             // Add artifact to player inventory
-            var artifacts = JSON.parse(localStorage.getItem('moreau_artifacts') || '[]');
+            var artifacts = _storage.readJSON('moreau_artifacts', []);
             artifacts.push({
                 id: 'm_last_frequency',
                 name: "M's Last Frequency",
@@ -732,9 +743,9 @@
         if (!m) return null;
         var unread = getUnreadMNotes();
         var borrowed = [];
-        try { borrowed = JSON.parse(localStorage.getItem('moreau_m_borrowed') || '[]'); } catch(e) {}
+        try { borrowed = _storage.readJSON('moreau_m_borrowed', []); } catch(e) {}
         var freq = null;
-        try { freq = JSON.parse(localStorage.getItem('moreau_m_last_frequency') || 'null'); } catch(e) {}
+        try { freq = _storage.readJSON('moreau_m_last_frequency', null); } catch(e) {}
 
         return {
             exists: true,

@@ -7,6 +7,17 @@
 var StandingOrders = (function() {
     'use strict';
 
+    var _storage = window.MoreauStorage || {
+        readJSON: function(key, fallback) {
+            try {
+                var raw = localStorage.getItem(key);
+                return raw === null ? fallback : JSON.parse(raw);
+            } catch (e) {
+                return fallback;
+            }
+        }
+    };
+
     // ── Constants ────────────────────────────────────────────────
 
     var STORAGE_KEY = 'moreau_standing_orders';
@@ -219,7 +230,7 @@ var StandingOrders = (function() {
 
     function getActivePet() {
         try {
-            var pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            var pets = _storage.readJSON('moreau_pets', []);
             var idx  = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
             return { pet: pets[idx] || null, index: idx, pets: pets };
         } catch (e) {
@@ -431,7 +442,7 @@ var StandingOrders = (function() {
 
             // Re-read pet state (previous action may have changed it)
             try {
-                pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                pets = _storage.readJSON('moreau_pets', []);
                 pet  = pets[petIndex];
                 if (!pet) break;
                 if (CaretakerEngine.initNeeds) pet = CaretakerEngine.initNeeds(pet);

@@ -12,6 +12,17 @@
 (function(window) {
     'use strict';
 
+    var _storage = window.MoreauStorage || {
+        readJSON: function(key, fallback) {
+            try {
+                var raw = localStorage.getItem(key);
+                return raw === null ? fallback : JSON.parse(raw);
+            } catch (e) {
+                return fallback;
+            }
+        }
+    };
+
     var CYCLE_MS = 6 * 60 * 60 * 1000;   // 6 hours
     var PHASE_MS = 90 * 60 * 1000;        // 90 minutes
     var STORM_JUMP_MS = 7 * 60 * 60 * 1000; // 7 hours
@@ -75,7 +86,7 @@
 
     function _triggerStorm() {
         try {
-            var allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            var allPets = _storage.readJSON('moreau_pets', []);
             if (!allPets.length) return;
 
             // Find the most mutated pet (most lab_mutations + mutations)

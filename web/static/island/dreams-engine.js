@@ -3,6 +3,17 @@
 //  Shared across Island pages for dream generation & toasts
 // ══════════════════════════════════════════════════════════════
 
+var _dreamStorage = window.MoreauStorage || {
+    readJSON: function(key, fallback) {
+        try {
+            var raw = localStorage.getItem(key);
+            return raw === null ? fallback : JSON.parse(raw);
+        } catch (e) {
+            return fallback;
+        }
+    }
+};
+
 function _esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
 var DREAM_LIBRARY = {
@@ -317,7 +328,7 @@ var CONVERGENCE_TEXT = "We are still here. All of us. Fox, Bear, Tiger \u2014 na
 
 function shouldGenerateHaunting() {
     try {
-        var confessions = JSON.parse(localStorage.getItem('moreau_confessions') || '[]');
+        var confessions = _dreamStorage.readJSON('moreau_confessions', []);
         if (confessions.length === 0) return null;
 
         // 40% chance of haunting dream after any confession exists
@@ -325,7 +336,7 @@ function shouldGenerateHaunting() {
 
         // Pick a random dead pet from confessions
         var deadPets = [];
-        var allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+        var allPets = _dreamStorage.readJSON('moreau_pets', []);
         for (var i = 0; i < allPets.length; i++) {
             if (allPets[i].deceased || allPets[i].is_alive === false) deadPets.push(allPets[i]);
         }
@@ -340,7 +351,7 @@ function shouldGenerateHaunting() {
 
 function checkConvergence() {
     try {
-        var confessions = JSON.parse(localStorage.getItem('moreau_confessions') || '[]');
+        var confessions = _dreamStorage.readJSON('moreau_confessions', []);
         var convergenceShown = localStorage.getItem('moreau_dream_convergence');
         if (confessions.length >= 20 && !convergenceShown) {
             localStorage.setItem('moreau_dream_convergence', 'true');
@@ -354,15 +365,14 @@ function checkConvergence() {
 
 function generateDream(type, pet, extra) {
     extra = extra || {};
-    var dreams;
-    try { dreams = JSON.parse(localStorage.getItem('moreau_dreams') || '{"dreams":[],"unread_count":0}'); } catch(e) { dreams = {"dreams":[],"unread_count":0}; }
+    var dreams = _dreamStorage.readJSON('moreau_dreams', { dreams: [], unread_count: 0 });
     var animal = (pet.animal || '').toLowerCase();
 
     // ── Check for CONVERGENCE first (20+ confessions, one-time) ──
     if (checkConvergence()) {
         var deadPetNames = [];
         try {
-            var allPetsConv = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            var allPetsConv = _dreamStorage.readJSON('moreau_pets', []);
             for (var ci = 0; ci < allPetsConv.length; ci++) {
                 if (allPetsConv[ci].deceased) deadPetNames.push(allPetsConv[ci].name);
             }
