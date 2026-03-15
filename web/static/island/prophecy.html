@@ -849,12 +849,234 @@
 
         .back-link:hover { color: var(--accent); }
 
+        /* ── Keeper's Eye (Caretaker Prophecy) ── */
+        .keeper-prophecy {
+            border: 1px solid #9b59b6;
+            background: linear-gradient(135deg, rgba(155,89,182,0.1) 0%, rgba(212,160,23,0.1) 100%);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 1rem;
+        }
+
+        .keeper-prophecy .keeper-crystal {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, rgba(155,89,182,0.5), rgba(30,16,64,0.9) 60%, rgba(10,5,32,0.95));
+            border: 2px solid rgba(212,160,23,0.5);
+            box-shadow:
+                0 0 30px rgba(155,89,182,0.25),
+                0 0 60px rgba(155,89,182,0.1),
+                inset 0 0 20px rgba(155,89,182,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            animation: keeperGlow 5s ease-in-out infinite;
+        }
+
+        @keyframes keeperGlow {
+            0%, 100% { box-shadow: 0 0 30px rgba(155,89,182,0.25), 0 0 60px rgba(155,89,182,0.1), inset 0 0 20px rgba(155,89,182,0.2); }
+            50% { box-shadow: 0 0 45px rgba(155,89,182,0.4), 0 0 80px rgba(212,160,23,0.15), inset 0 0 30px rgba(155,89,182,0.3); }
+        }
+
+        .keeper-tab {
+            color: #9b59b6;
+            border-bottom: 2px solid #d4a017;
+        }
+
+        .keeper-tab.active {
+            background: rgba(155,89,182,0.15) !important;
+            border-color: #9b59b6 !important;
+            color: #9b59b6 !important;
+        }
+
+        .keeper-section-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #9b59b6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.8rem;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(155,89,182,0.3);
+        }
+
+        .keeper-prophecy-text {
+            font-style: italic;
+            font-size: 0.95rem;
+            color: #d4a017;
+            line-height: 1.6;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 12px rgba(212,160,23,0.2);
+        }
+
+        .keeper-prophecy-desc {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .keeper-bet-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .keeper-bet-btn {
+            padding: 0.6rem 1.5rem;
+            background: linear-gradient(135deg, rgba(155,89,182,0.2), rgba(212,160,23,0.15));
+            border: 1px solid #9b59b6;
+            border-radius: var(--radius);
+            color: #9b59b6;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .keeper-bet-btn:hover {
+            background: linear-gradient(135deg, rgba(155,89,182,0.35), rgba(212,160,23,0.25));
+            box-shadow: 0 0 15px rgba(155,89,182,0.3);
+            transform: translateY(-1px);
+        }
+
+        .keeper-bet-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .keeper-wager-input {
+            width: 70px;
+            padding: 0.4rem 0.5rem;
+            background: var(--bg-code);
+            border: 1px solid rgba(155,89,182,0.4);
+            border-radius: 4px;
+            color: var(--text);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .keeper-wager-input:focus {
+            outline: none;
+            border-color: #9b59b6;
+        }
+
+        .keeper-history-entry {
+            background: linear-gradient(135deg, rgba(155,89,182,0.06), rgba(212,160,23,0.04));
+            border: 1px solid rgba(155,89,182,0.2);
+            border-radius: var(--radius);
+            padding: 0.7rem 0.8rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+        }
+
+        .keeper-history-text {
+            color: var(--text-dim);
+            flex: 1;
+            margin-right: 0.8rem;
+        }
+
+        .keeper-history-result {
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .keeper-history-result.correct { color: var(--green); }
+        .keeper-history-result.wrong { color: var(--red); }
+        .keeper-history-result.pending { color: var(--text-muted); font-style: italic; }
+
+        .keeper-stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 0.8rem;
+            background: rgba(155,89,182,0.08);
+            border: 1px solid rgba(155,89,182,0.15);
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+        }
+
+        .keeper-stat {
+            text-align: center;
+        }
+
+        .keeper-stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #9b59b6;
+        }
+
+        .keeper-stat-label {
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .keeper-no-prophecy {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-style: italic;
+        }
+
+        .keeper-status-badge {
+            display: inline-block;
+            font-size: 0.6rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 10px;
+            margin-left: 0.5rem;
+        }
+
+        .keeper-status-badge.active {
+            background: rgba(155,89,182,0.2);
+            border: 1px solid rgba(155,89,182,0.4);
+            color: #9b59b6;
+        }
+
+        .keeper-status-badge.resolved {
+            background: rgba(78,204,163,0.15);
+            border: 1px solid rgba(78,204,163,0.3);
+            color: var(--green);
+        }
+
+        .keeper-ledger-bonus {
+            text-align: center;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: -0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .keeper-ledger-bonus span {
+            color: #9b59b6;
+            font-weight: 600;
+        }
+
         /* ── Responsive ── */
         @media (max-width: 500px) {
             .bet-options { grid-template-columns: 1fr; }
             .matchup-fighters { gap: 0.8rem; }
             .fighter-emoji { font-size: 2rem; }
             .stats-grid { grid-template-columns: 1fr; }
+            .keeper-stats-bar { gap: 1rem; }
+            .keeper-bet-section { flex-direction: column; }
         }
     </style>
 </head>
@@ -1013,8 +1235,11 @@
                 <button class="reroll-btn" onclick="rerollMatchup()">&#9858; New matchup</button>
             </div>
 
-            <!-- Tabs: History / Stats -->
-            <div class="tabs">
+            <!-- Ledger accuracy bonus indicator -->
+            <div class="keeper-ledger-bonus" id="ledgerBonusDisplay" style="display:none;"></div>
+
+            <!-- Tabs: History / Stats / Keeper's Eye -->
+            <div class="tabs" id="tabButtons">
                 <button class="tab-btn active" onclick="switchTab('history')">History</button>
                 <button class="tab-btn" onclick="switchTab('stats')">Oracle Stats</button>
             </div>
@@ -1053,6 +1278,59 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Keeper's Eye tab (hidden until Aleph revealed) -->
+            <div class="tab-content" id="tabKeeper" style="display:none;">
+                <div class="keeper-prophecy">
+                    <div class="keeper-crystal" id="keeperCrystal">&#128065;</div>
+                    <div class="keeper-section-title">The Keeper's Eye</div>
+
+                    <!-- Current Caretaker prophecy -->
+                    <div id="keeperActiveProphecy">
+                        <div class="keeper-no-prophecy">The Keeper's gaze is elsewhere...</div>
+                    </div>
+
+                    <!-- Bet controls for active prophecy -->
+                    <div id="keeperBetControls" style="display:none;">
+                        <div class="keeper-bet-section">
+                            <span style="font-size:0.75rem;color:var(--text-dim);">Wager:</span>
+                            <input type="number" class="keeper-wager-input" id="keeperWagerInput" min="5" value="10">
+                            <button class="keeper-bet-btn" id="keeperBetBtn" onclick="placeKeeperBet()">Bet on the Keeper</button>
+                        </div>
+                    </div>
+
+                    <!-- Generate new prophecy button -->
+                    <div style="text-align:center;margin-top:1rem;">
+                        <button class="keeper-bet-btn" id="keeperGenerateBtn" onclick="generateNewKeeperProphecy()" style="font-size:0.75rem;padding:0.5rem 1rem;">&#128065; Consult the Keeper's Eye</button>
+                    </div>
+                </div>
+
+                <!-- Keeper oracle accuracy -->
+                <div class="keeper-stats-bar" id="keeperStatsBar">
+                    <div class="keeper-stat">
+                        <div class="keeper-stat-value" id="keeperStatTotal">0</div>
+                        <div class="keeper-stat-label">Predictions</div>
+                    </div>
+                    <div class="keeper-stat">
+                        <div class="keeper-stat-value" id="keeperStatCorrect">0</div>
+                        <div class="keeper-stat-label">Correct</div>
+                    </div>
+                    <div class="keeper-stat">
+                        <div class="keeper-stat-value" id="keeperStatAccuracy">0%</div>
+                        <div class="keeper-stat-label">Accuracy</div>
+                    </div>
+                    <div class="keeper-stat">
+                        <div class="keeper-stat-value" id="keeperStatEarned">0</div>
+                        <div class="keeper-stat-label">Earned</div>
+                    </div>
+                </div>
+
+                <!-- History of Caretaker prophecies -->
+                <div class="keeper-section-title" style="font-size:0.7rem;margin-top:1rem;">Past Visions</div>
+                <div id="keeperHistoryList">
+                    <div class="keeper-no-prophecy">No visions from the Keeper yet.</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1078,6 +1356,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/static/island/supabase-client.js"></script>
+    <script src="/static/island/caretaker-engine.js"></script>
     <script>
     (function() {
         'use strict';
@@ -1488,6 +1767,330 @@
         var activeBets = {};
         var fightInProgress = false;
 
+        // ── Feeding Ledger Integration ──
+
+        function getLedgerAccuracyBonus() {
+            try {
+                var ledger = JSON.parse(localStorage.getItem('moreau_feeding_ledger') || '{}');
+                var pages = ledger.pagesUnlocked || 0;
+                if (pages > 11) pages = 11; // Pages 1-11 give bonus, page 12 triggers new mode
+                return pages * 2; // +2% per page
+            } catch(e) { return 0; }
+        }
+
+        function isAlephRevealed() {
+            try {
+                var ledger = JSON.parse(localStorage.getItem('moreau_feeding_ledger') || '{}');
+                return (ledger.pagesUnlocked || 0) >= 12;
+            } catch(e) { return false; }
+        }
+
+        // ── Caretaker Prophecy Templates ──
+
+        var CARETAKER_PROPHECIES = [
+            { text: "The keeper's eye wanders toward one above the rest...", predicts: 'drift_spike', desc: 'Drift will increase by 5+ in the next 3 auto-manages' },
+            { text: "Trust frays at the edges. A test approaches...", predicts: 'trust_drop', desc: 'Trust will decrease in the next 5 actions' },
+            { text: "A mercy will be demanded before the next tide turns...", predicts: 'mercy_trigger', desc: 'Mercy Clause will trigger within the next tidal cycle' },
+            { text: "The price of care rises. What was free will cost...", predicts: 'efficiency_decay', desc: 'Caretaker efficiency will drop below 80%' },
+            { text: "The keeper speaks in tongues you haven't learned yet...", predicts: 'new_dialect', desc: 'A new Sleep Dialect word will be discovered' },
+            { text: "Letters pile on the desk, unread and restless...", predicts: 'letter_arrives', desc: 'A new Caretaker letter will arrive' },
+            { text: "One pet sleeps easier than the others tonight...", predicts: 'favoritism', desc: 'Drift will favor a specific pet next auto-manage' },
+            { text: "The ledger turns another page in the darkness...", predicts: 'ledger_progress', desc: 'A new Feeding Ledger page will be unlocked' },
+            { text: "Orders will be... interpreted creatively...", predicts: 'order_misfire', desc: 'A Standing Order will misfire in the next Deep Tide' },
+            { text: "Something stirs in the nursery. Patience...", predicts: 'aleph_stirs', desc: 'Aleph\'s influence will manifest unexpectedly' }
+        ];
+
+        // ── Caretaker Prophecy State ──
+        var keeperProphecies = JSON.parse(localStorage.getItem('moreau_keeper_prophecies') || '[]');
+        var activeKeeperProphecy = null;
+
+        // Load active (unresolved) keeper prophecy if one exists
+        for (var kpi = 0; kpi < keeperProphecies.length; kpi++) {
+            if (!keeperProphecies[kpi].resolved) {
+                activeKeeperProphecy = keeperProphecies[kpi];
+                break;
+            }
+        }
+
+        function generateCaretakerProphecy() {
+            var prophecy = CARETAKER_PROPHECIES[Math.floor(Math.random() * CARETAKER_PROPHECIES.length)];
+
+            // Read current caretaker state for initial values
+            var drift = 0, trust = 5;
+            try {
+                var driftData = JSON.parse(localStorage.getItem('moreau_caretaker_drift') || '{}');
+                drift = driftData.score || 0;
+                trust = parseInt(localStorage.getItem('moreau_caretaker_trust')) || 5;
+            } catch(e) {}
+
+            return {
+                type: 'caretaker',
+                text: prophecy.text,
+                predicts: prophecy.predicts,
+                desc: prophecy.desc,
+                timestamp: Date.now(),
+                resolved: false,
+                correct: null,
+                bet_amount: 0,
+                initial_drift: drift,
+                initial_trust: trust
+            };
+        }
+
+        function verifyCaretakerProphecy(prophecy) {
+            // Read current caretaker state
+            var drift = 0, trust = 5;
+            try {
+                var driftData = JSON.parse(localStorage.getItem('moreau_caretaker_drift') || '{}');
+                drift = driftData.score || 0;
+                trust = parseInt(localStorage.getItem('moreau_caretaker_trust')) || 5;
+            } catch(e) {}
+
+            // Check each prediction type against current state
+            switch(prophecy.predicts) {
+                case 'drift_spike':
+                    return drift > (prophecy.initial_drift || 0) + 5;
+                case 'trust_drop':
+                    return trust < (prophecy.initial_trust || 5);
+                case 'mercy_trigger':
+                    try { return !!JSON.parse(localStorage.getItem('moreau_mercy_pending')); } catch(e) { return false; }
+                case 'efficiency_decay':
+                    try {
+                        var caretaker = JSON.parse(localStorage.getItem('moreau_caretaker_state') || '{}');
+                        return (caretaker.efficiency || 100) < 80;
+                    } catch(e) { return false; }
+                case 'new_dialect':
+                    try {
+                        var dialects = JSON.parse(localStorage.getItem('moreau_sleep_dialects') || '{}');
+                        var dCount = Object.keys(dialects).length;
+                        return dCount > (prophecy.initial_dialect_count || 0);
+                    } catch(e) { return false; }
+                case 'letter_arrives':
+                    try {
+                        var letters = JSON.parse(localStorage.getItem('moreau_caretaker_letters') || '[]');
+                        return letters.length > (prophecy.initial_letter_count || 0);
+                    } catch(e) { return false; }
+                case 'favoritism':
+                    try {
+                        var driftData2 = JSON.parse(localStorage.getItem('moreau_caretaker_drift') || '{}');
+                        var petDrifts = driftData2.per_pet || {};
+                        var vals = Object.values(petDrifts);
+                        if (vals.length < 2) return false;
+                        var maxD = Math.max.apply(null, vals);
+                        var minD = Math.min.apply(null, vals);
+                        return (maxD - minD) >= 3;
+                    } catch(e) { return false; }
+                case 'ledger_progress':
+                    try {
+                        var ledger = JSON.parse(localStorage.getItem('moreau_feeding_ledger') || '{}');
+                        return (ledger.pagesUnlocked || 0) > (prophecy.initial_pages || 0);
+                    } catch(e) { return false; }
+                case 'order_misfire':
+                    try {
+                        var orders = JSON.parse(localStorage.getItem('moreau_standing_orders') || '{}');
+                        return !!orders.last_misfire && orders.last_misfire > prophecy.timestamp;
+                    } catch(e) { return false; }
+                case 'aleph_stirs':
+                    try {
+                        var aleph = JSON.parse(localStorage.getItem('moreau_aleph_events') || '[]');
+                        for (var ai = 0; ai < aleph.length; ai++) {
+                            if (aleph[ai].timestamp > prophecy.timestamp) return true;
+                        }
+                        return false;
+                    } catch(e) { return false; }
+                default:
+                    return Math.random() > 0.5; // fallback
+            }
+        }
+
+        function saveKeeperProphecies() {
+            localStorage.setItem('moreau_keeper_prophecies', JSON.stringify(keeperProphecies));
+        }
+
+        function resolveKeeperProphecy(prophecy) {
+            var isCorrect = verifyCaretakerProphecy(prophecy);
+            prophecy.resolved = true;
+            prophecy.correct = isCorrect;
+            prophecy.resolved_at = Date.now();
+
+            // Handle essence payout
+            if (prophecy.bet_amount > 0) {
+                if (isCorrect) {
+                    var payout = prophecy.bet_amount * 2;
+                    essence += payout;
+                    localStorage.setItem('moreau_essence', '' + essence);
+                    totalEarned += payout;
+                    localStorage.setItem('moreau_oracle_total_earned', '' + totalEarned);
+                }
+                // If wrong, the wager was already deducted
+            }
+
+            if (activeKeeperProphecy === prophecy) {
+                activeKeeperProphecy = null;
+            }
+            saveKeeperProphecies();
+            updateEssenceDisplay();
+            renderKeeperUI();
+        }
+
+        // Auto-resolve keeper prophecies that are old enough (check every page load)
+        function checkKeeperProphecyResolutions() {
+            var AUTO_RESOLVE_MS = 30 * 60 * 1000; // 30 minutes
+            var now = Date.now();
+            for (var i = 0; i < keeperProphecies.length; i++) {
+                var kp = keeperProphecies[i];
+                if (!kp.resolved && (now - kp.timestamp) >= AUTO_RESOLVE_MS) {
+                    resolveKeeperProphecy(kp);
+                }
+            }
+        }
+
+        // ── Keeper UI Functions ──
+
+        window.generateNewKeeperProphecy = function() {
+            if (!isAlephRevealed()) return;
+
+            // Resolve any existing active prophecy first
+            if (activeKeeperProphecy && !activeKeeperProphecy.resolved) {
+                resolveKeeperProphecy(activeKeeperProphecy);
+            }
+
+            // Store extra initial values for specific prediction types
+            var newProphecy = generateCaretakerProphecy();
+
+            try {
+                var dialects = JSON.parse(localStorage.getItem('moreau_sleep_dialects') || '{}');
+                newProphecy.initial_dialect_count = Object.keys(dialects).length;
+            } catch(e) { newProphecy.initial_dialect_count = 0; }
+
+            try {
+                var letters = JSON.parse(localStorage.getItem('moreau_caretaker_letters') || '[]');
+                newProphecy.initial_letter_count = letters.length;
+            } catch(e) { newProphecy.initial_letter_count = 0; }
+
+            try {
+                var ledger = JSON.parse(localStorage.getItem('moreau_feeding_ledger') || '{}');
+                newProphecy.initial_pages = ledger.pagesUnlocked || 0;
+            } catch(e) { newProphecy.initial_pages = 0; }
+
+            activeKeeperProphecy = newProphecy;
+            keeperProphecies.unshift(newProphecy);
+            if (keeperProphecies.length > 50) keeperProphecies = keeperProphecies.slice(0, 50);
+            saveKeeperProphecies();
+            renderKeeperUI();
+        };
+
+        window.placeKeeperBet = function() {
+            if (!activeKeeperProphecy || activeKeeperProphecy.resolved) return;
+            var wagerEl = document.getElementById('keeperWagerInput');
+            var wager = parseInt(wagerEl.value || '0', 10);
+            if (wager < 5 || wager > essence) {
+                wagerEl.style.borderColor = 'var(--red)';
+                setTimeout(function() { wagerEl.style.borderColor = 'rgba(155,89,182,0.4)'; }, 1000);
+                return;
+            }
+
+            // Deduct wager immediately
+            essence -= wager;
+            localStorage.setItem('moreau_essence', '' + essence);
+            activeKeeperProphecy.bet_amount = wager;
+            saveKeeperProphecies();
+            updateEssenceDisplay();
+            renderKeeperUI();
+        };
+
+        function renderKeeperUI() {
+            if (!isAlephRevealed()) return;
+
+            var prophecyContainer = document.getElementById('keeperActiveProphecy');
+            var betControls = document.getElementById('keeperBetControls');
+            var generateBtn = document.getElementById('keeperGenerateBtn');
+
+            if (activeKeeperProphecy && !activeKeeperProphecy.resolved) {
+                // Show active prophecy
+                var statusText = activeKeeperProphecy.bet_amount > 0 ?
+                    '<span class="keeper-status-badge active">Bet: ' + activeKeeperProphecy.bet_amount + ' Essence</span>' :
+                    '<span class="keeper-status-badge active">Active</span>';
+                prophecyContainer.innerHTML =
+                    '<div class="keeper-prophecy-text">"' + activeKeeperProphecy.text + '"</div>' +
+                    '<div class="keeper-prophecy-desc">' + activeKeeperProphecy.desc + statusText + '</div>';
+
+                // Show bet controls only if no bet placed yet
+                if (activeKeeperProphecy.bet_amount <= 0) {
+                    betControls.style.display = 'block';
+                } else {
+                    betControls.style.display = 'none';
+                }
+                generateBtn.textContent = '\u{1F441} Resolve & New Vision';
+            } else {
+                prophecyContainer.innerHTML = '<div class="keeper-no-prophecy">The Keeper\'s gaze is elsewhere. Consult to receive a vision.</div>';
+                betControls.style.display = 'none';
+                generateBtn.textContent = '\u{1F441} Consult the Keeper\'s Eye';
+            }
+
+            // Render keeper stats
+            var totalK = 0, correctK = 0, earnedK = 0;
+            for (var i = 0; i < keeperProphecies.length; i++) {
+                var kp = keeperProphecies[i];
+                if (kp.resolved) {
+                    totalK++;
+                    if (kp.correct) {
+                        correctK++;
+                        if (kp.bet_amount > 0) earnedK += kp.bet_amount * 2;
+                    }
+                }
+            }
+            document.getElementById('keeperStatTotal').textContent = totalK;
+            document.getElementById('keeperStatCorrect').textContent = correctK;
+            document.getElementById('keeperStatAccuracy').textContent = totalK > 0 ? Math.round(correctK / totalK * 100) + '%' : '0%';
+            document.getElementById('keeperStatEarned').textContent = earnedK;
+
+            // Render keeper history
+            var histContainer = document.getElementById('keeperHistoryList');
+            var resolvedProphecies = keeperProphecies.filter(function(p) { return p.resolved; });
+            if (resolvedProphecies.length === 0) {
+                histContainer.innerHTML = '<div class="keeper-no-prophecy">No past visions yet.</div>';
+            } else {
+                var hhtml = '';
+                resolvedProphecies.slice(0, 15).forEach(function(p) {
+                    var d = new Date(p.timestamp);
+                    var timeStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                    var resultClass = p.correct ? 'correct' : 'wrong';
+                    var resultIcon = p.correct ? '\u2713' : '\u2717';
+                    var betInfo = p.bet_amount > 0 ? ' (' + (p.correct ? '+' + (p.bet_amount * 2) : '-' + p.bet_amount) + ')' : '';
+                    hhtml += '<div class="keeper-history-entry">' +
+                        '<div class="keeper-history-text">' +
+                        '<div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:0.2rem;">' + timeStr + '</div>' +
+                        '"' + p.text + '"' +
+                        '</div>' +
+                        '<div class="keeper-history-result ' + resultClass + '">' + resultIcon + betInfo + '</div>' +
+                        '</div>';
+                });
+                histContainer.innerHTML = hhtml;
+            }
+        }
+
+        function initKeeperTab() {
+            if (!isAlephRevealed()) return;
+
+            // Add the Keeper's Eye tab button
+            var tabContainer = document.getElementById('tabButtons');
+            var keeperTabBtn = document.createElement('button');
+            keeperTabBtn.className = 'tab-btn keeper-tab';
+            keeperTabBtn.textContent = '\u{1F441} Keeper\'s Eye';
+            keeperTabBtn.onclick = function() { switchTab('keeper'); };
+            tabContainer.appendChild(keeperTabBtn);
+
+            // Make the keeper tab content visible (but not active)
+            document.getElementById('tabKeeper').style.display = '';
+
+            // Check for auto-resolutions
+            checkKeeperProphecyResolutions();
+
+            // Render the UI
+            renderKeeperUI();
+        }
+
         // ── Fighter Generation ──
         function randomStats() {
             // Generate random stats summing to 20
@@ -1818,12 +2421,21 @@
                 }}
             };
 
+            // Ledger accuracy bonus: each percentage point gives a small chance to "save" a wrong bet
+            var ledgerBonus = getLedgerAccuracyBonus();
+
             for (var betType in activeBets) {
                 var choice = activeBets[betType];
                 var info = betTypes[betType];
                 if (!info) continue;
                 totalBets++;
                 var isCorrect = info.check(choice);
+                // Apply ledger bonus: if wrong, ledger gives a % chance to flip to correct
+                if (!isCorrect && ledgerBonus > 0) {
+                    if (Math.random() * 100 < ledgerBonus) {
+                        isCorrect = true; // Ledger insight saved this prediction
+                    }
+                }
                 if (isCorrect) {
                     correct++;
                     totalGain += Math.floor(wager * info.multiplier);
@@ -1954,6 +2566,12 @@
             if (tab === 'history') {
                 document.querySelectorAll('.tab-btn')[0].classList.add('active');
                 document.getElementById('tabHistory').classList.add('active');
+            } else if (tab === 'keeper') {
+                // Keeper tab is dynamically added as last tab button
+                var btns = document.querySelectorAll('.tab-btn');
+                btns[btns.length - 1].classList.add('active');
+                document.getElementById('tabKeeper').classList.add('active');
+                renderKeeperUI();
             } else {
                 document.querySelectorAll('.tab-btn')[1].classList.add('active');
                 document.getElementById('tabStats').classList.add('active');
@@ -1997,11 +2615,24 @@
                 }
             });
 
+            var rawAccuracy = totalPredictions > 0 ? Math.round(totalCorrect / totalPredictions * 100) : 0;
+            var ledgerBonus = getLedgerAccuracyBonus();
+            var displayAccuracy = Math.min(100, rawAccuracy + ledgerBonus);
+
             document.getElementById('statTotal').textContent = totalPredictions;
-            document.getElementById('statAccuracy').textContent = totalPredictions > 0 ?
-                Math.round(totalCorrect / totalPredictions * 100) + '%' : '0%';
+            document.getElementById('statAccuracy').textContent = displayAccuracy + '%';
             document.getElementById('statEarned').textContent = totalEarned;
             document.getElementById('statStreak').textContent = bestStreak;
+
+            // Show ledger bonus indicator
+            var bonusEl = document.getElementById('ledgerBonusDisplay');
+            if (ledgerBonus > 0) {
+                bonusEl.textContent = 'Feeding Ledger: +' + ledgerBonus + '% accuracy bonus (from ' + (ledgerBonus / 2) + ' pages)';
+                bonusEl.innerHTML = 'Feeding Ledger: <span>+' + ledgerBonus + '%</span> accuracy bonus';
+                bonusEl.style.display = 'block';
+            } else {
+                bonusEl.style.display = 'none';
+            }
 
             // Rank display
             var rank = getOracleRank(totalEarned);
@@ -2053,6 +2684,9 @@
             displayMatchup(matchup);
             renderHistory();
             renderStats();
+
+            // Initialize Keeper's Eye tab (only if Aleph is revealed)
+            initKeeperTab();
 
             // Wager input change listener
             document.getElementById('wagerInput').addEventListener('input', updateConsultBtn);
