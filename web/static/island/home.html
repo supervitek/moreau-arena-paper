@@ -1626,6 +1626,7 @@
     <script src="/static/island/m-engine.js"></script>
     <script src="/static/island/confession-engine.js"></script>
     <script src="/static/island/caretaker-engine.js"></script>
+    <script src="/static/island/sleep-dialect.js"></script>
     <script>
         // ══════════════════════════════════════
         //  Island Home — Player Dashboard
@@ -1772,6 +1773,15 @@
             // Render everything
             renderActivePet();
             updateCaretakerBars();
+
+            // ── Sleep Dialect overlay (6-24hr offline) ──
+            if (typeof SleepDialect !== 'undefined' && SleepDialect.shouldShowFragment()) {
+                SleepDialect.showOverlay();
+                SleepDialect.updateActivity();
+            } else if (typeof SleepDialect !== 'undefined') {
+                SleepDialect.updateActivity();
+            }
+
             renderActions();
             renderEggBanner();
             renderPetsSection();
