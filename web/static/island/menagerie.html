@@ -1156,7 +1156,7 @@
 
             deadPets = allPets.filter(function(p) { return p.deceased || p.is_alive === false; });
             livingPets = allPets.filter(function(p) { return !p.deceased && p.is_alive !== false; });
-            activePetIndex = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
+            activePetIndex = MoreauStorage.getActivePetIndex(allPets);
             if (activePetIndex < 0 || activePetIndex >= allPets.length) activePetIndex = 0;
 
             updateSoulPoints();
@@ -1178,26 +1178,11 @@
         }
 
         function hasLocalPets() {
-            try {
-                var raw = localStorage.getItem('moreau_pets');
-                if (raw) { var p = JSON.parse(raw); return Array.isArray(p) && p.length > 0; }
-                return !!localStorage.getItem('moreau_pet');
-            } catch { return false; }
+            return MoreauStorage.hasPets();
         }
 
         function loadLocalPets() {
-            var oldRaw = localStorage.getItem('moreau_pet');
-            if (oldRaw) {
-                try {
-                    var oldPet = JSON.parse(oldRaw);
-                    var existing = [];
-                    try { existing = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(err) {}
-                    if (existing.length < 6) existing.push(oldPet);
-                    localStorage.setItem('moreau_pets', JSON.stringify(existing));
-                    localStorage.removeItem('moreau_pet');
-                } catch(e) { localStorage.removeItem('moreau_pet'); }
-            }
-            try { allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) { allPets = []; }
+            allPets = MoreauStorage.loadPets({ setActiveOnMigrate: false });
         }
 
         // ══ Tabs ══

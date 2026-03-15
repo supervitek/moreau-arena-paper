@@ -1713,8 +1713,8 @@
         async function init() {
             // Check if onboarding needed
             if (!localStorage.getItem('moreau_onboarding_complete')) {
-                var pets; try { pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) { pets = []; }
-                if (pets.length === 0 && !localStorage.getItem('moreau_pet')) {
+                var pets = MoreauStorage.loadPets();
+                if (pets.length === 0) {
                     window.location.href = '/island/onboarding';
                     return;
                 }
@@ -1754,35 +1754,12 @@
         }
 
         function hasLocalPets() {
-            try {
-                const raw = localStorage.getItem('moreau_pets');
-                if (raw) {
-                    const p = JSON.parse(raw);
-                    return Array.isArray(p) && p.length > 0;
-                }
-                // Check old single-pet format
-                return !!localStorage.getItem('moreau_pet');
-            } catch { return false; }
+            return MoreauStorage.hasPets();
         }
 
         function loadLocalPets() {
-            // Migrate old single-pet format
-            const oldRaw = localStorage.getItem('moreau_pet');
-            if (oldRaw) {
-                try {
-                    const oldPet = JSON.parse(oldRaw);
-                    let existing = [];
-                    try { existing = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(err) {}
-                    if (existing.length < 6) existing.push(oldPet);
-                    localStorage.setItem('moreau_pets', JSON.stringify(existing));
-                    localStorage.setItem('moreau_active_pet', String(existing.length - 1));
-                    localStorage.removeItem('moreau_pet');
-                } catch (e) { localStorage.removeItem('moreau_pet'); }
-            }
-
-            try { allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) { allPets = []; }
-            activePetIndex = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
-            if (activePetIndex < 0 || activePetIndex >= allPets.length) activePetIndex = 0;
+            allPets = MoreauStorage.loadPets();
+            activePetIndex = MoreauStorage.getActivePetIndex(allPets);
         }
 
         function getActivePet() {
@@ -1956,13 +1933,8 @@
 
         function checkLocalStorageMigration() {
             if (!isOnlineMode()) return;
-            const raw = localStorage.getItem('moreau_pets');
-            if (!raw) return;
-            try {
-                const localPets = JSON.parse(raw);
-                if (!Array.isArray(localPets) || localPets.length === 0) return;
-                showMigrationModal(currentUser.id, localPets.length);
-            } catch {}
+            const localPets = MoreauStorage.loadPets();
+            if (localPets.length > 0) showMigrationModal(currentUser.id, localPets.length);
         }
 
         function showMigrationModal(userId, petCount) {
@@ -2005,9 +1977,7 @@
         }
 
         function doMigrationSkip() {
-            localStorage.removeItem('moreau_pets');
-            localStorage.removeItem('moreau_active_pet');
-            localStorage.removeItem('moreau_pet');
+            MoreauStorage.clearPets();
             localStorage.removeItem('moreau_codex');
             localStorage.removeItem('moreau_pit_history');
             localStorage.removeItem('moreau_ultra_rare_post');
@@ -2542,7 +2512,7 @@
             activePetIndex = idx;
 
             if (offlineMode) {
-                localStorage.setItem('moreau_active_pet', String(idx));
+                MoreauStorage.setActivePetIndex(idx);
             }
 
             renderActivePet();
@@ -2632,7 +2602,7 @@
             });
 
             if (changed) {
-                localStorage.setItem('moreau_pets', JSON.stringify(allPets));
+                MoreauStorage.savePets(allPets);
             }
         }
 

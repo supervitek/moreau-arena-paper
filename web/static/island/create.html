@@ -1028,11 +1028,10 @@
                 if (!saved) {
                     // Offline fallback
                     pet.created_at = new Date().toISOString();
-                    var pets = [];
-                    try { pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) {}
+                    var pets = MoreauStorage.loadPets();
                     pets.push(pet);
-                    localStorage.setItem('moreau_pets', JSON.stringify(pets));
-                    localStorage.setItem('moreau_active_pet', String(pets.length - 1));
+                    MoreauStorage.savePets(pets);
+                    MoreauStorage.setActivePetIndex(pets.length - 1);
                 }
 
                 // Achievement: first_pet

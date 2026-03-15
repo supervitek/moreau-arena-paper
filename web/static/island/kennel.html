@@ -598,6 +598,7 @@
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="/static/island/supabase-client.js"></script>
+    <script src="/static/island/storage.js"></script>
 
     <script>
         // ── Constants ──
@@ -647,26 +648,11 @@
 
         // ── localStorage fallback ──
         function loadLocalPets() {
-            // Migrate old single-pet format
-            const oldRaw = localStorage.getItem('moreau_pet');
-            if (oldRaw) {
-                try {
-                    const oldPet = JSON.parse(oldRaw);
-                    const existing = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
-                    if (existing.length < MAX_PETS) existing.push(oldPet);
-                    localStorage.setItem('moreau_pets', JSON.stringify(existing));
-                    localStorage.removeItem('moreau_pet');
-                } catch { localStorage.removeItem('moreau_pet'); }
-            }
-
-            try {
-                const pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
-                // Give each pet a synthetic ID if missing
-                return pets.map(function(p, i) {
-                    if (!p._localId) p._localId = 'local_' + i + '_' + Date.now();
-                    return p;
-                });
-            } catch { return []; }
+            const pets = MoreauStorage.loadPets({ maxPets: MAX_PETS, setActiveOnMigrate: false });
+            return pets.map(function(p, i) {
+                if (!p._localId) p._localId = 'local_' + i + '_' + Date.now();
+                return p;
+            });
         }
 
         // ── Active pet logic ──
@@ -868,12 +854,11 @@
 
             if (isOffline) {
                 // localStorage mode
-                var localPets = [];
-                try { localPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) {}
+                var localPets = MoreauStorage.loadPets({ maxPets: MAX_PETS, setActiveOnMigrate: false });
                 var idx = allPets.findIndex(function(p) { return getPetId(p) === releasePetId; });
                 if (idx >= 0) {
                     localPets.splice(idx, 1);
-                    localStorage.setItem('moreau_pets', JSON.stringify(localPets));
+                    MoreauStorage.savePets(localPets);
                     allPets.splice(idx, 1);
                 }
             } else {

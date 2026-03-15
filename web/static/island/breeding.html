@@ -928,6 +928,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/static/island/supabase-client.js"></script>
+    <script src="/static/island/storage.js"></script>
     <script>
         // ══════════════════════════════════════
         //  The Scar Garden — Breeding System
@@ -1005,25 +1006,15 @@
         function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
         function hasLocalPets() {
-            try {
-                var raw = localStorage.getItem('moreau_pets');
-                if (raw) { var p = JSON.parse(raw); return Array.isArray(p) && p.length > 0; }
-                return !!localStorage.getItem('moreau_pet');
-            } catch { return false; }
+            return MoreauStorage.hasPets();
         }
 
         function loadLocalPets() {
-            try {
-                var raw = localStorage.getItem('moreau_pets');
-                if (raw) { allPets = JSON.parse(raw) || []; return; }
-                var single = localStorage.getItem('moreau_pet');
-                if (single) { allPets = [JSON.parse(single)]; return; }
-            } catch {}
-            allPets = [];
+            allPets = MoreauStorage.loadPets({ setActiveOnMigrate: false });
         }
 
         function saveLocalPets() {
-            localStorage.setItem('moreau_pets', JSON.stringify(allPets));
+            MoreauStorage.savePets(allPets);
         }
 
         function loadLocalEggs() {
@@ -1716,7 +1707,7 @@
             // Mercy with Menagerie Lineage Consequences.
             var lineageCorruption = 0;
             try {
-                var ancestorPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                var ancestorPets = MoreauStorage.loadPets({ setActiveOnMigrate: false });
                 var parentAncestor = ancestorPets.find(function(p) {
                     return (egg.parent_pet_id && p.id === egg.parent_pet_id) ||
                            (egg.parent_name && p.name === egg.parent_name);

@@ -598,8 +598,8 @@
         var STAT_NAMES = ['hp','atk','spd','wil'];
 
         var allPets = [];
-        try { allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) {}
-        var activePetIndex = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
+        allPets = MoreauStorage.loadPets();
+        var activePetIndex = MoreauStorage.getActivePetIndex(allPets);
         var selectedPetIndex = activePetIndex;
 
         // ── Ocean particles ──
@@ -910,7 +910,7 @@
             pet.base_stats = stats;
             scavengeData.scavenged.push(remainId);
             scavengeData.count++;
-            localStorage.setItem('moreau_pets', JSON.stringify(allPets));
+            MoreauStorage.savePets(allPets);
             localStorage.setItem('moreau_bone_flats', JSON.stringify(scavengeData));
 
             showToast(resultMsg, hasCurseRisk && resultMsg.indexOf('CURSE') !== -1 ? 'danger' : 'success');
@@ -998,7 +998,7 @@
             }
 
             poolData.healed = true;
-            localStorage.setItem('moreau_pets', JSON.stringify(allPets));
+            MoreauStorage.savePets(allPets);
             localStorage.setItem('moreau_dreaming_pools', JSON.stringify(poolData));
             showToast('\u2728 ' + msg, 'success');
             renderDreamingPools(document.getElementById('zoneContent'));
@@ -1109,7 +1109,7 @@
             destPet.artifacts.push(artifact);
 
             marketData.transferred = true;
-            localStorage.setItem('moreau_pets', JSON.stringify(allPets));
+            MoreauStorage.savePets(allPets);
             localStorage.setItem('moreau_driftwood_market', JSON.stringify(marketData));
             showToast('\u{1F6F6} Transferred ' + (artifact.name || artifact) + ' to ' + (destPet.name || 'pet') + '!', 'success');
             renderDriftwoodMarket(document.getElementById('zoneContent'));

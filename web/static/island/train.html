@@ -822,46 +822,21 @@
         // ── localStorage helpers ──
 
         function hasLocalPets() {
-            try {
-                const raw = localStorage.getItem('moreau_pets');
-                if (raw) {
-                    const p = JSON.parse(raw);
-                    return Array.isArray(p) && p.length > 0;
-                }
-                return !!localStorage.getItem('moreau_pet');
-            } catch { return false; }
+            return MoreauStorage.hasPets();
         }
 
         function loadLocalActivePet() {
-            // Migrate old single-pet format
-            const oldRaw = localStorage.getItem('moreau_pet');
-            if (oldRaw) {
-                try {
-                    const oldPet = JSON.parse(oldRaw);
-                    let existing = [];
-                    try { existing = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) {}
-                    if (existing.length < 6) existing.push(oldPet);
-                    localStorage.setItem('moreau_pets', JSON.stringify(existing));
-                    localStorage.setItem('moreau_active_pet', String(existing.length - 1));
-                    localStorage.removeItem('moreau_pet');
-                } catch(e) { localStorage.removeItem('moreau_pet'); }
-            }
-
-            let pets = [];
-            try { pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) {}
+            let pets = MoreauStorage.loadPets();
             if (pets.length === 0) return null;
-            let idx = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
-            if (idx < 0 || idx >= pets.length) idx = 0;
+            let idx = MoreauStorage.getActivePetIndex(pets);
             return pets[idx];
         }
 
         function saveLocalActivePet(p) {
-            let pets = [];
-            try { pets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) {}
-            let idx = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
-            if (idx < 0 || idx >= pets.length) idx = 0;
+            let pets = MoreauStorage.loadPets();
+            let idx = MoreauStorage.getActivePetIndex(pets);
             pets[idx] = p;
-            localStorage.setItem('moreau_pets', JSON.stringify(pets));
+            MoreauStorage.savePets(pets);
         }
 
         // ── Show Training UI ──

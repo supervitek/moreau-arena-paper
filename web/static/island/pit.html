@@ -758,6 +758,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/static/island/supabase-client.js"></script>
+    <script src="/static/island/storage.js"></script>
     <script>
         // ══════════════════════════════════════
         //  The Pit — Island PvP (local sparring)
@@ -815,34 +816,15 @@
         }
 
         function hasLocalPets() {
-            try {
-                var raw = localStorage.getItem('moreau_pets');
-                if (raw) {
-                    var p = JSON.parse(raw);
-                    return Array.isArray(p) && p.length > 0;
-                }
-                return !!localStorage.getItem('moreau_pet');
-            } catch (e) { return false; }
+            return MoreauStorage.hasPets();
         }
 
         function loadLocalPets() {
-            var oldRaw = localStorage.getItem('moreau_pet');
-            if (oldRaw) {
-                try {
-                    var oldPet = JSON.parse(oldRaw);
-                    var existing = [];
-                    try { existing = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(err) {}
-                    if (existing.length < 6) existing.push(oldPet);
-                    localStorage.setItem('moreau_pets', JSON.stringify(existing));
-                    localStorage.setItem('moreau_active_pet', String(existing.length - 1));
-                    localStorage.removeItem('moreau_pet');
-                } catch (e) { localStorage.removeItem('moreau_pet'); }
-            }
-            try { allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) { allPets = []; }
+            allPets = MoreauStorage.loadPets();
         }
 
         function savePetsLocal(pets) {
-            localStorage.setItem('moreau_pets', JSON.stringify(pets));
+            MoreauStorage.savePets(pets);
         }
 
         // ── Selection Grids ──
@@ -1303,7 +1285,7 @@
 
         async function reloadPets() {
             if (offlineMode) {
-                try { allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) { allPets = []; }
+                allPets = MoreauStorage.loadPets();
             } else {
                 allPets = await dbGetPets(currentUser.id);
             }

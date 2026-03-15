@@ -940,6 +940,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/static/island/supabase-client.js"></script>
+    <script src="/static/island/storage.js"></script>
     <script>
         // ── Constants ──
 
@@ -974,12 +975,12 @@
         // ── Data ──
 
         function loadPets() {
-            try { allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) { allPets = []; }
-            activePetIndex = parseInt(localStorage.getItem('moreau_active_pet') || '0', 10);
+            allPets = MoreauStorage.loadPets();
+            activePetIndex = MoreauStorage.getActivePetIndex(allPets);
         }
 
         function savePets() {
-            localStorage.setItem('moreau_pets', JSON.stringify(allPets));
+            MoreauStorage.savePets(allPets);
         }
 
         function escHtml(s) {

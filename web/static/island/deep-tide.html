@@ -1381,7 +1381,7 @@
             allPets = await dbGetPets(user.id);
         } else if (hasLocalPets()) {
             offlineMode = true;
-            try { allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]'); } catch(e) { allPets = []; }
+            allPets = MoreauStorage.loadPets();
         } else {
             window.location.href = '/island';
             return;
@@ -1423,11 +1423,7 @@
     // ── localStorage helpers ──
 
     function hasLocalPets() {
-        try {
-            var raw = localStorage.getItem('moreau_pets');
-            if (raw) { var p = JSON.parse(raw); return Array.isArray(p) && p.length > 0; }
-            return false;
-        } catch(e) { return false; }
+        return MoreauStorage.hasPets();
     }
 
     function loadRun() {
@@ -1459,7 +1455,7 @@
         if (offlineMode) {
             var idx = allPets.findIndex(function(p) { return p.name === pet.name; });
             if (idx >= 0) { allPets[idx] = pet; }
-            localStorage.setItem('moreau_pets', JSON.stringify(allPets));
+            MoreauStorage.savePets(allPets);
         } else {
             // Online mode — update via supabase
             if (pet.id) { dbUpdatePet(pet.id, pet); }
@@ -2477,7 +2473,7 @@
         // Re-read pet from storage so needs are fresh
         var freshPets;
         try {
-            freshPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            freshPets = MoreauStorage.loadPets();
             if (freshPets[petIndex]) {
                 pet = freshPets[petIndex];
                 if (CaretakerEngine.initNeeds) pet = CaretakerEngine.initNeeds(pet);
@@ -2529,7 +2525,7 @@
 
             // Re-read pet for next order evaluation
             try {
-                freshPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+                freshPets = MoreauStorage.loadPets();
                 if (freshPets[petIndex]) {
                     pet = freshPets[petIndex];
                     if (CaretakerEngine.initNeeds) pet = CaretakerEngine.initNeeds(pet);
