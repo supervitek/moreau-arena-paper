@@ -1537,6 +1537,51 @@
                     </div>
                 </div>
 
+                <!-- ── Standing Orders ── -->
+                <div class="lodge-section" id="standingOrdersSection">
+                    <div class="section-header">
+                        <span class="section-icon">📋</span>
+                        <span>Standing Orders</span>
+                    </div>
+                    <div id="standingOrdersContainer"></div>
+                </div>
+
+                <!-- ── The Price ── -->
+                <div class="lodge-section" id="priceSection">
+                    <div class="section-header">
+                        <span class="section-icon">💰</span>
+                        <span>The Caretaker's Workshop</span>
+                    </div>
+                    <div id="priceContainer"></div>
+                </div>
+
+                <!-- ── Drift Monitor ── -->
+                <div class="lodge-section" id="driftSection">
+                    <div class="section-header">
+                        <span class="section-icon">🌊</span>
+                        <span>Drift Monitor</span>
+                    </div>
+                    <div id="driftContainer"></div>
+                </div>
+
+                <!-- ── Letters from the Caretaker ── -->
+                <div class="lodge-section" id="lettersSection">
+                    <div class="section-header">
+                        <span class="section-icon">✉️</span>
+                        <span>Letters from the Caretaker</span>
+                    </div>
+                    <div id="lettersContainer"></div>
+                </div>
+
+                <!-- ── Sleep Dialect Lexicon ── -->
+                <div class="lodge-section" id="lexiconSection">
+                    <div class="section-header">
+                        <span class="section-icon">🗣️</span>
+                        <span>Sleep Dialect Lexicon</span>
+                    </div>
+                    <div id="lexiconContainer"></div>
+                </div>
+
             </div> <!-- /petDashboard -->
 
             <!-- Footer -->
@@ -1555,6 +1600,12 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/static/island/supabase-client.js"></script>
     <script src="/static/island/caretaker-engine.js"></script>
+    <script src="/static/island/standing-orders.js"></script>
+    <script src="/static/island/caretaker-price.js"></script>
+    <script src="/static/island/caretaker-drift.js"></script>
+    <script src="/static/island/caretaker-letters.js"></script>
+    <script src="/static/island/sleep-dialect.js"></script>
+    <script src="/static/island/weight-of-keeping.js"></script>
     <script>
     (function() {
         'use strict';
@@ -1616,6 +1667,12 @@
                 buildPetSelector();
                 checkOvernightResults();
                 refreshAll();
+                // ── Extended modules ──
+                if (typeof StandingOrders !== 'undefined') StandingOrders.render('standingOrdersContainer');
+                if (typeof CaretakerPrice !== 'undefined') CaretakerPrice.render('priceContainer');
+                if (typeof CaretakerDrift !== 'undefined') CaretakerDrift.render('driftContainer');
+                if (typeof CaretakerLetters !== 'undefined') CaretakerLetters.render('lettersContainer');
+                if (typeof SleepDialect !== 'undefined') SleepDialect.renderLexicon('lexiconContainer');
             }
         }
 
