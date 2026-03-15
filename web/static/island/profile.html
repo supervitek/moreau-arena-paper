@@ -758,7 +758,7 @@
     </div>
 
     <!-- Dossier content (hidden until loaded) -->
-    <div id="dossierContent" style="display:none;">
+    <div id="dossierContent" data-pet-profile style="display:none;">
 
         <a href="/island/home" class="back-link">&larr; Back to Dashboard</a>
 
@@ -828,6 +828,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/static/island/supabase-client.js"></script>
+<script src="/static/island/weight-of-keeping.js"></script>
 <script>
     const EMOJI_MAP = {
         bear:'\u{1F43B}', buffalo:'\u{1F9AC}', boar:'\u{1F417}', tiger:'\u{1F405}',
