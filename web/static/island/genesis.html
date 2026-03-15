@@ -988,7 +988,7 @@
         ];
 
         // Keys that survive a genesis reset
-        const PRESERVED_KEYS = ['moreau_genesis', 'moreau_market_history', 'moreau_other_player'];
+        const PRESERVED_KEYS = ['moreau_genesis', 'moreau_market_history', 'moreau_other_player', 'moreau_weight_of_keeping'];
 
         let genesis = null;
 
@@ -1392,6 +1392,8 @@
                 counter.style.display = 'none';
                 flood.style.opacity = '0';
                 flood.style.transition = 'opacity 1s';
+                // Weight of Keeping pixel survives the void
+                showWeightPixelInVoid();
             }});
 
             // Phase 7: Genesis Mark brands (23-28s)
@@ -1419,6 +1421,52 @@
             timeline.forEach(function(step) {
                 setTimeout(step.fn, step.at);
             });
+        }
+
+        // ── Weight of Keeping pixel in the void ──
+
+        function showWeightPixelInVoid() {
+            var weightState = null;
+            try { weightState = JSON.parse(localStorage.getItem('moreau_weight_of_keeping') || 'null'); } catch(e) {}
+
+            if (!weightState || !weightState.pixel_found) return;
+
+            // Track genesis pixel count
+            var genesisData = {};
+            try { genesisData = JSON.parse(localStorage.getItem('moreau_genesis') || '{}'); } catch(e) {}
+            genesisData.weight_pixels = (genesisData.weight_pixels || 0) + 1;
+            localStorage.setItem('moreau_genesis', JSON.stringify(genesisData));
+
+            // Trigger eternal_keeper achievement at 3 cycles
+            if (genesisData.weight_pixels >= 3) {
+                if (typeof window.checkAchievement === 'function') window.checkAchievement('eternal_keeper');
+            }
+
+            // Show lonely pixel in void
+            var pixel = document.createElement('div');
+            pixel.style.cssText = 'position:fixed;top:50%;left:50%;width:2px;height:2px;background:#4a3728;transform:translate(-1px,-1px);z-index:10000;opacity:0;transition:opacity 1s;';
+            document.body.appendChild(pixel);
+
+            // Fade in pixel
+            setTimeout(function() { pixel.style.opacity = '1'; }, 500);
+
+            // Show text below
+            var text = document.createElement('div');
+            text.style.cssText = 'position:fixed;top:calc(50% + 12px);left:50%;transform:translateX(-50%);color:#4a3728;font-size:11px;font-style:italic;opacity:0;transition:opacity 2s;z-index:10000;white-space:nowrap;';
+            text.textContent = 'Something remains.';
+            document.body.appendChild(text);
+
+            setTimeout(function() { text.style.opacity = '0.6'; }, 1500);
+
+            // Hold for 3 seconds, then continue with new cycle
+            setTimeout(function() {
+                pixel.style.opacity = '0';
+                text.style.opacity = '0';
+                setTimeout(function() {
+                    if (pixel.parentNode) pixel.parentNode.removeChild(pixel);
+                    if (text.parentNode) text.parentNode.removeChild(text);
+                }, 1000);
+            }, 4500);
         }
 
         // ── Wipe localStorage ──

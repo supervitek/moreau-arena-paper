@@ -1223,8 +1223,41 @@
         document.body.removeChild(ta);
     }
 
+    // ── Genesis remnant pixels ──
+
+    function showGenesisPixels() {
+        var genesisData = {};
+        try { genesisData = JSON.parse(localStorage.getItem('moreau_genesis') || '{}'); } catch(e) {}
+        var count = genesisData.weight_pixels || 0;
+        if (count === 0) return;
+
+        var container = document.querySelector('[data-pet-profile]') || document.getElementById('dossierContent');
+        if (!container) return;
+
+        // Ensure container is positioned for absolute children
+        var pos = window.getComputedStyle(container).position;
+        if (pos === 'static' || pos === '') {
+            container.style.position = 'relative';
+        }
+
+        // Pattern: line (1-2), cross (3-4), square (5+)
+        var positions = [];
+        if (count >= 1) positions.push({x: -4, y: 0});
+        if (count >= 2) positions.push({x: 4, y: 0});
+        if (count >= 3) positions.push({x: 0, y: -4});
+        if (count >= 4) positions.push({x: 0, y: 4});
+        if (count >= 5) positions.push({x: -4, y: -4});
+
+        for (var i = 0; i < positions.length && i < count; i++) {
+            var p = document.createElement('div');
+            p.style.cssText = 'position:absolute;bottom:' + (8 + positions[i].y) + 'px;right:' + (8 + positions[i].x) + 'px;width:2px;height:2px;background:#4a3728;opacity:0.35;pointer-events:none;';
+            p.setAttribute('data-moreau', 'remnant-' + i);
+            container.appendChild(p);
+        }
+    }
+
     // ── Start ──
-    init();
+    init().then(function() { showGenesisPixels(); });
 </script>
 </body>
 </html>
