@@ -499,11 +499,11 @@ var CaretakerLetters = (function() {
         }
         savePets(pets);
 
-        // Clear standing orders if CaretakerEngine is available
-        if (typeof CaretakerEngine !== 'undefined') {
-            if (typeof CaretakerEngine.clearStandingOrders === 'function') {
-                CaretakerEngine.clearStandingOrders();
-            }
+        // Clear standing orders on dismissal
+        if (typeof StandingOrders !== 'undefined') {
+            try {
+                localStorage.setItem('moreau_standing_orders', '[]');
+            } catch(e) {}
         }
 
         // Write farewell diary entry

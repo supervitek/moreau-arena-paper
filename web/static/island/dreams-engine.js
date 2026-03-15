@@ -3,6 +3,8 @@
 //  Shared across Island pages for dream generation & toasts
 // ══════════════════════════════════════════════════════════════
 
+function _esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
 var DREAM_LIBRARY = {
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -325,7 +327,7 @@ function shouldGenerateHaunting() {
         var deadPets = [];
         var allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
         for (var i = 0; i < allPets.length; i++) {
-            if (allPets[i].deceased) deadPets.push(allPets[i]);
+            if (allPets[i].deceased || allPets[i].is_alive === false) deadPets.push(allPets[i]);
         }
         if (deadPets.length === 0) return null;
 
@@ -352,7 +354,8 @@ function checkConvergence() {
 
 function generateDream(type, pet, extra) {
     extra = extra || {};
-    var dreams = JSON.parse(localStorage.getItem('moreau_dreams') || '{"dreams":[],"unread_count":0}');
+    var dreams;
+    try { dreams = JSON.parse(localStorage.getItem('moreau_dreams') || '{"dreams":[],"unread_count":0}'); } catch(e) { dreams = {"dreams":[],"unread_count":0}; }
     var animal = (pet.animal || '').toLowerCase();
 
     // ── Check for CONVERGENCE first (20+ confessions, one-time) ──
@@ -507,7 +510,7 @@ function showDreamToast(dream) {
         '<span style="font-size:1.3rem;">' + toastIcon + '</span>' +
         '<div>' +
             '<div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:' + color + ';font-weight:700;">' + toastLabel + '</div>' +
-            '<div style="font-size:0.85rem;font-weight:600;color:#f1faee;">' + (dream.pet_name || '') + ' \u2014 ' + (dream.type || 'dream') + '</div>' +
+            '<div style="font-size:0.85rem;font-weight:600;color:#f1faee;">' + _esc(dream.pet_name || '') + ' \u2014 ' + _esc(dream.type || 'dream') + '</div>' +
         '</div>';
 
     toast.onclick = function() {

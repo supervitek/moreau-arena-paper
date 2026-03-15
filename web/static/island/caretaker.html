@@ -1809,8 +1809,8 @@
             }
 
             // Decay needs over time
-            if (typeof CaretakerEngine !== 'undefined' && CaretakerEngine.decayNeeds) {
-                CaretakerEngine.decayNeeds(pet);
+            if (typeof CaretakerEngine !== 'undefined' && CaretakerEngine.decay) {
+                CaretakerEngine.decay(pet);
                 savePets();
             }
 

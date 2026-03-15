@@ -2302,7 +2302,8 @@
                 '<span class="action-icon">&#127942;</span>LOGBOOK</a>';
 
             // DREAMS
-            var _dj = JSON.parse(localStorage.getItem('moreau_dreams') || '{"dreams":[],"unread_count":0}');
+            var _dj;
+            try { _dj = JSON.parse(localStorage.getItem('moreau_dreams') || '{"dreams":[],"unread_count":0}'); } catch(e) { _dj = {"dreams":[],"unread_count":0}; }
             var _djUnread = _dj.dreams ? _dj.dreams.filter(function(d) { return !d.read; }).length : 0;
             html += '<a href="/island/dreams" class="action-btn action-dreams">' +
                 (_djUnread > 0 ? '<span class="ready-badge" style="background:#9b59b6;">' + _djUnread + '</span>' : '') +

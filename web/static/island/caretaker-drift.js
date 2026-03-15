@@ -107,7 +107,7 @@ var CaretakerDrift = (function() {
     }
 
     function isAlive(pet) {
-        return pet && !pet.deceased;
+        return pet && !pet.deceased && pet.is_alive !== false;
     }
 
     function livingIndices(pets) {

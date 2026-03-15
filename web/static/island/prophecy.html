@@ -1856,29 +1856,27 @@
                     try { return !!JSON.parse(localStorage.getItem('moreau_mercy_pending')); } catch(e) { return false; }
                 case 'efficiency_decay':
                     try {
-                        var caretaker = JSON.parse(localStorage.getItem('moreau_caretaker_state') || '{}');
-                        return (caretaker.efficiency || 100) < 80;
+                        var eff = parseFloat(localStorage.getItem('moreau_caretaker_efficiency')) || 100;
+                        return eff < 80;
                     } catch(e) { return false; }
                 case 'new_dialect':
                     try {
-                        var dialects = JSON.parse(localStorage.getItem('moreau_sleep_dialects') || '{}');
-                        var dCount = Object.keys(dialects).length;
+                        var dialectState = JSON.parse(localStorage.getItem('moreau_sleep_dialect') || '{}');
+                        var dCount = (dialectState.words_discovered || []).length;
                         return dCount > (prophecy.initial_dialect_count || 0);
                     } catch(e) { return false; }
                 case 'letter_arrives':
                     try {
-                        var letters = JSON.parse(localStorage.getItem('moreau_caretaker_letters') || '[]');
-                        return letters.length > (prophecy.initial_letter_count || 0);
+                        var lettersState = JSON.parse(localStorage.getItem('moreau_caretaker_letters_state') || '{}');
+                        var letterCount = lettersState.visit_count || 0;
+                        return letterCount > (prophecy.initial_letter_count || 0);
                     } catch(e) { return false; }
                 case 'favoritism':
                     try {
                         var driftData2 = JSON.parse(localStorage.getItem('moreau_caretaker_drift') || '{}');
-                        var petDrifts = driftData2.per_pet || {};
-                        var vals = Object.values(petDrifts);
-                        if (vals.length < 2) return false;
-                        var maxD = Math.max.apply(null, vals);
-                        var minD = Math.min.apply(null, vals);
-                        return (maxD - minD) >= 3;
+                        var currentFav = driftData2.favorite;
+                        if (currentFav === undefined || currentFav === null) return false;
+                        return currentFav !== prophecy.initial_favorite;
                     } catch(e) { return false; }
                 case 'ledger_progress':
                     try {
@@ -1886,10 +1884,8 @@
                         return (ledger.pagesUnlocked || 0) > (prophecy.initial_pages || 0);
                     } catch(e) { return false; }
                 case 'order_misfire':
-                    try {
-                        var orders = JSON.parse(localStorage.getItem('moreau_standing_orders') || '{}');
-                        return !!orders.last_misfire && orders.last_misfire > prophecy.timestamp;
-                    } catch(e) { return false; }
+                    // Resolve based on trust level: low trust (< 7) means misfires are likely
+                    return trust < 7;
                 case 'aleph_stirs':
                     try {
                         var aleph = JSON.parse(localStorage.getItem('moreau_aleph_events') || '[]');
@@ -1959,19 +1955,24 @@
             var newProphecy = generateCaretakerProphecy();
 
             try {
-                var dialects = JSON.parse(localStorage.getItem('moreau_sleep_dialects') || '{}');
-                newProphecy.initial_dialect_count = Object.keys(dialects).length;
+                var dialectState = JSON.parse(localStorage.getItem('moreau_sleep_dialect') || '{}');
+                newProphecy.initial_dialect_count = (dialectState.words_discovered || []).length;
             } catch(e) { newProphecy.initial_dialect_count = 0; }
 
             try {
-                var letters = JSON.parse(localStorage.getItem('moreau_caretaker_letters') || '[]');
-                newProphecy.initial_letter_count = letters.length;
+                var lettersState = JSON.parse(localStorage.getItem('moreau_caretaker_letters_state') || '{}');
+                newProphecy.initial_letter_count = lettersState.visit_count || 0;
             } catch(e) { newProphecy.initial_letter_count = 0; }
 
             try {
                 var ledger = JSON.parse(localStorage.getItem('moreau_feeding_ledger') || '{}');
                 newProphecy.initial_pages = ledger.pagesUnlocked || 0;
             } catch(e) { newProphecy.initial_pages = 0; }
+
+            try {
+                var driftInit = JSON.parse(localStorage.getItem('moreau_caretaker_drift') || '{}');
+                newProphecy.initial_favorite = driftInit.favorite !== undefined ? driftInit.favorite : null;
+            } catch(e) { newProphecy.initial_favorite = null; }
 
             activeKeeperProphecy = newProphecy;
             keeperProphecies.unshift(newProphecy);
