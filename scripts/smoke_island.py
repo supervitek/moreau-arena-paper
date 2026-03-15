@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import socket
 import subprocess
 import sys
 import time
@@ -10,7 +11,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 VENV_PYTHON = ROOT / ".venv" / "bin" / "python"
-PORT = 8014
 
 ROUTES = [
     ("/island/home", "Island"),
@@ -47,8 +47,14 @@ def fetch(url: str) -> tuple[int, str, str]:
         return response.status, response.headers.get_content_type(), body
 
 
-def wait_until_ready(proc: subprocess.Popen[str]) -> None:
-    base = f"http://127.0.0.1:{PORT}"
+def pick_port() -> int:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind(("127.0.0.1", 0))
+        return int(sock.getsockname()[1])
+
+
+def wait_until_ready(proc: subprocess.Popen[str], port: int) -> None:
+    base = f"http://127.0.0.1:{port}"
     for _ in range(40):
         if proc.poll() is not None:
             raise RuntimeError("uvicorn exited before island smoke checks began")
@@ -66,16 +72,17 @@ def main() -> int:
         print("Missing .venv Python at", VENV_PYTHON, file=sys.stderr)
         return 1
 
+    port = pick_port()
     proc = subprocess.Popen(
-        [str(VENV_PYTHON), "-m", "uvicorn", "web.app:app", "--port", str(PORT), "--log-level", "warning"],
+        [str(VENV_PYTHON), "-m", "uvicorn", "web.app:app", "--port", str(port), "--log-level", "warning"],
         cwd=ROOT,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         text=True,
     )
     try:
-        wait_until_ready(proc)
-        base = f"http://127.0.0.1:{PORT}"
+        wait_until_ready(proc, port)
+        base = f"http://127.0.0.1:{port}"
 
         for route, marker in ROUTES:
             status, content_type, body = fetch(base + route)

@@ -8,6 +8,7 @@ API routes, and static assets, then exits non-zero on the first failure.
 from __future__ import annotations
 
 import json
+import socket
 import subprocess
 import sys
 import time
@@ -26,17 +27,41 @@ CHECKS: list[tuple[str, str]] = [
     ("/leaderboard", "text/html"),
     ("/leaderboard?track=C", "text/html"),
     ("/s1-leaderboard", "text/html"),
+    ("/s1-fighters", "text/html"),
+    ("/s1-matchups", "text/html"),
     ("/pets", "text/html"),
+    ("/pets/home", "text/html"),
+    ("/pets/train", "text/html"),
+    ("/island/home", "text/html"),
     ("/moreddit", "text/html"),
     ("/api/v1/leaderboard/bt?track=C", "application/json"),
     ("/api/v1/s1/tournament", "application/json"),
     ("/static/og-image.png", "image/png"),
 ]
 
+BODY_MUST_CONTAIN: dict[str, str] = {
+    "/s1-fighters": "Meet the Fighters",
+    "/s1-matchups": "Matchup Explorer",
+    "/pets/home": 'property="og:image"',
+    "/pets/train": "Training Grounds",
+    "/island/home": 'property="og:image"',
+}
+
+BODY_MUST_NOT_CONTAIN: dict[str, str] = {
+    "/s1-fighters": "(Preview)",
+    "/s1-matchups": "(Preview)",
+}
+
 
 def fetch(path: str) -> tuple[int, str, bytes]:
     with urllib.request.urlopen(f"{BASE_URL}{path}", timeout=10) as response:
         return response.status, response.headers.get("Content-Type", ""), response.read()
+
+
+def pick_port() -> int:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind(("127.0.0.1", 0))
+        return int(sock.getsockname()[1])
 
 
 def wait_until_ready() -> None:
@@ -54,6 +79,9 @@ def wait_until_ready() -> None:
 
 
 def main() -> int:
+    global BASE_URL
+    port = pick_port()
+    BASE_URL = f"http://127.0.0.1:{port}"
     proc = subprocess.Popen(
         [
             str(PYTHON_BIN if PYTHON_BIN.exists() else Path(sys.executable)),
@@ -63,7 +91,7 @@ def main() -> int:
             "--host",
             "127.0.0.1",
             "--port",
-            "8765",
+            str(port),
         ],
         cwd=PROJECT_ROOT,
         stdout=subprocess.DEVNULL,
@@ -83,6 +111,14 @@ def main() -> int:
                 )
             if path.endswith(".json") or "application/json" in expected_content_type:
                 json.loads(body.decode("utf-8"))
+            else:
+                text = body.decode("utf-8", errors="ignore")
+                required = BODY_MUST_CONTAIN.get(path)
+                forbidden = BODY_MUST_NOT_CONTAIN.get(path)
+                if required and required not in text:
+                    raise RuntimeError(f"{path} missing expected marker {required!r}")
+                if forbidden and forbidden in text:
+                    raise RuntimeError(f"{path} still contains forbidden marker {forbidden!r}")
             print(f"OK {path} [{content_type}]")
 
         return 0

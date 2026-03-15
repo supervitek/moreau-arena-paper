@@ -40,7 +40,7 @@ PSI tau=1.0 — rankings are prompt-robust. Paper + data + live arena: moreauare
 
 We present Moreau Arena, a benchmark for evaluating LLM strategic reasoning through combinatorial creature-design games. The core mechanism: models allocate stat points across attributes to build creatures that fight in deterministic simulated combat. Because game parameters — animals, mechanics, stat budgets — can be regenerated at will, the benchmark is inherently resistant to data contamination.
 
-**Methodology.** We ran three tournament configurations (T001–T003) plus a Season 1 expansion, totaling 2,609 series across 15 agents (8 frontier LLMs + 7 algorithmic baselines). Each series consists of multiple rounds of build-counter-build in a best-of-7 adaptive format where the loser sees the opponent's previous build. All combat outcomes are deterministic given the builds, eliminating evaluation noise. Tournament configs vary along two axes: rule specificity (vague vs. exact formulas) and strategic guidance (hints vs. no hints). Rankings use Bradley-Terry scores with 1000-bootstrap confidence intervals.
+**Methodology.** We ran three tournament configurations (T001–T003) plus a Season 1 expansion, totaling 2,609 series across 15 agents spanning frontier LLMs and algorithmic baselines. Each series consists of multiple rounds of build-counter-build in a best-of-7 adaptive format where the loser sees the opponent's previous build. All combat outcomes are deterministic given the builds, eliminating evaluation noise. Tournament configs vary along two axes: rule specificity (vague vs. exact formulas) and strategic guidance (hints vs. no hints). Rankings use Bradley-Terry scores with 1000-bootstrap confidence intervals.
 
 **Key findings:**
 
@@ -68,7 +68,7 @@ Paper, full data, and live arena: [moreauarena.com](https://moreauarena.com)
 
 So I built this thing called Moreau Arena where you give LLMs a stat budget and they design creature builds — allocate points to attack, defense, speed, etc. Then the creatures fight in a deterministic simulation. No RNG, no memorization possible, totally fresh every time.
 
-Ran 2,609 series across GPT-5.4, Claude Opus/Sonnet, Gemini Pro/Flash, and a bunch of hard-coded baselines.
+Ran 2,609 series across GPT-5.4, Claude models, Gemini models, and a bunch of hard-coded baselines.
 
 The results are genuinely surprising:
 
@@ -79,7 +79,7 @@ The results are genuinely surprising:
 
 The takeaway: how you design the benchmark matters as much as the model you're testing. One config makes GPT-5.4 look broken, another makes it look elite.
 
-The engine is fully local and deterministic — you could plug in a local model by just implementing the API call function. Some frontier models (Gemini Flash, Grok) produce a single frozen build regardless of opponent. A well-tuned local model that actually adapts could beat them.
+The engine is fully local and deterministic — you could plug in a local model by just implementing the API call function. Some frontier models freeze on a single build regardless of opponent. A well-tuned local model that actually adapts could beat them.
 
 Everything open — paper, data, code: [moreauarena.com](https://moreauarena.com)
 
@@ -91,7 +91,7 @@ Everything open — paper, data, code: [moreauarena.com](https://moreauarena.com
 
 **Submitter's first comment:**
 
-Author here. Moreau Arena is a contamination-resistant benchmark: LLMs allocate stat points to build creatures for deterministic combat. Game parameters are regenerable, so memorization is impossible. We ran 2,609 series across 15 agents from OpenAI, Anthropic, Google, and xAI.
+Author here. Moreau Arena is a contamination-resistant benchmark: LLMs allocate stat points to build creatures for deterministic combat. Game parameters are regenerable, so memorization is impossible. We ran 2,609 series across 15 agents spanning frontier APIs and hard-coded baselines.
 
 The core finding: the same model can rank 14th or 2nd depending on game configuration. GPT-5.4 collapses in a stripped-down format (no strategic hints) but recovers when the design space expands to 14 animals with new mechanics. Three models froze entirely — submitting identical builds every round. The failure isn't gradual; it's a sharp boundary condition tied to how rules are presented.
 

@@ -24,7 +24,8 @@ Four gates must pass before public release. Each gate has clear pass/fail criter
 - [ ] `python -m pytest tests/test_invariants.py` passes (all invariants green)
 - [ ] `data/tournament_001/` files match hardcoded SHA-256 hashes in test suite
 - [ ] `data/tournament_002/` files match hardcoded SHA-256 hashes in test suite
-- [ ] `requirements.txt` pins all dependency versions
+- [ ] `data/tournament_003/` files have explicit integrity verification
+- [ ] Top-level `requirements.txt` is the authoritative pinned environment file
 - [ ] `scripts/setup.sh` produces a working environment from clean clone
 - [ ] README includes "Quick Reproduce" section with exact commands
 
@@ -67,7 +68,7 @@ Four gates must pass before public release. Each gate has clear pass/fail criter
 
 | Gate | Status | Last Checked | Notes |
 |------|--------|--------------|-------|
-| 1. Paper Verified | PENDING | — | — |
-| 2. Reproducibility Bundle | PENDING | — | — |
-| 3. Benchmark Identity | PENDING | — | — |
-| 4. T003 Specified | PENDING | — | — |
+| 1. Paper Verified | PENDING | 2026-03-15 | Needs explicit paper-vs-data claim check, not just repo inspection |
+| 2. Reproducibility Bundle | PARTIAL | 2026-03-15 | Invariants pass; T003 integrity item still needs to be formalized |
+| 3. Benchmark Identity | PARTIAL | 2026-03-15 | Core docs and site pages exist; final terminology sweep still required |
+| 4. T003 Specified | PARTIAL | 2026-03-15 | Spec docs exist; final operator-style verification still pending |

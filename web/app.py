@@ -10,6 +10,10 @@ from __future__ import annotations
 import json
 import logging
 import math
+import os
+import random
+import re
+import secrets
 import sys
 from collections import Counter, defaultdict
 from contextlib import asynccontextmanager
@@ -17,14 +21,11 @@ from itertools import combinations
 from pathlib import Path
 from typing import Any
 
-import os
-import random
-import re
 import time
 
 from fastapi import APIRouter, FastAPI, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
@@ -54,6 +55,12 @@ RESULTS_DIR = _project_root / "results"
 SUBMISSIONS_DIR = RESULTS_DIR / "submissions"
 DATA_DIR = _project_root / "data"
 SEASON1_DIR = _project_root / "season1"
+SITE_ORIGIN = os.environ.get("MOREAU_SITE_ORIGIN", "https://moreauarena.com").rstrip("/")
+DEFAULT_OG_IMAGE = f"{SITE_ORIGIN}/static/og-image.png"
+DEFAULT_META_DESCRIPTION = (
+    "Moreau Arena: a contamination-resistant creature combat benchmark, Season 1 arena, "
+    "and experimental pet systems."
+)
 
 VALID_ANIMALS = [
     "bear", "buffalo", "boar", "tiger", "wolf", "monkey",
@@ -876,6 +883,7 @@ class FightRequest(BaseModel):
     build1: str = Field(..., description='Build string, e.g. "bear 3 14 2 1"')
     build2: str = Field(..., description='Build string, e.g. "buffalo 8 6 4 2"')
     games: int = Field(default=100, ge=1, le=10000)
+    seed: int | None = Field(default=None, ge=0, le=2_147_483_647)
 
     @field_validator("build1", "build2")
     @classmethod
@@ -1225,6 +1233,64 @@ def _challenge_logic(build: str, games: int) -> ChallengeResponse:
     )
 
 
+def _inject_default_meta(html: str, request_path: str) -> str:
+    if "</head>" not in html:
+        return html
+
+    title_match = re.search(r"<title>(.*?)</title>", html, flags=re.IGNORECASE | re.DOTALL)
+    meta_desc_match = re.search(
+        r'<meta\s+name="description"\s+content="([^"]*)"',
+        html,
+        flags=re.IGNORECASE,
+    )
+    og_desc_match = re.search(
+        r'<meta\s+property="og:description"\s+content="([^"]*)"',
+        html,
+        flags=re.IGNORECASE,
+    )
+
+    title = title_match.group(1).strip() if title_match else "Moreau Arena"
+    description = (
+        (meta_desc_match.group(1).strip() if meta_desc_match else "")
+        or (og_desc_match.group(1).strip() if og_desc_match else "")
+        or DEFAULT_META_DESCRIPTION
+    )
+    canonical_url = f"{SITE_ORIGIN}{request_path}"
+
+    additions: list[str] = []
+    if 'rel="canonical"' not in html:
+        additions.append(f'<link rel="canonical" href="{canonical_url}">')
+    if 'property="og:type"' not in html:
+        additions.append('<meta property="og:type" content="website">')
+    if 'property="og:title"' not in html:
+        additions.append(f'<meta property="og:title" content="{title}">')
+    if 'property="og:description"' not in html:
+        additions.append(f'<meta property="og:description" content="{description}">')
+    if 'property="og:url"' not in html:
+        additions.append(f'<meta property="og:url" content="{canonical_url}">')
+    if 'property="og:image"' not in html:
+        additions.append(f'<meta property="og:image" content="{DEFAULT_OG_IMAGE}">')
+    if 'name="twitter:card"' not in html:
+        additions.append('<meta name="twitter:card" content="summary_large_image">')
+    if 'name="twitter:title"' not in html:
+        additions.append(f'<meta name="twitter:title" content="{title}">')
+    if 'name="twitter:description"' not in html:
+        additions.append(f'<meta name="twitter:description" content="{description}">')
+    if 'name="twitter:image"' not in html:
+        additions.append(f'<meta name="twitter:image" content="{DEFAULT_OG_IMAGE}">')
+
+    if not additions:
+        return html
+
+    injected = "\n    ".join(additions)
+    return html.replace("</head>", f"    {injected}\n</head>", 1)
+
+
+def _serve_html(file_path: Path, request_path: str, html: str | None = None) -> HTMLResponse:
+    content = html if html is not None else file_path.read_text(encoding="utf-8")
+    return HTMLResponse(_inject_default_meta(content, request_path))
+
+
 # -- Page routes ----------------------------------------------------------------
 
 
@@ -1250,96 +1316,96 @@ def index() -> HTMLResponse:
         placeholder = f'<ul class="mini-ranking" id="track{track_key}-ranking">\n                        <li class="loading">Loading...</li>\n                    </ul>'
         replacement = f'<ul class="mini-ranking" id="track{track_key}-ranking">\n                        {rendered}\n                    </ul>'
         html = html.replace(placeholder, replacement)
-    return HTMLResponse(html)
+    return _serve_html(STATIC_DIR / "index.html", "/", html=html)
 
 
 @app.get("/about")
-def about_page() -> FileResponse:
-    return FileResponse(STATIC_DIR / "about.html")
+def about_page() -> HTMLResponse:
+    return _serve_html(STATIC_DIR / "about.html", "/about")
 
 
 @app.get("/tournaments")
-def tournaments_page() -> FileResponse:
-    return FileResponse(STATIC_DIR / "tournaments.html")
+def tournaments_page() -> HTMLResponse:
+    return _serve_html(STATIC_DIR / "tournaments.html", "/tournaments")
 
 
 @app.get("/leaderboard")
-def leaderboard_page() -> FileResponse:
-    return FileResponse(STATIC_DIR / "leaderboard.html")
+def leaderboard_page() -> HTMLResponse:
+    return _serve_html(STATIC_DIR / "leaderboard.html", "/leaderboard")
 
 
 @app.get("/paper")
-def paper_page() -> FileResponse:
-    return FileResponse(STATIC_DIR / "paper.html")
+def paper_page() -> HTMLResponse:
+    return _serve_html(STATIC_DIR / "paper.html", "/paper")
 
 
 @app.get("/api-docs")
-def api_docs_page() -> FileResponse:
-    return FileResponse(STATIC_DIR / "api.html")
+def api_docs_page() -> HTMLResponse:
+    return _serve_html(STATIC_DIR / "api.html", "/api-docs")
 
 
 @app.get("/play")
-def play_page() -> FileResponse:
-    return FileResponse(STATIC_DIR / "play.html")
+def play_page() -> HTMLResponse:
+    return _serve_html(STATIC_DIR / "play.html", "/play")
 
 
 @app.get("/research")
-def research_page() -> FileResponse:
+def research_page() -> HTMLResponse:
     """Legacy route — redirect to paper page."""
-    return FileResponse(STATIC_DIR / "paper.html")
+    return _serve_html(STATIC_DIR / "paper.html", "/paper")
 
 
 @app.get("/match-log")
-def match_log_page() -> FileResponse:
-    return FileResponse(STATIC_DIR / "match-log.html")
+def match_log_page() -> HTMLResponse:
+    return _serve_html(STATIC_DIR / "match-log.html", "/match-log")
 
 
 @app.get("/methodology")
-def methodology_page() -> FileResponse:
-    return FileResponse(STATIC_DIR / "methodology.html")
+def methodology_page() -> HTMLResponse:
+    return _serve_html(STATIC_DIR / "methodology.html", "/methodology")
 
 
 @app.get("/compare")
-def compare_page() -> FileResponse:
-    return FileResponse(STATIC_DIR / "compare.html")
+def compare_page() -> HTMLResponse:
+    return _serve_html(STATIC_DIR / "compare.html", "/compare")
 
 
 @app.get("/s1-leaderboard")
-def s1_leaderboard_page() -> FileResponse:
-    return FileResponse(STATIC_DIR / "s1-leaderboard.html")
+def s1_leaderboard_page() -> HTMLResponse:
+    return _serve_html(STATIC_DIR / "s1-leaderboard.html", "/s1-leaderboard")
 
 
 @app.get("/s1-fighters")
-def s1_fighters_page() -> FileResponse:
-    return FileResponse(STATIC_DIR / "s1-fighters.html")
+def s1_fighters_page() -> HTMLResponse:
+    return _serve_html(STATIC_DIR / "s1-fighters.html", "/s1-fighters")
 
 
 @app.get("/s1-matchups")
-def s1_matchups_page() -> FileResponse:
-    return FileResponse(STATIC_DIR / "s1-matchups.html")
+def s1_matchups_page() -> HTMLResponse:
+    return _serve_html(STATIC_DIR / "s1-matchups.html", "/s1-matchups")
 
 
 @app.get("/s1-compare")
-def s1_compare_page() -> FileResponse:
-    return FileResponse(STATIC_DIR / "s1-compare.html")
+def s1_compare_page() -> HTMLResponse:
+    return _serve_html(STATIC_DIR / "s1-compare.html", "/s1-compare")
 
 
 @app.get("/fighters/{animal}")
-def fighter_page(animal: str) -> FileResponse:
-    return FileResponse(STATIC_DIR / "fighters" / f"{animal}.html")
+def fighter_page(animal: str) -> HTMLResponse:
+    return _serve_html(STATIC_DIR / "fighters" / f"{animal}.html", f"/fighters/{animal}")
 
 
 @app.get("/moreddit")
-def moreddit_page() -> FileResponse:
-    return FileResponse(STATIC_DIR / "moreddit.html")
+def moreddit_page() -> HTMLResponse:
+    return _serve_html(STATIC_DIR / "moreddit.html", "/moreddit")
 
 
 # -- Island routes -------------------------------------------------------------
 
 @app.get("/island")
-def island_landing_page() -> FileResponse:
+def island_landing_page() -> HTMLResponse:
     """Serve the Island landing page."""
-    return FileResponse(STATIC_DIR / "island" / "index.html")
+    return _serve_html(STATIC_DIR / "island" / "index.html", "/island")
 
 
 @app.get("/api/v1/island/config")
@@ -1408,29 +1474,31 @@ async def arena_fight(req: ArenaFightRequest, request: Request):
 
 
 @app.get("/island/{page}")
-def island_page(page: str) -> FileResponse:
+def island_page(page: str) -> HTMLResponse:
     allowed = {"index", "home", "create", "kennel", "train", "lab", "pit", "graveyard", "profile", "leaderboard", "achievements", "onboarding", "dreams", "crimson", "rivals", "prophecy", "shrine", "artifacts", "menagerie", "succession", "deep-tide", "black-market", "tides", "pact", "genesis", "confessions", "oath", "arena", "breeding", "lineage", "synergies", "cosmetics", "caretaker"}
     if page not in allowed:
         raise HTTPException(404, f"Unknown island page: {page}")
-    return FileResponse(STATIC_DIR / "island" / f"{page}.html")
+    route_path = "/island" if page == "index" else f"/island/{page}"
+    return _serve_html(STATIC_DIR / "island" / f"{page}.html", route_path)
 
 
 # -- Pets routes ---------------------------------------------------------------
 
 @app.get("/pets")
-def pets_landing_page() -> FileResponse:
+def pets_landing_page() -> HTMLResponse:
     """Serve the hub page; JS handles redirect to creation if no pets exist."""
-    return FileResponse(STATIC_DIR / "pets" / "hub.html")
+    return _serve_html(STATIC_DIR / "pets" / "hub.html", "/pets")
 
 
 @app.get("/pets/{page}")
-def pets_page(page: str) -> FileResponse:
+def pets_page(page: str) -> HTMLResponse:
     allowed = {"index", "create", "hub", "home", "train", "mutate", "profile", "pvp", "forbidden-lab"}
     if page not in allowed:
         raise HTTPException(404, f"Unknown pets page: {page}")
     # "create" is served from index.html (the creation wizard)
     filename = "index.html" if page == "create" else f"{page}.html"
-    return FileResponse(STATIC_DIR / "pets" / filename)
+    route_path = "/pets/create" if page == "create" else f"/pets/{page}"
+    return _serve_html(STATIC_DIR / "pets" / filename, route_path)
 
 
 @app.post("/api/v1/pets/soul")
@@ -1460,14 +1528,16 @@ def _parse_s1_build(build_str: str) -> tuple[str, int, int, int, int]:
         raise ValueError(f"Invalid S1 animal '{animal}'. Valid: {', '.join(S1_ANIMALS)}")
     hp, atk, spd, wil = int(parts[1]), int(parts[2]), int(parts[3]), int(parts[4])
     total = hp + atk + spd + wil
-    if total < 4 or total > 24:
-        raise ValueError(f"Stats must sum to 4-24, got {total}")
+    # Allow extended totals for mutated pets and island systems while keeping
+    # normal quick-fight builds well below this bound.
+    if total < 4 or total > 60:
+        raise ValueError(f"Stats must sum to 4-60, got {total}")
     if any(s < 1 for s in (hp, atk, spd, wil)):
         raise ValueError("Each stat must be >= 1")
     return animal, hp, atk, spd, wil
 
 
-def _fight_s1_logic(build1: str, build2: str, games: int) -> FightResponse:
+def _fight_s1_logic(build1: str, build2: str, games: int, seed: int | None = None) -> FightResponse:
     """Run a Season 1 fight series using the S1 engine."""
     try:
         animal_a, hp_a, atk_a, spd_a, wil_a = _parse_s1_build(build1)
@@ -1484,12 +1554,14 @@ def _fight_s1_logic(build1: str, build2: str, games: int) -> FightResponse:
     draws = 0
     total_ticks = 0
 
+    base_seed = seed if seed is not None else secrets.randbelow(1_000_000_000)
+
     for i in range(games):
-        seed = 42 + i
+        match_seed = base_seed + i
         result = s1_run_match(
             animal_a, (hp_a, atk_a, spd_a, wil_a),
             animal_b, (hp_b, atk_b, spd_b, wil_b),
-            seed,
+            match_seed,
         )
         total_ticks += result["ticks"]
         if result["winner"] == "a":
@@ -1509,7 +1581,7 @@ def _fight_s1_logic(build1: str, build2: str, games: int) -> FightResponse:
 
 @app.post("/fight/s1", response_model=FightResponse)
 def fight_s1(req: FightRequest) -> FightResponse:
-    return _fight_s1_logic(req.build1, req.build2, req.games)
+    return _fight_s1_logic(req.build1, req.build2, req.games, req.seed)
 
 
 # -- API v1 router ---------------------------------------------------------------
@@ -1524,7 +1596,7 @@ def api_fight(req: FightRequest) -> FightResponse:
 
 @api_v1.post("/fight/s1", response_model=FightResponse)
 def api_fight_s1(req: FightRequest) -> FightResponse:
-    return _fight_s1_logic(req.build1, req.build2, req.games)
+    return _fight_s1_logic(req.build1, req.build2, req.games, req.seed)
 
 
 @api_v1.get("/leaderboard")
@@ -1968,12 +2040,12 @@ app.include_router(api_v1)
 
 # Agent card page route — must come AFTER api_v1 router is included
 @app.get("/agent/{name}")
-def agent_page(name: str) -> FileResponse:
+def agent_page(name: str) -> HTMLResponse:
     """Serve the agent card template page."""
     agents_data = _cache.get("agents", {})
     if name not in agents_data:
         raise HTTPException(status_code=404, detail=f"Agent '{name}' not found")
-    return FileResponse(STATIC_DIR / "agent.html")
+    return _serve_html(STATIC_DIR / "agent.html", f"/agent/{name}")
 
 
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")

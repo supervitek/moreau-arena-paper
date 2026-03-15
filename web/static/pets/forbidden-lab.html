@@ -2887,10 +2887,10 @@
         const level = pet.level || 1;
 
         if (!pet.lab_mutations) pet.lab_mutations = {};
-        let slot;
-        if (level >= 9) slot = 'L9';
-        else if (level >= 6) slot = 'L6';
-        else slot = 'L3';
+        const unlockedSlots = ['L3'];
+        if (level >= 6) unlockedSlots.push('L6');
+        if (level >= 9) unlockedSlots.push('L9');
+        const slot = unlockedSlots.find(s => !pet.lab_mutations[s]) || unlockedSlots[unlockedSlots.length - 1];
 
         pet.lab_mutations[slot] = {
             id: m.id,
@@ -2902,7 +2902,7 @@
             animal: m.animal || null,
         };
 
-        if (!pet.base_stats) pet.base_stats = { hp:5, atk:5, spd:5 };
+        if (!pet.base_stats) pet.base_stats = { hp:5, atk:5, spd:5, wil:5 };
         if (m.stats) {
             for (const [stat, val] of Object.entries(m.stats)) {
                 if (['hp','atk','spd','wil'].includes(stat)) {

@@ -713,6 +713,7 @@
         function init() {
             pet = migrateAndLoadPet();
             if (!pet) { window.location.href = '/pets'; return; }
+            if (pet.deceased) { window.location.href = '/pets'; return; }
             forkLevel = canMutate(pet);
 
             document.getElementById('intro-emoji').textContent = EMOJI_MAP[pet.animal] || '\u{1F43E}';
@@ -839,7 +840,7 @@
             pet.mutations.push(selectedMutationId);
 
             if (m.stats && Object.keys(m.stats).length > 0) {
-                if (!pet.base_stats) pet.base_stats = { hp: 5, atk: 5, spd: 5 };
+                if (!pet.base_stats) pet.base_stats = { hp: 5, atk: 5, spd: 5, wil: 5 };
                 for (const [stat, val] of Object.entries(m.stats)) {
                     pet.base_stats[stat] = (pet.base_stats[stat] || 0) + val;
                 }

@@ -559,6 +559,7 @@ function saveActivePet(p) {
 (function init() {
     pet = migrateAndLoadPet();
     if (!pet) { window.location.href = '/pets'; return; }
+    if (pet.deceased) { window.location.href = '/pets'; return; }
 
     document.getElementById('pet-emoji').textContent = EMOJI_MAP[pet.animal] || '❓';
     document.getElementById('pet-name').textContent = pet.name || 'Your Pet';
@@ -603,7 +604,7 @@ async function startFight() {
         const resp = await fetch('/api/v1/fight/s1', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ build1: petBuild, build2: opp.build, games: 1 })
+            body: JSON.stringify({ build1: petBuild, build2: opp.build, games: 5 })
         });
         if (!resp.ok) {
             const err = await resp.json().catch(() => ({}));
@@ -665,8 +666,9 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 // --- Show Result ---
 function showResult(data, opp) {
-    const won = data.build1_wins > 0;
+    const won = data.build1_wins > data.build2_wins;
     const ticks = data.avg_ticks || data.ticks || (data.results?.[0]?.ticks) || null;
+    const score = data.build1_wins + '-' + data.build2_wins + (data.draws ? ' (' + data.draws + ' draws)' : '');
 
     // Hide arena, show result
     document.getElementById('phase-fight').classList.remove('visible');
@@ -679,7 +681,9 @@ function showResult(data, opp) {
     verdictEl.className = 'result-verdict ' + (won ? 'win' : 'loss');
 
     const xpGained = won ? XP_WIN : XP_LOSS;
-    document.getElementById('result-subtitle').textContent = won ? '' : 'Even defeat teaches.';
+    document.getElementById('result-subtitle').textContent = won
+        ? 'Series score: ' + score
+        : 'Series score: ' + score + '. Even defeat teaches.';
     document.getElementById('xp-flyup').textContent = '+' + xpGained + ' XP';
 
     // Update pet XP & level

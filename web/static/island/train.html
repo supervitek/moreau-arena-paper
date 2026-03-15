@@ -904,7 +904,7 @@
                 var resp = await fetch('/api/v1/fight/s1', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ build1: petBuild, build2: opp.build, games: 1 })
+                    body: JSON.stringify({ build1: petBuild, build2: opp.build, games: 5 })
                 });
                 if (!resp.ok) {
                     var err = await resp.json().catch(function() { return {}; });
@@ -967,8 +967,9 @@
         // ── Show Result ──
 
         async function showResult(data, opp) {
-            var won = data.build1_wins > 0;
+            var won = data.build1_wins > data.build2_wins;
             var ticks = data.avg_ticks || data.ticks || (data.results && data.results[0] ? data.results[0].ticks : null) || null;
+            var score = data.build1_wins + '-' + data.build2_wins + (data.draws ? ' (' + data.draws + ' draws)' : '');
 
             // Hide arena, show result
             document.getElementById('phase-fight').classList.remove('visible');
@@ -981,7 +982,9 @@
             verdictEl.className = 'result-verdict ' + (won ? 'win' : 'loss');
 
             var xpGained = won ? XP_WIN : XP_LOSS;
-            document.getElementById('result-subtitle').textContent = won ? '' : 'Even defeat teaches.';
+            document.getElementById('result-subtitle').textContent = won
+                ? 'Series score: ' + score
+                : 'Series score: ' + score + '. Even defeat teaches.';
             document.getElementById('xp-flyup').textContent = '+' + xpGained + ' XP';
 
             // Track old state
@@ -1613,7 +1616,7 @@
         var _origShowResult = showResult;
         showResult = async function(data, opp) {
             await _origShowResult(data, opp);
-            var won = data.build1_wins > 0;
+            var won = data.build1_wins > data.build2_wins;
             if (won) {
                 _checkAch('first_win', '\u2694\uFE0F', 'Blood Drawn');
                 var streak = parseInt(localStorage.getItem('moreau_win_streak') || '0', 10);

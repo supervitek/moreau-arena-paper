@@ -953,18 +953,19 @@
                     (statsStr ? '<span class="lab-slot-stats">' + statsStr + '</span>' : '') +
                     '</div>';
             });
-            slotsEl.innerHTML = slotsHTML || '<div class="lab-empty">No mutations applied yet</div>';
+            const slotMarkup = slotsHTML || '<div class="lab-empty">No mutations applied yet</div>';
 
             // Instability mini-bar
-            const inst = pet.instability || 0;
+            let instabilityMarkup = '';
             if (inst > 0) {
                 const color = inst < 40 ? 'var(--green)' : inst < 60 ? 'var(--gold)' : inst < 80 ? '#f4a261' : 'var(--accent)';
-                slotsHTML += '<div class="instability-mini">' +
+                instabilityMarkup = '<div class="instability-mini">' +
                     '<span class="instability-mini-label">&#9762; Instability</span>' +
                     '<div class="instability-mini-bar"><div class="instability-mini-fill" style="width:' + inst + '%;background:' + color + '"></div></div>' +
                     '<span class="instability-mini-val" style="color:' + color + '">' + inst + '%</span>' +
                     '</div>';
             }
+            slotsEl.innerHTML = slotMarkup + instabilityMarkup;
 
             // Render side effects
             if (sideEffects.length > 0) {

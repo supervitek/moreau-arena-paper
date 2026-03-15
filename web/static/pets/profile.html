@@ -850,6 +850,7 @@
         // Load pet
         const pet = migrateAndLoadPet();
         if (!pet) { window.location.href = '/pets'; }
+        if (pet && pet.deceased) { window.location.href = '/pets'; }
 
         function getStatus(level) {
             if (level >= 10) return { text: 'APEX PREDATOR', cls: 'status-apex' };
@@ -944,7 +945,7 @@
         function renderDossier() {
             const el = document.getElementById('dossier');
             const level = pet.level || 1;
-            const stats = pet.base_stats || pet.stats || {};
+            const stats = pet.base_stats || { hp: 5, atk: 5, spd: 5, wil: 5 };
             const mutations = pet.mutations || [];
             const animal = (pet.animal || '').toLowerCase();
             const emoji = ANIMAL_EMOJIS[animal] || '\u{1F43E}';
