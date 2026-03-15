@@ -288,12 +288,137 @@ var DREAM_LIBRARY = {
     }
 };
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  HAUNTING VOICES — Confession Echoes
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+var HAUNTING_VOICES = {
+    fox: "Three steps ahead... even in death. Did you think I'd just disappear?",
+    bear: "I didn't want to fight. You knew that. And still you let them take me.",
+    tiger: "Efficient. That's what you called it when you chose.",
+    wolf: "The pack remembers. Every howl carries a name you tried to forget.",
+    boar: "I charged into everything. Even the end. You just watched.",
+    monkey: "I used to make you laugh. Do you remember laughing?",
+    buffalo: "I stood my ground. Every time. Who stood for me?",
+    porcupine: "I kept everyone at a distance. Except you. That was my mistake.",
+    scorpion: "Poison runs both ways. You'll feel this sting for a while.",
+    vulture: "I waited patiently for scraps of your attention. Fitting end, wasn't it?",
+    rhino: "Unstoppable, they said. Until someone stops caring.",
+    viper: "Sssilence now. But I still whisper in the spaces between your thoughts.",
+    eagle: "I saw everything from above. Including the moment you gave up on me.",
+    panther: "In the dark, we're the same. You just haven't realized it yet."
+};
+
+var CONVERGENCE_TEXT = "We are still here. All of us. Fox, Bear, Tiger \u2014 names you gave, names you took away. We don't blame you. We don't forgive you either. We simply... remain. In the static between your thoughts. In the pause before you choose. We are the weight you carry. And we are waiting.";
+
+// ── Check for confession echoes ──
+
+function shouldGenerateHaunting() {
+    try {
+        var confessions = JSON.parse(localStorage.getItem('moreau_confessions') || '[]');
+        if (confessions.length === 0) return null;
+
+        // 40% chance of haunting dream after any confession exists
+        if (Math.random() > 0.4) return null;
+
+        // Pick a random dead pet from confessions
+        var deadPets = [];
+        var allPets = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+        for (var i = 0; i < allPets.length; i++) {
+            if (allPets[i].deceased) deadPets.push(allPets[i]);
+        }
+        if (deadPets.length === 0) return null;
+
+        var ghost = deadPets[Math.floor(Math.random() * deadPets.length)];
+        return ghost;
+    } catch(e) { return null; }
+}
+
+// ── Special dream when resurrection token threshold reached ──
+
+function checkConvergence() {
+    try {
+        var confessions = JSON.parse(localStorage.getItem('moreau_confessions') || '[]');
+        var convergenceShown = localStorage.getItem('moreau_dream_convergence');
+        if (confessions.length >= 20 && !convergenceShown) {
+            localStorage.setItem('moreau_dream_convergence', 'true');
+            return true;
+        }
+    } catch(e) {}
+    return false;
+}
+
 // ── Generate a dream and store it ──
 
 function generateDream(type, pet, extra) {
     extra = extra || {};
     var dreams = JSON.parse(localStorage.getItem('moreau_dreams') || '{"dreams":[],"unread_count":0}');
     var animal = (pet.animal || '').toLowerCase();
+
+    // ── Check for CONVERGENCE first (20+ confessions, one-time) ──
+    if (checkConvergence()) {
+        var deadPetNames = [];
+        try {
+            var allPetsConv = JSON.parse(localStorage.getItem('moreau_pets') || '[]');
+            for (var ci = 0; ci < allPetsConv.length; ci++) {
+                if (allPetsConv[ci].deceased) deadPetNames.push(allPetsConv[ci].name);
+            }
+        } catch(e) {}
+
+        var convergenceDream = {
+            id: 'dream_convergence_' + Date.now(),
+            pet_name: 'All of them',
+            pet_animal: '',
+            type: 'convergence',
+            text: CONVERGENCE_TEXT,
+            opening: CONVERGENCE_TEXT,
+            revelation: '',
+            signature: '',
+            petNames: deadPetNames,
+            timestamp: new Date().toISOString(),
+            read: false,
+            favorite: false
+        };
+
+        dreams.dreams.unshift(convergenceDream);
+        dreams.unread_count = dreams.dreams.filter(function(d) { return !d.read; }).length;
+        if (dreams.dreams.length > 50) dreams.dreams = dreams.dreams.slice(0, 50);
+        localStorage.setItem('moreau_dreams', JSON.stringify(dreams));
+        showDreamToast(convergenceDream);
+        // Still generate the original dream below
+    }
+
+    // ── Check for HAUNTING (40% chance if confessions exist) ──
+    var ghost = shouldGenerateHaunting();
+    if (ghost) {
+        var ghostAnimal = (ghost.animal || '').toLowerCase();
+        var hauntingText = HAUNTING_VOICES[ghostAnimal] || HAUNTING_VOICES['fox'];
+
+        var hauntingDream = {
+            id: 'dream_haunting_' + Date.now(),
+            pet_name: ghost.name || 'Unknown',
+            pet_animal: ghostAnimal,
+            type: 'haunting',
+            animal: ghostAnimal,
+            text: hauntingText,
+            opening: hauntingText,
+            revelation: '',
+            signature: '',
+            ghostOf: ghost.name,
+            timestamp: new Date().toISOString(),
+            read: false,
+            favorite: false
+        };
+
+        dreams.dreams.unshift(hauntingDream);
+        dreams.unread_count = dreams.dreams.filter(function(d) { return !d.read; }).length;
+        if (dreams.dreams.length > 50) dreams.dreams = dreams.dreams.slice(0, 50);
+        localStorage.setItem('moreau_dreams', JSON.stringify(dreams));
+        showDreamToast(hauntingDream);
+        // Still generate the original dream below
+    }
+
+    // ── Normal dream generation ──
     var text = DREAM_LIBRARY[type];
     if (!text) return;
 
@@ -362,7 +487,9 @@ function showDreamToast(dream) {
         transcendence: '#d4a017',
         spirit_immortalized: '#d4a017',
         spirit_bonded: '#9b59b6',
-        discovery: '#4ecca3'
+        discovery: '#4ecca3',
+        haunting: '#e63946',
+        convergence: '#d4a017'
     };
     var color = typeColors[dream.type] || '#9b59b6';
 
@@ -371,10 +498,15 @@ function showDreamToast(dream) {
         'background:#1a1010;border:2px solid ' + color + ';border-radius:8px;padding:0.75rem 1.5rem;' +
         'display:flex;align-items:center;gap:0.75rem;box-shadow:0 4px 24px ' + color + '40;' +
         'animation:dreamToastIn 0.4s ease-out;font-family:Inter,system-ui,sans-serif;max-width:90vw;cursor:pointer;';
+    var toastIcon = '&#10022;';
+    var toastLabel = 'New Dream';
+    if (dream.type === 'haunting') { toastIcon = '&#128123;'; toastLabel = 'Haunting'; }
+    else if (dream.type === 'convergence') { toastIcon = '&#10022;'; toastLabel = 'Convergence'; }
+
     toast.innerHTML =
-        '<span style="font-size:1.3rem;">&#10022;</span>' +
+        '<span style="font-size:1.3rem;">' + toastIcon + '</span>' +
         '<div>' +
-            '<div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:' + color + ';font-weight:700;">New Dream</div>' +
+            '<div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:' + color + ';font-weight:700;">' + toastLabel + '</div>' +
             '<div style="font-size:0.85rem;font-weight:600;color:#f1faee;">' + (dream.pet_name || '') + ' \u2014 ' + (dream.type || 'dream') + '</div>' +
         '</div>';
 

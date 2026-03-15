@@ -210,6 +210,17 @@
         .dream-card.type-transcendence { border-left-color: var(--gold); }
         .dream-card.type-transcendence::before { background: var(--gold); box-shadow: 0 0 8px rgba(212,160,23,0.4); }
 
+        /* Haunting — confession echoes */
+        .dream-card.type-haunting { border-left-color: var(--accent); background: rgba(230,57,70,0.08); }
+        .dream-card.type-haunting::before { background: var(--accent); box-shadow: 0 0 8px rgba(230,57,70,0.5); }
+        .dream-card.type-haunting:hover { background: rgba(230,57,70,0.12); }
+
+        /* Convergence — all ghosts speak */
+        .dream-card.type-convergence { border-left-color: var(--gold); background: rgba(212,160,23,0.08); }
+        .dream-card.type-convergence::before { background: var(--gold); box-shadow: 0 0 10px rgba(212,160,23,0.5); }
+        .dream-card.type-convergence:hover { background: rgba(212,160,23,0.12); }
+        .dream-card.type-convergence .dream-full .dream-section-text { font-style: italic; }
+
         .dream-meta {
             display: flex;
             align-items: center;
@@ -243,6 +254,8 @@
         .dream-type-badge.badge-corruption { background: rgba(230,57,70,0.15); color: var(--accent); }
         .dream-type-badge.badge-death { background: rgba(106,90,90,0.2); color: var(--text-muted); }
         .dream-type-badge.badge-transcendence { background: rgba(212,160,23,0.15); color: var(--gold); }
+        .dream-type-badge.badge-haunting { background: rgba(230,57,70,0.2); color: var(--accent); }
+        .dream-type-badge.badge-convergence { background: rgba(212,160,23,0.2); color: var(--gold); }
 
         .dream-pet-name {
             font-size: 0.7rem;
@@ -458,6 +471,8 @@
             <button class="filter-btn" data-filter="trauma">Trauma</button>
             <button class="filter-btn" data-filter="corruption">Corruption</button>
             <button class="filter-btn" data-filter="death">Death</button>
+            <button class="filter-btn" data-filter="haunting">Haunting</button>
+            <button class="filter-btn" data-filter="convergence">Convergence</button>
             <button class="filter-btn" data-filter="transcendence">Transcendence</button>
         </div>
 
@@ -736,26 +751,47 @@
             filtered.forEach(function(dream, idx) {
                 var typeClass = 'type-' + (dream.type || 'arrival');
                 var unreadClass = dream.read ? '' : ' unread';
-                var preview = (dream.opening || '') + ' ' + (dream.revelation || '');
+                var isHaunting = dream.type === 'haunting';
+                var isConvergence = dream.type === 'convergence';
+                var preview = (dream.opening || dream.text || '') + ' ' + (dream.revelation || '');
+                var ghostPrefix = isHaunting ? '\uD83D\uDC7B ' : '';
+                var displayType = isHaunting ? '\uD83D\uDC7B haunting' : (dream.type || 'dream');
 
                 html += '<div class="dream-card ' + typeClass + unreadClass + '" data-idx="' + idx + '" data-id="' + dream.id + '" onclick="toggleDream(this)">';
 
                 // Meta row
                 html += '<div class="dream-meta">';
                 html += '<span class="dream-time">' + relativeTime(dream.timestamp) + '</span>';
-                html += '<span class="dream-type-badge badge-' + (dream.type || 'arrival') + '">' + escHtml(dream.type || 'dream') + '</span>';
-                html += '<span class="dream-pet-name">' + escHtml(dream.pet_name || '') + '</span>';
+                html += '<span class="dream-type-badge badge-' + (dream.type || 'arrival') + '">' + escHtml(displayType) + '</span>';
+                if (isHaunting && dream.ghostOf) {
+                    html += '<span class="dream-pet-name">Ghost of ' + escHtml(dream.ghostOf) + '</span>';
+                } else if (isConvergence && dream.petNames && dream.petNames.length > 0) {
+                    html += '<span class="dream-pet-name">' + escHtml(dream.petNames.join(', ')) + '</span>';
+                } else {
+                    html += '<span class="dream-pet-name">' + escHtml(dream.pet_name || '') + '</span>';
+                }
                 html += '</div>';
 
                 // Preview (collapsed)
-                html += '<div class="dream-preview">' + escHtml(preview.substring(0, 200)) + '</div>';
+                html += '<div class="dream-preview">' + ghostPrefix + escHtml(preview.substring(0, 200)) + '</div>';
 
                 // Full text (expanded)
                 html += '<div class="dream-full">';
-                html += '<div class="dream-section"><div class="dream-section-label">The Dream</div>';
-                html += '<div class="dream-section-text">' + escHtml(dream.opening || '') + '</div></div>';
-                html += '<div class="dream-section"><div class="dream-section-label">The Revelation</div>';
-                html += '<div class="dream-section-text">' + escHtml(dream.revelation || '') + '</div></div>';
+                if (isHaunting) {
+                    // Haunting: single text block, no sections
+                    html += '<div class="dream-section"><div class="dream-section-label">The Haunting</div>';
+                    html += '<div class="dream-section-text">\uD83D\uDC7B ' + escHtml(dream.text || dream.opening || '') + '</div></div>';
+                } else if (isConvergence) {
+                    // Convergence: all text italic, golden label
+                    html += '<div class="dream-section"><div class="dream-section-label" style="color:var(--gold);">Convergence</div>';
+                    html += '<div class="dream-section-text" style="font-style:italic;">' + escHtml(dream.text || dream.opening || '') + '</div></div>';
+                } else {
+                    // Normal dream
+                    html += '<div class="dream-section"><div class="dream-section-label">The Dream</div>';
+                    html += '<div class="dream-section-text">' + escHtml(dream.opening || '') + '</div></div>';
+                    html += '<div class="dream-section"><div class="dream-section-label">The Revelation</div>';
+                    html += '<div class="dream-section-text">' + escHtml(dream.revelation || '') + '</div></div>';
+                }
                 if (dream.signature) {
                     html += '<div class="dream-signature">' + escHtml(dream.signature) + '</div>';
                 }
