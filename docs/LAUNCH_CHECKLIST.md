@@ -20,14 +20,14 @@ Four gates must pass before public release. Each gate has clear pass/fail criter
 
 ## Gate 2: Reproducibility Bundle
 
-- [ ] `config.json` SHA-256 matches frozen hash: `b7ec588583135ad640eba438f29ce45c10307a88dc426decd31126371bb60534`
-- [ ] `python -m pytest tests/test_invariants.py` passes (all invariants green)
-- [ ] `data/tournament_001/` files match hardcoded SHA-256 hashes in test suite
-- [ ] `data/tournament_002/` files match hardcoded SHA-256 hashes in test suite
-- [ ] `data/tournament_003/` files have explicit integrity verification
-- [ ] Top-level `requirements.txt` is the authoritative pinned environment file
-- [ ] `scripts/setup.sh` produces a working environment from clean clone
-- [ ] README includes "Quick Reproduce" section with exact commands
+- [x] `simulator/config.json` embedded SHA-256 matches the canonical hash excluding the `sha256` field: `b7ec588583135ad640eba438f29ce45c10307a88dc426decd31126371bb60534`
+- [x] `python -m pytest tests/test_invariants.py` passes (all invariants green)
+- [x] `data/tournament_001/` files match hardcoded SHA-256 hashes in test suite
+- [x] `data/tournament_002/` files match hardcoded SHA-256 hashes in test suite
+- [x] `data/tournament_003/` files have explicit integrity verification
+- [x] Top-level `requirements.txt` is the authoritative pinned environment file
+- [x] `scripts/setup.sh` produces a working environment from clean clone
+- [x] README includes "Quick Reproduce" section with exact commands
 
 **Pass criteria:** A fresh `git clone` + `pip install -r requirements.txt` + `pytest` succeeds on Python 3.10+.
 
@@ -37,12 +37,12 @@ Four gates must pass before public release. Each gate has clear pass/fail criter
 
 ## Gate 3: Benchmark Identity Page
 
-- [ ] `docs/MEASUREMENT_SPEC.md` defines primary metric (Bradley-Terry + bootstrap CI)
-- [ ] `docs/TRACKS.md` defines at least Track A (one-shot) and Track B (feedback)
-- [ ] `docs/FAQ.md` answers "What is Moreau Arena?" clearly
-- [ ] `docs/LANGUAGE_GUIDE.md` defines allowed/forbidden claims
-- [ ] `web/static/index.html` renders leaderboard with T001+T002 data
-- [ ] Repository description and README use approved terminology only
+- [x] `docs/MEASUREMENT_SPEC.md` defines primary metric (Bradley-Terry + bootstrap CI)
+- [x] `docs/TRACKS.md` defines at least Track A (one-shot) and Track B (feedback)
+- [x] `docs/FAQ.md` answers "What is Moreau Arena?" clearly
+- [x] `docs/LANGUAGE_GUIDE.md` defines allowed/forbidden claims
+- [x] `web/static/index.html` renders leaderboard with T001+T002 data
+- [x] Repository description and README use approved terminology only
 
 **Pass criteria:** A newcomer can read the docs and understand what Moreau measures, how, and why — without confusion about scope.
 
@@ -52,11 +52,11 @@ Four gates must pass before public release. Each gate has clear pass/fail criter
 
 ## Gate 4: T003 Specified
 
-- [ ] T003 protocol defined in `docs/TRACKS.md` or separate spec document
-- [ ] T003 differs from T002 in exactly one controlled variable
-- [ ] T003 ablation variants identified (at minimum: structured-output-only, formulas-no-meta)
-- [ ] Run command documented: `python run_ablation.py --variant <name> --dry-run`
-- [ ] Expected outputs and analysis plan documented
+- [x] T003 protocol defined in `docs/TRACKS.md` or separate spec document
+- [x] T003 differs from T002 in exactly one controlled variable
+- [x] T003 ablation variants identified (at minimum: structured-output-only, formulas-no-meta)
+- [x] Run command documented: `python run_ablation.py --variant <name> --dry-run`
+- [x] Expected outputs and analysis plan documented
 
 **Pass criteria:** T003 can be executed by a new contributor following only the documentation.
 
@@ -69,6 +69,6 @@ Four gates must pass before public release. Each gate has clear pass/fail criter
 | Gate | Status | Last Checked | Notes |
 |------|--------|--------------|-------|
 | 1. Paper Verified | PENDING | 2026-03-15 | Needs explicit paper-vs-data claim check, not just repo inspection |
-| 2. Reproducibility Bundle | PARTIAL | 2026-03-15 | Invariants pass; T003 integrity item still needs to be formalized |
-| 3. Benchmark Identity | PARTIAL | 2026-03-15 | Core docs and site pages exist; final terminology sweep still required |
-| 4. T003 Specified | PARTIAL | 2026-03-15 | Spec docs exist; final operator-style verification still pending |
+| 2. Reproducibility Bundle | PASS | 2026-03-15 | Config hash verification, setup script, invariant suite, and T003 integrity doc all checked |
+| 3. Benchmark Identity | PASS | 2026-03-15 | README/docs terminology and public-facing benchmark descriptions were refreshed for current state |
+| 4. T003 Specified | PASS | 2026-03-15 | Track docs, T003 spec, tournament doc, and integrity report now agree on exact-only cleanroom protocol |

@@ -122,12 +122,14 @@ def make_creature(
 
 class TestConfigIntegrity:
     def test_config_sha256_matches_embedded_hash(self) -> None:
-        """The SHA-256 of config.json (excluding the sha256 field) must match
-        the hash stored inside it. We verify the *whole-file* hash matches the
-        known frozen value instead."""
-        config_data = CONFIG_PATH.read_text(encoding="utf-8")
-        config = json.loads(config_data)
+        """The embedded hash must equal the canonical hash of the config
+        payload with the sha256 field removed."""
+        config = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
         embedded_hash = config["sha256"]
+        payload = {k: v for k, v in config.items() if k != "sha256"}
+        canonical = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        derived_hash = hashlib.sha256(canonical).hexdigest()
+        assert derived_hash == embedded_hash
         assert embedded_hash == "b7ec588583135ad640eba438f29ce45c10307a88dc426decd31126371bb60534"
 
     def test_config_has_required_top_level_keys(self) -> None:

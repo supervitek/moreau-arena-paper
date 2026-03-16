@@ -61,6 +61,9 @@ DEFAULT_META_DESCRIPTION = (
     "Moreau Arena: a contamination-resistant creature combat benchmark, Season 1 arena, "
     "and experimental pet systems."
 )
+NAV_BLOCK_RE = re.compile(r"<nav class=\"nav\">.*?</nav>", flags=re.IGNORECASE | re.DOTALL)
+BENCHMARK_NAV_PATHS = {"/tournaments", "/leaderboard", "/compare", "/match-log", "/methodology"}
+SEASONS_NAV_PATHS = {"/s1-leaderboard", "/s1-fighters", "/s1-matchups", "/play", "/s1-compare", "/moreddit"}
 
 VALID_ANIMALS = [
     "bear", "buffalo", "boar", "tiger", "wolf", "monkey",
@@ -1286,8 +1289,68 @@ def _inject_default_meta(html: str, request_path: str) -> str:
     return html.replace("</head>", f"    {injected}\n</head>", 1)
 
 
+def _render_nav_link(path: str, label: str, active: bool = False) -> str:
+    class_attr = ' class="active"' if active else ""
+    return f'<a href="{path}"{class_attr}>{label}</a>'
+
+
+def _render_standard_nav(request_path: str) -> str:
+    benchmark_active = request_path in BENCHMARK_NAV_PATHS or request_path.startswith("/agent/")
+    seasons_active = request_path in SEASONS_NAV_PATHS or request_path.startswith("/fighters/")
+    pets_active = request_path.startswith("/pets")
+    paper_active = request_path == "/paper"
+    api_active = request_path == "/api-docs"
+
+    return f"""
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li>{_render_nav_link('/', 'Home', request_path == '/')}</li>
+                <li>{_render_nav_link('/about', 'About', request_path == '/about')}</li>
+                <li class="nav-dropdown">
+                    <a href="/tournaments"{' class="active"' if benchmark_active else ''}>Benchmark &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li>{_render_nav_link('/tournaments', 'Tournaments', request_path == '/tournaments')}</li>
+                        <li>{_render_nav_link('/leaderboard', 'Leaderboard', request_path == '/leaderboard')}</li>
+                        <li>{_render_nav_link('/compare', 'Track Comparison', request_path == '/compare')}</li>
+                        <li>{_render_nav_link('/match-log', 'Match Log', request_path == '/match-log')}</li>
+                        <li>{_render_nav_link('/methodology', 'Methodology', request_path == '/methodology')}</li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="/s1-leaderboard"{' class="active"' if seasons_active else ''}>Seasons &#9662;</a>
+                    <ul class="nav-dropdown-menu">
+                        <li>{_render_nav_link('/s1-leaderboard', 'S1 Leaderboard', request_path == '/s1-leaderboard')}</li>
+                        <li>{_render_nav_link('/s1-fighters', 'Meet the Fighters', request_path == '/s1-fighters' or request_path.startswith('/fighters/'))}</li>
+                        <li>{_render_nav_link('/s1-matchups', 'Matchup Explorer', request_path == '/s1-matchups')}</li>
+                        <li>{_render_nav_link('/play', 'S1 Quick Fight', request_path == '/play')}</li>
+                        <li>{_render_nav_link('/s1-compare', 'Benchmark vs S1', request_path == '/s1-compare')}</li>
+                        <li>{_render_nav_link('/moreddit', 'The Moreddit', request_path == '/moreddit')}</li>
+                    </ul>
+                </li>
+                <li>{_render_nav_link('/pets', 'Pets', pets_active)}</li>
+                <li>{_render_nav_link('/paper', 'Paper', paper_active)}</li>
+                <li>{_render_nav_link('/api-docs', 'API', api_active)}</li>
+                <li class="nav-fight"><a href="/island">FIGHT!</a></li>
+            </ul>
+        </div>
+    </nav>
+    """.strip()
+
+
+def _inject_standard_nav(html: str, request_path: str) -> str:
+    if request_path.startswith("/island"):
+        return html
+    if '<nav class="nav">' not in html:
+        return html
+    return NAV_BLOCK_RE.sub(_render_standard_nav(request_path), html, count=1)
+
+
 def _serve_html(file_path: Path, request_path: str, html: str | None = None) -> HTMLResponse:
     content = html if html is not None else file_path.read_text(encoding="utf-8")
+    content = _inject_standard_nav(content, request_path)
     return HTMLResponse(_inject_default_meta(content, request_path))
 
 

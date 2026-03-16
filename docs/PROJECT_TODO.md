@@ -24,7 +24,7 @@ Last updated: 2026-03-15
 
 ## Execution Notes
 
-- Frozen forever: `data/tournament_001-003/`, `data/season1_tournament/`, `config.json`
+- Frozen forever: `data/tournament_001-003/`, `data/season1_tournament/`, `simulator/config.json`
 - Canonical repo: `main`
 - Render auto-deploys from `main`
 - Prefer small validated changes with smoke checks before push
@@ -41,3 +41,4 @@ Last updated: 2026-03-15
 - [x] Browser-smoke expansion
 - [x] Island hardening phase 2
 - [x] Launch content refresh
+- [x] Launch finish pass: docs, reproducibility, nav dedup

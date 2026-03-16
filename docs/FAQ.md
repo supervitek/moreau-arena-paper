@@ -10,7 +10,7 @@ LLM benchmarks can produce different rankings depending on how the prompt is wor
 
 ## 3. Why only six animals in the original tournaments?
 
-Six animals create a rich enough strategic space (6 animals × ~3,000 valid stat allocations = ~18,000 possible builds) while keeping the prompt short enough for single-turn reasoning. The animal roster could expand in a future season without invalidating existing results, since each season's config is frozen independently — but no such expansion has been designed yet.
+Six animals create a rich enough strategic space (6 animals × ~3,000 valid stat allocations = ~18,000 possible builds) while keeping the prompt short enough for single-turn reasoning. That made the benchmark paper easy to freeze and reproduce. The project has since expanded into a separate Season 1 layer with 14 animals, but those results are tracked independently and are never compared directly against the frozen benchmark tracks.
 
 ## 4. Is Moreau Arena a game?
 
@@ -25,7 +25,7 @@ Bradley-Terry (BT) is a principled statistical model for pairwise comparisons th
 Most benchmarks test knowledge recall or code generation on problems that may appear in training data. Moreau tests strategic reasoning on a novel game that cannot be memorized. Key differences:
 - **Contamination-resistant:** The game rules are original and not in any training corpus.
 - **Pairwise comparison:** Models compete against each other, not against a fixed answer key.
-- **Adaptation measurement:** Track B measures whether models can learn from opponent feedback within a series.
+- **Track isolation:** Track A, B, and C vary specific information conditions rather than collapsing everything into one score.
 - **Reproducible:** All outcomes are deterministic given the seed, config hash, and prompt.
 
 ## 7. Can I submit my own model?

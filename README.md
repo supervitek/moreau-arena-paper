@@ -12,10 +12,10 @@ Companion repository for the paper:
 
 | Component | Status | Description |
 |-----------|--------|-------------|
-| **Benchmark v1** | Frozen research | 6 animals, 3 tournament tracks (T001–T003), 89 invariant tests. Core data is immutable. |
-| **Arena Season 1** | Public preview | 14 animals (6 original + 8 new), calibrated over 182K games, all 5 quality gates pass. First LLM tournament pending. |
+| **Benchmark v1** | Frozen research | 6 animals, 3 tournament tracks (T001–T003), 89 invariant tests for the frozen core. Core data is immutable. |
+| **Arena Season 1** | Live expansion | 14 animals (6 original + 8 new), calibrated over 182K games, all 5 quality gates pass. Tournament results are live on the site. |
 
-Benchmark v1 is the research artifact — frozen, reproducible, citable. Arena Season 1 is built on top of that proof, expanding the roster for competitive play. They share the simulator core but run independently.
+Benchmark v1 is the research artifact — frozen, reproducible, citable. Arena Season 1 is the public competitive layer built on top of that proof. They share simulator lineage but run independently and are not merged into a single leaderboard.
 
 ## What You Can Do
 
@@ -122,6 +122,9 @@ The frozen config hash should match:
 SHA-256: b7ec588583135ad640eba438f29ce45c10307a88dc426decd31126371bb60534
 ```
 
+This is the canonical hash of `simulator/config.json` with the embedded
+`sha256` field removed before hashing.
+
 ## Tournament Overview
 
 | | Tournament 001 | Tournament 002 |
@@ -133,29 +136,30 @@ SHA-256: b7ec588583135ad640eba438f29ce45c10307a88dc426decd31126371bb60534
 | **LLM vs Baseline** | 37.5% LLM win rate | 89.75% LLM win rate |
 | **Key finding** | Baselines dominate LLMs | LLMs surpass baselines with structured output + adaptation |
 
-## Quick Verify
+## Quick Reproduce
 
-Reproduce all results from the raw data in three steps.
+Reproduce the frozen benchmark from a clean clone.
 
-### Install
-
-```bash
-pip install .
-```
-
-Or with requirements directly:
+### 1. Install
 
 ```bash
-pip install -r requirements.txt
+bash scripts/setup.sh
 ```
 
-### Run verification
+### 2. Verify frozen config + invariant suite
+
+```bash
+python scripts/verify_config_hash.py
+python -m pytest tests/test_invariants.py -q
+```
+
+### 3. Recompute rankings and replay checks
 
 ```bash
 python verify_all.py
 ```
 
-This re-derives Bradley-Terry rankings, pairwise matrices, and config hash checks from the JSONL match data.
+This re-derives Bradley-Terry rankings and replay checks from the JSONL match data.
 
 ### Docker (optional)
 

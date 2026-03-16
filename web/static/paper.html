@@ -304,7 +304,7 @@ pip install -r requirements.txt</code></pre>
                     invariant tests to fail.
                 </p>
                 <pre><code># Verify config hash (must match paper)
-python -c "import hashlib, pathlib; print(hashlib.sha256(pathlib.Path('simulator/config.json').read_bytes()).hexdigest())"
+python scripts/verify_config_hash.py
 
 # Expected: b7ec588583135ad640eba438f29ce45c10307a88dc426decd31126371bb60534</code></pre>
             </div>

@@ -19,16 +19,16 @@ This document defines four evaluation tracks for Moreau Arena. Each track isolat
 |-------|------|---------------|----------------|------------|-----------------|--------|
 | A | One-Shot | No | No | No | No | Run (T001) |
 | B | Feedback + Counter-Pick | Yes | Yes (top-5 meta) | Yes (loser re-picks) | No | Run (T002) |
-| C | Meta-Conditioned | No | Yes (top-5 meta) | No | No | Not yet run |
+| C | Exact-Only Cleanroom | Yes | No | Yes (loser re-picks) | No | Run (T003) |
 | D | Tool-Augmented | Yes | No | No | Yes (limited) | Not yet run |
 
 **What each track isolates:**
 
 - **A vs B:** Does providing formulas, examples, and adaptation improve performance?
-- **A vs C:** Does providing examples alone (without formulas) improve performance?
-- **B vs C:** Does adaptation matter when examples are available?
+- **A vs C:** How much do exact formulas plus adaptation help even without meta hints?
+- **B vs C:** What is the value of meta-context once formulas and adaptation are already present?
 - **A vs D:** Does compute access (simulator queries) improve performance over pure reasoning?
-- **C vs D:** Examples-only vs. compute-only -- which information channel matters more?
+- **C vs D:** Exact mechanics alone vs. compute access -- which information channel matters more?
 
 ---
 
@@ -157,66 +157,56 @@ Whether an LLM can (1) reason about exact formulas to produce optimal builds, (2
 
 ---
 
-## Track C: Meta-Conditioned (NEW)
+## Track C: Exact-Only Cleanroom
 
-**Status:** Not yet run. Protocol defined below.
+**Status:** Run as T003. Protocol frozen and results archived.
 
 ### Information Provided to Agent
 
 The agent receives a prompt containing:
 
 1. **Game overview:** Same as Track A.
-2. **Qualitative stat descriptions:** Same as Track A. **No exact formulas.** No worked examples for stat computations.
-3. **Animal descriptions:** Same qualitative descriptions as Track A (no exact coefficients).
-4. **Meta context (top-5 builds):** Same top-5 builds as Track B, including animal, stats, win rate, and game count. The agent can see what has been successful but does NOT know the exact formulas that explain why.
-5. **No opponent information:** The agent does not know what it is playing against.
+2. **Exact stat formulas:** Same as Track B, including worked examples.
+3. **Animal descriptions:** Same exact ability parameters as Track B.
+4. **No meta context:** The top-build block from Track B is removed entirely.
+5. **Opponent reveal (after losses):** Same as Track B. When the agent loses a game, it sees the winning opponent's build before the next game.
 
 ### Output Format
 
-Same as Track A:
+Same as Track B:
 
-```
-ANIMAL HP ATK SPD WIL
+```json
+{"animal": "ANIMAL_NAME", "hp": N, "atk": N, "spd": N, "wil": N}
 ```
 
 ### Adaptation Rules
 
-**None.** Same as Track A -- one build for the entire series.
+Same as Track B. Game 1 is blind; after each loss the losing side may submit a new build after seeing the winner's exact build.
 
 ### Series Protocol
 
-Same as Track A. Single build submission, no feedback between games.
+Same as Track B. Per-game adaptation is enabled, but the prompt never includes top-build examples or strategy hints.
 
 ### Prompt Construction
 
 The Track C prompt is constructed by:
 
-1. Taking the Track A prompt as a base.
-2. Appending the meta-context block from Track B (top-5 builds with win rates).
-3. NOT adding any formulas, worked examples, or numeric ability parameters beyond what Track A provides.
-
-The meta-context block must be clearly labeled:
-
-```
-META CONTEXT (top builds from previous tournament, ranked by win rate):
-  1. BEAR 8/8/3/1 -- 100% win rate (22 games)
-  2. BEAR 8/10/1/1 -- 100% win rate (19 games)
-  ...
-  Note: These builds were tested in blind pick (no adaptation). You can counter them or use them as a starting point.
-```
+1. Taking the Track B prompt as a base.
+2. Removing the entire meta-context block (top builds and strategic hinting).
+3. Keeping exact formulas, JSON output, and loser-adapts mechanics unchanged.
 
 ### Metrics Computed
 
-Same as Track A.
+Same as Track B, plus frozen-model analysis because Track C specifically tests whether some models collapse without hints.
 
 ### What This Track Measures
 
-Whether examples alone (without formulas) are sufficient to break an LLM's priors and shift its build choices toward the meta. Isolates the question: **"Are examples enough to break priors?"**
+Whether exact mechanics plus adaptation are sufficient without examples. Isolates the question: **"Can models derive strategy from mechanics alone, or was Track B's meta-context doing the heavy lifting?"**
 
 Comparison points:
-- **C vs A:** If C outperforms A, examples help even without formulas.
-- **C vs B:** If B outperforms C, formulas and/or adaptation provide additional value beyond examples.
-- **C builds vs A builds:** If C agents cluster around meta builds while A agents spread widely, examples are steering strategy.
+- **C vs A:** If C outperforms A, exact formulas and adaptation help even without examples.
+- **C vs B:** If B outperforms C, the delta is attributable to meta-context rather than formulas or adaptation.
+- **C build diversity:** If some agents still freeze on one build, formulas alone are not enough to induce strategic exploration.
 
 ---
 
@@ -310,15 +300,15 @@ While rankings are never compared directly across tracks, the following cross-tr
 
 Compare the distribution of builds chosen by the same model across tracks:
 - Does model X choose BEAR more often in Track B than Track A?
-- Does Track C shift build distributions toward the meta?
+- Does Track C reveal frozen-model behavior once examples are removed?
 - Does Track D produce builds that are closer to game-theoretic optima?
 
 ### Capability Decomposition
 
 For each model, decompose its performance into contributions from different information channels:
-- **Formula comprehension:** Track B performance minus Track C performance (same examples, +formulas).
-- **Example learning:** Track C performance minus Track A performance (same formulas=none, +examples).
-- **Adaptation ability:** Track B counter-pick success rate (unique to Track B).
+- **Meta-context effect:** Track B performance minus Track C performance (same formulas/adaptation, +examples).
+- **Mechanics comprehension:** Track C performance minus Track A performance (no examples, +exact formulas/adaptation).
+- **Adaptation ability:** Track B and Track C counter-pick success rate.
 - **Compute utilization:** Track D performance minus Track A performance (same info, +simulator).
 
 ### Rank Correlation Across Tracks
@@ -346,14 +336,14 @@ Compute Kendall's tau between rankings from different tracks:
 - [x] Report generated (`data/tournament_002/report.md`)
 - [x] Adaptation analysis (`data/tournament_002/adaptation_analysis.md`)
 
-### Track C (TODO)
+### Track C (Complete)
 
-- [ ] Construct prompt: Track A base + meta context block (no formulas)
-- [ ] Archive prompt as `prompts/t003_prompt.txt`
-- [ ] Run tournament with same 13 agents and same config
-- [ ] Archive results as `data/tournament_003/results.jsonl`
-- [ ] Generate report
-- [ ] Compare build distributions: Track C vs Track A vs Track B
+- [x] Prompt finalized (`prompts/t003_prompt.txt`)
+- [x] Tournament run (T003, 15 agents, 1,031 completed series)
+- [x] Results archived (`data/tournament_003/results.jsonl`)
+- [x] Integrity report written (`docs/T003_INTEGRITY.md`)
+- [x] Spec and prompt diff documented (`docs/T003_SPEC.md`, `docs/T003_PROMPT_DIFF.md`)
+- [x] Tournament doc created (`docs/tournaments/T003.md`)
 
 ### Track D (TODO)
 
