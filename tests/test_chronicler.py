@@ -3,6 +3,30 @@ from __future__ import annotations
 from chronicler import generate_chronicler_reading
 
 
+def test_chronicler_fallback_avoids_forbidden_assistant_phrases(monkeypatch):
+    monkeypatch.setenv("MOREAU_ENABLE_CHRONICLER", "1")
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+
+    reading = generate_chronicler_reading(
+        {
+            "session_id": "voice-session",
+            "active_pet": {
+                "name": "Echo",
+                "animal": "monkey",
+                "level": 3,
+                "mood": "excited",
+            },
+            "available_actions": ["train", "profile"],
+        }
+    )
+
+    combined = " ".join(
+        part for part in [reading["observation"], reading["prompt"], reading.get("suggestion") or "", reading["uncertainty"]] if part
+    ).lower()
+    forbidden = ["here are", "based on your current stats", "great job", "maximize", "key metrics"]
+    assert not any(phrase in combined for phrase in forbidden)
+
+
 def test_chronicler_prefers_dreams_when_unread(monkeypatch):
     monkeypatch.setenv("MOREAU_ENABLE_CHRONICLER", "1")
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)

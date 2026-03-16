@@ -327,6 +327,12 @@
             border-color: rgba(230,57,70,0.45);
         }
 
+        .chronicler-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .chronicler-btn-primary {
             background: linear-gradient(135deg, rgba(230,57,70,0.18), rgba(230,57,70,0.07));
         }
@@ -1918,6 +1924,7 @@
             return {
                 offlineMode: offlineMode,
                 activePet: pet,
+                petKey: pet ? [activePetIndex, pet.animal || 'creature', pet.name || 'unnamed', pet.level || 1].join('::') : null,
                 canMutate: !!pet && canMutate(pet),
                 rivalAvailable: isRivalChallengeAvailable(),
                 hasFeral: allPets.some(function(p) { return p.feral && !p.deceased && p.is_alive !== false; }),

@@ -3,6 +3,7 @@
 
     var DECISION_WINDOW_MS = 10 * 60 * 1000;
     var BOUNCE_THRESHOLD_MS = 30 * 1000;
+    var REFRESH_COOLDOWN_MS = 20 * 1000;
     var STORAGE_KEY = 'moreau_chronicler_state';
     var SESSION_KEY = 'moreau_chronicler_session_id';
 
@@ -16,6 +17,7 @@
         sessionId: null,
         pageLoadedAt: Date.now(),
         lastReading: null,
+        cooldownUntil: 0,
         inFlight: false
     };
 
@@ -207,6 +209,10 @@
     }
 
     function renderReading(area, reading) {
+        var promptLabel = reading.prompt && /\?\s*$/.test(reading.prompt) ? 'Question' : 'Warning';
+        var now = Date.now();
+        var coolingDown = now < state.cooldownUntil;
+        var cooldownLabel = coolingDown ? 'Ask again in ' + Math.ceil((state.cooldownUntil - now) / 1000) + 's' : 'Ask again';
         var suggestionHtml = '';
         if (reading.suggestion) {
             suggestionHtml =
@@ -231,7 +237,7 @@
                         '<p>' + escHtml(reading.observation || '') + '</p>' +
                     '</div>' +
                     '<div class="chronicler-line">' +
-                        '<span class="chronicler-label">Warning</span>' +
+                        '<span class="chronicler-label">' + escHtml(promptLabel) + '</span>' +
                         '<p>' + escHtml(reading.prompt || '') + '</p>' +
                     '</div>' +
                     suggestionHtml +
@@ -243,7 +249,7 @@
                 '</div>' +
                 '<div class="chronicler-actions">' +
                     '<button class="chronicler-btn chronicler-btn-secondary" id="chroniclerDismissBtn">Let it be</button>' +
-                    '<button class="chronicler-btn chronicler-btn-primary" id="chroniclerRefreshBtn">Ask again</button>' +
+                    '<button class="chronicler-btn chronicler-btn-primary" id="chroniclerRefreshBtn" ' + (coolingDown ? 'disabled' : '') + '>' + cooldownLabel + '</button>' +
                 '</div>' +
             '</section>';
         bindButtons(area);
@@ -283,6 +289,7 @@
 
         var snapshot = config.getState() || {};
         var pet = snapshot.activePet || null;
+        var petKey = snapshot.petKey || null;
         if (!pet || pet.deceased || pet.is_alive === false) {
             renderEmpty(area);
             return;
@@ -293,7 +300,7 @@
             return;
         }
 
-        if (state.lastReading && state.lastReading.petName === pet.name) {
+        if (state.lastReading && state.lastReading.petKey === petKey) {
             renderReading(area, state.lastReading);
             return;
         }
@@ -303,6 +310,10 @@
 
     function consultRoom(isRefresh) {
         if (state.inFlight) return;
+        if (isRefresh && Date.now() < state.cooldownUntil) {
+            render();
+            return;
+        }
         var snapshot = config.getState() || {};
         if (!snapshot.activePet || snapshot.activePet.deceased || snapshot.activePet.is_alive === false) return;
 
@@ -323,9 +334,11 @@
             if (!response.ok) throw new Error('chronicler failed');
             return response.json();
         }).then(function(reading) {
+            state.cooldownUntil = Date.now() + REFRESH_COOLDOWN_MS;
             state.lastReading = {
                 trace_id: reading.trace_id,
                 petName: snapshot.activePet.name || 'the creature',
+                petKey: snapshot.petKey || (snapshot.activePet.name || 'the creature'),
                 suggested_action: reading.suggested_action || 'none',
                 shownAt: Date.now(),
                 observation: reading.observation || '',
@@ -342,9 +355,11 @@
                 details: 'mode=' + state.lastReading.mode
             });
         }).catch(function() {
+            state.cooldownUntil = Date.now() + REFRESH_COOLDOWN_MS;
             state.lastReading = {
                 trace_id: 'client-fallback',
                 petName: snapshot.activePet.name || 'the creature',
+                petKey: snapshot.petKey || (snapshot.activePet.name || 'the creature'),
                 suggested_action: 'none',
                 shownAt: Date.now(),
                 observation: 'The room would not hold still long enough to be read cleanly.',
@@ -354,6 +369,12 @@
                 mode: 'client-fallback'
             };
             persistState();
+            postEvent({
+                event_type: 'response',
+                trace_id: state.lastReading.trace_id,
+                suggested_action: state.lastReading.suggested_action,
+                details: 'mode=' + state.lastReading.mode
+            });
         }).finally(function() {
             state.inFlight = false;
             render();

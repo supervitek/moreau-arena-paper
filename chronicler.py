@@ -36,6 +36,19 @@ _SUGGESTION_LOCK = threading.Lock()
 _RECENT_RUNS: deque[dict[str, Any]] = deque(maxlen=300)
 _DAILY_COST_TRACKER = {"date": "", "usd": 0.0}
 _SUGGESTION_TRACKER: dict[str, dict[str, int]] = {}
+FORBIDDEN_RESPONSE_PATTERNS = [
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in [
+        r"\bhere are\b",
+        r"\bbased on your current stats\b",
+        r"\bi suggest optimiz",
+        r"\byou should definitely\b",
+        r"\bkey metrics\b",
+        r"\bmaximize\b",
+        r"\bas an ai assistant\b",
+        r"\bgreat job\b",
+    ]
+]
 
 
 def _today_key() -> str:
@@ -74,6 +87,12 @@ def reserve_cost(amount: float) -> bool:
             return False
         _DAILY_COST_TRACKER["usd"] += amount
         return True
+
+
+def refund_cost(amount: float) -> None:
+    with _COST_LOCK:
+        _reset_cost_if_needed()
+        _DAILY_COST_TRACKER["usd"] = max(0.0, _DAILY_COST_TRACKER["usd"] - amount)
 
 
 def current_cost_snapshot() -> dict[str, Any]:
@@ -278,7 +297,7 @@ def _apply_suggestion_budget(context: dict[str, Any], result: dict[str, Any]) ->
 
 
 def _json_from_text(text: str) -> dict[str, Any] | None:
-    match = re.search(r"\{.*\}", text, re.DOTALL)
+    match = re.search(r"\{.*?\}", text, re.DOTALL)
     if not match:
         return None
     try:
@@ -296,6 +315,9 @@ def _normalize_model_output(raw: dict[str, Any], fallback: dict[str, Any]) -> di
     suggestion = _truncate_text(raw.get("suggestion"), 180)
     uncertainty = _truncate_text(raw.get("uncertainty"), 120) or fallback["uncertainty"]
     suggested_action = _normalize_action(raw.get("suggested_action"))
+    joined = " ".join(part for part in [observation, prompt, suggestion or "", uncertainty] if part)
+    if any(pattern.search(joined) for pattern in FORBIDDEN_RESPONSE_PATTERNS):
+        return fallback
     if suggested_action != "none" and suggestion is None:
         suggested_action = "none"
     return {
@@ -315,7 +337,11 @@ def _build_model_prompt(context: dict[str, Any]) -> str:
         "You speak as a diegetic observer of signs, moods, corruption, and repeated patterns.\n"
         "You must stay brief, concrete, and state-aware.\n"
         "You must not use optimization language, dashboard language, or certainty language.\n"
+        "Forbidden phrases include: 'Here are', 'Based on your current stats', 'I suggest optimizing', "
+        "'You should definitely', 'key metrics', 'maximize', 'Great job'.\n"
         "You must be fallible through character limits, not random nonsense.\n"
+        "Good uncertainty markers include: 'I would not swear to it', 'Take this as warning, not law', "
+        "'It may mean nothing, but', 'I mistrust the timing'.\n"
         "Return valid JSON only with keys: observation, prompt, suggestion, suggested_action, uncertainty.\n"
         "Keep observation/prompt/suggestion short. suggestion may be null. suggested_action must be one of: "
         + ", ".join(sorted(ALLOWED_ACTIONS))
@@ -349,8 +375,9 @@ def _generate_model_reading(context: dict[str, Any]) -> dict[str, Any] | None:
         client = anthropic.Anthropic(api_key=api_key)
         message = client.messages.create(
             model=os.environ.get("MOREAU_CHRONICLER_MODEL", "claude-haiku-4-5-20251001"),
-            max_tokens=160,
+            max_tokens=220,
             temperature=0.7,
+            timeout=15.0,
             system=_build_model_prompt(context),
             messages=[{"role": "user", "content": "Read the room."}],
         )
@@ -360,6 +387,8 @@ def _generate_model_reading(context: dict[str, Any]) -> dict[str, Any] | None:
             return None
         return _normalize_model_output(parsed, _fallback_reading(context))
     except Exception:
+        logger.warning("chronicler_api_error", exc_info=True)
+        refund_cost(estimated_cost)
         return None
 
 
@@ -369,6 +398,9 @@ def _record_run(run: dict[str, Any]) -> None:
 
 
 def log_chronicler_event(event: dict[str, Any]) -> None:
+    relation = _truncate_text(event.get("relation"), 24)
+    if relation not in {None, "follow", "override", "neutral"}:
+        relation = None
     payload = {
         "ts": datetime.now(timezone.utc).isoformat(),
         "event_type": _truncate_text(event.get("event_type"), 48) or "unknown",
@@ -377,7 +409,7 @@ def log_chronicler_event(event: dict[str, Any]) -> None:
         "session_id": _truncate_text(event.get("session_id"), 64),
         "action_id": _normalize_action(event.get("action_id")),
         "suggested_action": _normalize_action(event.get("suggested_action")),
-        "relation": _truncate_text(event.get("relation"), 24),
+        "relation": relation,
         "dwell_ms": max(0, _safe_int(event.get("dwell_ms"), 0)),
         "details": _truncate_text(event.get("details"), 180),
     }

@@ -130,8 +130,14 @@ def main() -> int:
                 "available_actions": ["dreams", "train", "profile"],
             },
         )
-        if status != 200 or payload.get("trace_id") is None:
+        required_fields = ["trace_id", "observation", "prompt", "uncertainty", "suggested_action", "mode"]
+        if status != 200 or any(payload.get(field) in (None, "") for field in required_fields):
             raise RuntimeError("/api/v1/island/chronicler returned invalid payload")
+        if payload.get("suggested_action") not in {
+            "none", "train", "caretaker", "lab", "dreams", "prophecy", "pact",
+            "rivals", "tides", "deep_tide", "profile", "menagerie"
+        }:
+            raise RuntimeError("/api/v1/island/chronicler returned invalid suggested_action")
         print("OK /api/v1/island/chronicler [application/json]")
 
         return 0
