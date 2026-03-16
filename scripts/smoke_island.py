@@ -140,6 +140,13 @@ def main() -> int:
             raise RuntimeError("/api/v1/island/chronicler returned invalid suggested_action")
         print("OK /api/v1/island/chronicler [application/json]")
 
+        status, content_type, summary_body = fetch(base + "/api/v1/island/chronicler/summary")
+        if status != 200 or content_type != "application/json":
+            raise RuntimeError("/api/v1/island/chronicler/summary returned invalid response")
+        if '"runs"' not in summary_body or '"events"' not in summary_body:
+            raise RuntimeError("/api/v1/island/chronicler/summary missing core sections")
+        print("OK /api/v1/island/chronicler/summary [application/json]")
+
         return 0
     finally:
         if proc.poll() is None:

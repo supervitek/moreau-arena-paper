@@ -34,6 +34,7 @@ INTERPRETIVE_ACTIONS = {"dreams", "prophecy", "pact", "profile", "menagerie", "t
 _COST_LOCK = threading.Lock()
 _SUGGESTION_LOCK = threading.Lock()
 _RECENT_RUNS: deque[dict[str, Any]] = deque(maxlen=300)
+_RECENT_EVENTS: deque[dict[str, Any]] = deque(maxlen=1000)
 _DAILY_COST_TRACKER = {"date": "", "usd": 0.0}
 _SUGGESTION_TRACKER: dict[str, dict[str, int]] = {}
 FORBIDDEN_RESPONSE_PATTERNS = [
@@ -413,6 +414,7 @@ def log_chronicler_event(event: dict[str, Any]) -> None:
         "dwell_ms": max(0, _safe_int(event.get("dwell_ms"), 0)),
         "details": _truncate_text(event.get("details"), 180),
     }
+    _RECENT_EVENTS.append(payload)
     logger.info("chronicler_event %s", json.dumps(payload, ensure_ascii=False, sort_keys=True))
 
 
@@ -469,3 +471,80 @@ def recent_runs(limit: int = 25) -> list[dict[str, Any]]:
     if limit <= 0:
         return []
     return list(_RECENT_RUNS)[-limit:]
+
+
+def recent_events(limit: int = 100) -> list[dict[str, Any]]:
+    if limit <= 0:
+        return []
+    return list(_RECENT_EVENTS)[-limit:]
+
+
+def chronicler_summary() -> dict[str, Any]:
+    runs = list(_RECENT_RUNS)
+    events = list(_RECENT_EVENTS)
+
+    response_runs = len(runs)
+    mode_counts: dict[str, int] = {}
+    suggested_action_counts: dict[str, int] = {}
+    for run in runs:
+        response = run.get("response", {})
+        mode = str(response.get("mode") or "unknown")
+        mode_counts[mode] = mode_counts.get(mode, 0) + 1
+        action = _normalize_action(response.get("suggested_action"))
+        suggested_action_counts[action] = suggested_action_counts.get(action, 0) + 1
+
+    event_counts: dict[str, int] = {}
+    follow = 0
+    override = 0
+    neutral = 0
+    short_exit = 0
+    engaged_exit = 0
+    for event in events:
+        event_type = str(event.get("event_type") or "unknown")
+        event_counts[event_type] = event_counts.get(event_type, 0) + 1
+        relation = event.get("relation")
+        if relation == "follow":
+            follow += 1
+        elif relation == "override":
+            override += 1
+        elif relation == "neutral":
+            neutral += 1
+        if event_type == "page_exit":
+            details = str(event.get("details") or "")
+            if details == "short-exit":
+                short_exit += 1
+            elif details == "engaged-exit":
+                engaged_exit += 1
+
+    decision_events = follow + override + neutral
+    override_rate = round(override / (follow + override), 4) if (follow + override) > 0 else None
+    follow_rate = round(follow / (follow + override), 4) if (follow + override) > 0 else None
+    bounce_rate = round(short_exit / (short_exit + engaged_exit), 4) if (short_exit + engaged_exit) > 0 else None
+
+    return {
+        "cost": current_cost_snapshot(),
+        "runs": {
+            "count": response_runs,
+            "mode_counts": mode_counts,
+            "suggested_action_counts": suggested_action_counts,
+        },
+        "events": {
+            "count": len(events),
+            "event_counts": event_counts,
+            "decision_events": decision_events,
+            "follow": follow,
+            "override": override,
+            "neutral": neutral,
+            "follow_rate": follow_rate,
+            "override_rate": override_rate,
+            "short_exit": short_exit,
+            "engaged_exit": engaged_exit,
+            "bounce_rate": bounce_rate,
+        },
+        "kill_signals": {
+            "follow_rate_gt_30pct": follow_rate is not None and follow_rate > 0.30,
+            "override_rate_lt_50pct": override_rate is not None and override_rate < 0.50,
+            "bounce_rate_gt_5pct": bounce_rate is not None and bounce_rate > 0.05,
+            "cost_gt_cap": current_cost_snapshot()["usd_spent"] > current_cost_snapshot()["usd_cap"],
+        },
+    }

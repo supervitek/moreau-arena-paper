@@ -179,6 +179,11 @@ Exit rule:
 - [ ] Compare behavior against kill thresholds.
 - [ ] Write `continue / pivot / kill` memo.
 
+Operational support now available:
+- `GET /api/v1/island/chronicler/recent`
+- `GET /api/v1/island/chronicler/summary`
+- `python3 scripts/generate_chronicler_report.py`
+
 Hard kill conditions:
 - [ ] Users follow advice unmodified >30%
 - [ ] Human override rate <50%

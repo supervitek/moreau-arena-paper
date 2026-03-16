@@ -39,7 +39,7 @@ from analysis.bt_ranking import (
     load_results_from_jsonl,
     update_ratings,
 )
-from chronicler import generate_chronicler_reading, log_chronicler_event
+from chronicler import chronicler_summary, generate_chronicler_reading, log_chronicler_event, recent_events, recent_runs
 from simulator.__main__ import _create_creature, _parse_build, _run_games
 from simulator.engine import CombatEngine
 from season1.engine_s1 import run_match as s1_run_match
@@ -1576,6 +1576,22 @@ def island_chronicler_event(req: ChroniclerEventRequest) -> dict[str, bool]:
     """Record frontend Chronicler interaction events for prototype measurement."""
     log_chronicler_event(req.model_dump())
     return {"ok": True}
+
+
+@app.get("/api/v1/island/chronicler/recent")
+def island_chronicler_recent(limit: int = Query(default=25, ge=1, le=200)) -> dict[str, Any]:
+    """Return recent Chronicler runs and events for prototype review."""
+    event_limit = min(max(limit * 2, 25), 400)
+    return {
+        "runs": recent_runs(limit),
+        "events": recent_events(event_limit),
+    }
+
+
+@app.get("/api/v1/island/chronicler/summary")
+def island_chronicler_summary() -> dict[str, Any]:
+    """Return aggregate Chronicler experiment signals for review."""
+    return chronicler_summary()
 
 
 @app.get("/island/{page}")
