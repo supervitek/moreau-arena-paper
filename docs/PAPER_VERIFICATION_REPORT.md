@@ -1,6 +1,6 @@
 # Paper Verification Report
 
-Date: 2026-03-15
+Date: 2026-03-16
 
 Scope: explicit quantitative claims in [`paper/moreau_arena.tex`](../paper/moreau_arena.tex) were checked against committed JSONL data and reproducible scripts. Frozen benchmark data files were not modified.
 
@@ -17,10 +17,10 @@ Scope: explicit quantitative claims in [`paper/moreau_arena.tex`](../paper/morea
   - `T001`: rank `9`, BT `0.1193`
   - `T002`: rank `1`, BT `1.0000`
   - gain: `+0.8807` (matches paper's rounded `+0.881`)
-- Adaptation headline is directionally supported, but exact reproduction remains unresolved:
-  - one direct build-delta recomputation yields `557/1095 = 50.87%`
+- Adaptation headline is directionally supported, but the exact paper table is still not canonical:
+  - committed script [`scripts/compute_t002_adaptation_metrics.py`](../scripts/compute_t002_adaptation_metrics.py) yields `557/1095 = 50.87%` for the direct JSONL-derived adapted win rate
   - paper reports `51.06%`
-  - one stale derived artifact in `data/tournament_002/adaptation_analysis.md` reports a substantially different value and should not be treated as source of truth
+  - stale derived artifact [`data/tournament_002/adaptation_analysis.md`](../data/tournament_002/adaptation_analysis.md) still disagrees and should not be treated as source of truth
 - Strict 3-cycles:
   - `T001`: `0`
   - `T002`: `12`
@@ -39,6 +39,7 @@ Scope: explicit quantitative claims in [`paper/moreau_arena.tex`](../paper/morea
   - [`data/tournament_002/results.jsonl`](../data/tournament_002/results.jsonl)
 - BT recomputation via [`verify_all.py`](../verify_all.py)
 - Config integrity via [`scripts/verify_config_hash.py`](../scripts/verify_config_hash.py)
+- Adaptation derivation via [`scripts/compute_t002_adaptation_metrics.py`](../scripts/compute_t002_adaptation_metrics.py)
 - Existing integrity docs:
   - [`docs/T003_INTEGRITY.md`](T003_INTEGRITY.md)
   - [`docs/T003_SPEC.md`](T003_SPEC.md)
@@ -49,4 +50,4 @@ Scope: explicit quantitative claims in [`paper/moreau_arena.tex`](../paper/morea
 
 ## Outcome
 
-Core benchmark numbers in the paper match the committed data: tournament sizes, game counts, LLM-vs-baseline rates, BT rankings, cycle counts, WIL-trap correlations, and Opus stat-shift claims are all supported. One reproducibility issue remains before Gate 1 can be treated as fully closed: the adaptation table / adapt-vs-stick percentages are not exactly derivable from a committed analysis script today. The project should treat Gate 1 as `PARTIAL` until that derivation is committed or the paper values are re-derived from canonical JSONL.
+Core benchmark numbers in the paper match the committed data: tournament sizes, game counts, LLM-vs-baseline rates, BT rankings, cycle counts, WIL-trap correlations, and Opus stat-shift claims are all supported. The remaining reproducibility issue is now narrower and explicit: the adaptation derivation script is committed, but its canonical JSONL output does not exactly match the paper/stale artifact. The project should treat Gate 1 as `PARTIAL` until the paper values are re-derived from canonical JSONL or the table in [`paper/moreau_arena.tex`](../paper/moreau_arena.tex) is corrected to match the committed derivation.

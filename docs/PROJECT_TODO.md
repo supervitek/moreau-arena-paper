@@ -1,6 +1,6 @@
 # Project TODO
 
-Last updated: 2026-03-15
+Last updated: 2026-03-16
 
 ## Agentic Moreau
 
@@ -18,7 +18,7 @@ Last updated: 2026-03-15
 - Verify create/train/mutate/profile flows, fix deterministic or misleading fight behavior, and harden soul fallback behavior.
 
 3. Island browser-smoke
-- Expand verification beyond raw HTTP 200 checks so UI regressions surface earlier.
+- Maintain the checked-in Playwright regression pack so UI regressions surface earlier than raw HTTP smoke.
 
 4. Island hardening phase 2
 - Continue cleaning shared state contracts and remaining hot spots like genesis/succession/bloodline-adjacent pages.
@@ -28,6 +28,9 @@ Last updated: 2026-03-15
 
 6. Navigation/server-side dedup
 - Lower priority than launch quality, but still the next structural cleanup after the site is stable.
+
+7. Paper adaptation derivation cleanup
+- Keep the committed T002 derivation script and verification docs aligned until the paper table is re-derived or corrected.
 
 ## Execution Notes
 
@@ -46,6 +49,10 @@ Last updated: 2026-03-15
 - [x] Launch-readiness audit refresh
 - [x] Pets stabilization pass
 - [x] Browser-smoke expansion
+- [x] Checked-in island browser regression pack (`scripts/playtests/island_regression.js`)
+- [x] Second-wave island browser audit and runtime fixes
 - [x] Island hardening phase 2
 - [x] Launch content refresh
 - [x] Launch finish pass: docs, reproducibility, nav dedup
+- [x] Chronicler weekly review/reporting template and provisional verdict flow
+- [x] Committed T002 adaptation derivation script

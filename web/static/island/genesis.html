@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Genesis Protocol — The Island — Moreau Arena</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <meta property="og:title" content="Genesis Protocol — The Island">
     <meta property="og:description" content="Sacrifice everything. Begin again. The island remembers.">
     <meta property="og:type" content="website">
@@ -993,22 +994,35 @@
 
         let genesis = null;
 
+        function defaultGenesisState() {
+            return {
+                marks: 0,
+                totalResets: 0,
+                allTimeDeaths: 0,
+                allTimeFights: 0,
+                allTimeSpecies: [],
+                chimeraSources: [],
+                geneticMemory: 0,
+                journalUnlocked: [],
+                genesisExclusive: false,
+                resetHistory: []
+            };
+        }
+
         function loadGenesis() {
-            genesis = MoreauStorage.readJSON('moreau_genesis', null);
-            if (!genesis) {
-                genesis = {
-                    marks: 0,
-                    totalResets: 0,
-                    allTimeDeaths: 0,
-                    allTimeFights: 0,
-                    allTimeSpecies: [],
-                    chimeraSources: [],
-                    geneticMemory: 0,
-                    journalUnlocked: [],
-                    genesisExclusive: false,
-                    resetHistory: []
-                };
-            }
+            var raw = MoreauStorage.readJSON('moreau_genesis', null);
+            var defaults = defaultGenesisState();
+            genesis = Object.assign({}, defaults, raw || {});
+            if (!Array.isArray(genesis.allTimeSpecies)) genesis.allTimeSpecies = [];
+            if (!Array.isArray(genesis.chimeraSources)) genesis.chimeraSources = [];
+            if (!Array.isArray(genesis.journalUnlocked)) genesis.journalUnlocked = [];
+            if (!Array.isArray(genesis.resetHistory)) genesis.resetHistory = [];
+            if (typeof genesis.marks !== 'number') genesis.marks = 0;
+            if (typeof genesis.totalResets !== 'number') genesis.totalResets = 0;
+            if (typeof genesis.allTimeDeaths !== 'number') genesis.allTimeDeaths = 0;
+            if (typeof genesis.allTimeFights !== 'number') genesis.allTimeFights = 0;
+            if (typeof genesis.geneticMemory !== 'number') genesis.geneticMemory = 0;
+            if (typeof genesis.genesisExclusive !== 'boolean') genesis.genesisExclusive = false;
         }
 
         function saveGenesis() {

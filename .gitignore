@@ -44,3 +44,7 @@ coord/status/*
 !coord/claims/.gitkeep
 !coord/outbox/.gitkeep
 !coord/status/.gitkeep
+
+# Browser playtests
+scripts/playtests/node_modules/
+scripts/playtests/reports/

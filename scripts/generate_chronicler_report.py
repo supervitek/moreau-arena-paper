@@ -45,9 +45,14 @@ def build_markdown(summary: dict, recent: dict) -> str:
     events = summary.get("events", {})
     runs = summary.get("runs", {})
     cost = summary.get("cost", {})
+    review = provisional_verdict(summary)
 
     lines = [
         "# Chronicler Report",
+        "",
+        "## Provisional Verdict",
+        f"- Verdict: `{review['verdict']}`",
+        f"- Reason: {review['reason']}",
         "",
         "## Cost",
         f"- Date: `{cost.get('date', 'unknown')}`",
@@ -95,16 +100,43 @@ def build_markdown(summary: dict, recent: dict) -> str:
         [
             "",
             "## Decision Stub",
-            "- Continue / Pivot / Kill: `TBD`",
+            f"- Continue / Pivot / Kill: `{review['suggested_decision']}`",
             "- Reviewer notes:",
         ]
     )
     return "\n".join(lines) + "\n"
 
 
+def provisional_verdict(summary: dict) -> dict[str, str]:
+    events = summary.get("events", {})
+    runs = summary.get("runs", {})
+    kill = summary.get("kill_signals", {})
+
+    if any(bool(value) for value in kill.values()):
+        return {
+            "verdict": "ALERT",
+            "reason": "One or more kill-signal thresholds are already tripped.",
+            "suggested_decision": "REVIEW FOR PIVOT/KILL",
+        }
+
+    if runs.get("count", 0) < 5 or events.get("count", 0) < 10:
+        return {
+            "verdict": "INSUFFICIENT_DATA",
+            "reason": "Chronicler has not accumulated enough runs/events for a serious decision.",
+            "suggested_decision": "HOLD",
+        }
+
+    return {
+        "verdict": "PROVISIONAL_CONTINUE",
+        "reason": "No kill-signal thresholds are tripped and event volume is large enough to keep observing.",
+        "suggested_decision": "CONTINUE",
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Generate a local Chronicler review report from in-memory endpoints.")
     parser.add_argument("--output", default=str(ROOT / "reports" / "chronicler_report.md"))
+    parser.add_argument("--base-url", default="", help="Use an already-running app instead of starting a local uvicorn process.")
     args = parser.parse_args()
 
     if not VENV_PYTHON.exists():
@@ -114,24 +146,28 @@ def main() -> int:
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
 
-    port = pick_port()
-    proc = subprocess.Popen(
-        [str(VENV_PYTHON), "-m", "uvicorn", "web.app:app", "--port", str(port), "--log-level", "warning"],
-        cwd=ROOT,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-        text=True,
-    )
+    proc = None
     try:
-        wait_until_ready(proc, port)
-        base = f"http://127.0.0.1:{port}"
+        if args.base_url:
+            base = args.base_url.rstrip("/")
+        else:
+            port = pick_port()
+            proc = subprocess.Popen(
+                [str(VENV_PYTHON), "-m", "uvicorn", "web.app:app", "--port", str(port), "--log-level", "warning"],
+                cwd=ROOT,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                text=True,
+            )
+            wait_until_ready(proc, port)
+            base = f"http://127.0.0.1:{port}"
         summary = fetch_json(base + "/api/v1/island/chronicler/summary")
         recent = fetch_json(base + "/api/v1/island/chronicler/recent?limit=20")
         output.write_text(build_markdown(summary, recent), encoding="utf-8")
         print(output)
         return 0
     finally:
-        if proc.poll() is None:
+        if proc is not None and proc.poll() is None:
             proc.terminate()
             proc.wait(timeout=10)
 

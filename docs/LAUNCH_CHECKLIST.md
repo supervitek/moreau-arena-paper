@@ -9,7 +9,7 @@ Four gates must pass before public release. Each gate has clear pass/fail criter
 - [x] All claims in `paper/moreau_arena.tex` are supported by data in `data/`
 - [x] BT scores and CI in paper match `analysis/bt_ranking.py` output
 - [x] Tournament sample sizes stated correctly (T001: blind, T002: adaptive)
-- [ ] Adaptation table / adapt-vs-stick percentages are reproducible from a committed analysis script
+- [x] Adaptation table / adapt-vs-stick percentages have a committed derivation script: `python scripts/compute_t002_adaptation_metrics.py`
 - [x] Ablation results (if included) match `run_ablation.py --dry-run` patterns
 - [x] No claims about "general reasoning" — only "strategic reasoning under uncertainty"
 
@@ -69,7 +69,7 @@ Four gates must pass before public release. Each gate has clear pass/fail criter
 
 | Gate | Status | Last Checked | Notes |
 |------|--------|--------------|-------|
-| 1. Paper Verified | PARTIAL | 2026-03-15 | Core claims match data, but adaptation table percentages still need a committed reproducible derivation; see `docs/PAPER_VERIFICATION_REPORT.md` |
+| 1. Paper Verified | PARTIAL | 2026-03-16 | Core claims match data and the T002 derivation script is committed, but its canonical JSONL output still disagrees with the paper/stale artifact; see `docs/PAPER_VERIFICATION_REPORT.md` |
 | 2. Reproducibility Bundle | PASS | 2026-03-15 | Config hash verification, setup script, invariant suite, and T003 integrity doc all checked |
 | 3. Benchmark Identity | PASS | 2026-03-15 | README/docs terminology and public-facing benchmark descriptions were refreshed for current state |
 | 4. T003 Specified | PASS | 2026-03-15 | Track docs, T003 spec, tournament doc, and integrity report now agree on exact-only cleanroom protocol |
