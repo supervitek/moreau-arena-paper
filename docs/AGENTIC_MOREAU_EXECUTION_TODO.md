@@ -18,9 +18,9 @@ Do not expand scope during this TODO.
 
 ## Phase 0 — Lock
 
-- [ ] Add links to the final roadmap and this TODO in the working docs index if needed.
-- [ ] Write a short `decision memo` section in the final session report confirming `Chronicler-first` as the approved direction.
-- [ ] Explicitly mark `BYO-agent`, `hosted champion`, and `external pilot` as not-in-scope for the current build pass.
+- [x] Add links to the final roadmap and this TODO in the working docs index if needed.
+- [x] Write a short `decision memo` section in the final session report confirming `Chronicler-first` as the approved direction.
+- [x] Explicitly mark `BYO-agent`, `hosted champion`, and `external pilot` as not-in-scope for the current build pass.
 
 Exit rule:
 - no ambiguity remains about the approved first prototype
@@ -29,12 +29,12 @@ Exit rule:
 
 ## Phase 1A — Voice Lock
 
-- [ ] Create `docs/CHRONICLER_VOICE_LOCK.md`.
-- [ ] Write 10 golden examples of acceptable Chronicler output.
-- [ ] Write 10 anti-examples of unacceptable output.
-- [ ] Define forbidden assistant-language patterns.
-- [ ] Define allowed uncertainty markers.
-- [ ] Define Chronicler's specific character limitations:
+- [x] Create `docs/CHRONICLER_VOICE_LOCK.md`.
+- [x] Write 10 golden examples of acceptable Chronicler output.
+- [x] Write 10 anti-examples of unacceptable output.
+- [x] Define forbidden assistant-language patterns.
+- [x] Define allowed uncertainty markers.
+- [x] Define Chronicler's specific character limitations:
   - what it tends to overread
   - what it cannot know
   - what it misjudges
@@ -47,19 +47,19 @@ Exit rule:
 
 ## Phase 1B — Product Contract
 
-- [ ] Lock the exact Chronicler output shape for `/island/home`.
-- [ ] Choose whether the output is:
+- [x] Lock the exact Chronicler output shape for `/island/home`.
+- [x] Choose whether the output is:
   - observation + question
   - observation + warning
   - observation + bounded suggestion
-- [ ] Decide where the UI appears on `/island/home`.
-- [ ] Decide how often Chronicler can be invoked:
+- [x] Decide where the UI appears on `/island/home`.
+- [x] Decide how often Chronicler can be invoked:
   - automatic on page load
   - explicit click
   - cooldown-gated
-- [ ] Decide how the user dismisses or ignores it.
-- [ ] Define what counts as "followed advice" for measurement.
-- [ ] Define what counts as "override" for measurement.
+- [x] Decide how the user dismisses or ignores it.
+- [x] Define what counts as "followed advice" for measurement.
+- [x] Define what counts as "override" for measurement.
 
 Exit rule:
 - one concrete product contract exists for the first surface
@@ -68,8 +68,8 @@ Exit rule:
 
 ## Phase 1C — Context Builder
 
-- [ ] Identify exact `/island/home` state inputs to Chronicler.
-- [ ] Start with a narrow context set:
+- [x] Identify exact `/island/home` state inputs to Chronicler.
+- [x] Start with a narrow context set:
   - active pet core stats
   - recent fights
   - mood
@@ -77,10 +77,10 @@ Exit rule:
   - mutations
   - corruption if present
   - recent dream/confession summary if present
-- [ ] Exclude anything not needed for the first version.
-- [ ] Implement a deterministic context builder module.
-- [ ] Ensure missing state degrades gracefully.
-- [ ] Add fixture inputs for local testing.
+- [x] Exclude anything not needed for the first version.
+- [x] Implement a deterministic context builder module.
+- [x] Ensure missing state degrades gracefully.
+- [x] Add fixture inputs for local testing.
 
 Exit rule:
 - Chronicler always receives a bounded, reviewable context payload
@@ -89,19 +89,19 @@ Exit rule:
 
 ## Phase 1D — Runtime and Guardrails
 
-- [ ] Implement an internal-only Chronicler runner.
-- [ ] Add model configuration and fallback behavior.
-- [ ] Enforce a hard cost ceiling of `$5/day`.
-- [ ] Add timeout ceilings.
-- [ ] Add trace IDs for each run.
-- [ ] Log:
+- [x] Implement an internal-only Chronicler runner.
+- [x] Add model configuration and fallback behavior.
+- [x] Enforce a hard cost ceiling of `$5/day`.
+- [x] Add timeout ceilings.
+- [x] Add trace IDs for each run.
+- [x] Log:
   - timestamp
   - route
   - context summary
   - raw output
   - rendered output
   - cost estimate
-- [ ] Ensure the system can be disabled with one config flag.
+- [x] Ensure the system can be disabled with one config flag.
 
 Exit rule:
 - every Chronicler run is observable and bounded
@@ -110,16 +110,16 @@ Exit rule:
 
 ## Phase 1E — UI on `/island/home`
 
-- [ ] Add the Chronicler panel to [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/web/static/island/home.html`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/web/static/island/home.html).
-- [ ] Make it visually diegetic, not dashboard-like.
-- [ ] Avoid assistant UI patterns:
+- [x] Add the Chronicler panel to [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/web/static/island/home.html`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/web/static/island/home.html).
+- [x] Make it visually diegetic, not dashboard-like.
+- [x] Avoid assistant UI patterns:
   - no chat transcript look
   - no productivity-card language
   - no generic "tips"
-- [ ] Keep the block short.
-- [ ] Make uncertainty legible.
-- [ ] Make it obvious the human still decides.
-- [ ] Add dismiss / refresh behavior only if needed for the first pass.
+- [x] Keep the block short.
+- [x] Make uncertainty legible.
+- [x] Make it obvious the human still decides.
+- [x] Add dismiss / refresh behavior only if needed for the first pass.
 
 Exit rule:
 - `/island/home` contains one narrow, in-world Chronicler surface
@@ -128,17 +128,17 @@ Exit rule:
 
 ## Phase 1F — Measurement
 
-- [ ] Implement the 3 approved metric tracks:
+- [x] Implement the 3 approved metric tracks:
   - usage
   - guardrail
   - identity
-- [ ] Instrument Chronicler open/use rate.
-- [ ] Instrument "followed advice" proxy.
-- [ ] Instrument override proxy.
-- [ ] Instrument bounce rate delta for the affected flow.
-- [ ] Instrument correlation with time on interpretive pages.
-- [ ] Set up transcript review sampling.
-- [ ] Add a simple weekly review template.
+- [x] Instrument Chronicler open/use rate.
+- [x] Instrument "followed advice" proxy.
+- [x] Instrument override proxy.
+- [x] Instrument bounce rate delta for the affected flow.
+- [x] Instrument correlation with time on interpretive pages.
+- [x] Set up transcript review sampling.
+- [x] Add a simple weekly review template.
 
 Exit rule:
 - all hard kill criteria are actually measurable
@@ -147,12 +147,12 @@ Exit rule:
 
 ## Phase 1G — Internal Review
 
-- [ ] Review at least 50 sample outputs before broad exposure.
-- [ ] Reject outputs that sound like assistant-speak.
-- [ ] Reject outputs that become too tactical or optimized.
-- [ ] Reject outputs that flatten ambiguity into certainty.
-- [ ] Tune for boundedness and weirdness, not raw competence.
-- [ ] Confirm fallibility is character-based, not random.
+- [x] Review at least 50 sample outputs before broad exposure.
+- [x] Reject outputs that sound like assistant-speak.
+- [x] Reject outputs that become too tactical or optimized.
+- [x] Reject outputs that flatten ambiguity into certainty.
+- [x] Tune for boundedness and weirdness, not raw competence.
+- [x] Confirm fallibility is character-based, not random.
 
 Exit rule:
 - team can say "this feels like Moreau" with a straight face
@@ -161,10 +161,10 @@ Exit rule:
 
 ## Phase 1H — Launch Prototype 1
 
-- [ ] Enable Chronicler on `/island/home`.
-- [ ] Keep rollout narrow and reversible.
-- [ ] Watch cost, bounce, and transcript quality daily at first.
-- [ ] Keep the kill switch available.
+- [x] Enable Chronicler on `/island/home`.
+- [x] Keep rollout narrow and reversible.
+- [x] Watch cost, bounce, and transcript quality daily at first.
+- [x] Keep the kill switch available.
 
 Exit rule:
 - live prototype is active and reversible

@@ -23,7 +23,7 @@ from typing import Any
 
 import time
 
-from fastapi import APIRouter, FastAPI, HTTPException, Query, UploadFile
+from fastapi import APIRouter, FastAPI, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -39,6 +39,7 @@ from analysis.bt_ranking import (
     load_results_from_jsonl,
     update_ratings,
 )
+from chronicler import generate_chronicler_reading, log_chronicler_event
 from simulator.__main__ import _create_creature, _parse_build, _run_games
 from simulator.engine import CombatEngine
 from season1.engine_s1 import run_match as s1_run_match
@@ -1488,6 +1489,34 @@ class ArenaFightRequest(BaseModel):
     pet2_id: str = Field(..., description="UUID of the opponent pet")
 
 
+class ChroniclerReadingRequest(BaseModel):
+    session_id: str = Field(default="unknown-session", max_length=64)
+    offline_mode: bool = Field(default=False)
+    active_pet: dict[str, Any] = Field(default_factory=dict)
+    recent_fights: list[dict[str, Any]] = Field(default_factory=list)
+    recent_dream: str | None = Field(default=None, max_length=180)
+    recent_confession: str | None = Field(default=None, max_length=180)
+    dream_unread: int = Field(default=0, ge=0, le=99)
+    confession_count: int = Field(default=0, ge=0, le=999)
+    can_mutate: bool = Field(default=False)
+    rival_available: bool = Field(default=False)
+    has_feral: bool = Field(default=False)
+    has_pact: bool = Field(default=False)
+    available_actions: list[str] = Field(default_factory=list)
+
+
+class ChroniclerEventRequest(BaseModel):
+    event_type: str = Field(..., max_length=48)
+    trace_id: str | None = Field(default=None, max_length=64)
+    route: str = Field(default="/island/home", max_length=64)
+    session_id: str = Field(default="unknown-session", max_length=64)
+    action_id: str | None = Field(default=None, max_length=48)
+    suggested_action: str | None = Field(default=None, max_length=48)
+    relation: str | None = Field(default=None, max_length=24)
+    dwell_ms: int | None = Field(default=None, ge=0, le=86_400_000)
+    details: str | None = Field(default=None, max_length=180)
+
+
 @app.post("/api/v1/island/arena-fight")
 async def arena_fight(req: ArenaFightRequest, request: Request):
     """Run an arena fight between two pets using their stored stats.
@@ -1534,6 +1563,19 @@ async def arena_fight(req: ArenaFightRequest, request: Request):
     build2 = f"{pet2['animal']} {s2.get('hp',5)} {s2.get('atk',5)} {s2.get('spd',5)} {s2.get('wil',5)}"
 
     return _fight_s1_logic(build1, build2, 1)
+
+
+@app.post("/api/v1/island/chronicler")
+def island_chronicler(req: ChroniclerReadingRequest) -> dict[str, Any]:
+    """Generate one bounded Chronicler advisory reading for /island/home."""
+    return generate_chronicler_reading(req.model_dump())
+
+
+@app.post("/api/v1/island/chronicler/event")
+def island_chronicler_event(req: ChroniclerEventRequest) -> dict[str, bool]:
+    """Record frontend Chronicler interaction events for prototype measurement."""
+    log_chronicler_event(req.model_dump())
+    return {"ok": True}
 
 
 @app.get("/island/{page}")

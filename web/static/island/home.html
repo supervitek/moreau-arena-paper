@@ -206,6 +206,145 @@
             color: var(--accent);
         }
 
+        /* ── Chronicler ── */
+        .chronicler-shell {
+            margin: 1.35rem 0 1.5rem;
+            animation: fadeSlideIn 0.55s ease-out both;
+        }
+
+        .chronicler-card {
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at top right, rgba(230,57,70,0.08), transparent 40%),
+                linear-gradient(145deg, rgba(22,12,12,0.96), rgba(14,8,8,0.95));
+            border: 1px solid rgba(230, 57, 70, 0.22);
+            border-radius: 14px;
+            padding: 1.15rem 1.2rem 1rem;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.24);
+        }
+
+        .chronicler-card-muted {
+            border-color: rgba(168,160,160,0.18);
+            background: linear-gradient(145deg, rgba(20,12,12,0.9), rgba(13,9,9,0.88));
+        }
+
+        .chronicler-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .chronicler-kicker {
+            font-size: 0.7rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #b68b8b;
+            margin-bottom: 0.25rem;
+        }
+
+        .chronicler-title {
+            font-size: 1rem;
+            line-height: 1.25;
+            color: var(--text);
+        }
+
+        .chronicler-seal {
+            color: rgba(230,57,70,0.7);
+            font-size: 1.35rem;
+            text-shadow: 0 0 16px rgba(230,57,70,0.28);
+        }
+
+        .chronicler-copy {
+            display: grid;
+            gap: 0.7rem;
+        }
+
+        .chronicler-line {
+            padding-left: 0.85rem;
+            border-left: 2px solid rgba(230,57,70,0.22);
+        }
+
+        .chronicler-line p {
+            font-size: 0.92rem;
+            line-height: 1.55;
+            color: #e8dddd;
+        }
+
+        .chronicler-suggestion {
+            border-left-color: rgba(212,160,23,0.35);
+        }
+
+        .chronicler-uncertainty p {
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        .chronicler-label {
+            display: inline-block;
+            margin-bottom: 0.28rem;
+            font-size: 0.66rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #c8a6a6;
+        }
+
+        .chronicler-meta {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 0.9rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .chronicler-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .chronicler-btn {
+            appearance: none;
+            border: 1px solid rgba(230,57,70,0.28);
+            border-radius: 999px;
+            padding: 0.62rem 1rem;
+            background: transparent;
+            color: var(--text);
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+        }
+
+        .chronicler-btn:hover {
+            transform: translateY(-1px);
+            border-color: rgba(230,57,70,0.45);
+        }
+
+        .chronicler-btn-primary {
+            background: linear-gradient(135deg, rgba(230,57,70,0.18), rgba(230,57,70,0.07));
+        }
+
+        .chronicler-btn-secondary {
+            color: var(--text-dim);
+            border-color: rgba(168,160,160,0.25);
+        }
+
+        .chronicler-spinner {
+            width: 22px;
+            height: 22px;
+            border: 2px solid rgba(230,57,70,0.14);
+            border-top-color: rgba(230,57,70,0.72);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
         /* ── Migration Modal ── */
         .migration-overlay {
             position: fixed;
@@ -1550,6 +1689,9 @@
             <!-- Active Pet Card -->
             <div id="activePetArea"></div>
 
+            <!-- Chronicler -->
+            <div id="chroniclerArea" class="chronicler-shell"></div>
+
             <!-- Egg Incubation Banner -->
             <div id="eggBannerArea"></div>
 
@@ -1691,6 +1833,7 @@
     <script src="/static/island/confession-engine.js"></script>
     <script src="/static/island/caretaker-engine.js"></script>
     <script src="/static/island/sleep-dialect.js"></script>
+    <script src="/static/island/chronicler.js"></script>
     <script>
         // ══════════════════════════════════════
         //  Island Home — Player Dashboard
@@ -1708,6 +1851,7 @@
         let offlineMode = false;
         let allPets = [];
         let activePetIndex = 0;
+        let chroniclerInitialized = false;
 
         // ── Init ──
 
@@ -1767,6 +1911,32 @@
             if (allPets.length === 0) return null;
             if (activePetIndex < 0 || activePetIndex >= allPets.length) activePetIndex = 0;
             return allPets[activePetIndex];
+        }
+
+        function getChroniclerSnapshot() {
+            var pet = getActivePet();
+            return {
+                offlineMode: offlineMode,
+                activePet: pet,
+                canMutate: !!pet && canMutate(pet),
+                rivalAvailable: isRivalChallengeAvailable(),
+                hasFeral: allPets.some(function(p) { return p.feral && !p.deceased && p.is_alive !== false; }),
+                hasPact: allPets.some(function(p) { return p.pact && !p.deceased && p.is_alive !== false; })
+            };
+        }
+
+        function initChronicler() {
+            if (typeof MoreauChronicler === 'undefined') return;
+            if (!chroniclerInitialized) {
+                MoreauChronicler.init({
+                    areaId: 'chroniclerArea',
+                    route: '/island/home',
+                    getState: getChroniclerSnapshot
+                });
+                chroniclerInitialized = true;
+                return;
+            }
+            MoreauChronicler.render();
         }
 
         // ── Display ──
@@ -1849,6 +2019,7 @@
             }
 
             renderActions();
+            initChronicler();
             renderEggBanner();
             renderPetsSection();
 
@@ -2224,11 +2395,11 @@
             let html = '';
 
             // TRAIN
-            html += '<a href="' + (hasPet ? '/island/train' : '#') + '" class="action-btn action-train' + (hasPet ? '' : ' disabled') + '">' +
+            html += '<a href="' + (hasPet ? '/island/train' : '#') + '" data-action-id="train" class="action-btn action-train' + (hasPet ? '' : ' disabled') + '">' +
                 '<span class="action-icon">&#9876;</span>TRAIN</a>';
 
             // CARETAKER
-            html += '<a href="' + (hasPet ? '/island/caretaker' : '#') + '" class="action-btn action-caretaker' + (hasPet ? '' : ' disabled') + '">' +
+            html += '<a href="' + (hasPet ? '/island/caretaker' : '#') + '" data-action-id="caretaker" class="action-btn action-caretaker' + (hasPet ? '' : ' disabled') + '">' +
                 '<span class="action-icon">&#127807;</span>CARETAKER</a>';
 
             // THE PIT
@@ -2252,7 +2423,7 @@
 
             // MUTATE
             if (canMut) {
-                html += '<a href="/island/lab" class="action-btn action-mutate ready">' +
+                html += '<a href="/island/lab" data-action-id="lab" class="action-btn action-mutate ready">' +
                     '<span class="ready-badge">READY</span>' +
                     '<span class="action-icon">&#9850;</span>MUTATE</a>';
             } else {
@@ -2263,11 +2434,11 @@
             }
 
             // FORBIDDEN LAB
-            html += '<a href="' + (hasPet ? '/island/lab' : '#') + '" class="action-btn action-lab' + (hasPet ? '' : ' disabled') + '">' +
+            html += '<a href="' + (hasPet ? '/island/lab' : '#') + '" data-action-id="lab" class="action-btn action-lab' + (hasPet ? '' : ' disabled') + '">' +
                 '<span class="action-icon">&#9762;</span>LAB</a>';
 
             // DOSSIER
-            html += '<a href="' + (hasPet ? '/island/profile' : '#') + '" class="action-btn action-dossier' + (hasPet ? '' : ' disabled') + '">' +
+            html += '<a href="' + (hasPet ? '/island/profile' : '#') + '" data-action-id="profile" class="action-btn action-dossier' + (hasPet ? '' : ' disabled') + '">' +
                 '<span class="action-icon">&#128196;</span>DOSSIER</a>';
 
             // LOGBOOK
@@ -2277,13 +2448,13 @@
             // DREAMS
             var _dj = MoreauStorage.loadDreamState();
             var _djUnread = MoreauStorage.countUnreadDreams(_dj);
-            html += '<a href="/island/dreams" class="action-btn action-dreams">' +
+            html += '<a href="/island/dreams" data-action-id="dreams" class="action-btn action-dreams">' +
                 (_djUnread > 0 ? '<span class="ready-badge" style="background:#9b59b6;">' + _djUnread + '</span>' : '') +
                 '<span class="action-icon">&#10022;</span>DREAMS</a>';
 
             // RIVALS
             var rivalAvailable = isRivalChallengeAvailable();
-            html += '<a href="' + (hasPet ? '/island/rivals' : '#') + '" class="action-btn action-rivals' + (hasPet ? '' : ' disabled') + (rivalAvailable ? ' rival-available' : '') + '">' +
+            html += '<a href="' + (hasPet ? '/island/rivals' : '#') + '" data-action-id="rivals" class="action-btn action-rivals' + (hasPet ? '' : ' disabled') + (rivalAvailable ? ' rival-available' : '') + '">' +
                 (rivalAvailable ? '<span class="rival-badge">CHALLENGE!</span>' : '') +
                 '<span class="action-icon">&#9876;&#65039;</span>RIVALS</a>';
 
@@ -2298,7 +2469,7 @@
                 }
                 oracleRank = '<span class="action-sub" style="color:var(--purple)">' + rn + '</span>';
             }
-            html += '<a href="/island/prophecy" class="action-btn action-prophecy">' +
+            html += '<a href="/island/prophecy" data-action-id="prophecy" class="action-btn action-prophecy">' +
                 '<span class="action-icon">&#128302;</span>PROPHECY' + oracleRank + '</a>';
 
             // SHRINE
@@ -2315,7 +2486,7 @@
                 (_blCount > 0 ? '<span class="action-sub">' + _blCount + ' lineage' + (_blCount !== 1 ? 's' : '') + '</span>' : '') + '</a>';
 
             // DEEP TIDE
-            html += '<a href="' + (hasPet ? '/island/deep-tide' : '#') + '" class="action-btn action-deep-tide' + (hasPet ? '' : ' disabled') + '" style="' + (hasPet ? 'border-color:rgba(0,255,247,0.3);' : '') + '">' +
+            html += '<a href="' + (hasPet ? '/island/deep-tide' : '#') + '" data-action-id="deep_tide" class="action-btn action-deep-tide' + (hasPet ? '' : ' disabled') + '" style="' + (hasPet ? 'border-color:rgba(0,255,247,0.3);' : '') + '">' +
                 '<span class="action-icon" style="color:#00fff7;">&#127754;</span>DEEP TIDE</a>';
 
             // THE PACT
@@ -2323,7 +2494,7 @@
             var _hasFeral = allPets.some(function(p) { return p.feral && !p.deceased && p.is_alive !== false; });
             var pactLivingCount = allPets.filter(function(p) { return !p.deceased && p.is_alive !== false && (p.level || 1) >= 3 && !p.pact && !p.scarred_bond; }).length;
             var pactReady = pactLivingCount >= 2;
-            html += '<a href="' + (pactReady || _pactCount > 0 ? '/island/pact' : '#') + '" class="action-btn action-pact' + (pactReady || _pactCount > 0 ? '' : ' disabled') + (_hasFeral ? ' feral-pulse' : '') + '">' +
+            html += '<a href="' + (pactReady || _pactCount > 0 ? '/island/pact' : '#') + '" data-action-id="pact" class="action-btn action-pact' + (pactReady || _pactCount > 0 ? '' : ' disabled') + (_hasFeral ? ' feral-pulse' : '') + '">' +
                 (_hasFeral ? '<span class="ready-badge" style="background:var(--accent);">FERAL</span>' : '') +
                 '<span class="action-icon">&#9939;</span>THE PACT' +
                 (_pactCount > 0 ? '<span class="action-sub">' + Math.ceil(_pactCount / 2) + ' bond' + (_pactCount > 2 ? 's' : '') + '</span>' : '') +
@@ -2339,7 +2510,7 @@
             var _bondData = null;
             try { _bondData = JSON.parse(localStorage.getItem('moreau_spirit_bonds') || 'null'); } catch(e) {}
             var _bondCount = (_bondData && _bondData.spirits) ? _bondData.spirits.length : 0;
-            html += '<a href="/island/menagerie" class="action-btn action-menagerie">' +
+            html += '<a href="/island/menagerie" data-action-id="menagerie" class="action-btn action-menagerie">' +
                 (_bondCount > 0 ? '<span class="ready-badge" style="background:#6ba3d6;">' + _bondCount + '</span>' : '') +
                 '<span class="action-icon">&#128123;</span>MENAGERIE' +
                 (_deadCount > 0 ? '<span class="action-sub">' + _deadCount + ' spirit' + (_deadCount !== 1 ? 's' : '') + '</span>' : '') + '</a>';
@@ -2361,7 +2532,7 @@
             // TIDES
             var _tideState = (typeof TideEngine !== 'undefined') ? TideEngine.getTideState() : null;
             var _tideSub = _tideState ? '<span class="action-sub" style="color:' + _tideState.phaseColor + ';">' + _tideState.phaseName + '</span>' : '';
-            html += '<a href="/island/tides" class="action-btn action-tides" style="border-color:rgba(0,180,216,0.3);">' +
+            html += '<a href="/island/tides" data-action-id="tides" class="action-btn action-tides" style="border-color:rgba(0,180,216,0.3);">' +
                 '<span class="action-icon" style="color:#00b4d8;">&#127754;</span>TIDES' + _tideSub + '</a>';
 
             // QUESTS (Arcane Synergies)
@@ -2520,6 +2691,7 @@
             renderPetsSection();
             updateCaretakerBars();
             checkCaretakerBanners();
+            initChronicler();
         }
 
         // ── Sign Out ──

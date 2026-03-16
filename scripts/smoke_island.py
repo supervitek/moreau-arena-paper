@@ -5,6 +5,7 @@ import socket
 import subprocess
 import sys
 import time
+import json
 import urllib.request
 from pathlib import Path
 
@@ -38,6 +39,7 @@ STATIC_ASSETS = [
     "/static/island/storage.js",
     "/static/island/island-time.js",
     "/static/island/ui.js",
+    "/static/island/chronicler.js",
 ]
 
 
@@ -45,6 +47,18 @@ def fetch(url: str) -> tuple[int, str, str]:
     with urllib.request.urlopen(url, timeout=10) as response:
         body = response.read().decode("utf-8", errors="ignore")
         return response.status, response.headers.get_content_type(), body
+
+
+def post_json(url: str, payload: dict[str, object]) -> tuple[int, dict[str, object]]:
+    request = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=10) as response:
+        body = response.read().decode("utf-8", errors="ignore")
+        return response.status, json.loads(body)
 
 
 def pick_port() -> int:
@@ -97,6 +111,28 @@ def main() -> int:
             if status != 200:
                 raise RuntimeError(f"{asset} returned {status}")
             print(f"OK {asset} [{content_type}]")
+
+        status, payload = post_json(
+            base + "/api/v1/island/chronicler",
+            {
+                "session_id": "smoke-island",
+                "active_pet": {
+                    "name": "Smoke",
+                    "animal": "fox",
+                    "level": 5,
+                    "mood": "philosophical",
+                    "corruption": 0,
+                    "instability": 0,
+                    "mutations": [],
+                },
+                "dream_unread": 1,
+                "recent_dream": "A lantern swings above black water.",
+                "available_actions": ["dreams", "train", "profile"],
+            },
+        )
+        if status != 200 or payload.get("trace_id") is None:
+            raise RuntimeError("/api/v1/island/chronicler returned invalid payload")
+        print("OK /api/v1/island/chronicler [application/json]")
 
         return 0
     finally:

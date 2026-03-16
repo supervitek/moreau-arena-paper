@@ -2,6 +2,13 @@
 
 Last updated: 2026-03-15
 
+## Agentic Moreau
+
+- Final roadmap: `docs/AGENTIC_MOREAU_ROADMAP_FINAL.md`
+- Execution TODO: `docs/AGENTIC_MOREAU_EXECUTION_TODO.md`
+- Current approved path: `Chronicler-first` on `/island/home`
+- Explicitly not in scope right now: public BYO-agent API, hosted champion, external pilot
+
 ## Current Priority Order
 
 1. Launch-readiness audit
