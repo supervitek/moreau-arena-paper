@@ -372,7 +372,12 @@ def _generate_model_reading(context: dict[str, Any]) -> dict[str, Any] | None:
 
     try:
         import anthropic
+    except ModuleNotFoundError:
+        logger.info("chronicler_api_unavailable anthropic package not installed")
+        refund_cost(estimated_cost)
+        return None
 
+    try:
         client = anthropic.Anthropic(api_key=api_key)
         message = client.messages.create(
             model=os.environ.get("MOREAU_CHRONICLER_MODEL", "claude-haiku-4-5-20251001"),

@@ -1949,17 +1949,17 @@
             if (typeof CaretakerEngine !== 'undefined') {
                 switch(action) {
                     case 'feed':
-                        result = CaretakerEngine.feed ? CaretakerEngine.feed(pet) : null;
+                        result = CaretakerEngine.feed ? CaretakerEngine.feed(activePetIdx) : null;
                         break;
                     case 'heal':
-                        result = CaretakerEngine.heal ? CaretakerEngine.heal(pet) : null;
+                        result = CaretakerEngine.heal ? CaretakerEngine.heal(activePetIdx) : null;
                         break;
                     case 'rest':
                         if (pet.resting_until && pet.resting_until > Date.now()) {
                             showToast('Still resting...', 'warning');
                             return;
                         }
-                        result = CaretakerEngine.rest ? CaretakerEngine.rest(pet) : null;
+                        result = CaretakerEngine.rest ? CaretakerEngine.rest(activePetIdx) : null;
                         break;
                     case 'train':
                         if ((pet.needs.energy || 0) < 20) {
@@ -1970,10 +1970,10 @@
                             showToast('Currently resting.', 'warning');
                             return;
                         }
-                        result = CaretakerEngine.train ? CaretakerEngine.train(pet) : null;
+                        result = CaretakerEngine.train ? CaretakerEngine.train(activePetIdx) : null;
                         break;
                     case 'motivate':
-                        result = CaretakerEngine.motivate ? CaretakerEngine.motivate(pet) : null;
+                        result = CaretakerEngine.motivate ? CaretakerEngine.motivate(activePetIdx) : null;
                         break;
                 }
             }

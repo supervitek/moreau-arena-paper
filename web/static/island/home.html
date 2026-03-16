@@ -10,6 +10,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Dashboard — The Island">
     <meta name="twitter:description" content="Your pets. Your mutations. Your legacy.">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <link rel="stylesheet" href="/static/style.css">
     <style>
         :root {
@@ -2878,9 +2879,7 @@
         });
 
         function maybeShowHelp() {
-            if (!localStorage.getItem('moreau_help_seen')) {
-                toggleHelp(true);
-            }
+            // Keep the field guide available without blocking the first real action.
         }
 
         // ── M — The Other Player ──

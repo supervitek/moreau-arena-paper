@@ -1658,6 +1658,39 @@ def _parse_s1_build(build_str: str) -> tuple[str, int, int, int, int]:
     return animal, hp, atk, spd, wil
 
 
+def _normalize_s1_stats(
+    hp: int, atk: int, spd: int, wil: int, *, max_total: int = 24
+) -> tuple[int, int, int, int]:
+    """Compress extended island stats into an S1-compatible statline."""
+    stats = [hp, atk, spd, wil]
+    total = sum(stats)
+    if total <= max_total:
+        return hp, atk, spd, wil
+
+    base = [1, 1, 1, 1]
+    remaining = max_total - sum(base)
+    if remaining <= 0:
+        return tuple(base)
+
+    weights = [max(0, stat - 1) for stat in stats]
+    weight_total = sum(weights)
+    if weight_total <= 0:
+        return tuple(base)
+
+    raw_shares = [(weight * remaining) / weight_total for weight in weights]
+    normalized = [1 + int(share) for share in raw_shares]
+    remainder = max_total - sum(normalized)
+    ranked = sorted(
+        range(len(stats)),
+        key=lambda idx: (raw_shares[idx] - int(raw_shares[idx]), weights[idx], -idx),
+        reverse=True,
+    )
+    for idx in ranked[:remainder]:
+        normalized[idx] += 1
+
+    return tuple(normalized)
+
+
 def _fight_s1_logic(build1: str, build2: str, games: int, seed: int | None = None) -> FightResponse:
     """Run a Season 1 fight series using the S1 engine."""
     try:
@@ -1669,6 +1702,9 @@ def _fight_s1_logic(build1: str, build2: str, games: int, seed: int | None = Non
         animal_b, hp_b, atk_b, spd_b, wil_b = _parse_s1_build(build2)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=f"Invalid build2: {e}")
+
+    hp_a, atk_a, spd_a, wil_a = _normalize_s1_stats(hp_a, atk_a, spd_a, wil_a)
+    hp_b, atk_b, spd_b, wil_b = _normalize_s1_stats(hp_b, atk_b, spd_b, wil_b)
 
     wins_a = 0
     wins_b = 0
