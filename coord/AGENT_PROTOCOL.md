@@ -27,6 +27,8 @@ All workers use Claude Code CLI, invoked with:
   - `--permission-mode bypassPermissions`
 
 The dispatcher automatically reuses each worker's last Claude session unless `--fresh` is passed.
+By default it also strips `ANTHROPIC_API_KEY` from the worker environment so Claude Code uses the authenticated `claude.ai` subscription path instead of the API-key billing path.
+If API-key mode is ever needed intentionally, set `MOREAU_KK_USE_API_KEY=1` before invoking `scripts/kk_dispatch.py`.
 
 Worker names are just lanes. Add more when needed, but keep names stable so session history stays useful.
 

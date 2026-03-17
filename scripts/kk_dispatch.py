@@ -5,6 +5,7 @@ import argparse
 import concurrent.futures
 import fcntl
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -64,6 +65,13 @@ def parse_worker_list(raw: str | None) -> list[str]:
 def ensure_layout() -> None:
     for path in (INBOX, CLAIMS, OUTBOX, ARCHIVE, STATUS):
         path.mkdir(parents=True, exist_ok=True)
+
+
+def claude_env() -> dict[str, str]:
+    env = os.environ.copy()
+    if env.get("MOREAU_KK_USE_API_KEY", "").strip() not in {"1", "true", "TRUE", "yes", "YES"}:
+        env.pop("ANTHROPIC_API_KEY", None)
+    return env
 
 
 @contextmanager
@@ -243,6 +251,7 @@ def run_claude(prompt: str, resume_session: str | None) -> dict:
     proc = subprocess.run(
         cmd,
         cwd=ROOT,
+        env=claude_env(),
         capture_output=True,
         text=True,
         check=False,
