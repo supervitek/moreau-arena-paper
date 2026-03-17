@@ -62,6 +62,13 @@ def post_json(url: str, payload: dict[str, object]) -> tuple[int, dict[str, obje
         return response.status, json.loads(body)
 
 
+def delete_json(url: str) -> tuple[int, dict[str, object]]:
+    request = urllib.request.Request(url, method="DELETE")
+    with urllib.request.urlopen(request, timeout=10) as response:
+        body = response.read().decode("utf-8", errors="ignore")
+        return response.status, json.loads(body)
+
+
 def pick_port() -> int:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.bind(("127.0.0.1", 0))
@@ -147,6 +154,68 @@ def main() -> int:
         if '"runs"' not in summary_body or '"events"' not in summary_body:
             raise RuntimeError("/api/v1/island/chronicler/summary missing core sections")
         print("OK /api/v1/island/chronicler/summary [application/json]")
+
+        status, payload = post_json(
+            base + "/api/v1/island/part-b/runs",
+            {
+                "run_class": "operator-assisted",
+                "subject_pet_name": "Smoke",
+                "subject_pet_animal": "fox",
+                "state_projection": {"health_pct": 82, "morale_pct": 75, "happiness_pct": 74, "energy_pct": 81},
+            },
+        )
+        if status != 200 or not payload.get("id"):
+            raise RuntimeError("/api/v1/island/part-b/runs did not create a run")
+        run_id = str(payload["id"])
+        print("OK /api/v1/island/part-b/runs [application/json]")
+
+        status, payload = post_json(
+            base + f"/api/v1/island/part-b/runs/{run_id}/queue",
+            {"action_verb": "CARE", "actor_type": "operator", "source": "smoke"},
+        )
+        if status != 200 or not payload.get("queued_item"):
+            raise RuntimeError("Part B queue enqueue failed")
+        queued_item_id = str(payload["queued_item"]["id"])
+        print("OK /api/v1/island/part-b/runs/{id}/queue [application/json]")
+
+        status, payload = post_json(base + f"/api/v1/island/part-b/runs/{run_id}/tick", {"count": 1})
+        processed = payload.get("processed") or []
+        if status != 200 or not processed or processed[0].get("action_verb") != "CARE":
+            raise RuntimeError("Part B tick processing did not execute queued CARE action")
+        print("OK /api/v1/island/part-b/runs/{id}/tick [application/json]")
+
+        status, payload = delete_json(base + f"/api/v1/island/part-b/runs/{run_id}/queue/{queued_item_id}")
+        if status != 200 or payload.get("removed") not in {False, True}:
+            raise RuntimeError("Part B queue delete returned invalid payload")
+        print("OK /api/v1/island/part-b/runs/{id}/queue/{item} [application/json]")
+
+        status, payload = post_json(
+            base + "/api/v1/island/part-b/runs",
+            {
+                "run_class": "agent-only",
+                "subject_pet_name": "Smoke Agent",
+                "subject_pet_animal": "panther",
+                "house_agent_enabled": True,
+                "inference_budget_remaining": 1,
+                "inference_budget_daily": 1,
+                "state_projection": {"health_pct": 44, "morale_pct": 61, "happiness_pct": 42, "energy_pct": 31},
+            },
+        )
+        if status != 200 or not payload.get("id"):
+            raise RuntimeError("Part B agent-only run creation failed")
+        agent_run_id = str(payload["id"])
+
+        status, content_type, preview_body = fetch(base + f"/api/v1/island/part-b/runs/{agent_run_id}/house-agent/preview")
+        if status != 200 or content_type != "application/json" or '"action_verb"' not in preview_body:
+            raise RuntimeError("Part B house-agent preview invalid")
+        print("OK /api/v1/island/part-b/runs/{id}/house-agent/preview [application/json]")
+
+        status, payload = post_json(base + f"/api/v1/island/part-b/runs/{agent_run_id}/tick", {"count": 2})
+        if status != 200 or not payload.get("processed"):
+            raise RuntimeError("Part B house-agent ticks failed")
+        if payload["processed"][0].get("source") != "house-agent":
+            raise RuntimeError("Part B house-agent did not produce a house-agent action")
+        print("OK /api/v1/island/part-b/runs/{id}/tick house-agent [application/json]")
 
         return 0
     finally:

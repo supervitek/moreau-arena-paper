@@ -17,7 +17,9 @@ Last updated: 2026-03-17
 - Operator inspect UX spec: `docs/PART_B_OPERATOR_INSPECT_UX_SPEC.md`
 - State migration foundation: `docs/PART_B_STATE_MIGRATION_B1_5.md`
 - Manual ecology slice: `docs/PART_B_MANUAL_ECOLOGY_SLICE_B2.md`
-- Current next move: `B3 — Passive Queue`
+- Passive queue: `docs/PART_B_PASSIVE_QUEUE_B3.md`
+- Hosted house agent: `docs/PART_B_HOUSE_AGENT_B4.md`
+- Current next move: `B5 — First Measurement Season`
 
 ## Current Priority Order
 
@@ -69,3 +71,5 @@ Last updated: 2026-03-17
 - [x] Paper adaptation table re-derived from canonical JSONL
 - [x] Part B B1.5 state migration foundation
 - [x] Part B B2 manual ecology slice
+- [x] Part B B3 passive queue
+- [x] Part B B4 hosted house agent

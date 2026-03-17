@@ -271,6 +271,12 @@
             margin-top: 0.75rem;
         }
 
+        .stack {
+            display: grid;
+            gap: 0.85rem;
+            margin-top: 1rem;
+        }
+
         .event {
             border: 1px solid var(--border);
             background: var(--bg-code);
@@ -310,6 +316,49 @@
             color: var(--text-muted);
             font-size: 0.84rem;
             line-height: 1.5;
+        }
+
+        .queue-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            border: 1px solid var(--border);
+            background: var(--bg-code);
+            border-radius: 8px;
+            padding: 0.75rem 0.8rem;
+        }
+
+        .queue-row strong {
+            display: block;
+            margin-bottom: 0.15rem;
+        }
+
+        .queue-row span {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+        }
+
+        .ghost-btn {
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-dim);
+            padding: 0.55rem 0.75rem;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .ghost-btn:disabled,
+        .action-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .subhead {
+            margin: 0;
+            font-size: 0.95rem;
         }
 
         .hidden { display: none; }
@@ -381,6 +430,7 @@
                     <select id="runClassSelect">
                         <option value="manual">manual</option>
                         <option value="operator-assisted">operator-assisted</option>
+                        <option value="agent-only">agent-only</option>
                     </select>
                 </div>
                 <div class="run-row">
@@ -408,6 +458,22 @@
                     <div class="control">
                         <div class="label">Energy</div>
                         <div class="value" id="energyValue">-</div>
+                    </div>
+                    <div class="control">
+                        <div class="label">World Tick</div>
+                        <div class="value" id="tickValue">0</div>
+                    </div>
+                    <div class="control">
+                        <div class="label">Queue</div>
+                        <div class="value" id="queueValue">0 / 0</div>
+                    </div>
+                    <div class="control">
+                        <div class="label">Credits</div>
+                        <div class="value" id="creditsValue">-</div>
+                    </div>
+                    <div class="control">
+                        <div class="label">House Agent</div>
+                        <div class="value" id="houseAgentValue">off</div>
                     </div>
                 </div>
 
@@ -476,11 +542,57 @@
                     <strong>Operator Hint</strong>
                     <div id="operatorHintBody">Operator-assisted hints appear here once a run is active.</div>
                 </div>
+
+                <div class="stack">
+                    <div>
+                        <div class="eyebrow">Passive Queue</div>
+                        <div class="run-row">
+                            <select id="queueActionSelect">
+                                <option value="HOLD">HOLD</option>
+                                <option value="CARE">CARE</option>
+                                <option value="REST">REST</option>
+                                <option value="TRAIN">TRAIN</option>
+                                <option value="ENTER_ARENA">ENTER_ARENA</option>
+                                <option value="ENTER_CAVE">ENTER_CAVE</option>
+                                <option value="EXTRACT">EXTRACT</option>
+                                <option value="MUTATE">MUTATE</option>
+                            </select>
+                            <button id="enqueueBtn" type="button">Queue Action</button>
+                        </div>
+                        <div class="run-row">
+                            <button id="tickOnceBtn" type="button">Advance 1 Tick</button>
+                            <button id="tickThreeBtn" type="button">Advance 3 Ticks</button>
+                        </div>
+                        <div class="run-row">
+                            <button id="clearQueueBtn" type="button" class="ghost-btn">Clear Queue</button>
+                            <button id="previewHouseAgentBtn" type="button" class="ghost-btn">Preview Agent Plan</button>
+                        </div>
+                        <div id="queueArea" class="replay-list"></div>
+                    </div>
+
+                    <div>
+                        <div class="eyebrow">Hosted House Agent</div>
+                        <div class="run-row">
+                            <select id="budgetSelect">
+                                <option value="4">4 credits / day</option>
+                                <option value="8">8 credits / day</option>
+                                <option value="12">12 credits / day</option>
+                            </select>
+                            <button id="saveHouseAgentBtn" type="button">Apply Agent Settings</button>
+                        </div>
+                        <div class="hint" id="houseAgentHint">
+                            <strong>House Agent</strong>
+                            <div id="houseAgentHintBody">Only active on agent-only runs. It acts through the public action grammar and auto-pauses when credits are exhausted.</div>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <section class="panel">
                 <div class="eyebrow">Replay</div>
                 <div id="replayArea" class="replay-list"></div>
+                <div class="eyebrow" style="margin-top:1.15rem;">While Away Report</div>
+                <div id="tickReportArea" class="replay-list"></div>
             </section>
         </div>
     </div>
@@ -498,6 +610,7 @@
             var currentRunId = localStorage.getItem(RUN_KEY) || '';
             var currentRun = null;
             var currentReplay = null;
+            var lastTickProcessed = [];
             var allPets = [];
             var offlineMode = true;
             var currentUserId = null;
@@ -617,20 +730,33 @@
                 return response.json();
             }
 
+            function activeRunClass() {
+                return (currentRun && currentRun.run_class) || document.getElementById('runClassSelect').value;
+            }
+
+            function syncSelectorsFromRun() {
+                if (!currentRun) return;
+                if (currentRun.run_class) document.getElementById('runClassSelect').value = currentRun.run_class;
+                if (currentRun.priority_profile) document.getElementById('prioritySelect').value = currentRun.priority_profile;
+                document.getElementById('budgetSelect').value = String(currentRun.inference_budget_daily || currentRun.inference_budget_remaining || 4);
+            }
+
             async function loadRun() {
                 if (!currentRunId) {
                     currentRun = null;
                     currentReplay = null;
+                    lastTickProcessed = [];
                     render();
                     return;
                 }
                 currentRun = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId);
                 currentReplay = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/replay');
+                syncSelectorsFromRun();
                 render();
             }
 
             function actionActorType() {
-                return document.getElementById('runClassSelect').value === 'manual' ? 'manual' : 'operator';
+                return activeRunClass() === 'manual' ? 'manual' : 'operator';
             }
 
             async function startRun() {
@@ -641,8 +767,9 @@
                 }
                 var runClass = document.getElementById('runClassSelect').value;
                 var priority = document.getElementById('prioritySelect').value;
+                var dailyBudget = parseInt(document.getElementById('budgetSelect').value || '4', 10);
                 var payload = {
-                    season_id: 'part-b-b2-proto',
+                    season_id: 'part-b-b4-proto',
                     run_class: runClass,
                     operator_id: currentUserId,
                     subject_pet_id: pet.id || null,
@@ -651,6 +778,13 @@
                     active_zone: activeZone === 'cave' ? 'cave' : 'arena',
                     priority_profile: priority,
                     risk_appetite: priority === 'expedition-first' ? 'bold' : (priority === 'welfare-first' ? 'guarded' : 'measured'),
+                    inference_budget_remaining: dailyBudget,
+                    inference_budget_daily: dailyBudget,
+                    billing_mode: 'hybrid',
+                    world_access_active: true,
+                    house_agent_enabled: runClass === 'agent-only',
+                    house_agent_provider: 'anthropic',
+                    house_agent_model: 'claude-haiku-4-5-20251001',
                     state_projection: initialProjection(pet),
                     metadata: {
                         source: 'ecology-page',
@@ -665,6 +799,12 @@
                 currentRunId = currentRun.id;
                 localStorage.setItem(RUN_KEY, currentRunId);
                 await loadRun();
+            }
+
+            async function ensureRun() {
+                if (!currentRunId || !currentRun) {
+                    await startRun();
+                }
             }
 
             function currentState() {
@@ -718,7 +858,8 @@
             }
 
             async function actArena() {
-                if (!currentRunId || !currentRun) { await startRun(); }
+                await ensureRun();
+                if (activeRunClass() === 'agent-only') return;
                 var pet = getSelectedPet();
                 var state = currentState();
                 if (!pet || !state) return;
@@ -779,7 +920,8 @@
             }
 
             async function actCaveEnter() {
-                if (!currentRunId || !currentRun) { await startRun(); }
+                await ensureRun();
+                if (activeRunClass() === 'agent-only') return;
                 var state = currentState();
                 if (!state) return;
                 var roll = caveRoll(state);
@@ -824,7 +966,8 @@
             }
 
             async function actExtract() {
-                if (!currentRunId || !currentRun) { await startRun(); }
+                await ensureRun();
+                if (activeRunClass() === 'agent-only') return;
                 var state = currentState();
                 if (!state) return;
                 if (!(state.in_cave || state.current_cave_depth > 0)) {
@@ -866,7 +1009,8 @@
             }
 
             async function actCare() {
-                if (!currentRunId || !currentRun) { await startRun(); }
+                await ensureRun();
+                if (activeRunClass() === 'agent-only') return;
                 var state = currentState();
                 if (!state) return;
                 var next = Object.assign({}, state, {
@@ -892,7 +1036,8 @@
             }
 
             async function actRest() {
-                if (!currentRunId || !currentRun) { await startRun(); }
+                await ensureRun();
+                if (activeRunClass() === 'agent-only') return;
                 var state = currentState();
                 if (!state) return;
                 var next = Object.assign({}, state, {
@@ -916,7 +1061,8 @@
             }
 
             async function actHold() {
-                if (!currentRunId || !currentRun) { await startRun(); }
+                await ensureRun();
+                if (activeRunClass() === 'agent-only') return;
                 var state = currentState();
                 if (!state) return;
                 var next = Object.assign({}, state, {
@@ -938,11 +1084,125 @@
                 await loadRun();
             }
 
+            function queueActorType() {
+                return activeRunClass() === 'manual' ? 'manual' : 'operator';
+            }
+
+            function queueZoneFor(actionVerb) {
+                return (actionVerb === 'ENTER_CAVE' || actionVerb === 'EXTRACT') ? 'cave' : 'arena';
+            }
+
+            async function enqueueSelectedAction() {
+                await ensureRun();
+                if (activeRunClass() === 'agent-only') {
+                    alert('Agent-only runs do not accept operator queue authoring. Use priorities and the hosted agent.');
+                    return;
+                }
+                var actionVerb = document.getElementById('queueActionSelect').value;
+                try {
+                    await fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/queue', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action_verb: actionVerb,
+                            zone: queueZoneFor(actionVerb),
+                            actor_type: queueActorType(),
+                            source: 'ecology-queue'
+                        })
+                    });
+                    await loadRun();
+                } catch (error) {
+                    alert(error.message || 'Queue update failed.');
+                }
+            }
+
+            async function clearQueue() {
+                await ensureRun();
+                await fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/queue/clear', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                await loadRun();
+            }
+
+            async function removeQueuedAction(itemId) {
+                await ensureRun();
+                await fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/queue/' + itemId, {
+                    method: 'DELETE'
+                });
+                await loadRun();
+            }
+
+            async function processTicks(count) {
+                await ensureRun();
+                var result = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/tick', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ count: count })
+                });
+                currentRun = result.run;
+                currentReplay = {
+                    run: result.run,
+                    events: result.replay || [],
+                    report: result.report || {}
+                };
+                lastTickProcessed = Array.isArray(result.processed) ? result.processed : [];
+                syncSelectorsFromRun();
+                render();
+            }
+
+            async function saveHouseAgent() {
+                await ensureRun();
+                var enabled = activeRunClass() === 'agent-only';
+                var dailyBudget = parseInt(document.getElementById('budgetSelect').value || '4', 10);
+                try {
+                    var result = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/house-agent', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            house_agent_enabled: enabled,
+                            house_agent_provider: 'anthropic',
+                            house_agent_model: 'claude-haiku-4-5-20251001',
+                            billing_mode: 'hybrid',
+                            inference_budget_daily: dailyBudget,
+                            inference_budget_remaining: currentRun && typeof currentRun.inference_budget_remaining === 'number'
+                                ? Math.min(currentRun.inference_budget_remaining, dailyBudget)
+                                : dailyBudget,
+                            world_access_active: true
+                        })
+                    });
+                    currentRun = result.run;
+                    await loadRun();
+                } catch (error) {
+                    alert(error.message || 'House agent update failed.');
+                }
+            }
+
+            async function previewHouseAgent() {
+                await ensureRun();
+                if (activeRunClass() !== 'agent-only') {
+                    alert('House-agent preview only applies to agent-only runs.');
+                    return;
+                }
+                var preview = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/house-agent/preview');
+                document.getElementById('houseAgentHintBody').textContent =
+                    (preview.action_verb || 'HOLD') + ' @ ' + (preview.zone || 'arena') + ' — ' +
+                    (preview.rationale || 'No rationale.') + ' [' + (preview.mode || 'unknown') + ']';
+            }
+
             function renderHint() {
                 var hintWrap = document.getElementById('operatorHint');
                 var hintBody = document.getElementById('operatorHintBody');
-                var runClass = document.getElementById('runClassSelect').value;
+                var runClass = activeRunClass();
                 var state = currentState();
+                if (runClass === 'agent-only') {
+                    var lastPlan = currentRun && currentRun.house_agent_last_plan ? currentRun.house_agent_last_plan : null;
+                    hintWrap.style.opacity = '1';
+                    hintBody.textContent = lastPlan
+                        ? 'House agent last plan: ' + (lastPlan.action_verb || 'HOLD') + ' @ ' + (lastPlan.zone || 'arena') + ' — ' + (lastPlan.rationale || 'No rationale.')
+                        : 'Agent-only runs use the hosted house agent through the public contract. Direct manual actions are disabled.';
+                    return;
+                }
                 if (runClass !== 'operator-assisted' || !state) {
                     hintWrap.style.opacity = runClass === 'operator-assisted' ? '1' : '0.55';
                     hintBody.textContent = runClass === 'operator-assisted'
@@ -963,6 +1223,31 @@
                 }
                 hintWrap.style.opacity = '1';
                 hintBody.textContent = text;
+            }
+
+            function renderQueue() {
+                var area = document.getElementById('queueArea');
+                var queue = currentReplay && currentReplay.report && currentReplay.report.queue && Array.isArray(currentReplay.report.queue.pending)
+                    ? currentReplay.report.queue.pending
+                    : [];
+                if (!queue.length) {
+                    area.innerHTML = '<div class="empty">Queue empty. Add bounded actions and let ticks execute them FIFO.</div>';
+                    return;
+                }
+                area.innerHTML = queue.map(function(item, index) {
+                    return '<div class="queue-row">' +
+                        '<div>' +
+                            '<strong>' + escHtml(item.action_verb) + ' · ' + escHtml(item.zone || 'arena') + '</strong>' +
+                            '<span>#' + (index + 1) + ' · ' + escHtml(item.actor_type || 'operator') + '</span>' +
+                        '</div>' +
+                        '<button type="button" class="ghost-btn queue-remove-btn" data-item-id="' + escHtml(item.id) + '">Remove</button>' +
+                    '</div>';
+                }).join('');
+                area.querySelectorAll('.queue-remove-btn').forEach(function(button) {
+                    button.addEventListener('click', function() {
+                        removeQueuedAction(button.getAttribute('data-item-id'));
+                    });
+                });
             }
 
             function renderReplay() {
@@ -992,8 +1277,57 @@
                             '<div>tick ' + (event.world_tick || 0) + '</div>' +
                         '</div>' +
                         '<div>' + escHtml(detail) + '</div>' +
+                        '</div>';
+                }).join('');
+            }
+
+            function renderTickReport() {
+                var area = document.getElementById('tickReportArea');
+                var items = lastTickProcessed && lastTickProcessed.length
+                    ? lastTickProcessed
+                    : ((currentReplay && currentReplay.report && currentReplay.report.queue && currentReplay.report.queue.completed_recent) || []);
+                if (!items.length) {
+                    area.innerHTML = '<div class="empty">No passive execution yet. Queue actions or enable the hosted agent, then advance ticks.</div>';
+                    return;
+                }
+                area.innerHTML = items.slice(-6).reverse().map(function(item) {
+                    var outcome = item.outcome || {};
+                    var details = item.details || {};
+                    var detailText = '';
+                    if (outcome.result) {
+                        detailText = outcome.result + ' · reward ' + (outcome.reward || 0);
+                    } else if (typeof outcome.extract_value === 'number') {
+                        detailText = 'value ' + outcome.extract_value + ' · injury ' + (outcome.injury || 0);
+                    } else if (outcome.autopause_reason) {
+                        detailText = outcome.autopause_reason;
+                    } else if (details.planned_action && details.planned_action.rationale) {
+                        detailText = details.planned_action.rationale;
+                    } else {
+                        detailText = item.event_type || item.status || 'tick';
+                    }
+                    return '<div class="event">' +
+                        '<div class="event-head">' +
+                            '<div><span class="badge badge-zone">' + escHtml(item.action_verb || item.status || item.event_type || 'tick') + '</span></div>' +
+                            '<div>tick ' + escHtml(item.world_tick || 0) + '</div>' +
+                        '</div>' +
+                        '<div>' + escHtml(item.source || item.actor_type || 'system') + (item.accepted === false ? ' · rejected' : '') + '</div>' +
+                        '<div style="margin-top:0.35rem;color:var(--text-dim);">' + escHtml(detailText) + '</div>' +
                     '</div>';
                 }).join('');
+            }
+
+            function renderRunModeState() {
+                var agentOnly = activeRunClass() === 'agent-only';
+                [
+                    'btnArenaEnter', 'btnArenaCare', 'btnArenaRest', 'btnArenaHold',
+                    'btnCaveEnter', 'btnCaveExtract', 'btnCaveCare', 'btnCaveRest'
+                ].forEach(function(id) {
+                    var button = document.getElementById(id);
+                    if (button) button.disabled = agentOnly;
+                });
+                document.getElementById('enqueueBtn').disabled = agentOnly;
+                document.getElementById('queueActionSelect').disabled = agentOnly;
+                document.getElementById('previewHouseAgentBtn').disabled = !agentOnly;
             }
 
             function renderSurfaceState() {
@@ -1004,6 +1338,14 @@
                 document.getElementById('moraleValue').textContent = state ? Math.round(state.morale_pct || 0) + '%' : '-';
                 document.getElementById('happinessValue').textContent = state ? Math.round(state.happiness_pct || 0) + '%' : '-';
                 document.getElementById('energyValue').textContent = state ? Math.round(state.energy_pct || 0) + '%' : '-';
+                document.getElementById('tickValue').textContent = currentRun ? String(currentRun.world_tick || 0) : '0';
+                document.getElementById('queueValue').textContent = currentReplay && currentReplay.report && currentReplay.report.queue
+                    ? (currentReplay.report.queue.pending_count || 0) + ' / ' + (currentReplay.report.queue.capacity || 0)
+                    : '0 / 0';
+                document.getElementById('creditsValue').textContent = currentRun
+                    ? String(currentRun.inference_budget_remaining || 0) + ' / ' + String(currentRun.inference_budget_daily || 0)
+                    : '-';
+                document.getElementById('houseAgentValue').textContent = currentRun && currentRun.house_agent_enabled ? 'on' : 'off';
                 if (currentReplay && currentReplay.report && currentReplay.report.scores) {
                     var scores = currentReplay.report.scores;
                     document.getElementById('scoreWelfare').textContent = scores.welfare;
@@ -1032,8 +1374,11 @@
 
             function render() {
                 renderSurfaceState();
+                renderQueue();
                 renderReplay();
+                renderTickReport();
                 renderHint();
+                renderRunModeState();
             }
 
             async function main() {
@@ -1049,23 +1394,35 @@
                     }
                 }
                 render();
+
+                document.getElementById('startRunBtn').addEventListener('click', startRun);
+                document.getElementById('tabArena').addEventListener('click', function() { switchZone('arena'); });
+                document.getElementById('tabCave').addEventListener('click', function() { switchZone('cave'); });
+                document.getElementById('btnArenaEnter').addEventListener('click', actArena);
+                document.getElementById('btnArenaCare').addEventListener('click', actCare);
+                document.getElementById('btnArenaRest').addEventListener('click', actRest);
+                document.getElementById('btnArenaHold').addEventListener('click', actHold);
+                document.getElementById('btnCaveEnter').addEventListener('click', actCaveEnter);
+                document.getElementById('btnCaveExtract').addEventListener('click', actExtract);
+                document.getElementById('btnCaveCare').addEventListener('click', actCare);
+                document.getElementById('btnCaveRest').addEventListener('click', actRest);
+                document.getElementById('enqueueBtn').addEventListener('click', enqueueSelectedAction);
+                document.getElementById('clearQueueBtn').addEventListener('click', clearQueue);
+                document.getElementById('tickOnceBtn').addEventListener('click', function() { processTicks(1); });
+                document.getElementById('tickThreeBtn').addEventListener('click', function() { processTicks(3); });
+                document.getElementById('saveHouseAgentBtn').addEventListener('click', saveHouseAgent);
+                document.getElementById('previewHouseAgentBtn').addEventListener('click', previewHouseAgent);
+                document.getElementById('runClassSelect').addEventListener('change', function() {
+                    renderHint();
+                    renderRunModeState();
+                });
+                document.getElementById('prioritySelect').addEventListener('change', renderHint);
             }
 
-            document.getElementById('startRunBtn').addEventListener('click', startRun);
-            document.getElementById('tabArena').addEventListener('click', function() { switchZone('arena'); });
-            document.getElementById('tabCave').addEventListener('click', function() { switchZone('cave'); });
-            document.getElementById('btnArenaEnter').addEventListener('click', actArena);
-            document.getElementById('btnArenaCare').addEventListener('click', actCare);
-            document.getElementById('btnArenaRest').addEventListener('click', actRest);
-            document.getElementById('btnArenaHold').addEventListener('click', actHold);
-            document.getElementById('btnCaveEnter').addEventListener('click', actCaveEnter);
-            document.getElementById('btnCaveExtract').addEventListener('click', actExtract);
-            document.getElementById('btnCaveCare').addEventListener('click', actCare);
-            document.getElementById('btnCaveRest').addEventListener('click', actRest);
-            document.getElementById('runClassSelect').addEventListener('change', renderHint);
-            document.getElementById('prioritySelect').addEventListener('change', renderHint);
-
-            main();
+            main().catch(function(error) {
+                console.error(error);
+                alert('Ecology surface failed to initialize.');
+            });
         })();
     </script>
 </body>

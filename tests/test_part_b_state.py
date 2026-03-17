@@ -1,14 +1,22 @@
 from __future__ import annotations
 
+import pytest
+
 from part_b_state import (
     append_part_b_event,
+    clear_part_b_queue,
     create_part_b_run,
+    enqueue_part_b_action,
     get_part_b_run,
     list_part_b_runs,
     part_b_run_report,
     part_b_storage_status,
+    preview_part_b_house_agent,
+    process_part_b_ticks,
+    remove_part_b_queued_action,
     replay_part_b_run,
     update_part_b_run,
+    update_part_b_house_agent,
 )
 
 
@@ -166,3 +174,97 @@ def test_part_b_storage_status_and_listing(monkeypatch, tmp_path):
     runs = list_part_b_runs(limit=10)
     assert len(runs) == 2
     assert {run["id"] for run in runs} == {first["id"], second["id"]}
+
+
+def test_part_b_queue_fifo_and_tick_processing(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+
+    run_record = create_part_b_run(
+        {
+            "run_class": "operator-assisted",
+            "state_projection": {"health_pct": 80, "morale_pct": 72, "happiness_pct": 70, "energy_pct": 76},
+        }
+    )
+    enqueue_part_b_action(run_record["id"], {"action_verb": "CARE", "actor_type": "operator"})
+    enqueue_part_b_action(run_record["id"], {"action_verb": "REST", "actor_type": "operator"})
+
+    result = process_part_b_ticks(run_record["id"], count=2)
+    assert result is not None
+    assert len(result["processed"]) == 2
+    assert [item["action_verb"] for item in result["processed"]] == ["CARE", "REST"]
+
+    stored = get_part_b_run(run_record["id"])
+    assert stored is not None
+    assert stored["world_tick"] == 2
+    assert stored["queue_state"] == []
+    assert stored["state_projection"]["care_like_ticks"] >= 2
+
+
+def test_part_b_queue_capacity_remove_and_clear(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+
+    run_record = create_part_b_run({"run_class": "manual", "queue_capacity": 2})
+    first = enqueue_part_b_action(run_record["id"], {"action_verb": "CARE", "actor_type": "manual"})
+    second = enqueue_part_b_action(run_record["id"], {"action_verb": "REST", "actor_type": "manual"})
+    assert first is not None
+    assert second is not None
+
+    with pytest.raises(ValueError):
+        enqueue_part_b_action(run_record["id"], {"action_verb": "HOLD", "actor_type": "manual"})
+
+    removed = remove_part_b_queued_action(run_record["id"], first["queued_item"]["id"])
+    assert removed is not None
+    assert removed["removed"] is True
+    assert len(removed["queue_state"]) == 1
+
+    cleared = clear_part_b_queue(run_record["id"])
+    assert cleared is not None
+    assert cleared["queue_state"] == []
+
+
+def test_part_b_house_agent_preview_and_autopause(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+
+    run_record = create_part_b_run(
+        {
+            "run_class": "agent-only",
+            "house_agent_enabled": True,
+            "inference_budget_remaining": 1,
+            "inference_budget_daily": 1,
+            "state_projection": {"health_pct": 41, "happiness_pct": 40, "morale_pct": 58, "energy_pct": 30},
+        }
+    )
+    preview = preview_part_b_house_agent(run_record["id"])
+    assert preview is not None
+    assert preview["action_verb"] in {"CARE", "REST", "HOLD", "ENTER_ARENA", "ENTER_CAVE", "EXTRACT"}
+
+    tick_one = process_part_b_ticks(run_record["id"], count=1)
+    assert tick_one is not None
+    assert tick_one["processed"][0]["source"] == "house-agent"
+
+    stored = get_part_b_run(run_record["id"])
+    assert stored is not None
+    assert stored["inference_budget_remaining"] == 0
+    assert stored["house_agent_last_plan"]["action_verb"]
+
+    tick_two = process_part_b_ticks(run_record["id"], count=1)
+    assert tick_two is not None
+    assert tick_two["processed"][0]["source"] == "house-agent-autopause"
+
+    paused = get_part_b_run(run_record["id"])
+    assert paused is not None
+    assert paused["status"] == "paused"
+    assert paused["autopause_reason"] == "inference_budget_exhausted"
+
+
+def test_part_b_house_agent_requires_agent_only(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+
+    run_record = create_part_b_run({"run_class": "manual"})
+    with pytest.raises(ValueError):
+        update_part_b_house_agent(run_record["id"], {"house_agent_enabled": True})

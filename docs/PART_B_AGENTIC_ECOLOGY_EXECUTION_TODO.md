@@ -10,7 +10,7 @@ Turn Part B into a valid ecological benchmark without blowing scope or losing be
 
 The next mandatory focus is:
 
-- `B1.5 — State Migration`
+- `B5 — First Measurement Season`
 
 ---
 
@@ -101,11 +101,16 @@ Exit rule:
 
 ## Phase B3 — Passive Queue
 
-- [ ] Implement FIFO queued action list.
-- [ ] Add queue length cap.
-- [ ] Add passive tick execution.
-- [ ] Add operator report for completed actions.
-- [ ] Explicitly avoid priority/preemption logic.
+- [x] Implement FIFO queued action list.
+- [x] Add queue length cap.
+- [x] Add passive tick execution.
+- [x] Add operator report for completed actions.
+- [x] Explicitly avoid priority/preemption logic.
+
+Artifacts:
+- `docs/PART_B_PASSIVE_QUEUE_B3.md`
+- `part_b_state.py`
+- `web/static/island/ecology.html`
 
 Exit rule:
 - “works while you sleep” exists in bounded form
@@ -114,13 +119,18 @@ Exit rule:
 
 ## Phase B4 — Hosted House Agent
 
-- [ ] Add constrained hosted house agent under public contract.
-- [ ] Add hybrid billing logic concept:
+- [x] Add constrained hosted house agent under public contract.
+- [x] Add hybrid billing logic concept:
   - world access
   - inference credits
   - auto-pause on exhausted budget
-- [ ] Add operator controls for house agent.
-- [ ] Ensure house agent acts only through published action grammar.
+- [x] Add operator controls for house agent.
+- [x] Ensure house agent acts only through published action grammar.
+
+Artifacts:
+- `docs/PART_B_HOUSE_AGENT_B4.md`
+- `part_b_state.py`
+- `web/static/island/ecology.html`
 
 Exit rule:
 - house agent can run without invalidating future benchmark claims

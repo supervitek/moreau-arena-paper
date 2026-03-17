@@ -7,6 +7,14 @@ Supersedes:
 - `docs/PART_B_AGENTIC_ECOLOGY_ROADMAP_DRAFT.md`
 - `docs/PART_B_AGENTIC_ECOLOGY_ROADMAP_COUNCIL_READY.md`
 
+Implementation status:
+- `B1` complete
+- `B1.5` complete
+- `B2` complete
+- `B3` complete
+- `B4` complete
+- next focus: `B5 — First Measurement Season`
+
 ## Final Verdict
 
 Part B is an approved expansion of Moreau Arena.

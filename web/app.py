@@ -46,12 +46,18 @@ from part_b_state import (
     RUN_CLASSES,
     append_part_b_event,
     create_part_b_run,
+    clear_part_b_queue,
+    enqueue_part_b_action,
     get_part_b_run,
     list_part_b_runs,
     part_b_run_report,
     part_b_storage_status,
+    preview_part_b_house_agent,
+    process_part_b_ticks,
+    remove_part_b_queued_action,
     replay_part_b_run,
     update_part_b_run,
+    update_part_b_house_agent,
 )
 from simulator.__main__ import _create_creature, _parse_build, _run_games
 from simulator.engine import CombatEngine
@@ -1546,10 +1552,17 @@ class PartBRunCreateRequest(BaseModel):
     expedition_bias: int = Field(default=50, ge=0, le=100)
     world_tick: int = Field(default=0, ge=0)
     inference_budget_remaining: int = Field(default=4, ge=0, le=999)
+    inference_budget_daily: int = Field(default=4, ge=0, le=999)
+    billing_mode: str = Field(default="hybrid", max_length=32)
+    world_access_active: bool = Field(default=True)
+    house_agent_enabled: bool = Field(default=False)
+    house_agent_provider: str = Field(default="anthropic", max_length=32)
+    house_agent_model: str = Field(default="claude-haiku-4-5-20251001", max_length=64)
     observation_version: str = Field(default="B1", max_length=16)
     action_version: str = Field(default="B1", max_length=16)
     scoring_version: str = Field(default="B1", max_length=16)
     conflict_policy: str = Field(default="operator_wins_before_execution", max_length=64)
+    queue_capacity: int = Field(default=6, ge=1, le=20)
     queue_state: list[dict[str, Any]] = Field(default_factory=list)
     state_projection: dict[str, Any] = Field(default_factory=dict)
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -1576,6 +1589,15 @@ class PartBRunUpdateRequest(BaseModel):
     expedition_bias: int | None = Field(default=None, ge=0, le=100)
     world_tick: int | None = Field(default=None, ge=0)
     inference_budget_remaining: int | None = Field(default=None, ge=0, le=999)
+    inference_budget_daily: int | None = Field(default=None, ge=0, le=999)
+    billing_mode: str | None = Field(default=None, max_length=32)
+    world_access_active: bool | None = Field(default=None)
+    house_agent_enabled: bool | None = Field(default=None)
+    house_agent_provider: str | None = Field(default=None, max_length=32)
+    house_agent_model: str | None = Field(default=None, max_length=64)
+    queue_capacity: int | None = Field(default=None, ge=1, le=20)
+    house_agent_last_plan: dict[str, Any] | None = Field(default=None)
+    autopause_reason: str | None = Field(default=None, max_length=64)
     conflict_policy: str | None = Field(default=None, max_length=64)
     queue_state: list[dict[str, Any]] | None = Field(default=None)
     state_projection: dict[str, Any] | None = Field(default=None)
@@ -1593,6 +1615,7 @@ class PartBEventRequest(BaseModel):
     outcome: dict[str, Any] = Field(default_factory=dict)
     details: dict[str, Any] = Field(default_factory=dict)
     state_after: dict[str, Any] = Field(default_factory=dict)
+    run_updates: dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("actor_type")
     @classmethod
@@ -1611,6 +1634,46 @@ class PartBEventRequest(BaseModel):
         if normalized not in ACTION_VERBS:
             raise ValueError(f"action_verb must be one of: {', '.join(sorted(ACTION_VERBS))}")
         return normalized
+
+
+class PartBQueueRequest(BaseModel):
+    action_verb: str = Field(..., max_length=24)
+    zone: str | None = Field(default=None, max_length=32)
+    actor_type: str | None = Field(default=None, max_length=24)
+    source: str | None = Field(default="operator-ui", max_length=48)
+    note: str | None = Field(default=None, max_length=120)
+
+    @field_validator("action_verb")
+    @classmethod
+    def validate_queue_action_verb(cls, value: str) -> str:
+        normalized = value.strip().upper()
+        if normalized not in ACTION_VERBS:
+            raise ValueError(f"action_verb must be one of: {', '.join(sorted(ACTION_VERBS))}")
+        return normalized
+
+    @field_validator("actor_type")
+    @classmethod
+    def validate_queue_actor_type(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip().lower()
+        if normalized not in ACTOR_TYPES:
+            raise ValueError(f"actor_type must be one of: {', '.join(sorted(ACTOR_TYPES))}")
+        return normalized
+
+
+class PartBTickRequest(BaseModel):
+    count: int = Field(default=1, ge=1, le=24)
+
+
+class PartBHouseAgentRequest(BaseModel):
+    house_agent_enabled: bool = Field(default=True)
+    house_agent_provider: str = Field(default="anthropic", max_length=32)
+    house_agent_model: str = Field(default="claude-haiku-4-5-20251001", max_length=64)
+    billing_mode: str = Field(default="hybrid", max_length=32)
+    inference_budget_remaining: int | None = Field(default=None, ge=0, le=999)
+    inference_budget_daily: int | None = Field(default=None, ge=0, le=999)
+    world_access_active: bool = Field(default=True)
 
 
 @app.post("/api/v1/island/arena-fight")
@@ -1733,6 +1796,66 @@ def island_part_b_append_event(run_id: str, req: PartBEventRequest) -> dict[str,
     if not event:
         raise HTTPException(status_code=404, detail="Part B run not found")
     return event
+
+
+@app.post("/api/v1/island/part-b/runs/{run_id}/queue")
+def island_part_b_enqueue(run_id: str, req: PartBQueueRequest) -> dict[str, Any]:
+    """Append one FIFO action into the Part B passive queue."""
+    try:
+        queued = enqueue_part_b_action(run_id, req.model_dump(exclude_none=True))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if not queued:
+        raise HTTPException(status_code=404, detail="Part B run not found")
+    return queued
+
+
+@app.delete("/api/v1/island/part-b/runs/{run_id}/queue/{item_id}")
+def island_part_b_remove_queued_action(run_id: str, item_id: str) -> dict[str, Any]:
+    """Remove one queued Part B action by id."""
+    queued = remove_part_b_queued_action(run_id, item_id)
+    if not queued:
+        raise HTTPException(status_code=404, detail="Part B run not found")
+    return queued
+
+
+@app.post("/api/v1/island/part-b/runs/{run_id}/queue/clear")
+def island_part_b_clear_queue(run_id: str) -> dict[str, Any]:
+    """Clear the entire FIFO queue for one Part B run."""
+    queued = clear_part_b_queue(run_id)
+    if not queued:
+        raise HTTPException(status_code=404, detail="Part B run not found")
+    return queued
+
+
+@app.post("/api/v1/island/part-b/runs/{run_id}/tick")
+def island_part_b_tick(run_id: str, req: PartBTickRequest) -> dict[str, Any]:
+    """Advance one or more bounded passive ticks."""
+    result = process_part_b_ticks(run_id, count=req.count)
+    if not result:
+        raise HTTPException(status_code=404, detail="Part B run not found")
+    return result
+
+
+@app.get("/api/v1/island/part-b/runs/{run_id}/house-agent/preview")
+def island_part_b_house_agent_preview(run_id: str) -> dict[str, Any]:
+    """Preview the next bounded house-agent plan under the public contract."""
+    plan = preview_part_b_house_agent(run_id)
+    if not plan:
+        raise HTTPException(status_code=404, detail="Part B run not found")
+    return plan
+
+
+@app.post("/api/v1/island/part-b/runs/{run_id}/house-agent")
+def island_part_b_house_agent_update(run_id: str, req: PartBHouseAgentRequest) -> dict[str, Any]:
+    """Update hosted house-agent controls and hybrid billing rails."""
+    try:
+        result = update_part_b_house_agent(run_id, req.model_dump(exclude_none=True))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if not result:
+        raise HTTPException(status_code=404, detail="Part B run not found")
+    return result
 
 
 @app.get("/api/v1/island/part-b/runs/{run_id}/replay")

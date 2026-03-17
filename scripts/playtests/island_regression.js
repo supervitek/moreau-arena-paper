@@ -252,7 +252,21 @@ async function runSuite(baseUrl, headless) {
     await page.waitForSelector('#startRunBtn');
     await page.click('#startRunBtn');
     await page.waitForTimeout(400);
-    await page.click('#btnArenaEnter');
+    await page.selectOption('#queueActionSelect', 'CARE');
+    await page.click('#enqueueBtn');
+    await page.waitForTimeout(400);
+    await page.click('#tickOnceBtn');
+    await page.waitForTimeout(1000);
+    const queueBody = await page.locator('#queueArea').innerText();
+    assert(!/CARE/.test(queueBody), 'ecology queue did not drain after tick');
+    await page.selectOption('#runClassSelect', 'agent-only');
+    await page.click('#startRunBtn');
+    await page.waitForTimeout(500);
+    await page.click('#previewHouseAgentBtn');
+    await page.waitForTimeout(500);
+    const hintText = await page.locator('#houseAgentHint').innerText();
+    assert(/House Agent/.test(hintText), 'house agent hint block did not render');
+    await page.click('#tickOnceBtn');
     await page.waitForTimeout(1200);
     const body = await page.locator('body').innerText();
     assert(/The Arena/.test(body), 'ecology page did not render arena surface');
@@ -261,9 +275,18 @@ async function runSuite(baseUrl, headless) {
     const expedition = await page.locator('#scoreExpedition').innerText();
     assert(/\d+/.test(welfare) && /\d+/.test(combat) && /\d+/.test(expedition), 'ecology scores did not render');
     const replay = await page.locator('#replayArea').innerText();
-    assert(/ENTER_ARENA|action_applied/i.test(replay), 'ecology replay did not log arena action');
+    const tickReport = await page.locator('#tickReportArea').innerText();
+    assert(/CARE|REST|ENTER_ARENA|HOLD|tick/i.test(tickReport), 'ecology tick report did not render passive execution');
+    assert(/ENTER_ARENA|CARE|action_applied/i.test(replay), 'ecology replay did not log ecological actions');
     await context.close();
-    return { snippet: body.slice(0, 300), replay: replay.slice(0, 240), scores: { welfare, combat, expedition }, pageErrors, consoleErrors };
+    return {
+      snippet: body.slice(0, 300),
+      replay: replay.slice(0, 240),
+      tickReport: tickReport.slice(0, 240),
+      scores: { welfare, combat, expedition },
+      pageErrors,
+      consoleErrors
+    };
   }));
 
   results.push(await scenario('profile', async () => {
