@@ -1,6 +1,6 @@
 # Project TODO
 
-Last updated: 2026-03-16
+Last updated: 2026-03-17
 
 ## Agentic Moreau
 
@@ -15,7 +15,8 @@ Last updated: 2026-03-16
 - Execution TODO: `docs/PART_B_AGENTIC_ECOLOGY_EXECUTION_TODO.md`
 - Measurement contract: `docs/PART_B_MEASUREMENT_CONTRACT_B1.md`
 - Operator inspect UX spec: `docs/PART_B_OPERATOR_INSPECT_UX_SPEC.md`
-- Current next move: `B1.5 — State Migration`
+- State migration foundation: `docs/PART_B_STATE_MIGRATION_B1_5.md`
+- Current next move: `B2 — Manual Ecology Slice`
 
 ## Current Priority Order
 
@@ -65,3 +66,4 @@ Last updated: 2026-03-16
 - [x] Chronicler weekly review/reporting template and provisional verdict flow
 - [x] Committed T002 adaptation derivation script
 - [x] Paper adaptation table re-derived from canonical JSONL
+- [x] Part B B1.5 state migration foundation

@@ -64,11 +64,17 @@ Exit rule:
 
 ## Phase B1.5 — State Migration
 
-- [ ] Identify the minimum Part B state that must leave localStorage.
-- [ ] Design server-side persistence for that state.
-- [ ] Add per-action event log.
-- [ ] Define human vs agent conflict semantics.
-- [ ] Define replay/report read path for operator inspection.
+- [x] Identify the minimum Part B state that must leave localStorage.
+- [x] Design server-side persistence for that state.
+- [x] Add per-action event log.
+- [x] Define human vs agent conflict semantics.
+- [x] Define replay/report read path for operator inspection.
+
+Artifacts:
+- `docs/PART_B_STATE_MIGRATION_B1_5.md`
+- `docs/PART_B_STATE_MIGRATION_B1_5.json`
+- `sql/PART_B_STATE_MIGRATION_B1_5.sql`
+- `part_b_state.py`
 
 Exit rule:
 - passive delegated progression is technically possible without fake persistence
@@ -133,9 +139,9 @@ Exit rule:
 
 ## Explicit Red Lines
 
-- [ ] No BYO-agent API in the first execution cycle
-- [ ] No Black Orchard in the first execution cycle
-- [ ] No composite headline score in the first measurement season
-- [ ] No priority queue
-- [ ] No broad economy expansion before the two-zone slice works
-- [ ] No hidden house-agent privileges once the public contract exists
+- [x] No BYO-agent API in the first execution cycle
+- [x] No Black Orchard in the first execution cycle
+- [x] No composite headline score in the first measurement season
+- [x] No priority queue
+- [x] No broad economy expansion before the two-zone slice works
+- [x] No hidden house-agent privileges once the public contract exists

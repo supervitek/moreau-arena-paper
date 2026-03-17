@@ -1,0 +1,72 @@
+{
+  "phase": "B1.5",
+  "status": "implemented_foundation",
+  "purpose": "Move the minimum viable Part B benchmark state out of browser-only persistence.",
+  "minimum_server_state": [
+    "run_envelope",
+    "operator_policy",
+    "queue_state",
+    "state_projection",
+    "event_log"
+  ],
+  "run_fields": [
+    "id",
+    "season_id",
+    "run_class",
+    "status",
+    "subject_pet_id",
+    "subject_pet_name",
+    "subject_pet_animal",
+    "active_zone",
+    "world_tick",
+    "state_revision",
+    "priority_profile",
+    "risk_appetite",
+    "care_threshold",
+    "combat_bias",
+    "expedition_bias",
+    "queue_state",
+    "state_projection",
+    "inference_budget_remaining",
+    "conflict_policy"
+  ],
+  "event_fields": [
+    "run_id",
+    "sequence",
+    "world_tick",
+    "actor_type",
+    "event_type",
+    "action_verb",
+    "expected_state_revision",
+    "applied_state_revision",
+    "conflict_status",
+    "accepted",
+    "observation",
+    "outcome",
+    "details",
+    "state_after"
+  ],
+  "conflict_policy": {
+    "name": "operator_wins_before_execution",
+    "rule": "Agent/system events with stale expected_state_revision are logged as stale_rejected and do not apply state."
+  },
+  "backends": {
+    "production": "supabase",
+    "development": "file"
+  },
+  "api": [
+    "GET /api/v1/island/part-b/storage-status",
+    "POST /api/v1/island/part-b/runs",
+    "GET /api/v1/island/part-b/runs",
+    "GET /api/v1/island/part-b/runs/{run_id}",
+    "PATCH /api/v1/island/part-b/runs/{run_id}",
+    "POST /api/v1/island/part-b/runs/{run_id}/events",
+    "GET /api/v1/island/part-b/runs/{run_id}/replay",
+    "GET /api/v1/island/part-b/runs/{run_id}/report"
+  ],
+  "unlocks": [
+    "B2 manual ecology slice",
+    "B3 FIFO passive queue",
+    "B4 hosted house agent"
+  ]
+}

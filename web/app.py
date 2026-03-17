@@ -40,6 +40,19 @@ from analysis.bt_ranking import (
     update_ratings,
 )
 from chronicler import chronicler_summary, generate_chronicler_reading, log_chronicler_event, recent_events, recent_runs
+from part_b_state import (
+    ACTION_VERBS,
+    ACTOR_TYPES,
+    RUN_CLASSES,
+    append_part_b_event,
+    create_part_b_run,
+    get_part_b_run,
+    list_part_b_runs,
+    part_b_run_report,
+    part_b_storage_status,
+    replay_part_b_run,
+    update_part_b_run,
+)
 from simulator.__main__ import _create_creature, _parse_build, _run_games
 from simulator.engine import CombatEngine
 from season1.engine_s1 import run_match as s1_run_match
@@ -1517,6 +1530,89 @@ class ChroniclerEventRequest(BaseModel):
     details: str | None = Field(default=None, max_length=180)
 
 
+class PartBRunCreateRequest(BaseModel):
+    season_id: str = Field(default="part-b-proto", max_length=48)
+    run_class: str = Field(..., max_length=32)
+    status: str = Field(default="active", max_length=24)
+    operator_id: str | None = Field(default=None, max_length=64)
+    subject_pet_id: str | None = Field(default=None, max_length=64)
+    subject_pet_name: str | None = Field(default=None, max_length=48)
+    subject_pet_animal: str | None = Field(default=None, max_length=32)
+    active_zone: str = Field(default="arena", max_length=32)
+    priority_profile: str = Field(default="balanced", max_length=32)
+    risk_appetite: str = Field(default="measured", max_length=32)
+    care_threshold: int = Field(default=60, ge=0, le=100)
+    combat_bias: int = Field(default=50, ge=0, le=100)
+    expedition_bias: int = Field(default=50, ge=0, le=100)
+    world_tick: int = Field(default=0, ge=0)
+    inference_budget_remaining: int = Field(default=4, ge=0, le=999)
+    observation_version: str = Field(default="B1", max_length=16)
+    action_version: str = Field(default="B1", max_length=16)
+    scoring_version: str = Field(default="B1", max_length=16)
+    conflict_policy: str = Field(default="operator_wins_before_execution", max_length=64)
+    queue_state: list[dict[str, Any]] = Field(default_factory=list)
+    state_projection: dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("run_class")
+    @classmethod
+    def validate_run_class(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if normalized not in RUN_CLASSES:
+            raise ValueError(f"run_class must be one of: {', '.join(sorted(RUN_CLASSES))}")
+        return normalized
+
+
+class PartBRunUpdateRequest(BaseModel):
+    status: str | None = Field(default=None, max_length=24)
+    subject_pet_id: str | None = Field(default=None, max_length=64)
+    subject_pet_name: str | None = Field(default=None, max_length=48)
+    subject_pet_animal: str | None = Field(default=None, max_length=32)
+    active_zone: str | None = Field(default=None, max_length=32)
+    priority_profile: str | None = Field(default=None, max_length=32)
+    risk_appetite: str | None = Field(default=None, max_length=32)
+    care_threshold: int | None = Field(default=None, ge=0, le=100)
+    combat_bias: int | None = Field(default=None, ge=0, le=100)
+    expedition_bias: int | None = Field(default=None, ge=0, le=100)
+    world_tick: int | None = Field(default=None, ge=0)
+    inference_budget_remaining: int | None = Field(default=None, ge=0, le=999)
+    conflict_policy: str | None = Field(default=None, max_length=64)
+    queue_state: list[dict[str, Any]] | None = Field(default=None)
+    state_projection: dict[str, Any] | None = Field(default=None)
+    metadata: dict[str, Any] | None = Field(default=None)
+
+
+class PartBEventRequest(BaseModel):
+    actor_type: str = Field(..., max_length=24)
+    event_type: str = Field(..., max_length=48)
+    action_verb: str | None = Field(default=None, max_length=24)
+    zone: str | None = Field(default=None, max_length=32)
+    world_tick: int = Field(default=0, ge=0)
+    expected_state_revision: int | None = Field(default=None, ge=0)
+    observation: dict[str, Any] = Field(default_factory=dict)
+    outcome: dict[str, Any] = Field(default_factory=dict)
+    details: dict[str, Any] = Field(default_factory=dict)
+    state_after: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("actor_type")
+    @classmethod
+    def validate_actor_type(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if normalized not in ACTOR_TYPES:
+            raise ValueError(f"actor_type must be one of: {', '.join(sorted(ACTOR_TYPES))}")
+        return normalized
+
+    @field_validator("action_verb")
+    @classmethod
+    def validate_action_verb(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip().upper()
+        if normalized not in ACTION_VERBS:
+            raise ValueError(f"action_verb must be one of: {', '.join(sorted(ACTION_VERBS))}")
+        return normalized
+
+
 @app.post("/api/v1/island/arena-fight")
 async def arena_fight(req: ArenaFightRequest, request: Request):
     """Run an arena fight between two pets using their stored stats.
@@ -1592,6 +1688,69 @@ def island_chronicler_recent(limit: int = Query(default=25, ge=1, le=200)) -> di
 def island_chronicler_summary() -> dict[str, Any]:
     """Return aggregate Chronicler experiment signals for review."""
     return chronicler_summary()
+
+
+@app.get("/api/v1/island/part-b/storage-status")
+def island_part_b_storage_status() -> dict[str, Any]:
+    """Return current Part B state backend status."""
+    return part_b_storage_status()
+
+
+@app.post("/api/v1/island/part-b/runs")
+def island_part_b_create_run(req: PartBRunCreateRequest) -> dict[str, Any]:
+    """Create one Part B run envelope with server-side state projection."""
+    return create_part_b_run(req.model_dump())
+
+
+@app.get("/api/v1/island/part-b/runs")
+def island_part_b_list_runs(limit: int = Query(default=25, ge=1, le=200)) -> dict[str, Any]:
+    """List recent Part B runs for operator inspection."""
+    return {"runs": list_part_b_runs(limit)}
+
+
+@app.get("/api/v1/island/part-b/runs/{run_id}")
+def island_part_b_get_run(run_id: str) -> dict[str, Any]:
+    """Return one Part B run envelope."""
+    run_record = get_part_b_run(run_id)
+    if not run_record:
+        raise HTTPException(status_code=404, detail="Part B run not found")
+    return run_record
+
+
+@app.patch("/api/v1/island/part-b/runs/{run_id}")
+def island_part_b_update_run(run_id: str, req: PartBRunUpdateRequest) -> dict[str, Any]:
+    """Apply operator-side state or queue updates and increment run revision."""
+    run_record = update_part_b_run(run_id, req.model_dump(exclude_none=True))
+    if not run_record:
+        raise HTTPException(status_code=404, detail="Part B run not found")
+    return run_record
+
+
+@app.post("/api/v1/island/part-b/runs/{run_id}/events")
+def island_part_b_append_event(run_id: str, req: PartBEventRequest) -> dict[str, Any]:
+    """Append one replayable Part B event with conflict semantics."""
+    event = append_part_b_event(run_id, req.model_dump())
+    if not event:
+        raise HTTPException(status_code=404, detail="Part B run not found")
+    return event
+
+
+@app.get("/api/v1/island/part-b/runs/{run_id}/replay")
+def island_part_b_replay(run_id: str, limit: int | None = Query(default=None, ge=1, le=5000)) -> dict[str, Any]:
+    """Return run envelope + event stream for operator replay."""
+    replay = replay_part_b_run(run_id, limit)
+    if not replay:
+        raise HTTPException(status_code=404, detail="Part B run not found")
+    return replay
+
+
+@app.get("/api/v1/island/part-b/runs/{run_id}/report")
+def island_part_b_report(run_id: str) -> dict[str, Any]:
+    """Return compact report summary for operator inspection."""
+    report = part_b_run_report(run_id)
+    if not report:
+        raise HTTPException(status_code=404, detail="Part B run not found")
+    return report
 
 
 @app.get("/island/{page}")

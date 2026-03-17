@@ -340,6 +340,16 @@ Must produce:
 - server-side persistence for relevant Part B state
 - action log
 - conflict semantics
+- replay/report read path
+
+Status:
+- foundation implemented
+
+Artifacts:
+- `docs/PART_B_STATE_MIGRATION_B1_5.md`
+- `docs/PART_B_STATE_MIGRATION_B1_5.json`
+- `sql/PART_B_STATE_MIGRATION_B1_5.sql`
+- `part_b_state.py`
 
 ## B2 — Manual Ecology Slice
 
