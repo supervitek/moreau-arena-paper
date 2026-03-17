@@ -425,3 +425,46 @@ def test_part_b_calibration_report_flags_flatlined_family(monkeypatch, tmp_path)
     assert calibration["total_runs"] == 3
     assert "combat_flatlined" in calibration["warnings"]
     assert calibration["policy_summary"]["conservative"]["runs"] == 1
+
+
+def test_part_b_invalid_queue_action_is_dropped(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+
+    run_record = create_part_b_run({"run_class": "operator-assisted"})
+    update_part_b_run(
+        run_record["id"],
+        {
+            "queue_state": [
+                {"action_verb": "EXTRACT", "actor_type": "operator", "zone": "cave"},
+                {"action_verb": "CARE", "actor_type": "operator", "zone": "arena"},
+            ]
+        },
+    )
+    result = process_part_b_ticks(run_record["id"], count=2)
+    assert result is not None
+    assert result["processed"][0]["event_type"] == "tick_skipped"
+    assert result["processed"][1]["action_verb"] == "CARE"
+
+
+def test_part_b_leaderboards_include_run_class_depth(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+
+    for run_class in ("manual", "operator-assisted", "agent-only"):
+        run_record = create_part_b_run({"run_class": run_class, "subject_pet_name": run_class})
+        append_part_b_event(
+            run_record["id"],
+            {
+                "actor_type": "manual" if run_class == "manual" else "agent",
+                "event_type": "action_applied",
+                "action_verb": "CARE",
+                "world_tick": 1,
+                "expected_state_revision": 0,
+                "outcome": {"welfare_delta": 10},
+                "state_after": {"health_pct": 95, "morale_pct": 85, "happiness_pct": 88, "energy_pct": 80},
+            },
+        )
+
+    boards = part_b_leaderboards(limit=5)
+    assert set(boards["by_run_class_top"]) == {"manual", "operator-assisted", "agent-only"}

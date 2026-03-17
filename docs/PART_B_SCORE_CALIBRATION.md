@@ -24,10 +24,18 @@ Make sure `welfare`, `combat`, and `expedition` reward actual ecological tradeof
 
 - Baseline generator:
   - `scripts/run_part_b_baselines.py`
+- Mixed run-class calibration:
+  - `scripts/run_part_b_mixed_calibration.py`
 - Weekly review packet:
   - `scripts/generate_part_b_review.py`
 - Season archive export:
   - `scripts/export_part_b_season.py`
+
+## Current Artifacts
+
+- `reports/part_b_b5_baselines.md`
+- `reports/part_b_mixed_calibration.md`
+- `reports/part_b_weekly_review.md`
 
 ## Initial Interpretation Rules
 

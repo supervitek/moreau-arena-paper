@@ -71,6 +71,14 @@ def build_review(season_id: str) -> str:
                 f"- `{policy}`: welfare `{means['welfare']}`, combat `{means['combat']}`, expedition `{means['expedition']}`, runs `{payload['runs']}`"
             )
         lines.append("")
+    if calibration["run_class_summary"]:
+        lines.extend(["## Run Class Summary", ""])
+        for run_class, payload in sorted(calibration["run_class_summary"].items()):
+            means = payload["mean_scores"]
+            lines.append(
+                f"- `{run_class}`: welfare `{means['welfare']}`, combat `{means['combat']}`, expedition `{means['expedition']}`, runs `{payload['runs']}`"
+            )
+        lines.append("")
     return "\n".join(lines) + "\n"
 
 

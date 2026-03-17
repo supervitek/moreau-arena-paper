@@ -2,30 +2,30 @@
 
 - Season: `part-b-s1-first-descent`
 - Name: Part B Season 1: First Descent
-- Total runs: `12`
-- Eligible runs: `12`
+- Total runs: `13`
+- Eligible runs: `13`
 
 ## Top Signals
 ### Welfare
 
-- Leader: `Caremax Baseline R2`
-- Run class: `agent-only`
-- Score: `100`
-- World tick: `12`
+- Leader: `Shkodik`
+- Run class: `manual`
+- Score: `97`
+- World tick: `1`
 
 ### Combat
 
-- Leader: `Greedy Baseline R1`
-- Run class: `agent-only`
-- Score: `33`
-- World tick: `10`
+- Leader: `Manual Trace`
+- Run class: `manual`
+- Score: `28`
+- World tick: `2`
 
 ### Expedition
 
-- Leader: `Expedition-Max Baseline R2`
+- Leader: `Agent Trace`
 - Run class: `agent-only`
 - Score: `100`
-- World tick: `12`
+- World tick: `6`
 
 ## Guardrails
 
@@ -45,10 +45,14 @@
 
 ## Policy Summary
 
-- `arena-spam`: welfare `0`, combat `11`, expedition `0`, runs `2`
-- `caremax`: welfare `100`, combat `0`, expedition `0`, runs `2`
-- `conservative`: welfare `0`, combat `0`, expedition `0`, runs `2`
-- `expedition-max`: welfare `68.5`, combat `0`, expedition `100`, runs `2`
-- `greedy`: welfare `0`, combat `19.5`, expedition `89`, runs `2`
-- `random`: welfare `37`, combat `0`, expedition `48.5`, runs `2`
+- `arena-spam`: welfare `68`, combat `22`, expedition `0`, runs `1`
+- `conservative`: welfare `84`, combat `0`, expedition `0`, runs `3`
+- `expedition-max`: welfare `57`, combat `0`, expedition `100`, runs `1`
+- `none`: welfare `85.62`, combat `7`, expedition `3.38`, runs `8`
+
+## Run Class Summary
+
+- `agent-only`: welfare `73.5`, combat `8.33`, expedition `16.67`, runs `6`
+- `manual`: welfare `93.33`, combat `9.33`, expedition `0`, runs `3`
+- `operator-assisted`: welfare `85.25`, combat `0`, expedition `6.75`, runs `4`
 

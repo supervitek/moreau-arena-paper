@@ -1543,10 +1543,17 @@
                     '</div>';
                 }).join('');
                 var counts = currentLeaderboards.counts || {};
+                var classTop = currentLeaderboards.by_run_class_top || {};
+                var classTopText = ['manual', 'operator-assisted', 'agent-only'].map(function(runClass) {
+                    var bucket = classTop[runClass] || {};
+                    var welfareLeader = bucket.welfare && bucket.welfare[0] ? bucket.welfare[0].subject_pet_name + ' (' + bucket.welfare[0].scores.welfare + ')' : '—';
+                    return runClass + ': ' + welfareLeader;
+                }).join(' · ');
                 area.innerHTML =
                     '<div class="notice">Season: ' + escHtml(currentLeaderboards.season && currentLeaderboards.season.name || 'unknown') +
                     ' · eligible runs ' + escHtml(counts.eligible_runs || 0) + ' / ' + escHtml(counts.total_runs || 0) +
                     ' · warnings ' + escHtml(warningText) + '</div>' +
+                    '<div class="notice">class leaders (welfare): ' + escHtml(classTopText) + '</div>' +
                     cards;
             }
 

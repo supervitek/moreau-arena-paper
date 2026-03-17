@@ -23,6 +23,7 @@ Last updated: 2026-03-17
 - Score calibration: `docs/PART_B_SCORE_CALIBRATION.md`
 - Season archive format: `docs/PART_B_SEASON_ARCHIVE_FORMAT.md`
 - Supabase production readiness: `docs/PART_B_SUPABASE_PRODUCTION_READINESS.md`
+- 10-point closure checklist: `docs/PART_B_10_POINT_COMPLETION_CHECKLIST.md`
 - Current next move: `live Part B calibration + production persistence`
 
 ## Current Priority Order

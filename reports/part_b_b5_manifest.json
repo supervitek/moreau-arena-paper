@@ -1,0 +1,11 @@
+{
+  "families": [
+    "welfare",
+    "combat",
+    "expedition"
+  ],
+  "json_archive": "reports/part_b_b5_archive.json",
+  "markdown_summary": "reports/part_b_b5_archive.md",
+  "run_count": 13,
+  "season_id": "part-b-s1-first-descent"
+}

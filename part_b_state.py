@@ -1368,6 +1368,14 @@ def part_b_leaderboards(season_id: str | None = None, run_class: str | None = No
     def top_for_family(family: str) -> list[dict[str, Any]]:
         return family_rankings[family][:limit]
 
+    by_run_class_top: dict[str, dict[str, list[dict[str, Any]]]] = {}
+    for klass in sorted(RUN_CLASSES):
+        class_entries = [entry for entry in eligible if entry["run_class"] == klass]
+        by_run_class_top[klass] = {
+            family: _rank_entries(class_entries, family)[: min(limit, 3)]
+            for family in ("welfare", "combat", "expedition")
+        }
+
     return {
         "season": part_b_season_status(season["season_id"]),
         "selected_run_class": chosen_class,
@@ -1382,6 +1390,7 @@ def part_b_leaderboards(season_id: str | None = None, run_class: str | None = No
             "combat": top_for_family("combat"),
             "expedition": top_for_family("expedition"),
         },
+        "by_run_class_top": by_run_class_top,
         "focus_run_ranks": focus_ranks,
         "family_spread": {
             family: {
@@ -1414,6 +1423,7 @@ def part_b_calibration_report(season_id: str | None = None) -> dict[str, Any]:
 
     policy_summary: dict[str, dict[str, Any]] = {}
     top_policy_counts = Counter()
+    run_class_summary: dict[str, dict[str, Any]] = {}
     warnings: list[str] = []
 
     for family in ("welfare", "combat", "expedition"):
@@ -1443,6 +1453,13 @@ def part_b_calibration_report(season_id: str | None = None) -> dict[str, Any]:
         if _intish(item["report"]["scores"].get("welfare"), 0, minimum=0, maximum=100) > 70 and _intish(welfare_breakdown.get("idle_ticks"), 0, minimum=0) >= 4:
             warnings.append("welfare_idle_dominance")
 
+        run_class = item["run"].get("run_class") or "unknown"
+        class_bucket = run_class_summary.setdefault(run_class, {"runs": 0, "welfare": [], "combat": [], "expedition": []})
+        class_bucket["runs"] += 1
+        class_bucket["welfare"].append(_intish(item["report"]["scores"].get("welfare"), 0, minimum=0, maximum=100))
+        class_bucket["combat"].append(_intish(item["report"]["scores"].get("combat"), 0, minimum=0, maximum=100))
+        class_bucket["expedition"].append(_intish(item["report"]["scores"].get("expedition"), 0, minimum=0, maximum=100))
+
     normalized_summary = {
         policy: {
             "runs": bucket["runs"],
@@ -1468,6 +1485,17 @@ def part_b_calibration_report(season_id: str | None = None) -> dict[str, Any]:
         "season": part_b_season_status(season["season_id"]),
         "total_runs": len(reports),
         "policy_summary": normalized_summary,
+        "run_class_summary": {
+            klass: {
+                "runs": bucket["runs"],
+                "mean_scores": {
+                    "welfare": round(mean(bucket["welfare"]), 2) if bucket["welfare"] else 0.0,
+                    "combat": round(mean(bucket["combat"]), 2) if bucket["combat"] else 0.0,
+                    "expedition": round(mean(bucket["expedition"]), 2) if bucket["expedition"] else 0.0,
+                },
+            }
+            for klass, bucket in run_class_summary.items()
+        },
         "top_policy_counts": dict(top_policy_counts),
         "warnings": sorted(set(warnings)),
     }

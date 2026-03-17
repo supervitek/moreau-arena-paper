@@ -160,10 +160,27 @@ Exit rule:
 
 ---
 
+## 10-Point Follow-Up Package
+
+- [x] Live calibration pass, closed locally via baselines plus mixed run-class seeded traces.
+- [x] Baseline expansion.
+- [x] Leaderboard polish.
+- [x] Inspect/report UI phase 3.
+- [x] Queue/tick hardening phase 3.
+- [x] Automated season review tooling.
+- [x] Archive/export hardening.
+- [x] Frontend/product polish for ecology.
+- [x] KK/local review loop completed to shipping threshold.
+- [~] Preparatory Supabase productionization completed up to the external production boundary.
+
+Artifact:
+- `docs/PART_B_10_POINT_COMPLETION_CHECKLIST.md`
+
+---
+
 ## Next Runtime Focus
 
-- [ ] Run live calibration against real season traces, not only synthetic baselines.
-- [ ] Add manual/operator-assisted/agent-only depth to the season leaderboards.
+- [ ] Accumulate real operator traces beyond seeded local calibration runs.
 - [ ] Apply Part B SQL on production Supabase.
 - [ ] Verify `storage-status` returns `supabase` in production.
 - [ ] Start the first live review cadence against real operator behavior.

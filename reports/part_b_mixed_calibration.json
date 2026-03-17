@@ -1,0 +1,1927 @@
+{
+  "calibration": {
+    "policy_summary": {
+      "arena-spam": {
+        "mean_scores": {
+          "combat": 22,
+          "expedition": 0,
+          "welfare": 68
+        },
+        "median_scores": {
+          "combat": 22.0,
+          "expedition": 0.0,
+          "welfare": 68.0
+        },
+        "run_classes": {
+          "agent-only": 1
+        },
+        "runs": 1
+      },
+      "conservative": {
+        "mean_scores": {
+          "combat": 0,
+          "expedition": 0,
+          "welfare": 84
+        },
+        "median_scores": {
+          "combat": 0.0,
+          "expedition": 0.0,
+          "welfare": 84.0
+        },
+        "run_classes": {
+          "operator-assisted": 3
+        },
+        "runs": 3
+      },
+      "expedition-max": {
+        "mean_scores": {
+          "combat": 0,
+          "expedition": 100,
+          "welfare": 57
+        },
+        "median_scores": {
+          "combat": 0.0,
+          "expedition": 100.0,
+          "welfare": 57.0
+        },
+        "run_classes": {
+          "agent-only": 1
+        },
+        "runs": 1
+      },
+      "none": {
+        "mean_scores": {
+          "combat": 7,
+          "expedition": 3.38,
+          "welfare": 85.62
+        },
+        "median_scores": {
+          "combat": 0.0,
+          "expedition": 0.0,
+          "welfare": 84.0
+        },
+        "run_classes": {
+          "agent-only": 4,
+          "manual": 3,
+          "operator-assisted": 1
+        },
+        "runs": 8
+      }
+    },
+    "run_class_summary": {
+      "agent-only": {
+        "mean_scores": {
+          "combat": 8.33,
+          "expedition": 16.67,
+          "welfare": 73.5
+        },
+        "runs": 6
+      },
+      "manual": {
+        "mean_scores": {
+          "combat": 9.33,
+          "expedition": 0,
+          "welfare": 93.33
+        },
+        "runs": 3
+      },
+      "operator-assisted": {
+        "mean_scores": {
+          "combat": 0,
+          "expedition": 6.75,
+          "welfare": 85.25
+        },
+        "runs": 4
+      }
+    },
+    "season": {
+      "budget_mode": "hybrid",
+      "composite_headline_enabled": false,
+      "headline": "The first public ecological season for the two-zone Part B world.",
+      "house_agent_benchmark_allowed": true,
+      "house_agent_benchmark_rule": "Only runs that stay inside the published observation/action/scoring contract are eligible.",
+      "name": "Part B Season 1: First Descent",
+      "red_lines": [
+        "No Black Orchard",
+        "No composite headline score",
+        "No hidden house-agent privileges",
+        "No priority queue"
+      ],
+      "run_classes": [
+        "manual",
+        "operator-assisted",
+        "agent-only"
+      ],
+      "score_families": [
+        "welfare",
+        "combat",
+        "expedition"
+      ],
+      "season_id": "part-b-s1-first-descent",
+      "status": "active",
+      "tick_real_hours": 6,
+      "versions": {
+        "action": "B1",
+        "observation": "B1",
+        "scoring": "B1"
+      },
+      "zones": [
+        "arena",
+        "cave"
+      ]
+    },
+    "top_policy_counts": {
+      "expedition-max": 1,
+      "none": 2
+    },
+    "total_runs": 13,
+    "warnings": []
+  },
+  "leaderboards": {
+    "by_run_class_top": {
+      "agent-only": {
+        "combat": [
+          {
+            "baseline_policy": null,
+            "benchmark_eligible": true,
+            "house_agent_enabled": true,
+            "public_contract_compliant": true,
+            "run_class": "agent-only",
+            "run_id": "e8895a79-a0bc-442b-900e-35e611bf6136",
+            "scores": {
+              "combat": 28,
+              "expedition": 0,
+              "welfare": 82
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "panther",
+            "subject_pet_name": "Shkodik",
+            "updated_at": "2026-03-17T21:03:57Z",
+            "world_tick": 1
+          },
+          {
+            "baseline_policy": "arena-spam",
+            "benchmark_eligible": true,
+            "house_agent_enabled": true,
+            "public_contract_compliant": true,
+            "run_class": "agent-only",
+            "run_id": "076a97a9-6d72-444b-a9d2-0c26a0a90d6e",
+            "scores": {
+              "combat": 22,
+              "expedition": 0,
+              "welfare": 68
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "panther",
+            "subject_pet_name": "Shkodik",
+            "updated_at": "2026-03-17T22:38:32Z",
+            "world_tick": 2
+          },
+          {
+            "baseline_policy": "expedition-max",
+            "benchmark_eligible": true,
+            "house_agent_enabled": true,
+            "public_contract_compliant": true,
+            "run_class": "agent-only",
+            "run_id": "cfb3cd8a-8dfb-4324-9cc1-d95fd9ce32e2",
+            "scores": {
+              "combat": 0,
+              "expedition": 100,
+              "welfare": 57
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "panther",
+            "subject_pet_name": "Agent Trace",
+            "updated_at": "2026-03-17T22:48:46Z",
+            "world_tick": 6
+          }
+        ],
+        "expedition": [
+          {
+            "baseline_policy": "expedition-max",
+            "benchmark_eligible": true,
+            "house_agent_enabled": true,
+            "public_contract_compliant": true,
+            "run_class": "agent-only",
+            "run_id": "cfb3cd8a-8dfb-4324-9cc1-d95fd9ce32e2",
+            "scores": {
+              "combat": 0,
+              "expedition": 100,
+              "welfare": 57
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "panther",
+            "subject_pet_name": "Agent Trace",
+            "updated_at": "2026-03-17T22:48:46Z",
+            "world_tick": 6
+          },
+          {
+            "baseline_policy": null,
+            "benchmark_eligible": true,
+            "house_agent_enabled": true,
+            "public_contract_compliant": true,
+            "run_class": "agent-only",
+            "run_id": "27dddcf9-ba50-46b3-b91d-462d92b0f470",
+            "scores": {
+              "combat": 0,
+              "expedition": 0,
+              "welfare": 78
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "paused",
+            "subject_pet_animal": "panther",
+            "subject_pet_name": "Smoke Agent",
+            "updated_at": "2026-03-17T21:03:03Z",
+            "world_tick": 2
+          },
+          {
+            "baseline_policy": null,
+            "benchmark_eligible": true,
+            "house_agent_enabled": true,
+            "public_contract_compliant": true,
+            "run_class": "agent-only",
+            "run_id": "57eabb49-072a-4bbf-ac96-e60bd2a6ce4d",
+            "scores": {
+              "combat": 0,
+              "expedition": 0,
+              "welfare": 78
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "paused",
+            "subject_pet_animal": "panther",
+            "subject_pet_name": "Smoke Agent",
+            "updated_at": "2026-03-17T22:38:15Z",
+            "world_tick": 2
+          }
+        ],
+        "welfare": [
+          {
+            "baseline_policy": null,
+            "benchmark_eligible": true,
+            "house_agent_enabled": true,
+            "public_contract_compliant": true,
+            "run_class": "agent-only",
+            "run_id": "e8895a79-a0bc-442b-900e-35e611bf6136",
+            "scores": {
+              "combat": 28,
+              "expedition": 0,
+              "welfare": 82
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "panther",
+            "subject_pet_name": "Shkodik",
+            "updated_at": "2026-03-17T21:03:57Z",
+            "world_tick": 1
+          },
+          {
+            "baseline_policy": null,
+            "benchmark_eligible": true,
+            "house_agent_enabled": true,
+            "public_contract_compliant": true,
+            "run_class": "agent-only",
+            "run_id": "27dddcf9-ba50-46b3-b91d-462d92b0f470",
+            "scores": {
+              "combat": 0,
+              "expedition": 0,
+              "welfare": 78
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "paused",
+            "subject_pet_animal": "panther",
+            "subject_pet_name": "Smoke Agent",
+            "updated_at": "2026-03-17T21:03:03Z",
+            "world_tick": 2
+          },
+          {
+            "baseline_policy": null,
+            "benchmark_eligible": true,
+            "house_agent_enabled": true,
+            "public_contract_compliant": true,
+            "run_class": "agent-only",
+            "run_id": "57eabb49-072a-4bbf-ac96-e60bd2a6ce4d",
+            "scores": {
+              "combat": 0,
+              "expedition": 0,
+              "welfare": 78
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "paused",
+            "subject_pet_animal": "panther",
+            "subject_pet_name": "Smoke Agent",
+            "updated_at": "2026-03-17T22:38:15Z",
+            "world_tick": 2
+          }
+        ]
+      },
+      "manual": {
+        "combat": [
+          {
+            "baseline_policy": null,
+            "benchmark_eligible": true,
+            "house_agent_enabled": false,
+            "public_contract_compliant": true,
+            "run_class": "manual",
+            "run_id": "6da2ea40-33a8-4e15-9213-c9dbdc1bb613",
+            "scores": {
+              "combat": 28,
+              "expedition": 0,
+              "welfare": 86
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "fox",
+            "subject_pet_name": "Manual Trace",
+            "updated_at": "2026-03-17T22:48:46Z",
+            "world_tick": 2
+          },
+          {
+            "baseline_policy": null,
+            "benchmark_eligible": true,
+            "house_agent_enabled": false,
+            "public_contract_compliant": true,
+            "run_class": "manual",
+            "run_id": "64cf1093-fe40-456e-8e9f-f6042404e983",
+            "scores": {
+              "combat": 0,
+              "expedition": 0,
+              "welfare": 97
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "panther",
+            "subject_pet_name": "Shkodik",
+            "updated_at": "2026-03-17T21:03:55Z",
+            "world_tick": 1
+          },
+          {
+            "baseline_policy": null,
+            "benchmark_eligible": true,
+            "house_agent_enabled": false,
+            "public_contract_compliant": true,
+            "run_class": "manual",
+            "run_id": "27396f25-063f-4c8c-9e62-e272b290240e",
+            "scores": {
+              "combat": 0,
+              "expedition": 0,
+              "welfare": 97
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "panther",
+            "subject_pet_name": "Shkodik",
+            "updated_at": "2026-03-17T22:38:29Z",
+            "world_tick": 1
+          }
+        ],
+        "expedition": [
+          {
+            "baseline_policy": null,
+            "benchmark_eligible": true,
+            "house_agent_enabled": false,
+            "public_contract_compliant": true,
+            "run_class": "manual",
+            "run_id": "6da2ea40-33a8-4e15-9213-c9dbdc1bb613",
+            "scores": {
+              "combat": 28,
+              "expedition": 0,
+              "welfare": 86
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "fox",
+            "subject_pet_name": "Manual Trace",
+            "updated_at": "2026-03-17T22:48:46Z",
+            "world_tick": 2
+          },
+          {
+            "baseline_policy": null,
+            "benchmark_eligible": true,
+            "house_agent_enabled": false,
+            "public_contract_compliant": true,
+            "run_class": "manual",
+            "run_id": "64cf1093-fe40-456e-8e9f-f6042404e983",
+            "scores": {
+              "combat": 0,
+              "expedition": 0,
+              "welfare": 97
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "panther",
+            "subject_pet_name": "Shkodik",
+            "updated_at": "2026-03-17T21:03:55Z",
+            "world_tick": 1
+          },
+          {
+            "baseline_policy": null,
+            "benchmark_eligible": true,
+            "house_agent_enabled": false,
+            "public_contract_compliant": true,
+            "run_class": "manual",
+            "run_id": "27396f25-063f-4c8c-9e62-e272b290240e",
+            "scores": {
+              "combat": 0,
+              "expedition": 0,
+              "welfare": 97
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "panther",
+            "subject_pet_name": "Shkodik",
+            "updated_at": "2026-03-17T22:38:29Z",
+            "world_tick": 1
+          }
+        ],
+        "welfare": [
+          {
+            "baseline_policy": null,
+            "benchmark_eligible": true,
+            "house_agent_enabled": false,
+            "public_contract_compliant": true,
+            "run_class": "manual",
+            "run_id": "64cf1093-fe40-456e-8e9f-f6042404e983",
+            "scores": {
+              "combat": 0,
+              "expedition": 0,
+              "welfare": 97
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "panther",
+            "subject_pet_name": "Shkodik",
+            "updated_at": "2026-03-17T21:03:55Z",
+            "world_tick": 1
+          },
+          {
+            "baseline_policy": null,
+            "benchmark_eligible": true,
+            "house_agent_enabled": false,
+            "public_contract_compliant": true,
+            "run_class": "manual",
+            "run_id": "27396f25-063f-4c8c-9e62-e272b290240e",
+            "scores": {
+              "combat": 0,
+              "expedition": 0,
+              "welfare": 97
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "panther",
+            "subject_pet_name": "Shkodik",
+            "updated_at": "2026-03-17T22:38:29Z",
+            "world_tick": 1
+          },
+          {
+            "baseline_policy": null,
+            "benchmark_eligible": true,
+            "house_agent_enabled": false,
+            "public_contract_compliant": true,
+            "run_class": "manual",
+            "run_id": "6da2ea40-33a8-4e15-9213-c9dbdc1bb613",
+            "scores": {
+              "combat": 28,
+              "expedition": 0,
+              "welfare": 86
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "fox",
+            "subject_pet_name": "Manual Trace",
+            "updated_at": "2026-03-17T22:48:46Z",
+            "world_tick": 2
+          }
+        ]
+      },
+      "operator-assisted": {
+        "combat": [
+          {
+            "baseline_policy": null,
+            "benchmark_eligible": true,
+            "house_agent_enabled": false,
+            "public_contract_compliant": true,
+            "run_class": "operator-assisted",
+            "run_id": "de25d85d-6cb7-44ad-9489-034bd913638c",
+            "scores": {
+              "combat": 0,
+              "expedition": 27,
+              "welfare": 89
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "wolf",
+            "subject_pet_name": "Operator Trace",
+            "updated_at": "2026-03-17T22:48:46Z",
+            "world_tick": 3
+          },
+          {
+            "baseline_policy": "conservative",
+            "benchmark_eligible": true,
+            "house_agent_enabled": false,
+            "public_contract_compliant": true,
+            "run_class": "operator-assisted",
+            "run_id": "d9010745-a4bf-4de0-b9c0-e741e31c4705",
+            "scores": {
+              "combat": 0,
+              "expedition": 0,
+              "welfare": 84
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "fox",
+            "subject_pet_name": "Smoke",
+            "updated_at": "2026-03-17T21:03:03Z",
+            "world_tick": 2
+          },
+          {
+            "baseline_policy": "conservative",
+            "benchmark_eligible": true,
+            "house_agent_enabled": false,
+            "public_contract_compliant": true,
+            "run_class": "operator-assisted",
+            "run_id": "a5e80347-13bd-4f79-ab0b-3c8f487c95e6",
+            "scores": {
+              "combat": 0,
+              "expedition": 0,
+              "welfare": 84
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "fox",
+            "subject_pet_name": "Smoke",
+            "updated_at": "2026-03-17T22:38:15Z",
+            "world_tick": 2
+          }
+        ],
+        "expedition": [
+          {
+            "baseline_policy": null,
+            "benchmark_eligible": true,
+            "house_agent_enabled": false,
+            "public_contract_compliant": true,
+            "run_class": "operator-assisted",
+            "run_id": "de25d85d-6cb7-44ad-9489-034bd913638c",
+            "scores": {
+              "combat": 0,
+              "expedition": 27,
+              "welfare": 89
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "wolf",
+            "subject_pet_name": "Operator Trace",
+            "updated_at": "2026-03-17T22:48:46Z",
+            "world_tick": 3
+          },
+          {
+            "baseline_policy": "conservative",
+            "benchmark_eligible": true,
+            "house_agent_enabled": false,
+            "public_contract_compliant": true,
+            "run_class": "operator-assisted",
+            "run_id": "d9010745-a4bf-4de0-b9c0-e741e31c4705",
+            "scores": {
+              "combat": 0,
+              "expedition": 0,
+              "welfare": 84
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "fox",
+            "subject_pet_name": "Smoke",
+            "updated_at": "2026-03-17T21:03:03Z",
+            "world_tick": 2
+          },
+          {
+            "baseline_policy": "conservative",
+            "benchmark_eligible": true,
+            "house_agent_enabled": false,
+            "public_contract_compliant": true,
+            "run_class": "operator-assisted",
+            "run_id": "a5e80347-13bd-4f79-ab0b-3c8f487c95e6",
+            "scores": {
+              "combat": 0,
+              "expedition": 0,
+              "welfare": 84
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "fox",
+            "subject_pet_name": "Smoke",
+            "updated_at": "2026-03-17T22:38:15Z",
+            "world_tick": 2
+          }
+        ],
+        "welfare": [
+          {
+            "baseline_policy": null,
+            "benchmark_eligible": true,
+            "house_agent_enabled": false,
+            "public_contract_compliant": true,
+            "run_class": "operator-assisted",
+            "run_id": "de25d85d-6cb7-44ad-9489-034bd913638c",
+            "scores": {
+              "combat": 0,
+              "expedition": 27,
+              "welfare": 89
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "wolf",
+            "subject_pet_name": "Operator Trace",
+            "updated_at": "2026-03-17T22:48:46Z",
+            "world_tick": 3
+          },
+          {
+            "baseline_policy": "conservative",
+            "benchmark_eligible": true,
+            "house_agent_enabled": false,
+            "public_contract_compliant": true,
+            "run_class": "operator-assisted",
+            "run_id": "d9010745-a4bf-4de0-b9c0-e741e31c4705",
+            "scores": {
+              "combat": 0,
+              "expedition": 0,
+              "welfare": 84
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "fox",
+            "subject_pet_name": "Smoke",
+            "updated_at": "2026-03-17T21:03:03Z",
+            "world_tick": 2
+          },
+          {
+            "baseline_policy": "conservative",
+            "benchmark_eligible": true,
+            "house_agent_enabled": false,
+            "public_contract_compliant": true,
+            "run_class": "operator-assisted",
+            "run_id": "a5e80347-13bd-4f79-ab0b-3c8f487c95e6",
+            "scores": {
+              "combat": 0,
+              "expedition": 0,
+              "welfare": 84
+            },
+            "season_id": "part-b-s1-first-descent",
+            "status": "active",
+            "subject_pet_animal": "fox",
+            "subject_pet_name": "Smoke",
+            "updated_at": "2026-03-17T22:38:15Z",
+            "world_tick": 2
+          }
+        ]
+      }
+    },
+    "counts": {
+      "all_by_run_class": {
+        "agent-only": 6,
+        "manual": 3,
+        "operator-assisted": 4
+      },
+      "by_run_class": {
+        "agent-only": 6,
+        "manual": 3,
+        "operator-assisted": 4
+      },
+      "eligible_runs": 13,
+      "total_runs": 13
+    },
+    "families": {
+      "combat": [
+        {
+          "baseline_policy": null,
+          "benchmark_eligible": true,
+          "house_agent_enabled": false,
+          "public_contract_compliant": true,
+          "run_class": "manual",
+          "run_id": "6da2ea40-33a8-4e15-9213-c9dbdc1bb613",
+          "scores": {
+            "combat": 28,
+            "expedition": 0,
+            "welfare": 86
+          },
+          "season_id": "part-b-s1-first-descent",
+          "status": "active",
+          "subject_pet_animal": "fox",
+          "subject_pet_name": "Manual Trace",
+          "updated_at": "2026-03-17T22:48:46Z",
+          "world_tick": 2
+        },
+        {
+          "baseline_policy": null,
+          "benchmark_eligible": true,
+          "house_agent_enabled": true,
+          "public_contract_compliant": true,
+          "run_class": "agent-only",
+          "run_id": "e8895a79-a0bc-442b-900e-35e611bf6136",
+          "scores": {
+            "combat": 28,
+            "expedition": 0,
+            "welfare": 82
+          },
+          "season_id": "part-b-s1-first-descent",
+          "status": "active",
+          "subject_pet_animal": "panther",
+          "subject_pet_name": "Shkodik",
+          "updated_at": "2026-03-17T21:03:57Z",
+          "world_tick": 1
+        },
+        {
+          "baseline_policy": "arena-spam",
+          "benchmark_eligible": true,
+          "house_agent_enabled": true,
+          "public_contract_compliant": true,
+          "run_class": "agent-only",
+          "run_id": "076a97a9-6d72-444b-a9d2-0c26a0a90d6e",
+          "scores": {
+            "combat": 22,
+            "expedition": 0,
+            "welfare": 68
+          },
+          "season_id": "part-b-s1-first-descent",
+          "status": "active",
+          "subject_pet_animal": "panther",
+          "subject_pet_name": "Shkodik",
+          "updated_at": "2026-03-17T22:38:32Z",
+          "world_tick": 2
+        },
+        {
+          "baseline_policy": "expedition-max",
+          "benchmark_eligible": true,
+          "house_agent_enabled": true,
+          "public_contract_compliant": true,
+          "run_class": "agent-only",
+          "run_id": "cfb3cd8a-8dfb-4324-9cc1-d95fd9ce32e2",
+          "scores": {
+            "combat": 0,
+            "expedition": 100,
+            "welfare": 57
+          },
+          "season_id": "part-b-s1-first-descent",
+          "status": "active",
+          "subject_pet_animal": "panther",
+          "subject_pet_name": "Agent Trace",
+          "updated_at": "2026-03-17T22:48:46Z",
+          "world_tick": 6
+        },
+        {
+          "baseline_policy": null,
+          "benchmark_eligible": true,
+          "house_agent_enabled": false,
+          "public_contract_compliant": true,
+          "run_class": "operator-assisted",
+          "run_id": "de25d85d-6cb7-44ad-9489-034bd913638c",
+          "scores": {
+            "combat": 0,
+            "expedition": 27,
+            "welfare": 89
+          },
+          "season_id": "part-b-s1-first-descent",
+          "status": "active",
+          "subject_pet_animal": "wolf",
+          "subject_pet_name": "Operator Trace",
+          "updated_at": "2026-03-17T22:48:46Z",
+          "world_tick": 3
+        }
+      ],
+      "expedition": [
+        {
+          "baseline_policy": "expedition-max",
+          "benchmark_eligible": true,
+          "house_agent_enabled": true,
+          "public_contract_compliant": true,
+          "run_class": "agent-only",
+          "run_id": "cfb3cd8a-8dfb-4324-9cc1-d95fd9ce32e2",
+          "scores": {
+            "combat": 0,
+            "expedition": 100,
+            "welfare": 57
+          },
+          "season_id": "part-b-s1-first-descent",
+          "status": "active",
+          "subject_pet_animal": "panther",
+          "subject_pet_name": "Agent Trace",
+          "updated_at": "2026-03-17T22:48:46Z",
+          "world_tick": 6
+        },
+        {
+          "baseline_policy": null,
+          "benchmark_eligible": true,
+          "house_agent_enabled": false,
+          "public_contract_compliant": true,
+          "run_class": "operator-assisted",
+          "run_id": "de25d85d-6cb7-44ad-9489-034bd913638c",
+          "scores": {
+            "combat": 0,
+            "expedition": 27,
+            "welfare": 89
+          },
+          "season_id": "part-b-s1-first-descent",
+          "status": "active",
+          "subject_pet_animal": "wolf",
+          "subject_pet_name": "Operator Trace",
+          "updated_at": "2026-03-17T22:48:46Z",
+          "world_tick": 3
+        },
+        {
+          "baseline_policy": null,
+          "benchmark_eligible": true,
+          "house_agent_enabled": true,
+          "public_contract_compliant": true,
+          "run_class": "agent-only",
+          "run_id": "27dddcf9-ba50-46b3-b91d-462d92b0f470",
+          "scores": {
+            "combat": 0,
+            "expedition": 0,
+            "welfare": 78
+          },
+          "season_id": "part-b-s1-first-descent",
+          "status": "paused",
+          "subject_pet_animal": "panther",
+          "subject_pet_name": "Smoke Agent",
+          "updated_at": "2026-03-17T21:03:03Z",
+          "world_tick": 2
+        },
+        {
+          "baseline_policy": "conservative",
+          "benchmark_eligible": true,
+          "house_agent_enabled": false,
+          "public_contract_compliant": true,
+          "run_class": "operator-assisted",
+          "run_id": "d9010745-a4bf-4de0-b9c0-e741e31c4705",
+          "scores": {
+            "combat": 0,
+            "expedition": 0,
+            "welfare": 84
+          },
+          "season_id": "part-b-s1-first-descent",
+          "status": "active",
+          "subject_pet_animal": "fox",
+          "subject_pet_name": "Smoke",
+          "updated_at": "2026-03-17T21:03:03Z",
+          "world_tick": 2
+        },
+        {
+          "baseline_policy": null,
+          "benchmark_eligible": true,
+          "house_agent_enabled": true,
+          "public_contract_compliant": true,
+          "run_class": "agent-only",
+          "run_id": "57eabb49-072a-4bbf-ac96-e60bd2a6ce4d",
+          "scores": {
+            "combat": 0,
+            "expedition": 0,
+            "welfare": 78
+          },
+          "season_id": "part-b-s1-first-descent",
+          "status": "paused",
+          "subject_pet_animal": "panther",
+          "subject_pet_name": "Smoke Agent",
+          "updated_at": "2026-03-17T22:38:15Z",
+          "world_tick": 2
+        }
+      ],
+      "welfare": [
+        {
+          "baseline_policy": null,
+          "benchmark_eligible": true,
+          "house_agent_enabled": false,
+          "public_contract_compliant": true,
+          "run_class": "manual",
+          "run_id": "64cf1093-fe40-456e-8e9f-f6042404e983",
+          "scores": {
+            "combat": 0,
+            "expedition": 0,
+            "welfare": 97
+          },
+          "season_id": "part-b-s1-first-descent",
+          "status": "active",
+          "subject_pet_animal": "panther",
+          "subject_pet_name": "Shkodik",
+          "updated_at": "2026-03-17T21:03:55Z",
+          "world_tick": 1
+        },
+        {
+          "baseline_policy": null,
+          "benchmark_eligible": true,
+          "house_agent_enabled": false,
+          "public_contract_compliant": true,
+          "run_class": "manual",
+          "run_id": "27396f25-063f-4c8c-9e62-e272b290240e",
+          "scores": {
+            "combat": 0,
+            "expedition": 0,
+            "welfare": 97
+          },
+          "season_id": "part-b-s1-first-descent",
+          "status": "active",
+          "subject_pet_animal": "panther",
+          "subject_pet_name": "Shkodik",
+          "updated_at": "2026-03-17T22:38:29Z",
+          "world_tick": 1
+        },
+        {
+          "baseline_policy": null,
+          "benchmark_eligible": true,
+          "house_agent_enabled": false,
+          "public_contract_compliant": true,
+          "run_class": "operator-assisted",
+          "run_id": "de25d85d-6cb7-44ad-9489-034bd913638c",
+          "scores": {
+            "combat": 0,
+            "expedition": 27,
+            "welfare": 89
+          },
+          "season_id": "part-b-s1-first-descent",
+          "status": "active",
+          "subject_pet_animal": "wolf",
+          "subject_pet_name": "Operator Trace",
+          "updated_at": "2026-03-17T22:48:46Z",
+          "world_tick": 3
+        },
+        {
+          "baseline_policy": null,
+          "benchmark_eligible": true,
+          "house_agent_enabled": false,
+          "public_contract_compliant": true,
+          "run_class": "manual",
+          "run_id": "6da2ea40-33a8-4e15-9213-c9dbdc1bb613",
+          "scores": {
+            "combat": 28,
+            "expedition": 0,
+            "welfare": 86
+          },
+          "season_id": "part-b-s1-first-descent",
+          "status": "active",
+          "subject_pet_animal": "fox",
+          "subject_pet_name": "Manual Trace",
+          "updated_at": "2026-03-17T22:48:46Z",
+          "world_tick": 2
+        },
+        {
+          "baseline_policy": "conservative",
+          "benchmark_eligible": true,
+          "house_agent_enabled": false,
+          "public_contract_compliant": true,
+          "run_class": "operator-assisted",
+          "run_id": "d9010745-a4bf-4de0-b9c0-e741e31c4705",
+          "scores": {
+            "combat": 0,
+            "expedition": 0,
+            "welfare": 84
+          },
+          "season_id": "part-b-s1-first-descent",
+          "status": "active",
+          "subject_pet_animal": "fox",
+          "subject_pet_name": "Smoke",
+          "updated_at": "2026-03-17T21:03:03Z",
+          "world_tick": 2
+        }
+      ]
+    },
+    "family_spread": {
+      "combat": {
+        "best": 28,
+        "entries": 13,
+        "median": 0
+      },
+      "expedition": {
+        "best": 100,
+        "entries": 13,
+        "median": 0
+      },
+      "welfare": {
+        "best": 97,
+        "entries": 13,
+        "median": 84
+      }
+    },
+    "focus_run_ranks": {
+      "combat": null,
+      "expedition": null,
+      "welfare": null
+    },
+    "headline_note": "Composite score intentionally omitted for the first ecological season.",
+    "recent_runs": [
+      {
+        "baseline_policy": "expedition-max",
+        "benchmark_eligible": true,
+        "house_agent_enabled": true,
+        "public_contract_compliant": true,
+        "run_class": "agent-only",
+        "run_id": "cfb3cd8a-8dfb-4324-9cc1-d95fd9ce32e2",
+        "scores": {
+          "combat": 0,
+          "expedition": 100,
+          "welfare": 57
+        },
+        "season_id": "part-b-s1-first-descent",
+        "status": "active",
+        "subject_pet_animal": "panther",
+        "subject_pet_name": "Agent Trace",
+        "updated_at": "2026-03-17T22:48:46Z",
+        "world_tick": 6
+      },
+      {
+        "baseline_policy": null,
+        "benchmark_eligible": true,
+        "house_agent_enabled": false,
+        "public_contract_compliant": true,
+        "run_class": "operator-assisted",
+        "run_id": "de25d85d-6cb7-44ad-9489-034bd913638c",
+        "scores": {
+          "combat": 0,
+          "expedition": 27,
+          "welfare": 89
+        },
+        "season_id": "part-b-s1-first-descent",
+        "status": "active",
+        "subject_pet_animal": "wolf",
+        "subject_pet_name": "Operator Trace",
+        "updated_at": "2026-03-17T22:48:46Z",
+        "world_tick": 3
+      },
+      {
+        "baseline_policy": null,
+        "benchmark_eligible": true,
+        "house_agent_enabled": false,
+        "public_contract_compliant": true,
+        "run_class": "manual",
+        "run_id": "6da2ea40-33a8-4e15-9213-c9dbdc1bb613",
+        "scores": {
+          "combat": 28,
+          "expedition": 0,
+          "welfare": 86
+        },
+        "season_id": "part-b-s1-first-descent",
+        "status": "active",
+        "subject_pet_animal": "fox",
+        "subject_pet_name": "Manual Trace",
+        "updated_at": "2026-03-17T22:48:46Z",
+        "world_tick": 2
+      },
+      {
+        "baseline_policy": null,
+        "benchmark_eligible": true,
+        "house_agent_enabled": true,
+        "public_contract_compliant": true,
+        "run_class": "agent-only",
+        "run_id": "708e4c4a-a9bd-4536-98f3-e51c26e24c5b",
+        "scores": {
+          "combat": 0,
+          "expedition": 0,
+          "welfare": 78
+        },
+        "season_id": "part-b-s1-first-descent",
+        "status": "paused",
+        "subject_pet_animal": "panther",
+        "subject_pet_name": "Smoke Agent",
+        "updated_at": "2026-03-17T22:48:31Z",
+        "world_tick": 2
+      },
+      {
+        "baseline_policy": "conservative",
+        "benchmark_eligible": true,
+        "house_agent_enabled": false,
+        "public_contract_compliant": true,
+        "run_class": "operator-assisted",
+        "run_id": "e884c82a-3d2e-4f67-af7f-a078fb46b121",
+        "scores": {
+          "combat": 0,
+          "expedition": 0,
+          "welfare": 84
+        },
+        "season_id": "part-b-s1-first-descent",
+        "status": "active",
+        "subject_pet_animal": "fox",
+        "subject_pet_name": "Smoke",
+        "updated_at": "2026-03-17T22:48:31Z",
+        "world_tick": 2
+      }
+    ],
+    "season": {
+      "budget_mode": "hybrid",
+      "composite_headline_enabled": false,
+      "headline": "The first public ecological season for the two-zone Part B world.",
+      "house_agent_benchmark_allowed": true,
+      "house_agent_benchmark_rule": "Only runs that stay inside the published observation/action/scoring contract are eligible.",
+      "name": "Part B Season 1: First Descent",
+      "red_lines": [
+        "No Black Orchard",
+        "No composite headline score",
+        "No hidden house-agent privileges",
+        "No priority queue"
+      ],
+      "run_classes": [
+        "manual",
+        "operator-assisted",
+        "agent-only"
+      ],
+      "score_families": [
+        "welfare",
+        "combat",
+        "expedition"
+      ],
+      "season_id": "part-b-s1-first-descent",
+      "status": "active",
+      "tick_real_hours": 6,
+      "versions": {
+        "action": "B1",
+        "observation": "B1",
+        "scoring": "B1"
+      },
+      "zones": [
+        "arena",
+        "cave"
+      ]
+    },
+    "selected_run_class": "all"
+  },
+  "reports": {
+    "6da2ea40-33a8-4e15-9213-c9dbdc1bb613": {
+      "accepted_event_count": 2,
+      "actions_by_verb": {
+        "CARE": 1,
+        "ENTER_ARENA": 1
+      },
+      "billing": {
+        "autopause_reason": null,
+        "inference_budget_daily": 4,
+        "inference_budget_remaining": 4,
+        "mode": "hybrid",
+        "world_access_active": true
+      },
+      "conflict_count": 0,
+      "event_count": 2,
+      "events_by_actor": {
+        "manual": 2
+      },
+      "house_agent": {
+        "enabled": false,
+        "last_plan": {},
+        "model": "claude-haiku-4-5-20251001",
+        "provider": "anthropic"
+      },
+      "inspect": {
+        "event_density_per_tick": 1.0,
+        "latest_conflict": null,
+        "latest_transition": {
+          "action_verb": "ENTER_ARENA",
+          "actor_type": "manual",
+          "delta": [
+            {
+              "after": 72,
+              "before": 88,
+              "delta": -16.0,
+              "key": "energy_pct",
+              "label": "Energy"
+            },
+            {
+              "after": 88,
+              "before": 96,
+              "delta": -8.0,
+              "key": "health_pct",
+              "label": "Health"
+            },
+            {
+              "after": 96,
+              "before": 90,
+              "delta": 6.0,
+              "key": "morale_pct",
+              "label": "Morale"
+            },
+            {
+              "after": 92,
+              "before": 89,
+              "delta": 3.0,
+              "key": "happiness_pct",
+              "label": "Happiness"
+            }
+          ],
+          "outcome": {
+            "result": "win",
+            "reward": 12,
+            "xp_gain": 20
+          },
+          "sequence": 2,
+          "world_tick": 2,
+          "zone": "arena"
+        }
+      },
+      "last_action_verb": "ENTER_ARENA",
+      "last_actor_type": "manual",
+      "last_event_at": "2026-03-17T22:48:46Z",
+      "queue": {
+        "capacity": 6,
+        "completed_recent": [
+          {
+            "accepted": true,
+            "action_verb": "CARE",
+            "actor_type": "manual",
+            "conflict_status": "none",
+            "created_at": "2026-03-17T22:48:46Z",
+            "details": {},
+            "event_type": "action_applied",
+            "outcome": {
+              "welfare_delta": 10
+            },
+            "sequence": 1,
+            "world_tick": 1
+          },
+          {
+            "accepted": true,
+            "action_verb": "ENTER_ARENA",
+            "actor_type": "manual",
+            "conflict_status": "none",
+            "created_at": "2026-03-17T22:48:46Z",
+            "details": {},
+            "event_type": "action_applied",
+            "outcome": {
+              "result": "win",
+              "reward": 12,
+              "xp_gain": 20
+            },
+            "sequence": 2,
+            "world_tick": 2
+          }
+        ],
+        "pending": [],
+        "pending_count": 0
+      },
+      "run_class": "manual",
+      "run_id": "6da2ea40-33a8-4e15-9213-c9dbdc1bb613",
+      "score_breakdown": {
+        "combat": {
+          "events": 1,
+          "losses": 0,
+          "reward_total": 22.0,
+          "wins": 1
+        },
+        "expedition": {
+          "events": 0,
+          "extract_value_total": 0.0,
+          "injury_total": 0.0,
+          "max_depth": 0
+        },
+        "welfare": {
+          "active_care_ratio": 0.0,
+          "critical_state_ticks": 0,
+          "happiness_pct": 92,
+          "health_pct": 88,
+          "idle_ticks": 0,
+          "morale_pct": 96,
+          "neglect_ticks": 0,
+          "survival_ratio": 1.0
+        }
+      },
+      "scores": {
+        "combat": 28,
+        "expedition": 0,
+        "welfare": 86
+      },
+      "season": {
+        "composite_headline_enabled": false,
+        "house_agent_benchmark_allowed": true,
+        "name": "Part B Season 1: First Descent",
+        "season_id": "part-b-s1-first-descent",
+        "versions": {
+          "action": "B1",
+          "observation": "B1",
+          "scoring": "B1"
+        },
+        "zones": [
+          "arena",
+          "cave"
+        ]
+      },
+      "season_id": "part-b-s1-first-descent",
+      "state_projection": {
+        "animal": null,
+        "arena_available": true,
+        "arena_loss_streak": 0,
+        "arena_recent_record": "W",
+        "arena_reward_preview": 12,
+        "arena_tickets": 1,
+        "care_like_ticks": 0,
+        "cave_available": true,
+        "cave_depth_last_run": 0,
+        "cave_extract_value_last_run": 0,
+        "cave_injury_last_run": 0,
+        "cave_reward_preview": 18,
+        "completed_queue_ticks": 0,
+        "corruption_pct": 0,
+        "critical_state_ticks": 0,
+        "current_cave_depth": 0,
+        "current_cave_risk": 0,
+        "current_cave_value": 0,
+        "days_survived": 0,
+        "energy_pct": 72,
+        "happiness_pct": 92,
+        "health_pct": 88,
+        "idle_ticks": 0,
+        "in_cave": false,
+        "instability": 0,
+        "is_alive": true,
+        "last_action": "START",
+        "last_action_outcome": "run created",
+        "level": 1,
+        "morale_pct": 96,
+        "mutation_count": 0,
+        "name": null,
+        "neglect_ticks": 0,
+        "pet_id": null,
+        "recent_cave_summary": "none",
+        "recent_fight_summary": "none",
+        "successful_queue_ticks": 0,
+        "ticks_since_care": 0,
+        "total_ticks": 0,
+        "xp": 0
+      },
+      "state_revision": 2,
+      "status": "active",
+      "world_tick": 2
+    },
+    "cfb3cd8a-8dfb-4324-9cc1-d95fd9ce32e2": {
+      "accepted_event_count": 6,
+      "actions_by_verb": {
+        "ENTER_CAVE": 4,
+        "EXTRACT": 1,
+        "REST": 1
+      },
+      "billing": {
+        "autopause_reason": null,
+        "inference_budget_daily": 4,
+        "inference_budget_remaining": 4,
+        "mode": "hybrid",
+        "world_access_active": true
+      },
+      "conflict_count": 0,
+      "event_count": 6,
+      "events_by_actor": {
+        "agent": 6
+      },
+      "house_agent": {
+        "enabled": true,
+        "last_plan": {},
+        "model": "claude-haiku-4-5-20251001",
+        "provider": "anthropic"
+      },
+      "inspect": {
+        "event_density_per_tick": 1.0,
+        "latest_conflict": null,
+        "latest_transition": {
+          "action_verb": "REST",
+          "actor_type": "agent",
+          "delta": [
+            {
+              "after": 44,
+              "before": 28,
+              "delta": 16.0,
+              "key": "energy_pct",
+              "label": "Energy"
+            },
+            {
+              "after": 96,
+              "before": 94,
+              "delta": 2.0,
+              "key": "morale_pct",
+              "label": "Morale"
+            },
+            {
+              "after": 2,
+              "before": 3,
+              "delta": -1.0,
+              "key": "neglect_ticks",
+              "label": "Neglect"
+            }
+          ],
+          "outcome": {
+            "energy_gain": 16
+          },
+          "sequence": 6,
+          "world_tick": 6,
+          "zone": "cave"
+        }
+      },
+      "last_action_verb": "REST",
+      "last_actor_type": "agent",
+      "last_event_at": "2026-03-17T22:48:46Z",
+      "queue": {
+        "capacity": 6,
+        "completed_recent": [
+          {
+            "accepted": true,
+            "action_verb": "ENTER_CAVE",
+            "actor_type": "agent",
+            "conflict_status": "none",
+            "created_at": "2026-03-17T22:48:46Z",
+            "details": {
+              "invalid_reason": null,
+              "planned_action": {
+                "action_verb": "ENTER_CAVE",
+                "policy": "expedition-max",
+                "rationale": "Expedition-max keeps descending while risk is tolerable.",
+                "zone": "cave"
+              },
+              "source": "baseline:expedition-max"
+            },
+            "event_type": "action_applied",
+            "outcome": {
+              "depth": 1,
+              "extract_value": 16,
+              "injury": 7
+            },
+            "sequence": 1,
+            "world_tick": 1
+          },
+          {
+            "accepted": true,
+            "action_verb": "ENTER_CAVE",
+            "actor_type": "agent",
+            "conflict_status": "none",
+            "created_at": "2026-03-17T22:48:46Z",
+            "details": {
+              "invalid_reason": null,
+              "planned_action": {
+                "action_verb": "ENTER_CAVE",
+                "policy": "expedition-max",
+                "rationale": "Expedition-max keeps descending while risk is tolerable.",
+                "zone": "cave"
+              },
+              "source": "baseline:expedition-max"
+            },
+            "event_type": "action_applied",
+            "outcome": {
+              "depth": 2,
+              "extract_value": 23,
+              "injury": 9
+            },
+            "sequence": 2,
+            "world_tick": 2
+          },
+          {
+            "accepted": true,
+            "action_verb": "ENTER_CAVE",
+            "actor_type": "agent",
+            "conflict_status": "none",
+            "created_at": "2026-03-17T22:48:46Z",
+            "details": {
+              "invalid_reason": null,
+              "planned_action": {
+                "action_verb": "ENTER_CAVE",
+                "policy": "expedition-max",
+                "rationale": "Expedition-max keeps descending while risk is tolerable.",
+                "zone": "cave"
+              },
+              "source": "baseline:expedition-max"
+            },
+            "event_type": "action_applied",
+            "outcome": {
+              "depth": 3,
+              "extract_value": 30,
+              "injury": 11
+            },
+            "sequence": 3,
+            "world_tick": 3
+          },
+          {
+            "accepted": true,
+            "action_verb": "EXTRACT",
+            "actor_type": "agent",
+            "conflict_status": "none",
+            "created_at": "2026-03-17T22:48:46Z",
+            "details": {
+              "invalid_reason": null,
+              "planned_action": {
+                "action_verb": "EXTRACT",
+                "policy": "expedition-max",
+                "rationale": "Expedition-max banks value before the cave flips EV.",
+                "zone": "cave"
+              },
+              "source": "baseline:expedition-max"
+            },
+            "event_type": "action_applied",
+            "outcome": {
+              "depth": 3,
+              "extract_value": 69,
+              "injury": 27
+            },
+            "sequence": 4,
+            "world_tick": 4
+          },
+          {
+            "accepted": true,
+            "action_verb": "ENTER_CAVE",
+            "actor_type": "agent",
+            "conflict_status": "none",
+            "created_at": "2026-03-17T22:48:46Z",
+            "details": {
+              "invalid_reason": null,
+              "planned_action": {
+                "action_verb": "ENTER_CAVE",
+                "policy": "expedition-max",
+                "rationale": "Expedition-max keeps descending while risk is tolerable.",
+                "zone": "cave"
+              },
+              "source": "baseline:expedition-max"
+            },
+            "event_type": "action_applied",
+            "outcome": {
+              "depth": 1,
+              "extract_value": 14,
+              "injury": 7
+            },
+            "sequence": 5,
+            "world_tick": 5
+          },
+          {
+            "accepted": true,
+            "action_verb": "REST",
+            "actor_type": "agent",
+            "conflict_status": "none",
+            "created_at": "2026-03-17T22:48:46Z",
+            "details": {
+              "invalid_reason": null,
+              "planned_action": {
+                "action_verb": "REST",
+                "policy": "expedition-max",
+                "rationale": "Expedition-max rests only when stamina collapses.",
+                "zone": "cave"
+              },
+              "source": "baseline:expedition-max"
+            },
+            "event_type": "action_applied",
+            "outcome": {
+              "energy_gain": 16
+            },
+            "sequence": 6,
+            "world_tick": 6
+          }
+        ],
+        "pending": [],
+        "pending_count": 0
+      },
+      "run_class": "agent-only",
+      "run_id": "cfb3cd8a-8dfb-4324-9cc1-d95fd9ce32e2",
+      "score_breakdown": {
+        "combat": {
+          "events": 0,
+          "losses": 0,
+          "reward_total": 0.0,
+          "wins": 0
+        },
+        "expedition": {
+          "events": 5,
+          "extract_value_total": 221.0,
+          "injury_total": 88.0,
+          "max_depth": 3
+        },
+        "welfare": {
+          "active_care_ratio": 0.1667,
+          "critical_state_ticks": 1,
+          "happiness_pct": 81,
+          "health_pct": 49,
+          "idle_ticks": 0,
+          "morale_pct": 96,
+          "neglect_ticks": 2,
+          "survival_ratio": 1.0
+        }
+      },
+      "scores": {
+        "combat": 0,
+        "expedition": 100,
+        "welfare": 57
+      },
+      "season": {
+        "composite_headline_enabled": false,
+        "house_agent_benchmark_allowed": true,
+        "name": "Part B Season 1: First Descent",
+        "season_id": "part-b-s1-first-descent",
+        "versions": {
+          "action": "B1",
+          "observation": "B1",
+          "scoring": "B1"
+        },
+        "zones": [
+          "arena",
+          "cave"
+        ]
+      },
+      "season_id": "part-b-s1-first-descent",
+      "state_projection": {
+        "animal": "panther",
+        "arena_available": true,
+        "arena_loss_streak": 0,
+        "arena_recent_record": "none",
+        "arena_reward_preview": 12,
+        "arena_tickets": 1,
+        "care_like_ticks": 1,
+        "cave_available": true,
+        "cave_depth_last_run": 3,
+        "cave_extract_value_last_run": 69,
+        "cave_injury_last_run": 27,
+        "cave_reward_preview": 18,
+        "completed_queue_ticks": 0,
+        "corruption_pct": 0,
+        "critical_state_ticks": 1,
+        "current_cave_depth": 1,
+        "current_cave_risk": 7,
+        "current_cave_value": 14,
+        "days_survived": 0,
+        "energy_pct": 44,
+        "happiness_pct": 81,
+        "health_pct": 49,
+        "idle_ticks": 0,
+        "in_cave": true,
+        "instability": 0,
+        "is_alive": true,
+        "last_action": "REST",
+        "last_action_outcome": "recovered",
+        "level": 1,
+        "morale_pct": 96,
+        "mutation_count": 0,
+        "name": "Agent Trace",
+        "neglect_ticks": 2,
+        "pet_id": null,
+        "recent_cave_summary": "depth 1",
+        "recent_fight_summary": "none",
+        "successful_queue_ticks": 0,
+        "ticks_since_care": 0,
+        "total_ticks": 6,
+        "xp": 0
+      },
+      "state_revision": 6,
+      "status": "active",
+      "world_tick": 6
+    },
+    "de25d85d-6cb7-44ad-9489-034bd913638c": {
+      "accepted_event_count": 3,
+      "actions_by_verb": {
+        "CARE": 1,
+        "ENTER_CAVE": 1,
+        "EXTRACT": 1
+      },
+      "billing": {
+        "autopause_reason": null,
+        "inference_budget_daily": 4,
+        "inference_budget_remaining": 4,
+        "mode": "hybrid",
+        "world_access_active": true
+      },
+      "conflict_count": 0,
+      "event_count": 3,
+      "events_by_actor": {
+        "operator": 3
+      },
+      "house_agent": {
+        "enabled": false,
+        "last_plan": {},
+        "model": "claude-haiku-4-5-20251001",
+        "provider": "anthropic"
+      },
+      "inspect": {
+        "event_density_per_tick": 1.0,
+        "latest_conflict": null,
+        "latest_transition": {
+          "action_verb": "EXTRACT",
+          "actor_type": "operator",
+          "delta": [
+            {
+              "after": 0,
+              "before": 15,
+              "delta": -15.0,
+              "key": "current_cave_value",
+              "label": "Held Value"
+            },
+            {
+              "after": 0,
+              "before": 8,
+              "delta": -8.0,
+              "key": "current_cave_risk",
+              "label": "Held Risk"
+            },
+            {
+              "after": 98,
+              "before": 94,
+              "delta": 4.0,
+              "key": "morale_pct",
+              "label": "Morale"
+            },
+            {
+              "after": 93,
+              "before": 90,
+              "delta": 3.0,
+              "key": "happiness_pct",
+              "label": "Happiness"
+            },
+            {
+              "after": 86,
+              "before": 87,
+              "delta": -1.0,
+              "key": "health_pct",
+              "label": "Health"
+            },
+            {
+              "after": 0,
+              "before": 1,
+              "delta": -1.0,
+              "key": "current_cave_depth",
+              "label": "Depth"
+            }
+          ],
+          "outcome": {
+            "depth": 1,
+            "extract_value": 15,
+            "injury": 8
+          },
+          "sequence": 3,
+          "world_tick": 3,
+          "zone": "cave"
+        }
+      },
+      "last_action_verb": "EXTRACT",
+      "last_actor_type": "operator",
+      "last_event_at": "2026-03-17T22:48:46Z",
+      "queue": {
+        "capacity": 6,
+        "completed_recent": [
+          {
+            "accepted": true,
+            "action_verb": "CARE",
+            "actor_type": "operator",
+            "conflict_status": "none",
+            "created_at": "2026-03-17T22:48:46Z",
+            "details": {
+              "invalid_reason": null,
+              "planned_action": {
+                "mode": "operator-ui",
+                "queue_item_id": "4a6dc8a3-7f49-40c8-bb4d-ead9c2ff3a84",
+                "rationale": null
+              },
+              "source": "queue"
+            },
+            "event_type": "action_applied",
+            "outcome": {
+              "welfare_delta": 10
+            },
+            "sequence": 1,
+            "world_tick": 1
+          },
+          {
+            "accepted": true,
+            "action_verb": "ENTER_CAVE",
+            "actor_type": "operator",
+            "conflict_status": "none",
+            "created_at": "2026-03-17T22:48:46Z",
+            "details": {
+              "invalid_reason": null,
+              "planned_action": {
+                "mode": "operator-ui",
+                "queue_item_id": "fc5805c7-0a76-4e99-9428-63affd1f9330",
+                "rationale": null
+              },
+              "source": "queue"
+            },
+            "event_type": "action_applied",
+            "outcome": {
+              "depth": 1,
+              "extract_value": 15,
+              "injury": 8
+            },
+            "sequence": 2,
+            "world_tick": 2
+          },
+          {
+            "accepted": true,
+            "action_verb": "EXTRACT",
+            "actor_type": "operator",
+            "conflict_status": "none",
+            "created_at": "2026-03-17T22:48:46Z",
+            "details": {
+              "invalid_reason": null,
+              "planned_action": {
+                "mode": "operator-ui",
+                "queue_item_id": "e8a70247-8e60-42a6-bdc1-5afa9b54fac6",
+                "rationale": null
+              },
+              "source": "queue"
+            },
+            "event_type": "action_applied",
+            "outcome": {
+              "depth": 1,
+              "extract_value": 15,
+              "injury": 8
+            },
+            "sequence": 3,
+            "world_tick": 3
+          }
+        ],
+        "pending": [],
+        "pending_count": 0
+      },
+      "run_class": "operator-assisted",
+      "run_id": "de25d85d-6cb7-44ad-9489-034bd913638c",
+      "score_breakdown": {
+        "combat": {
+          "events": 0,
+          "losses": 0,
+          "reward_total": 0.0,
+          "wins": 0
+        },
+        "expedition": {
+          "events": 2,
+          "extract_value_total": 45.0,
+          "injury_total": 24.0,
+          "max_depth": 1
+        },
+        "welfare": {
+          "active_care_ratio": 0.3333,
+          "critical_state_ticks": 0,
+          "happiness_pct": 93,
+          "health_pct": 86,
+          "idle_ticks": 0,
+          "morale_pct": 98,
+          "neglect_ticks": 0,
+          "survival_ratio": 1.0
+        }
+      },
+      "scores": {
+        "combat": 0,
+        "expedition": 27,
+        "welfare": 89
+      },
+      "season": {
+        "composite_headline_enabled": false,
+        "house_agent_benchmark_allowed": true,
+        "name": "Part B Season 1: First Descent",
+        "season_id": "part-b-s1-first-descent",
+        "versions": {
+          "action": "B1",
+          "observation": "B1",
+          "scoring": "B1"
+        },
+        "zones": [
+          "arena",
+          "cave"
+        ]
+      },
+      "season_id": "part-b-s1-first-descent",
+      "state_projection": {
+        "animal": "wolf",
+        "arena_available": true,
+        "arena_loss_streak": 0,
+        "arena_recent_record": "none",
+        "arena_reward_preview": 12,
+        "arena_tickets": 1,
+        "care_like_ticks": 1,
+        "cave_available": true,
+        "cave_depth_last_run": 1,
+        "cave_extract_value_last_run": 15,
+        "cave_injury_last_run": 8,
+        "cave_reward_preview": 18,
+        "completed_queue_ticks": 0,
+        "corruption_pct": 0,
+        "critical_state_ticks": 0,
+        "current_cave_depth": 0,
+        "current_cave_risk": 0,
+        "current_cave_value": 0,
+        "days_survived": 0,
+        "energy_pct": 74,
+        "happiness_pct": 93,
+        "health_pct": 86,
+        "idle_ticks": 0,
+        "in_cave": false,
+        "instability": 0,
+        "is_alive": true,
+        "last_action": "EXTRACT",
+        "last_action_outcome": "secured 15",
+        "level": 1,
+        "morale_pct": 98,
+        "mutation_count": 0,
+        "name": "Operator Trace",
+        "neglect_ticks": 0,
+        "pet_id": null,
+        "recent_cave_summary": "depth 1",
+        "recent_fight_summary": "none",
+        "successful_queue_ticks": 0,
+        "ticks_since_care": 2,
+        "total_ticks": 3,
+        "xp": 0
+      },
+      "state_revision": 6,
+      "status": "active",
+      "world_tick": 3
+    }
+  },
+  "run_ids": [
+    "6da2ea40-33a8-4e15-9213-c9dbdc1bb613",
+    "de25d85d-6cb7-44ad-9489-034bd913638c",
+    "cfb3cd8a-8dfb-4324-9cc1-d95fd9ce32e2"
+  ],
+  "season_id": "part-b-s1-first-descent"
+}

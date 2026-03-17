@@ -19,6 +19,7 @@ Move Part B from file-backed development persistence to real server-backed persi
 - `part_b_state.py` automatically switches to Supabase when both env vars are present.
 - file fallback remains available for local/dev.
 - replay, report, queue, season archive, and leaderboards all read through the same store abstraction.
+- `scripts/verify_part_b_supabase.py` checks environment and storage-status expectations before live cutover.
 
 ## Production Checklist
 

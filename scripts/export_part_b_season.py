@@ -43,6 +43,7 @@ def main() -> int:
     parser.add_argument("--season-id", default=PART_B_SEASON_CURRENT_ID)
     parser.add_argument("--json-output", type=Path, required=True)
     parser.add_argument("--md-output", type=Path, required=True)
+    parser.add_argument("--manifest-output", type=Path, default=None)
     args = parser.parse_args()
 
     payload = export_part_b_season_archive(args.season_id)
@@ -50,6 +51,16 @@ def main() -> int:
     args.md_output.parent.mkdir(parents=True, exist_ok=True)
     args.json_output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     args.md_output.write_text(archive_markdown(payload), encoding="utf-8")
+    if args.manifest_output:
+        args.manifest_output.parent.mkdir(parents=True, exist_ok=True)
+        manifest = {
+            "season_id": payload["season"]["season_id"],
+            "json_archive": str(args.json_output),
+            "markdown_summary": str(args.md_output),
+            "run_count": len(payload["runs"]),
+            "families": list(payload["leaderboards"]["families"].keys()),
+        }
+        args.manifest_output.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return 0
 
 
