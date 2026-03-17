@@ -51,7 +51,7 @@ We identify a qualitative failure mode---the ``WIL trap''---where some LLMs syst
 Tournament~002 (\tTwo) reruns the same round-robin (780 series; 4015 games) but removes key confounds: we provide exact numerical formulas, inject meta context (top-performing builds), enforce structured JSON outputs, and allow per-game adaptation (the loser sees the winner's build and may re-pick).
 The results flip: by Bradley--Terry (BT) ranking, all LLMs outrank all baselines, and LLMs win 89.75\% of LLM-vs-baseline series.
 GPT-5.2-Codex achieves the largest BT gain ($+0.881$, rank~9$\to$1), while the strongest \tOne baselines fall to the bottom five.
-Despite this reversal, adaptation is not a universal solution: across all LLM agents, changing builds after a loss yields 51.06\% win rate in subsequent games, and several high-performing models win primarily by finding strong builds early rather than counter-picking game-by-game.
+Despite this reversal, adaptation is not a universal solution: across all LLM agents, changing builds after a loss yields 50.87\% win rate in subsequent games, and several high-performing models win primarily by finding strong builds early rather than counter-picking game-by-game.
 We also observe non-transitive matchups in \tTwo (12 strict 3-cycles; none in \tOne), indicating that with feedback, the meta supports genuine rock--paper--scissors dynamics.
 
 \textbf{Scope and contribution.}
@@ -515,10 +515,10 @@ Random & Base & 13 & 13 & 0 & +0.001 \\
 \tTwo allows the loser of each game to re-pick after seeing the winner's build.
 Table~\ref{tab:t2_adapt} reports per-model adaptation propensity, build diversity, and post-loss outcomes conditional on adapting vs.\ sticking.
 
-Across the eight LLMs, adaptation is common (1065 adaptations over 1591 losses; 66.9\%).
-When an LLM agent changes its build after a loss, it wins 51.06\% of subsequent games; when it does not change, it wins 31.84\%.
-However, adaptation rate is only weakly correlated with final BT (Spearman $\rho=0.19$ across LLMs), suggesting that finding strong builds early is often more important than reactive counter-picking.
-Gemini Flash exemplifies this: it adapts in only 38\% of losses but achieves a 76\% win rate when it does, compared to 37\% when it sticks---it found strong builds fast and did not need to change often.
+Across the eight LLMs, adaptation is common (1095 adaptations over 1630 losses; 67.2\%).
+When an LLM agent changes its build after a loss, it wins 50.87\% of subsequent games; when it does not change, it wins 33.83\%.
+However, adaptation rate is only weakly correlated with final BT (Spearman $\rho=0.22$ across LLMs), suggesting that finding strong builds early is often more important than reactive counter-picking.
+Gemini Flash exemplifies this: it adapts in only 39\% of losses but achieves a 73\% win rate when it does, compared to 37\% when it sticks---it found strong builds fast and did not need to change often.
 
 \begin{table}[t]
 \centering
@@ -530,19 +530,19 @@ Gemini Flash exemplifies this: it adapts in only 38\% of losses but achieves a 7
 \toprule
 Agent & BT & Blds & Lost & Adpt & Rate & Adpt WR & Stick WR \\
 \midrule
-Codex & 1.000 & 63 & 150 & 137 & 91\% & 61\% & 46\% \\
-Flash & 0.679 & 17 & 151 & 58 & 38\% & 76\% & 37\% \\
-Grok & 0.650 & 32 & 174 & 130 & 75\% & 64\% & 43\% \\
-Opus & 0.252 & 6 & 219 & 116 & 53\% & 54\% & 31\% \\
-Sonnet & 0.252 & 29 & 253 & 166 & 66\% & 63\% & 55\% \\
-GPT & 0.252 & 45 & 211 & 188 & 89\% & 44\% & 35\% \\
-Haiku & 0.226 & 32 & 232 & 191 & 82\% & 36\% & 46\% \\
-GPro & 0.188 & 23 & 201 & 79 & 39\% & 35\% & 12\% \\
+Codex & 1.000 & 63 & 156 & 143 & 92\% & 59\% & 46\% \\
+Flash & 0.679 & 17 & 153 & 60 & 39\% & 73\% & 37\% \\
+Grok & 0.650 & 32 & 176 & 131 & 74\% & 63\% & 42\% \\
+Opus & 0.252 & 6 & 220 & 116 & 53\% & 54\% & 31\% \\
+Sonnet & 0.252 & 29 & 271 & 181 & 67\% & 57\% & 53\% \\
+GPT & 0.252 & 45 & 212 & 189 & 89\% & 43\% & 35\% \\
+Haiku & 0.226 & 32 & 233 & 192 & 82\% & 36\% & 46\% \\
+GPro & 0.188 & 23 & 209 & 83 & 40\% & 34\% & 12\% \\
 \midrule
-Smart & 0.093 & 5 & 275 & 110 & 40\% & 39\% & 24\% \\
+Smart & 0.093 & 5 & 276 & 110 & 40\% & 39\% & 23\% \\
 HV & 0.070 & 1 & 294 & 0 & 0\% & -- & 24\% \\
-Cons & 0.061 & 1 & 286 & 0 & 0\% & -- & 21\% \\
-Greedy & 0.043 & 1 & 292 & 0 & 0\% & -- & 21\% \\
+Cons & 0.061 & 1 & 287 & 0 & 0\% & -- & 21\% \\
+Greedy & 0.043 & 1 & 306 & 0 & 0\% & -- & 20\% \\
 Random & 0.007 & 1 & 360 & 0 & 0\% & -- & 0\% \\
 \bottomrule
 \end{tabular}
@@ -640,8 +640,8 @@ The bottleneck in \tOne is not that LLMs ``cannot reason'' but that they cannot 
 
 \paragraph{Feedback and adaptation.}
 Within-series feedback is useful (Table~\ref{tab:t2_adapt}), but it is not the only path to success.
-Codex adapts in 91\% of losses and wins with the highest build diversity.
-Flash adapts in only 38\% of losses but achieves the highest per-adaptation win rate (76\%).
+Codex adapts in 92\% of losses and wins with the highest build diversity.
+Flash adapts in only 39\% of losses but still achieves the highest per-adaptation win rate (73\%).
 Adaptation rate and build diversity are not sufficient statistics for final rank; what matters is whether the agent converges to strong builds, by whatever path.
 
 \paragraph{Meta knowledge.}

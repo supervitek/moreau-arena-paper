@@ -30,7 +30,7 @@ Last updated: 2026-03-16
 - Lower priority than launch quality, but still the next structural cleanup after the site is stable.
 
 7. Paper adaptation derivation cleanup
-- Keep the committed T002 derivation script and verification docs aligned until the paper table is re-derived or corrected.
+- Keep the committed T002 derivation script and verification docs aligned if the paper changes again.
 
 ## Execution Notes
 
@@ -56,3 +56,4 @@ Last updated: 2026-03-16
 - [x] Launch finish pass: docs, reproducibility, nav dedup
 - [x] Chronicler weekly review/reporting template and provisional verdict flow
 - [x] Committed T002 adaptation derivation script
+- [x] Paper adaptation table re-derived from canonical JSONL

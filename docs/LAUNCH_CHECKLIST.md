@@ -69,7 +69,7 @@ Four gates must pass before public release. Each gate has clear pass/fail criter
 
 | Gate | Status | Last Checked | Notes |
 |------|--------|--------------|-------|
-| 1. Paper Verified | PARTIAL | 2026-03-16 | Core claims match data and the T002 derivation script is committed, but its canonical JSONL output still disagrees with the paper/stale artifact; see `docs/PAPER_VERIFICATION_REPORT.md` |
+| 1. Paper Verified | PASS | 2026-03-16 | Core claims match data, the T002 derivation script is committed, and the paper adaptation table was re-derived to match canonical JSONL; see `docs/PAPER_VERIFICATION_REPORT.md` |
 | 2. Reproducibility Bundle | PASS | 2026-03-15 | Config hash verification, setup script, invariant suite, and T003 integrity doc all checked |
 | 3. Benchmark Identity | PASS | 2026-03-15 | README/docs terminology and public-facing benchmark descriptions were refreshed for current state |
 | 4. T003 Specified | PASS | 2026-03-15 | Track docs, T003 spec, tournament doc, and integrity report now agree on exact-only cleanroom protocol |

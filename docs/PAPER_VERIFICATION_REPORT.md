@@ -17,9 +17,9 @@ Scope: explicit quantitative claims in [`paper/moreau_arena.tex`](../paper/morea
   - `T001`: rank `9`, BT `0.1193`
   - `T002`: rank `1`, BT `1.0000`
   - gain: `+0.8807` (matches paper's rounded `+0.881`)
-- Adaptation headline is directionally supported, but the exact paper table is still not canonical:
+- Adaptation headline is now directly supported by a committed derivation script:
   - committed script [`scripts/compute_t002_adaptation_metrics.py`](../scripts/compute_t002_adaptation_metrics.py) yields `557/1095 = 50.87%` for the direct JSONL-derived adapted win rate
-  - paper reports `51.06%`
+  - [`paper/moreau_arena.tex`](../paper/moreau_arena.tex) was updated to match the canonical JSONL-derived values
   - stale derived artifact [`data/tournament_002/adaptation_analysis.md`](../data/tournament_002/adaptation_analysis.md) still disagrees and should not be treated as source of truth
 - Strict 3-cycles:
   - `T001`: `0`
@@ -50,4 +50,4 @@ Scope: explicit quantitative claims in [`paper/moreau_arena.tex`](../paper/morea
 
 ## Outcome
 
-Core benchmark numbers in the paper match the committed data: tournament sizes, game counts, LLM-vs-baseline rates, BT rankings, cycle counts, WIL-trap correlations, and Opus stat-shift claims are all supported. The remaining reproducibility issue is now narrower and explicit: the adaptation derivation script is committed, but its canonical JSONL output does not exactly match the paper/stale artifact. The project should treat Gate 1 as `PARTIAL` until the paper values are re-derived from canonical JSONL or the table in [`paper/moreau_arena.tex`](../paper/moreau_arena.tex) is corrected to match the committed derivation.
+Core benchmark numbers in the paper match the committed data: tournament sizes, game counts, LLM-vs-baseline rates, BT rankings, cycle counts, WIL-trap correlations, Opus stat-shift claims, and the T002 adaptation table are all supported. The paper was updated to match the committed adaptation derivation, so Gate 1 can now be treated as `PASS`. The only caveat is historical: [`data/tournament_002/adaptation_analysis.md`](../data/tournament_002/adaptation_analysis.md) remains a stale frozen artifact and should not be used as source of truth.
