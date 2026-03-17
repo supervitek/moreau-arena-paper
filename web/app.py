@@ -1755,7 +1755,7 @@ def island_part_b_report(run_id: str) -> dict[str, Any]:
 
 @app.get("/island/{page}")
 def island_page(page: str) -> HTMLResponse:
-    allowed = {"index", "home", "create", "kennel", "train", "lab", "pit", "graveyard", "profile", "leaderboard", "achievements", "onboarding", "dreams", "crimson", "rivals", "prophecy", "shrine", "artifacts", "menagerie", "succession", "deep-tide", "black-market", "tides", "pact", "genesis", "confessions", "oath", "arena", "breeding", "lineage", "synergies", "cosmetics", "caretaker"}
+    allowed = {"index", "home", "create", "kennel", "train", "lab", "pit", "graveyard", "profile", "leaderboard", "achievements", "onboarding", "dreams", "crimson", "rivals", "prophecy", "shrine", "artifacts", "menagerie", "succession", "deep-tide", "black-market", "tides", "pact", "genesis", "confessions", "oath", "arena", "breeding", "lineage", "synergies", "cosmetics", "caretaker", "ecology"}
     if page not in allowed:
         raise HTTPException(404, f"Unknown island page: {page}")
     route_path = "/island" if page == "index" else f"/island/{page}"

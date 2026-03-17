@@ -83,12 +83,16 @@ Exit rule:
 
 ## Phase B2 — Manual Ecology Slice
 
-- [ ] Build `The Arena` as initial combat surface.
-- [ ] Build `The Cave of Catharsis` as initial expedition surface.
-- [ ] Connect both surfaces to family scores.
-- [ ] Support manual runs.
-- [ ] Support operator-assisted runs.
-- [ ] Do not add a third active zone.
+- [x] Build `The Arena` as initial combat surface.
+- [x] Build `The Cave of Catharsis` as initial expedition surface.
+- [x] Connect both surfaces to family scores.
+- [x] Support manual runs.
+- [x] Support operator-assisted runs.
+- [x] Do not add a third active zone.
+
+Artifacts:
+- `docs/PART_B_MANUAL_ECOLOGY_SLICE_B2.md`
+- `web/static/island/ecology.html`
 
 Exit rule:
 - the two-zone world exists and the score families can be exercised in reality

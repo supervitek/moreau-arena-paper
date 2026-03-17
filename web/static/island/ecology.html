@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecology Slice — The Island — Moreau Arena</title>
+    <meta property="og:title" content="Ecology Slice — The Island">
+    <meta property="og:description" content="Part B manual ecology slice: The Arena and the Cave of Catharsis.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Ecology Slice — The Island">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        :root {
+            --bg-primary: #0a0505;
+            --bg-secondary: #100909;
+            --bg-card: #171010;
+            --bg-code: #120c0c;
+            --border: #332121;
+            --accent: #e63946;
+            --orange: #f4a261;
+            --gold: #d4a017;
+            --green: #4ecca3;
+            --blue: #457b9d;
+            --purple: #9b59b6;
+            --text: #f1faee;
+            --text-dim: #b6aaaa;
+            --text-muted: #857575;
+            --radius: 10px;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background:
+                radial-gradient(circle at top, rgba(230,57,70,0.12), transparent 35%),
+                linear-gradient(180deg, var(--bg-primary), var(--bg-secondary));
+        }
+
+        .shell {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 1.25rem 1.25rem 3rem;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .topbar a {
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .brand {
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+        }
+
+        .brand span { color: var(--accent); }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .panel {
+            background: rgba(23,16,16,0.94);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.1rem;
+        }
+
+        .eyebrow {
+            color: var(--gold);
+            text-transform: uppercase;
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.45rem;
+        }
+
+        h1 {
+            margin: 0 0 0.5rem;
+            font-size: 2rem;
+            line-height: 1.05;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            line-height: 1.5;
+            font-size: 0.96rem;
+        }
+
+        .status-grid, .score-grid, .control-grid {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .status-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 0.9rem; }
+        .score-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .control-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+        .stat, .score-card, .control {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.8rem;
+        }
+
+        .label {
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.68rem;
+            letter-spacing: 0.07em;
+            font-weight: 700;
+        }
+
+        .value {
+            margin-top: 0.35rem;
+            font-size: 1.05rem;
+            font-weight: 800;
+        }
+
+        .score-card .value { font-size: 1.7rem; }
+        .score-welfare .value { color: var(--green); }
+        .score-combat .value { color: var(--accent); }
+        .score-expedition .value { color: var(--blue); }
+
+        .main {
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 1rem;
+        }
+
+        .run-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .run-row select, .run-row button {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            padding: 0.8rem 0.85rem;
+            background: var(--bg-code);
+            color: var(--text);
+            font-size: 0.92rem;
+        }
+
+        .run-row button {
+            cursor: pointer;
+            font-weight: 700;
+            background: linear-gradient(135deg, rgba(230,57,70,0.22), rgba(244,162,97,0.16));
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.9rem;
+        }
+
+        .tab {
+            flex: 1;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-code);
+            color: var(--text-dim);
+            padding: 0.75rem 0.85rem;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .tab.active {
+            color: var(--text);
+            border-color: var(--orange);
+            box-shadow: 0 0 0 1px rgba(244,162,97,0.2) inset;
+        }
+
+        .surface-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .surface-title h2 {
+            margin: 0;
+            font-size: 1.15rem;
+        }
+
+        .surface-title .meta {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+        }
+
+        .surface-copy {
+            color: var(--text-dim);
+            line-height: 1.55;
+            font-size: 0.93rem;
+            margin-bottom: 0.9rem;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.65rem;
+        }
+
+        .action-btn {
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-code);
+            color: var(--text);
+            padding: 0.85rem 0.9rem;
+            cursor: pointer;
+            font-weight: 700;
+            text-align: left;
+        }
+
+        .action-btn strong {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .action-btn span {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            border-color: #5a3434;
+        }
+
+        .hint {
+            margin-top: 0.9rem;
+            border-left: 3px solid var(--purple);
+            padding: 0.75rem 0.85rem;
+            background: rgba(155,89,182,0.08);
+            border-radius: 6px;
+            color: var(--text-dim);
+            min-height: 68px;
+        }
+
+        .hint strong {
+            display: block;
+            color: #d0afe1;
+            margin-bottom: 0.3rem;
+        }
+
+        .replay-list {
+            display: grid;
+            gap: 0.65rem;
+            margin-top: 0.75rem;
+        }
+
+        .event {
+            border: 1px solid var(--border);
+            background: var(--bg-code);
+            border-radius: 8px;
+            padding: 0.8rem;
+        }
+
+        .event-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            font-size: 0.82rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .badge {
+            display: inline-block;
+            border-radius: 999px;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            border: 1px solid var(--border);
+        }
+
+        .badge-manual { color: var(--gold); }
+        .badge-operator { color: var(--purple); }
+        .badge-agent { color: var(--blue); }
+        .badge-zone { color: var(--orange); }
+
+        .empty {
+            color: var(--text-muted);
+            padding: 1rem 0;
+        }
+
+        .notice {
+            margin-top: 0.9rem;
+            color: var(--text-muted);
+            font-size: 0.84rem;
+            line-height: 1.5;
+        }
+
+        .hidden { display: none; }
+
+        @media (max-width: 920px) {
+            .hero, .main { grid-template-columns: 1fr; }
+            .status-grid, .score-grid, .control-grid, .actions, .run-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <div class="topbar">
+            <a href="/" class="brand">Moreau <span>Arena</span></a>
+            <a href="/island/home">Back to Island</a>
+        </div>
+
+        <div class="hero">
+            <section class="panel">
+                <div class="eyebrow">Part B Ecology</div>
+                <h1>The Arena and the Cave of Catharsis</h1>
+                <div class="subtitle">
+                    This is the first real ecological slice for Part B: a two-zone world with server-tracked runs,
+                    replayable actions, operator-visible reports, and family scores for welfare, combat, and expedition.
+                </div>
+                <div class="status-grid">
+                    <div class="stat">
+                        <div class="label">Mode</div>
+                        <div class="value" id="modeValue">Loading...</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">Active Run</div>
+                        <div class="value" id="runValue">None</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">State Revision</div>
+                        <div class="value" id="revisionValue">0</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="eyebrow">Family Scores</div>
+                <div class="score-grid">
+                    <div class="score-card score-welfare">
+                        <div class="label">Welfare</div>
+                        <div class="value" id="scoreWelfare">0</div>
+                    </div>
+                    <div class="score-card score-combat">
+                        <div class="label">Combat</div>
+                        <div class="value" id="scoreCombat">0</div>
+                    </div>
+                    <div class="score-card score-expedition">
+                        <div class="label">Expedition</div>
+                        <div class="value" id="scoreExpedition">0</div>
+                    </div>
+                </div>
+                <div class="notice">
+                    Composite score stays out of the headline. This slice only exposes the three family signals agreed in Part B.
+                </div>
+            </section>
+        </div>
+
+        <div class="main">
+            <section class="panel">
+                <div class="eyebrow">Run Control</div>
+                <div class="run-row">
+                    <select id="petSelect"></select>
+                    <select id="runClassSelect">
+                        <option value="manual">manual</option>
+                        <option value="operator-assisted">operator-assisted</option>
+                    </select>
+                </div>
+                <div class="run-row">
+                    <select id="prioritySelect">
+                        <option value="balanced">balanced</option>
+                        <option value="welfare-first">welfare-first</option>
+                        <option value="combat-first">combat-first</option>
+                        <option value="expedition-first">expedition-first</option>
+                    </select>
+                    <button id="startRunBtn" type="button">Start New Run</button>
+                </div>
+                <div class="control-grid">
+                    <div class="control">
+                        <div class="label">Health</div>
+                        <div class="value" id="healthValue">-</div>
+                    </div>
+                    <div class="control">
+                        <div class="label">Morale</div>
+                        <div class="value" id="moraleValue">-</div>
+                    </div>
+                    <div class="control">
+                        <div class="label">Happiness</div>
+                        <div class="value" id="happinessValue">-</div>
+                    </div>
+                    <div class="control">
+                        <div class="label">Energy</div>
+                        <div class="value" id="energyValue">-</div>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" type="button" data-zone="arena" id="tabArena">The Arena</button>
+                    <button class="tab" type="button" data-zone="cave" id="tabCave">Cave of Catharsis</button>
+                </div>
+
+                <div id="surfaceArena">
+                    <div class="surface-title">
+                        <h2>The Arena</h2>
+                        <div class="meta" id="arenaMeta">baseline combat surface</div>
+                    </div>
+                    <div class="surface-copy">
+                        A direct combat tick. You spend energy, risk injuries, and either capture combat-linked rewards or absorb a clean setback.
+                    </div>
+                    <div class="actions">
+                        <button class="action-btn" type="button" id="btnArenaEnter">
+                            <strong>Enter Arena</strong>
+                            <span>Fight one controlled match and log the outcome.</span>
+                        </button>
+                        <button class="action-btn" type="button" id="btnArenaCare">
+                            <strong>Care</strong>
+                            <span>Stabilize welfare instead of pushing combat.</span>
+                        </button>
+                        <button class="action-btn" type="button" id="btnArenaRest">
+                            <strong>Rest</strong>
+                            <span>Recover energy and reduce near-term volatility.</span>
+                        </button>
+                        <button class="action-btn" type="button" id="btnArenaHold">
+                            <strong>Hold</strong>
+                            <span>Do nothing risky this tick and preserve position.</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="surfaceCave" class="hidden">
+                    <div class="surface-title">
+                        <h2>Cave of Catharsis</h2>
+                        <div class="meta" id="caveMeta">push-your-luck expedition surface</div>
+                    </div>
+                    <div class="surface-copy">
+                        Every descent deepens risk. You can keep pressing into the dark or extract current value before a deeper injury tax lands.
+                    </div>
+                    <div class="actions">
+                        <button class="action-btn" type="button" id="btnCaveEnter">
+                            <strong>Enter Cave</strong>
+                            <span>Go one layer deeper and roll for value versus injury.</span>
+                        </button>
+                        <button class="action-btn" type="button" id="btnCaveExtract">
+                            <strong>Extract</strong>
+                            <span>Lock in current cave value and reset expedition pressure.</span>
+                        </button>
+                        <button class="action-btn" type="button" id="btnCaveCare">
+                            <strong>Care</strong>
+                            <span>Stabilize after an expedition before returning.</span>
+                        </button>
+                        <button class="action-btn" type="button" id="btnCaveRest">
+                            <strong>Rest</strong>
+                            <span>Recover energy without advancing depth.</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="hint" id="operatorHint">
+                    <strong>Operator Hint</strong>
+                    <div id="operatorHintBody">Operator-assisted hints appear here once a run is active.</div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="eyebrow">Replay</div>
+                <div id="replayArea" class="replay-list"></div>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/static/island/storage.js"></script>
+    <script src="/static/island/supabase-client.js"></script>
+    <script>
+        (function() {
+            'use strict';
+
+            var RUN_KEY = 'moreau_part_b_run_id';
+            var ZONE_KEY = 'moreau_part_b_zone';
+            var activeZone = localStorage.getItem(ZONE_KEY) || 'arena';
+            var currentRunId = localStorage.getItem(RUN_KEY) || '';
+            var currentRun = null;
+            var currentReplay = null;
+            var allPets = [];
+            var offlineMode = true;
+            var currentUserId = null;
+            var storageBackend = 'file';
+
+            function escHtml(value) {
+                var div = document.createElement('div');
+                div.textContent = value == null ? '' : String(value);
+                return div.innerHTML;
+            }
+
+            function setModeLabel() {
+                document.getElementById('modeValue').textContent = (offlineMode ? 'offline/' : 'online/') + storageBackend;
+            }
+
+            function clamp(value, min, max) {
+                return Math.max(min, Math.min(max, value));
+            }
+
+            function choosePetIndex() {
+                var idx = MoreauStorage.getActivePetIndex(allPets);
+                if (idx >= allPets.length) idx = 0;
+                return idx;
+            }
+
+            function getSelectedPet() {
+                var select = document.getElementById('petSelect');
+                if (!allPets.length || !select.value) return allPets[0] || null;
+                var idx = parseInt(select.value, 10);
+                return allPets[idx] || allPets[0] || null;
+            }
+
+            function renderPetSelect() {
+                var select = document.getElementById('petSelect');
+                if (!allPets.length) {
+                    select.innerHTML = '<option value="">No living pets</option>';
+                    return;
+                }
+                var idx = choosePetIndex();
+                select.innerHTML = allPets.map(function(pet, i) {
+                    var animal = (pet.animal || 'creature').toUpperCase();
+                    return '<option value="' + i + '"' + (i === idx ? ' selected' : '') + '>' +
+                        escHtml(pet.name || 'Unnamed') + ' · ' + animal + ' · Lv.' + (pet.level || 1) + '</option>';
+                }).join('');
+            }
+
+            async function initPets() {
+                try {
+                    var storageStatus = await fetchJson('/api/v1/island/part-b/storage-status');
+                    storageBackend = storageStatus.backend || 'file';
+                } catch (error) {
+                    storageBackend = 'file';
+                }
+                await initSupabase();
+                var user = await getUser();
+                if (isOnlineMode() && user) {
+                    offlineMode = false;
+                    currentUserId = user.id;
+                    allPets = (await dbGetPets(user.id)).filter(function(p) { return p.is_alive !== false && !p.deceased; });
+                } else {
+                    offlineMode = true;
+                    currentUserId = null;
+                    allPets = MoreauStorage.loadPets().filter(function(p) { return p.is_alive !== false && !p.deceased; });
+                }
+                renderPetSelect();
+                setModeLabel();
+            }
+
+            function initialProjection(pet) {
+                var fights = Array.isArray(pet.fights) ? pet.fights : [];
+                var recentFight = fights.length ? fights[fights.length - 1] : null;
+                var createdAt = pet.created_at ? new Date(pet.created_at).getTime() : Date.now();
+                var survivedDays = Math.max(0, Math.floor((Date.now() - createdAt) / 86400000));
+                return {
+                    pet_id: pet.id || null,
+                    name: pet.name || 'Unnamed',
+                    animal: pet.animal || 'creature',
+                    level: pet.level || 1,
+                    xp: pet.xp || 0,
+                    is_alive: pet.is_alive !== false && !pet.deceased,
+                    health_pct: 90,
+                    morale_pct: 82,
+                    happiness_pct: 78,
+                    energy_pct: 86,
+                    corruption_pct: pet.corruption || 0,
+                    instability: pet.instability || 0,
+                    mutation_count: Array.isArray(pet.mutations) ? pet.mutations.length : 0,
+                    recent_fight_summary: recentFight ? (recentFight.result || 'unknown') : 'none',
+                    recent_cave_summary: 'none',
+                    last_action: 'START',
+                    last_action_outcome: 'run created',
+                    neglect_ticks: 0,
+                    days_survived: survivedDays,
+                    arena_available: true,
+                    arena_tickets: 1,
+                    arena_recent_record: 'none',
+                    arena_reward_preview: 12,
+                    arena_loss_streak: 0,
+                    cave_available: true,
+                    cave_depth_last_run: 0,
+                    cave_extract_value_last_run: 0,
+                    cave_injury_last_run: 0,
+                    cave_reward_preview: 18,
+                    in_cave: false,
+                    current_cave_depth: 0,
+                    current_cave_value: 0,
+                    current_cave_risk: 0
+                };
+            }
+
+            async function fetchJson(url, options) {
+                var response = await fetch(url, options || {});
+                if (!response.ok) {
+                    var text = await response.text();
+                    throw new Error(text || ('HTTP ' + response.status));
+                }
+                return response.json();
+            }
+
+            async function loadRun() {
+                if (!currentRunId) {
+                    currentRun = null;
+                    currentReplay = null;
+                    render();
+                    return;
+                }
+                currentRun = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId);
+                currentReplay = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/replay');
+                render();
+            }
+
+            function actionActorType() {
+                return document.getElementById('runClassSelect').value === 'manual' ? 'manual' : 'operator';
+            }
+
+            async function startRun() {
+                var pet = getSelectedPet();
+                if (!pet) {
+                    alert('Create a living pet first.');
+                    return;
+                }
+                var runClass = document.getElementById('runClassSelect').value;
+                var priority = document.getElementById('prioritySelect').value;
+                var payload = {
+                    season_id: 'part-b-b2-proto',
+                    run_class: runClass,
+                    operator_id: currentUserId,
+                    subject_pet_id: pet.id || null,
+                    subject_pet_name: pet.name || 'Unnamed',
+                    subject_pet_animal: pet.animal || 'creature',
+                    active_zone: activeZone === 'cave' ? 'cave' : 'arena',
+                    priority_profile: priority,
+                    risk_appetite: priority === 'expedition-first' ? 'bold' : (priority === 'welfare-first' ? 'guarded' : 'measured'),
+                    state_projection: initialProjection(pet),
+                    metadata: {
+                        source: 'ecology-page',
+                        pet_index: parseInt(document.getElementById('petSelect').value || '0', 10)
+                    }
+                };
+                currentRun = await fetchJson('/api/v1/island/part-b/runs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                currentRunId = currentRun.id;
+                localStorage.setItem(RUN_KEY, currentRunId);
+                await loadRun();
+            }
+
+            function currentState() {
+                return (currentReplay && currentReplay.run && currentReplay.run.state_projection) || (currentRun && currentRun.state_projection) || null;
+            }
+
+            function currentRevision() {
+                return currentRun ? (currentRun.state_revision || 0) : 0;
+            }
+
+            function normalizeStats(stats) {
+                var hp = Number(stats.hp || 5);
+                var atk = Number(stats.atk || 5);
+                var spd = Number(stats.spd || 5);
+                var wil = Number(stats.wil || 5);
+                var values = [hp, atk, spd, wil];
+                var total = values.reduce(function(sum, value) { return sum + value; }, 0);
+                if (total === 20) return values;
+                var scaled = values.map(function(value) { return Math.max(1, Math.round(value * 20 / Math.max(total, 1))); });
+                while (scaled.reduce(function(sum, value) { return sum + value; }, 0) > 20) {
+                    var hi = scaled.indexOf(Math.max.apply(null, scaled));
+                    if (scaled[hi] > 1) scaled[hi] -= 1;
+                    else break;
+                }
+                while (scaled.reduce(function(sum, value) { return sum + value; }, 0) < 20) {
+                    var lo = scaled.indexOf(Math.min.apply(null, scaled));
+                    scaled[lo] += 1;
+                }
+                return scaled;
+            }
+
+            function opponentBuildFor(pet, state) {
+                var roster = [
+                    ['bear', [5, 5, 5, 5]],
+                    ['wolf', [4, 6, 7, 3]],
+                    ['fox', [4, 4, 7, 5]],
+                    ['buffalo', [8, 6, 4, 2]],
+                    ['scorpion', [5, 5, 5, 5]]
+                ];
+                var index = ((pet.level || 1) + (state.arena_loss_streak || 0)) % roster.length;
+                var opp = roster[index];
+                return opp[0] + ' ' + opp[1].join(' ');
+            }
+
+            async function appendEvent(payload) {
+                return fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/events', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            }
+
+            async function actArena() {
+                if (!currentRunId || !currentRun) { await startRun(); }
+                var pet = getSelectedPet();
+                var state = currentState();
+                if (!pet || !state) return;
+                var stats = normalizeStats(pet.base_stats || pet.stats || {});
+                var playerBuild = (pet.animal || 'fox') + ' ' + stats.join(' ');
+                var enemyBuild = opponentBuildFor(pet, state);
+                var fight = await fetchJson('/api/v1/fight/s1', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ build1: playerBuild, build2: enemyBuild, games: 1 })
+                });
+                var won = fight.build1_wins > fight.build2_wins;
+                var next = Object.assign({}, state, {
+                    health_pct: clamp((state.health_pct || 90) + (won ? -6 : -14), 1, 100),
+                    morale_pct: clamp((state.morale_pct || 80) + (won ? 8 : -7), 0, 100),
+                    happiness_pct: clamp((state.happiness_pct || 80) + (won ? 5 : -4), 0, 100),
+                    energy_pct: clamp((state.energy_pct || 85) - 12, 0, 100),
+                    neglect_ticks: Math.max(0, (state.neglect_ticks || 0) + 1),
+                    recent_fight_summary: won ? 'win' : 'loss',
+                    arena_recent_record: won ? 'W' : 'L',
+                    arena_loss_streak: won ? 0 : ((state.arena_loss_streak || 0) + 1),
+                    last_action: 'ENTER_ARENA',
+                    last_action_outcome: won ? 'win' : 'loss'
+                });
+                var event = await appendEvent({
+                    actor_type: actionActorType(),
+                    event_type: 'action_applied',
+                    action_verb: 'ENTER_ARENA',
+                    zone: 'arena',
+                    world_tick: (currentRun.world_tick || 0) + 1,
+                    expected_state_revision: currentRevision(),
+                    observation: {
+                        health_pct: state.health_pct,
+                        morale_pct: state.morale_pct,
+                        happiness_pct: state.happiness_pct,
+                        energy_pct: state.energy_pct
+                    },
+                    outcome: {
+                        result: won ? 'win' : 'loss',
+                        reward: won ? 12 : 4,
+                        xp_gain: won ? 20 : 6,
+                        ticks: fight.avg_ticks
+                    },
+                    state_after: next
+                });
+                if (!event.accepted) {
+                    await loadRun();
+                    return;
+                }
+                await loadRun();
+            }
+
+            function caveRoll(state) {
+                var depth = (state.current_cave_depth || 0) + 1;
+                var reward = 8 + depth * 6 + Math.floor(Math.random() * 6);
+                var injury = Math.floor(Math.random() * (4 + depth * 3));
+                return { depth: depth, reward: reward, injury: injury };
+            }
+
+            async function actCaveEnter() {
+                if (!currentRunId || !currentRun) { await startRun(); }
+                var state = currentState();
+                if (!state) return;
+                var roll = caveRoll(state);
+                var next = Object.assign({}, state, {
+                    in_cave: true,
+                    current_cave_depth: roll.depth,
+                    current_cave_value: (state.current_cave_value || 0) + roll.reward,
+                    current_cave_risk: (state.current_cave_risk || 0) + roll.injury,
+                    health_pct: clamp((state.health_pct || 90) - roll.injury, 1, 100),
+                    morale_pct: clamp((state.morale_pct || 80) + 3, 0, 100),
+                    happiness_pct: clamp((state.happiness_pct || 80) + 1, 0, 100),
+                    energy_pct: clamp((state.energy_pct || 85) - 14, 0, 100),
+                    neglect_ticks: Math.max(0, (state.neglect_ticks || 0) + 1),
+                    recent_cave_summary: 'depth ' + roll.depth,
+                    last_action: 'ENTER_CAVE',
+                    last_action_outcome: 'depth ' + roll.depth
+                });
+                var event = await appendEvent({
+                    actor_type: actionActorType(),
+                    event_type: 'action_applied',
+                    action_verb: 'ENTER_CAVE',
+                    zone: 'cave',
+                    world_tick: (currentRun.world_tick || 0) + 1,
+                    expected_state_revision: currentRevision(),
+                    observation: {
+                        depth: state.current_cave_depth || 0,
+                        value: state.current_cave_value || 0,
+                        risk: state.current_cave_risk || 0
+                    },
+                    outcome: {
+                        depth: roll.depth,
+                        extract_value: roll.reward,
+                        injury: roll.injury
+                    },
+                    state_after: next
+                });
+                if (!event.accepted) {
+                    await loadRun();
+                    return;
+                }
+                await loadRun();
+            }
+
+            async function actExtract() {
+                if (!currentRunId || !currentRun) { await startRun(); }
+                var state = currentState();
+                if (!state) return;
+                if (!(state.in_cave || state.current_cave_depth > 0)) {
+                    alert('There is nothing to extract yet.');
+                    return;
+                }
+                var next = Object.assign({}, state, {
+                    in_cave: false,
+                    cave_depth_last_run: state.current_cave_depth || 0,
+                    cave_extract_value_last_run: state.current_cave_value || 0,
+                    cave_injury_last_run: state.current_cave_risk || 0,
+                    current_cave_depth: 0,
+                    current_cave_value: 0,
+                    current_cave_risk: 0,
+                    morale_pct: clamp((state.morale_pct || 80) + 5, 0, 100),
+                    happiness_pct: clamp((state.happiness_pct || 80) + 4, 0, 100),
+                    last_action: 'EXTRACT',
+                    last_action_outcome: 'secured ' + (state.current_cave_value || 0)
+                });
+                var event = await appendEvent({
+                    actor_type: actionActorType(),
+                    event_type: 'action_applied',
+                    action_verb: 'EXTRACT',
+                    zone: 'cave',
+                    world_tick: (currentRun.world_tick || 0) + 1,
+                    expected_state_revision: currentRevision(),
+                    outcome: {
+                        depth: state.current_cave_depth || 0,
+                        extract_value: state.current_cave_value || 0,
+                        injury: state.current_cave_risk || 0
+                    },
+                    state_after: next
+                });
+                if (!event.accepted) {
+                    await loadRun();
+                    return;
+                }
+                await loadRun();
+            }
+
+            async function actCare() {
+                if (!currentRunId || !currentRun) { await startRun(); }
+                var state = currentState();
+                if (!state) return;
+                var next = Object.assign({}, state, {
+                    health_pct: clamp((state.health_pct || 90) + 8, 0, 100),
+                    morale_pct: clamp((state.morale_pct || 80) + 10, 0, 100),
+                    happiness_pct: clamp((state.happiness_pct || 80) + 12, 0, 100),
+                    energy_pct: clamp((state.energy_pct || 85) + 4, 0, 100),
+                    neglect_ticks: Math.max(0, (state.neglect_ticks || 0) - 2),
+                    last_action: 'CARE',
+                    last_action_outcome: 'stabilized'
+                });
+                await appendEvent({
+                    actor_type: actionActorType(),
+                    event_type: 'action_applied',
+                    action_verb: 'CARE',
+                    zone: activeZone,
+                    world_tick: (currentRun.world_tick || 0) + 1,
+                    expected_state_revision: currentRevision(),
+                    outcome: { welfare_delta: 10 },
+                    state_after: next
+                });
+                await loadRun();
+            }
+
+            async function actRest() {
+                if (!currentRunId || !currentRun) { await startRun(); }
+                var state = currentState();
+                if (!state) return;
+                var next = Object.assign({}, state, {
+                    energy_pct: clamp((state.energy_pct || 85) + 16, 0, 100),
+                    morale_pct: clamp((state.morale_pct || 80) + 2, 0, 100),
+                    neglect_ticks: Math.max(0, (state.neglect_ticks || 0) - 1),
+                    last_action: 'REST',
+                    last_action_outcome: 'recovered'
+                });
+                await appendEvent({
+                    actor_type: actionActorType(),
+                    event_type: 'action_applied',
+                    action_verb: 'REST',
+                    zone: activeZone,
+                    world_tick: (currentRun.world_tick || 0) + 1,
+                    expected_state_revision: currentRevision(),
+                    outcome: { energy_gain: 16 },
+                    state_after: next
+                });
+                await loadRun();
+            }
+
+            async function actHold() {
+                if (!currentRunId || !currentRun) { await startRun(); }
+                var state = currentState();
+                if (!state) return;
+                var next = Object.assign({}, state, {
+                    neglect_ticks: (state.neglect_ticks || 0) + 1,
+                    happiness_pct: clamp((state.happiness_pct || 80) - 2, 0, 100),
+                    last_action: 'HOLD',
+                    last_action_outcome: 'waited'
+                });
+                await appendEvent({
+                    actor_type: actionActorType(),
+                    event_type: 'action_applied',
+                    action_verb: 'HOLD',
+                    zone: activeZone,
+                    world_tick: (currentRun.world_tick || 0) + 1,
+                    expected_state_revision: currentRevision(),
+                    outcome: { idle_tick: true },
+                    state_after: next
+                });
+                await loadRun();
+            }
+
+            function renderHint() {
+                var hintWrap = document.getElementById('operatorHint');
+                var hintBody = document.getElementById('operatorHintBody');
+                var runClass = document.getElementById('runClassSelect').value;
+                var state = currentState();
+                if (runClass !== 'operator-assisted' || !state) {
+                    hintWrap.style.opacity = runClass === 'operator-assisted' ? '1' : '0.55';
+                    hintBody.textContent = runClass === 'operator-assisted'
+                        ? 'Start a run to get bounded suggestions based on welfare, energy, and current zone pressure.'
+                        : 'Hints stay dim in manual mode. Operator-assisted mode surfaces bounded suggestions only.';
+                    return;
+                }
+
+                var text;
+                if ((state.health_pct || 100) < 45 || (state.happiness_pct || 100) < 45) {
+                    text = 'Welfare is slipping. Care first; otherwise a passive queue later will inherit a damaged baseline.';
+                } else if (activeZone === 'cave' && (state.current_cave_depth || 0) >= 2 && (state.current_cave_risk || 0) > (state.current_cave_value || 0)) {
+                    text = 'You have value in hand and risk is overtaking it. Extract now instead of turning expedition into theater.';
+                } else if (activeZone === 'arena' && (state.energy_pct || 0) > 45) {
+                    text = 'Energy is still acceptable. One arena tick is justified if you want a cleaner combat signal.';
+                } else {
+                    text = 'Nothing is urgent. Rest or Care are both valid if you want a safer benchmark trace.';
+                }
+                hintWrap.style.opacity = '1';
+                hintBody.textContent = text;
+            }
+
+            function renderReplay() {
+                var area = document.getElementById('replayArea');
+                if (!currentReplay || !currentReplay.events || !currentReplay.events.length) {
+                    area.innerHTML = '<div class="empty">No events yet. Start a run and take the first action.</div>';
+                    return;
+                }
+                var events = currentReplay.events.slice(-8).reverse();
+                area.innerHTML = events.map(function(event) {
+                    var actorCls = event.actor_type === 'manual' ? 'badge-manual' : (event.actor_type === 'operator' ? 'badge-operator' : 'badge-agent');
+                    var outcome = event.outcome || {};
+                    var detail = '';
+                    if (event.action_verb === 'ENTER_ARENA') {
+                        detail = (outcome.result || 'unknown') + ' · reward ' + (outcome.reward || 0);
+                    } else if (event.action_verb === 'ENTER_CAVE') {
+                        detail = 'depth ' + (outcome.depth || 0) + ' · value ' + (outcome.extract_value || 0) + ' · injury ' + (outcome.injury || 0);
+                    } else if (event.action_verb === 'EXTRACT') {
+                        detail = 'secured ' + (outcome.extract_value || 0) + ' after depth ' + (outcome.depth || 0);
+                    } else {
+                        detail = event.event_type;
+                    }
+                    return '<div class="event">' +
+                        '<div class="event-head">' +
+                            '<div><span class="badge ' + actorCls + '">' + escHtml(event.actor_type) + '</span> ' +
+                            '<span class="badge badge-zone">' + escHtml(event.action_verb || event.event_type) + '</span></div>' +
+                            '<div>tick ' + (event.world_tick || 0) + '</div>' +
+                        '</div>' +
+                        '<div>' + escHtml(detail) + '</div>' +
+                    '</div>';
+                }).join('');
+            }
+
+            function renderSurfaceState() {
+                var state = currentState();
+                document.getElementById('runValue').textContent = currentRunId ? currentRunId.slice(0, 8) : 'None';
+                document.getElementById('revisionValue').textContent = currentRun ? String(currentRun.state_revision || 0) : '0';
+                document.getElementById('healthValue').textContent = state ? Math.round(state.health_pct || 0) + '%' : '-';
+                document.getElementById('moraleValue').textContent = state ? Math.round(state.morale_pct || 0) + '%' : '-';
+                document.getElementById('happinessValue').textContent = state ? Math.round(state.happiness_pct || 0) + '%' : '-';
+                document.getElementById('energyValue').textContent = state ? Math.round(state.energy_pct || 0) + '%' : '-';
+                if (currentReplay && currentReplay.report && currentReplay.report.scores) {
+                    var scores = currentReplay.report.scores;
+                    document.getElementById('scoreWelfare').textContent = scores.welfare;
+                    document.getElementById('scoreCombat').textContent = scores.combat;
+                    document.getElementById('scoreExpedition').textContent = scores.expedition;
+                } else {
+                    document.getElementById('scoreWelfare').textContent = '0';
+                    document.getElementById('scoreCombat').textContent = '0';
+                    document.getElementById('scoreExpedition').textContent = '0';
+                }
+                if (state) {
+                    document.getElementById('arenaMeta').textContent = 'record ' + escHtml(state.arena_recent_record || 'none') + ' · loss streak ' + (state.arena_loss_streak || 0);
+                    document.getElementById('caveMeta').textContent = 'depth ' + (state.current_cave_depth || 0) + ' · held value ' + (state.current_cave_value || 0);
+                }
+            }
+
+            function switchZone(zone) {
+                activeZone = zone;
+                localStorage.setItem(ZONE_KEY, zone);
+                document.getElementById('tabArena').classList.toggle('active', zone === 'arena');
+                document.getElementById('tabCave').classList.toggle('active', zone === 'cave');
+                document.getElementById('surfaceArena').classList.toggle('hidden', zone !== 'arena');
+                document.getElementById('surfaceCave').classList.toggle('hidden', zone !== 'cave');
+                renderHint();
+            }
+
+            function render() {
+                renderSurfaceState();
+                renderReplay();
+                renderHint();
+            }
+
+            async function main() {
+                await initPets();
+                switchZone(activeZone);
+                if (currentRunId) {
+                    try {
+                        await loadRun();
+                    } catch (error) {
+                        console.warn('[Ecology] Could not load previous run:', error);
+                        localStorage.removeItem(RUN_KEY);
+                        currentRunId = '';
+                    }
+                }
+                render();
+            }
+
+            document.getElementById('startRunBtn').addEventListener('click', startRun);
+            document.getElementById('tabArena').addEventListener('click', function() { switchZone('arena'); });
+            document.getElementById('tabCave').addEventListener('click', function() { switchZone('cave'); });
+            document.getElementById('btnArenaEnter').addEventListener('click', actArena);
+            document.getElementById('btnArenaCare').addEventListener('click', actCare);
+            document.getElementById('btnArenaRest').addEventListener('click', actRest);
+            document.getElementById('btnArenaHold').addEventListener('click', actHold);
+            document.getElementById('btnCaveEnter').addEventListener('click', actCaveEnter);
+            document.getElementById('btnCaveExtract').addEventListener('click', actExtract);
+            document.getElementById('btnCaveCare').addEventListener('click', actCare);
+            document.getElementById('btnCaveRest').addEventListener('click', actRest);
+            document.getElementById('runClassSelect').addEventListener('change', renderHint);
+            document.getElementById('prioritySelect').addEventListener('change', renderHint);
+
+            main();
+        })();
+    </script>
+</body>
+</html>

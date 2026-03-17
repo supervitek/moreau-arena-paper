@@ -91,6 +91,55 @@ def test_part_b_stale_agent_event_is_logged_but_rejected(monkeypatch, tmp_path):
     assert replay["events"][0]["conflict_status"] == "stale_rejected"
 
 
+def test_part_b_report_includes_family_scores(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+
+    run_record = create_part_b_run(
+        {
+            "run_class": "manual",
+            "state_projection": {
+                "health_pct": 88,
+                "morale_pct": 76,
+                "happiness_pct": 82,
+                "neglect_ticks": 1,
+                "cave_depth_last_run": 0,
+                "cave_extract_value_last_run": 0,
+                "cave_injury_last_run": 0,
+            },
+        }
+    )
+    append_part_b_event(
+        run_record["id"],
+        {
+            "actor_type": "manual",
+            "event_type": "action_applied",
+            "action_verb": "ENTER_ARENA",
+            "world_tick": 1,
+            "expected_state_revision": 0,
+            "outcome": {"result": "win", "reward": 12, "xp_gain": 20},
+        },
+    )
+    append_part_b_event(
+        run_record["id"],
+        {
+            "actor_type": "manual",
+            "event_type": "action_applied",
+            "action_verb": "ENTER_CAVE",
+            "world_tick": 2,
+            "expected_state_revision": 0,
+            "outcome": {"depth": 2, "extract_value": 18, "injury": 4},
+        },
+    )
+
+    report = part_b_run_report(run_record["id"])
+    assert report is not None
+    assert set(report["scores"]) == {"welfare", "combat", "expedition"}
+    assert report["scores"]["welfare"] > 0
+    assert report["scores"]["combat"] > 0
+    assert report["scores"]["expedition"] > 0
+
+
 def test_part_b_storage_status_and_listing(monkeypatch, tmp_path):
     monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
     monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))

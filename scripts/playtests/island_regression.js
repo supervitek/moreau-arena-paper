@@ -246,6 +246,26 @@ async function runSuite(baseUrl, headless) {
     return { snippet: body.slice(0, 280), pageErrors, consoleErrors };
   }));
 
+  results.push(await scenario('ecology', async () => {
+    const { context, page, pageErrors, consoleErrors } = await makePage(browser, standardStorage(now));
+    await page.goto(baseUrl + '/island/ecology', { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('#startRunBtn');
+    await page.click('#startRunBtn');
+    await page.waitForTimeout(400);
+    await page.click('#btnArenaEnter');
+    await page.waitForTimeout(1200);
+    const body = await page.locator('body').innerText();
+    assert(/The Arena/.test(body), 'ecology page did not render arena surface');
+    const welfare = await page.locator('#scoreWelfare').innerText();
+    const combat = await page.locator('#scoreCombat').innerText();
+    const expedition = await page.locator('#scoreExpedition').innerText();
+    assert(/\d+/.test(welfare) && /\d+/.test(combat) && /\d+/.test(expedition), 'ecology scores did not render');
+    const replay = await page.locator('#replayArea').innerText();
+    assert(/ENTER_ARENA|action_applied/i.test(replay), 'ecology replay did not log arena action');
+    await context.close();
+    return { snippet: body.slice(0, 300), replay: replay.slice(0, 240), scores: { welfare, combat, expedition }, pageErrors, consoleErrors };
+  }));
+
   results.push(await scenario('profile', async () => {
     const { context, page, pageErrors, consoleErrors } = await makePage(browser, standardStorage(now));
     await page.goto(baseUrl + '/island/profile', { waitUntil: 'domcontentloaded' });

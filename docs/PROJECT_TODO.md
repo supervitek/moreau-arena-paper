@@ -16,7 +16,8 @@ Last updated: 2026-03-17
 - Measurement contract: `docs/PART_B_MEASUREMENT_CONTRACT_B1.md`
 - Operator inspect UX spec: `docs/PART_B_OPERATOR_INSPECT_UX_SPEC.md`
 - State migration foundation: `docs/PART_B_STATE_MIGRATION_B1_5.md`
-- Current next move: `B2 — Manual Ecology Slice`
+- Manual ecology slice: `docs/PART_B_MANUAL_ECOLOGY_SLICE_B2.md`
+- Current next move: `B3 — Passive Queue`
 
 ## Current Priority Order
 
@@ -67,3 +68,4 @@ Last updated: 2026-03-17
 - [x] Committed T002 adaptation derivation script
 - [x] Paper adaptation table re-derived from canonical JSONL
 - [x] Part B B1.5 state migration foundation
+- [x] Part B B2 manual ecology slice

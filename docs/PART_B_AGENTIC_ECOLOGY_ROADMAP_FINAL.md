@@ -358,6 +358,13 @@ Must produce:
 - Cave of Catharsis
 - manual and operator-assisted flows
 
+Status:
+- implemented prototype slice
+
+Artifacts:
+- `docs/PART_B_MANUAL_ECOLOGY_SLICE_B2.md`
+- `web/static/island/ecology.html`
+
 Purpose:
 - validate scoring and world pressure before passive agent loops
 

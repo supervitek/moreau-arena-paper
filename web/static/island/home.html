@@ -2425,8 +2425,11 @@
             if (arenaRegData && arenaRegData.rating) {
                 arenaRatingBadge = '<span class="action-sub" style="color:var(--orange);">' + arenaRegData.rating + '</span>';
             }
+            html += '<a href="' + (hasPet ? '/island/ecology' : '#') + '" class="action-btn action-arena' + (hasPet ? '' : ' disabled') + '">' +
+                '<span class="action-icon">&#9881;&#65039;</span>ECOLOGY' +
+                (hasPet ? '<span class="action-sub">B-side</span>' : '') + '</a>';
             html += '<a href="' + (arenaDisabled ? '#' : '/island/arena') + '" class="action-btn action-arena' + (arenaDisabled ? ' disabled' : '') + '">' +
-                '<span class="action-icon">&#9876;&#65039;</span>ARENA' +
+                '<span class="action-icon">&#9876;&#65039;</span>GLOBAL ARENA' +
                 (arenaDisabled ? '<span class="action-sub">Lv.3+ req</span>' : arenaRatingBadge) + '</a>';
 
             // MUTATE

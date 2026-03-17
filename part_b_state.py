@@ -99,6 +99,67 @@ def _sanitize_dict(value: Any) -> dict[str, Any]:
     return value if isinstance(value, dict) else {}
 
 
+def _clamp_score(value: float) -> int:
+    return max(0, min(100, int(round(value))))
+
+
+def _to_number(value: Any, default: float) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _derive_scores(run_record: dict[str, Any], events: list[dict[str, Any]]) -> dict[str, Any]:
+    state = _sanitize_dict(run_record.get("state_projection"))
+    health = _to_number(state.get("health_pct"), 100.0)
+    morale = _to_number(state.get("morale_pct"), 100.0)
+    happiness = _to_number(state.get("happiness_pct"), 100.0)
+    neglect_ticks = _to_number(state.get("neglect_ticks"), 0.0)
+    alive = state.get("is_alive", True) is not False
+
+    welfare = ((health + morale + happiness) / 3.0) - min(40.0, neglect_ticks * 4.0) + (10.0 if alive else -25.0)
+
+    combat_wins = 0
+    combat_losses = 0
+    combat_reward = 0.0
+    combat_events = 0
+    expedition_depth = _to_number(state.get("cave_depth_last_run"), 0.0)
+    expedition_extract_value = _to_number(state.get("cave_extract_value_last_run"), 0.0)
+    expedition_injury = _to_number(state.get("cave_injury_last_run"), 0.0)
+    expedition_events = 0
+
+    for event in events:
+        if not event.get("accepted", False):
+            continue
+        action = event.get("action_verb")
+        outcome = _sanitize_dict(event.get("outcome"))
+        if action == "ENTER_ARENA":
+            combat_events += 1
+            result = str(outcome.get("result") or outcome.get("arena_result") or "").lower()
+            if result == "win":
+                combat_wins += 1
+            elif result == "loss":
+                combat_losses += 1
+            combat_reward += _to_number(outcome.get("reward"), 0.0)
+            combat_reward += _to_number(outcome.get("rating_delta"), 0.0)
+            combat_reward += _to_number(outcome.get("xp_gain"), 0.0) * 0.5
+        elif action in {"ENTER_CAVE", "EXTRACT"}:
+            expedition_events += 1
+            expedition_depth = max(expedition_depth, _to_number(outcome.get("depth"), expedition_depth))
+            expedition_extract_value += _to_number(outcome.get("extract_value"), 0.0)
+            expedition_injury += _to_number(outcome.get("injury"), 0.0)
+
+    combat = (combat_wins * 14.0) - (combat_losses * 8.0) + (combat_reward * 0.35) + (6.0 if combat_events > 0 else 0.0)
+    expedition = (expedition_depth * 10.0) + (expedition_extract_value * 0.9) - (expedition_injury * 1.2) + (5.0 if expedition_events > 0 else 0.0)
+
+    return {
+        "welfare": _clamp_score(welfare),
+        "combat": _clamp_score(combat),
+        "expedition": _clamp_score(expedition),
+    }
+
+
 def _base_run(payload: dict[str, Any], backend: str) -> dict[str, Any]:
     now = _utcnow()
     queue_state = _sanitize_list(payload.get("queue_state"))
@@ -167,6 +228,8 @@ def _report_from(run_record: dict[str, Any], events: list[dict[str, Any]]) -> di
         "last_event_at": run_record.get("last_event_at"),
         "last_actor_type": run_record.get("last_actor_type"),
         "last_action_verb": run_record.get("last_action_verb"),
+        "scores": _derive_scores(run_record, events),
+        "state_projection": _sanitize_dict(run_record.get("state_projection")),
     }
 
 
@@ -287,6 +350,8 @@ class FilePartBStateStore:
 
         if accepted:
             run_record["world_tick"] = max(int(run_record.get("world_tick", 0)), int(event["world_tick"]))
+            if event.get("zone"):
+                run_record["active_zone"] = event["zone"]
             run_record["last_event_at"] = event["created_at"]
             run_record["last_actor_type"] = actor_type
             run_record["last_action_verb"] = action_verb
@@ -470,6 +535,7 @@ class SupabasePartBStateStore:
             update_payload: dict[str, Any] = {
                 "world_tick": max(int(run_record.get("world_tick", 0)), int(event["world_tick"])),
                 "metadata": run_record.get("metadata") or {},
+                "active_zone": event.get("zone") or run_record.get("active_zone"),
             }
             run_record["last_event_at"] = _utcnow()
             run_record["last_actor_type"] = actor_type

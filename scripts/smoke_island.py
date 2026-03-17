@@ -15,6 +15,7 @@ VENV_PYTHON = ROOT / ".venv" / "bin" / "python"
 
 ROUTES = [
     ("/island/home", "Island"),
+    ("/island/ecology", "Cave of Catharsis"),
     ("/island/train", "Training"),
     ("/island/pit", "Pit"),
     ("/island/menagerie", "Menagerie"),
