@@ -9,6 +9,12 @@ Last updated: 2026-03-16
 - Current approved path: `Chronicler-first` on `/island/home`
 - Explicitly not in scope right now: public BYO-agent API, hosted champion, external pilot
 
+## Part B Ecology
+
+- Final roadmap: `docs/PART_B_AGENTIC_ECOLOGY_ROADMAP_FINAL.md`
+- Execution TODO: `docs/PART_B_AGENTIC_ECOLOGY_EXECUTION_TODO.md`
+- Current next move: `B1 — Measurement Contract`
+
 ## Current Priority Order
 
 1. Launch-readiness audit
