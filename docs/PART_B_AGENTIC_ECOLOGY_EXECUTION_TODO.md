@@ -10,7 +10,7 @@ Turn Part B into a valid ecological benchmark without blowing scope or losing be
 
 The next mandatory focus is:
 
-- `B1 — Measurement Contract`
+- `B1.5 — State Migration`
 
 ---
 
@@ -31,26 +31,31 @@ Exit rule:
 
 ## Phase B1 — Measurement Contract
 
-- [ ] Define run class taxonomy:
+- [x] Define run class taxonomy:
   - `manual`
   - `operator-assisted`
   - `agent-only`
-- [ ] Define observation contract.
-- [ ] Define action contract.
-- [ ] Define tick cadence.
-- [ ] Define inference/call budget contract.
-- [ ] Define season boundary rules.
-- [ ] Define family score formulas:
+- [x] Define observation contract.
+- [x] Define action contract.
+- [x] Define tick cadence.
+- [x] Define inference/call budget contract.
+- [x] Define season boundary rules.
+- [x] Define family score formulas:
   - Welfare
   - Combat
   - Expedition
-- [ ] Add explicit welfare decay formula.
-- [ ] Add anti-degenerate baseline tests:
+- [x] Add explicit welfare decay formula.
+- [x] Add anti-degenerate baseline tests:
   - trivially conservative
   - trivially greedy
   - trivially random
-- [ ] Write mock operator inspect UX spec.
-- [ ] Decide what evidence is shown to the operator after offline progression.
+- [x] Write mock operator inspect UX spec.
+- [x] Decide what evidence is shown to the operator after offline progression.
+
+Artifacts:
+- `docs/PART_B_MEASUREMENT_CONTRACT_B1.md`
+- `docs/PART_B_MEASUREMENT_CONTRACT_B1.json`
+- `docs/PART_B_OPERATOR_INSPECT_UX_SPEC.md`
 
 Exit rule:
 - Part B has a versionable measurement contract, not just ideas

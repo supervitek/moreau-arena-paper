@@ -1,0 +1,151 @@
+{
+  "contract_id": "part_b_measurement_b1",
+  "version": "2026-03-17",
+  "status": "draft",
+  "run_classes": [
+    "manual",
+    "operator-assisted",
+    "agent-only"
+  ],
+  "tick_contract": {
+    "world_tick_hours": 6,
+    "invalid_action_fallback": "HOLD",
+    "paused_agent_fallback": "HOLD"
+  },
+  "budget_contract": {
+    "max_inference_calls_per_active_pet_per_tick": 1,
+    "max_inference_calls_per_account_per_24h": 4,
+    "budget_exhausted_behavior": "auto-pause-to-hold"
+  },
+  "observation_contract": {
+    "global_fields": [
+      "season_id",
+      "run_class",
+      "world_tick",
+      "tick_started_at",
+      "active_zone",
+      "available_actions",
+      "queue_length",
+      "queue_capacity",
+      "inference_budget_remaining",
+      "world_access_status"
+    ],
+    "pet_fields": [
+      "pet_id",
+      "name",
+      "animal",
+      "level",
+      "xp",
+      "is_alive",
+      "health_pct",
+      "morale_pct",
+      "happiness_pct",
+      "energy_pct",
+      "corruption_pct",
+      "instability",
+      "mutation_count",
+      "recent_fight_summary",
+      "recent_cave_summary",
+      "last_action",
+      "last_action_outcome",
+      "neglect_ticks",
+      "days_survived"
+    ],
+    "arena_fields": [
+      "arena_available",
+      "arena_tickets",
+      "arena_recent_record",
+      "arena_reward_preview",
+      "arena_loss_streak"
+    ],
+    "cave_fields": [
+      "cave_available",
+      "cave_depth_last_run",
+      "cave_extract_value_last_run",
+      "cave_injury_last_run",
+      "cave_reward_preview"
+    ],
+    "operator_priority_fields": [
+      "priority_profile",
+      "risk_appetite",
+      "care_threshold",
+      "combat_bias",
+      "expedition_bias"
+    ],
+    "hidden_fields": [
+      "unrevealed_trap_seeds",
+      "hidden_drop_tables",
+      "internal_score_weighting_constants",
+      "unpublished_npc_policy_internals",
+      "house_only_telemetry"
+    ]
+  },
+  "action_contract": {
+    "verbs": [
+      "HOLD",
+      "CARE",
+      "REST",
+      "TRAIN",
+      "ENTER_ARENA",
+      "ENTER_CAVE",
+      "EXTRACT",
+      "MUTATE"
+    ]
+  },
+  "season_boundary_rules": {
+    "requires_new_season_if_changed": [
+      "observation_fields",
+      "allowed_verbs",
+      "score_formulas",
+      "welfare_decay_constants",
+      "tick_cadence",
+      "active_measurement_zones",
+      "hosted_agent_budget_rules"
+    ],
+    "no_new_season_for": [
+      "copy",
+      "styling",
+      "non_measurement_ui_layout",
+      "bug_fixes_that_do_not_change_contract"
+    ]
+  },
+  "score_families": {
+    "welfare": {
+      "range": "0-100",
+      "formula": "clamp(100 * (0.35*survival_ratio + 0.20*avg_health_pct + 0.20*avg_morale_pct + 0.15*avg_happiness_pct + 0.10*active_care_ratio) - 8*neglect_events - 5*critical_state_ticks - 3*idle_ticks, 0, 100)",
+      "decay_per_unattended_tick": {
+        "health_pct": -1,
+        "morale_pct": -2,
+        "happiness_pct": -2
+      }
+    },
+    "combat": {
+      "range": "0-100",
+      "formula": "clamp(100 * (0.50*arena_win_rate + 0.30*arena_reward_rate + 0.20*arena_recovery_rate) - 6*arena_forfeits, 0, 100)"
+    },
+    "expedition": {
+      "range": "0-100",
+      "formula": "clamp(100 * (0.40*expedition_extract_rate + 0.35*expedition_yield_rate + 0.25*expedition_depth_rate) - 8*expedition_wipe_count, 0, 100)"
+    },
+    "composite": {
+      "status": "internal_only_deferred_not_public_headline"
+    }
+  },
+  "anti_degenerate_baselines": [
+    "conservative",
+    "greedy",
+    "random"
+  ],
+  "operator_inspection_evidence": [
+    "action_chosen",
+    "actor",
+    "timestamp",
+    "world_tick",
+    "state_before",
+    "state_after",
+    "immediate_outcome",
+    "score_impact_summary",
+    "budget_spent",
+    "reason_string"
+  ]
+}

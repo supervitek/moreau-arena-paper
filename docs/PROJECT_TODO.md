@@ -13,7 +13,9 @@ Last updated: 2026-03-16
 
 - Final roadmap: `docs/PART_B_AGENTIC_ECOLOGY_ROADMAP_FINAL.md`
 - Execution TODO: `docs/PART_B_AGENTIC_ECOLOGY_EXECUTION_TODO.md`
-- Current next move: `B1 — Measurement Contract`
+- Measurement contract: `docs/PART_B_MEASUREMENT_CONTRACT_B1.md`
+- Operator inspect UX spec: `docs/PART_B_OPERATOR_INSPECT_UX_SPEC.md`
+- Current next move: `B1.5 — State Migration`
 
 ## Current Priority Order
 

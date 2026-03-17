@@ -414,9 +414,15 @@ Delayed:
 
 ## Immediate Next Move
 
+`B1` now exists as:
+
+- `docs/PART_B_MEASUREMENT_CONTRACT_B1.md`
+- `docs/PART_B_MEASUREMENT_CONTRACT_B1.json`
+- `docs/PART_B_OPERATOR_INSPECT_UX_SPEC.md`
+
 The next correct move is:
 
-- write the `B1 Measurement Contract`
+- execute `B1.5 — State Migration`
 
 Not:
 - build more zones
@@ -424,4 +430,4 @@ Not:
 - build BYO
 - build economy layers
 
-Everything now depends on B1 being sharp enough that the rest of Part B does not drift into a beautiful but invalid pseudo-benchmark.
+Everything now depends on moving the relevant Part B state and action log to a durable server-side model, because passive delegated progression cannot honestly exist on browser-local state.
