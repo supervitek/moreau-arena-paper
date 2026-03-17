@@ -51,6 +51,7 @@ from part_b_state import (
     clear_part_b_queue,
     enqueue_part_b_action,
     export_part_b_season_archive,
+    part_b_calibration_report,
     get_part_b_run,
     list_part_b_runs,
     part_b_leaderboards,
@@ -1789,13 +1790,20 @@ def island_part_b_season(season_id: str | None = Query(default=None, max_length=
 def island_part_b_leaderboards(
     season_id: str | None = Query(default=None, max_length=64),
     run_class: str | None = Query(default=None, max_length=32),
+    focus_run_id: str | None = Query(default=None, max_length=64),
     limit: int = Query(default=10, ge=1, le=50),
 ) -> dict[str, Any]:
     """Return family-score leaderboards, split by run class when requested."""
     try:
-        return part_b_leaderboards(season_id, run_class, limit)
+        return part_b_leaderboards(season_id, run_class, limit, focus_run_id)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.get("/api/v1/island/part-b/calibration")
+def island_part_b_calibration(season_id: str | None = Query(default=None, max_length=64)) -> dict[str, Any]:
+    """Return current calibration signals and warnings for the active Part B season."""
+    return part_b_calibration_report(season_id)
 
 
 @app.post("/api/v1/island/part-b/runs")

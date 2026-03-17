@@ -199,6 +199,11 @@ def main() -> int:
             raise RuntimeError("Part B leaderboards endpoint invalid")
         print("OK /api/v1/island/part-b/leaderboards [application/json]")
 
+        status, content_type, body = fetch(base + "/api/v1/island/part-b/calibration")
+        if status != 200 or content_type != "application/json" or '"warnings"' not in body:
+            raise RuntimeError("Part B calibration endpoint invalid")
+        print("OK /api/v1/island/part-b/calibration [application/json]")
+
         status, content_type, body = fetch(base + f"/api/v1/island/part-b/runs/{run_id}/baseline/preview?policy=conservative")
         if status != 200 or content_type != "application/json" or '"action_verb"' not in body:
             raise RuntimeError("Part B baseline preview invalid")

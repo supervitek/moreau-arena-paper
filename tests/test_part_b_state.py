@@ -10,6 +10,7 @@ from part_b_state import (
     export_part_b_season_archive,
     get_part_b_run,
     list_part_b_runs,
+    part_b_calibration_report,
     part_b_leaderboards,
     part_b_run_report,
     part_b_season_status,
@@ -338,6 +339,11 @@ def test_part_b_baseline_preview_and_run(monkeypatch, tmp_path):
     assert stored is not None
     assert stored["metadata"]["baseline_policy"] == "conservative"
 
+    for policy in ("caremax", "arena-spam", "expedition-max"):
+        preview = preview_part_b_baseline(run_record["id"], policy)
+        assert preview is not None
+        assert preview["action_verb"] in {"CARE", "REST", "HOLD", "ENTER_ARENA", "ENTER_CAVE", "EXTRACT"}
+
 
 def test_part_b_fatal_run_is_completed(monkeypatch, tmp_path):
     monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
@@ -355,12 +361,15 @@ def test_part_b_fatal_run_is_completed(monkeypatch, tmp_path):
         }
     )
     enqueue_part_b_action(run_record["id"], {"action_verb": "ENTER_ARENA", "actor_type": "operator"})
+    enqueue_part_b_action(run_record["id"], {"action_verb": "CARE", "actor_type": "operator"})
     result = process_part_b_ticks(run_record["id"], count=1)
     assert result is not None
     stored = get_part_b_run(run_record["id"])
     assert stored is not None
     assert stored["status"] == "completed"
     assert stored["autopause_reason"] == "subject_not_alive"
+    assert stored["queue_state"] == []
+    assert stored["house_agent_enabled"] is False
 
 
 def test_part_b_season_archive_includes_leaderboards(monkeypatch, tmp_path):
@@ -385,3 +394,34 @@ def test_part_b_season_archive_includes_leaderboards(monkeypatch, tmp_path):
     assert archive["season"]["season_id"].startswith("part-b-s1")
     assert archive["leaderboards"]["headline_note"]
     assert archive["runs"]
+
+
+def test_part_b_calibration_report_flags_flatlined_family(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+
+    for policy in ("conservative", "greedy", "random"):
+        run_record = create_part_b_run(
+            {
+                "run_class": "agent-only",
+                "metadata": {"baseline_policy": policy},
+                "state_projection": {"health_pct": 50, "morale_pct": 50, "happiness_pct": 50, "energy_pct": 50},
+            }
+        )
+        append_part_b_event(
+            run_record["id"],
+            {
+                "actor_type": "agent",
+                "event_type": "action_applied",
+                "action_verb": "CARE",
+                "world_tick": 1,
+                "expected_state_revision": 0,
+                "outcome": {"welfare_delta": 10},
+                "state_after": {"health_pct": 60, "morale_pct": 60, "happiness_pct": 60, "energy_pct": 50},
+            },
+        )
+
+    calibration = part_b_calibration_report()
+    assert calibration["total_runs"] == 3
+    assert "combat_flatlined" in calibration["warnings"]
+    assert calibration["policy_summary"]["conservative"]["runs"] == 1

@@ -8,6 +8,7 @@ import uuid
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
+from statistics import mean, median
 from typing import Any
 from urllib import parse, request
 
@@ -26,7 +27,7 @@ HOUSE_AGENT_MODEL_DEFAULT = "claude-haiku-4-5-20251001"
 HOUSE_AGENT_PROVIDER_DEFAULT = "anthropic"
 HOUSE_AGENT_ALLOWED_ZONES = {"arena", "cave"}
 QUEUE_EXECUTABLE_ACTORS = {"manual", "operator", "agent"}
-PART_B_BASELINE_POLICIES = {"conservative", "greedy", "random"}
+PART_B_BASELINE_POLICIES = {"conservative", "greedy", "random", "caremax", "arena-spam", "expedition-max"}
 PART_B_SEASON_CURRENT_ID = "part-b-s1-first-descent"
 PART_B_SEASONS: dict[str, dict[str, Any]] = {
     PART_B_SEASON_CURRENT_ID: {
@@ -1329,30 +1330,43 @@ def _leaderboard_entry(run_record: dict[str, Any], report: dict[str, Any]) -> di
     }
 
 
-def part_b_leaderboards(season_id: str | None = None, run_class: str | None = None, limit: int = 10) -> dict[str, Any]:
+def _rank_entries(entries: list[dict[str, Any]], family: str) -> list[dict[str, Any]]:
+    return sorted(
+        entries,
+        key=lambda item: (
+            -_intish(item["scores"].get(family), 0, minimum=0, maximum=100),
+            -_intish(item.get("world_tick"), 0, minimum=0),
+            item.get("updated_at") or "",
+        ),
+    )
+
+
+def part_b_leaderboards(season_id: str | None = None, run_class: str | None = None, limit: int = 10, focus_run_id: str | None = None) -> dict[str, Any]:
     season = _current_part_b_season(season_id)
     chosen_class = (run_class or "all").strip().lower()
     if chosen_class != "all":
         chosen_class = _coerce_run_class(chosen_class)
     all_runs = [run for run in list_part_b_runs(limit=500) if run.get("season_id") == season["season_id"]]
     entries = [_leaderboard_entry(run, part_b_run_report(run["id"]) or {}) for run in all_runs]
+    all_counts_by_class = Counter(entry["run_class"] for entry in entries)
     eligible = [entry for entry in entries if entry["benchmark_eligible"]]
     if chosen_class != "all":
         entries = [entry for entry in entries if entry["run_class"] == chosen_class]
         eligible = [entry for entry in eligible if entry["run_class"] == chosen_class]
 
     counts_by_class = Counter(entry["run_class"] for entry in entries)
+    family_rankings = {family: _rank_entries(eligible, family) for family in ("welfare", "combat", "expedition")}
+    focus_ranks: dict[str, int | None] = {}
+    for family, ranked in family_rankings.items():
+        focus_ranks[family] = None
+        if focus_run_id:
+            for index, entry in enumerate(ranked, start=1):
+                if entry["run_id"] == focus_run_id:
+                    focus_ranks[family] = index
+                    break
 
     def top_for_family(family: str) -> list[dict[str, Any]]:
-        ranked = sorted(
-            eligible,
-            key=lambda item: (
-                -_intish(item["scores"].get(family), 0, minimum=0, maximum=100),
-                -_intish(item.get("world_tick"), 0, minimum=0),
-                item.get("updated_at") or "",
-            ),
-        )[:limit]
-        return ranked
+        return family_rankings[family][:limit]
 
     return {
         "season": part_b_season_status(season["season_id"]),
@@ -1361,14 +1375,101 @@ def part_b_leaderboards(season_id: str | None = None, run_class: str | None = No
             "total_runs": len(entries),
             "eligible_runs": len(eligible),
             "by_run_class": dict(counts_by_class),
+            "all_by_run_class": dict(all_counts_by_class),
         },
         "families": {
             "welfare": top_for_family("welfare"),
             "combat": top_for_family("combat"),
             "expedition": top_for_family("expedition"),
         },
+        "focus_run_ranks": focus_ranks,
+        "family_spread": {
+            family: {
+                "best": (_intish(ranked[0]["scores"][family], 0, minimum=0, maximum=100) if ranked else 0),
+                "median": (median([_intish(entry["scores"][family], 0, minimum=0, maximum=100) for entry in ranked]) if ranked else 0),
+                "entries": len(ranked),
+            }
+            for family, ranked in family_rankings.items()
+        },
         "recent_runs": sorted(entries, key=lambda item: item.get("updated_at") or "", reverse=True)[:limit],
         "headline_note": "Composite score intentionally omitted for the first ecological season.",
+    }
+
+
+def part_b_calibration_report(season_id: str | None = None) -> dict[str, Any]:
+    season = _current_part_b_season(season_id)
+    runs = [run for run in list_part_b_runs(limit=500) if run.get("season_id") == season["season_id"]]
+    reports: list[dict[str, Any]] = []
+    for run in runs:
+        report = part_b_run_report(run["id"])
+        if not report:
+            continue
+        reports.append(
+            {
+                "run": run,
+                "report": report,
+                "baseline_policy": _sanitize_text(_sanitize_dict(run.get("metadata")).get("baseline_policy"), 32) or "none",
+            }
+        )
+
+    policy_summary: dict[str, dict[str, Any]] = {}
+    top_policy_counts = Counter()
+    warnings: list[str] = []
+
+    for family in ("welfare", "combat", "expedition"):
+        ranked = sorted(
+            reports,
+            key=lambda item: -_intish(item["report"]["scores"].get(family), 0, minimum=0, maximum=100),
+        )
+        if ranked:
+            top_policy_counts[ranked[0]["baseline_policy"]] += 1
+        values = [_intish(item["report"]["scores"].get(family), 0, minimum=0, maximum=100) for item in ranked]
+        if values and max(values) <= 0:
+            warnings.append(f"{family}_flatlined")
+
+    for item in reports:
+        policy = item["baseline_policy"]
+        bucket = policy_summary.setdefault(
+            policy,
+            {"runs": 0, "welfare": [], "combat": [], "expedition": [], "run_classes": Counter()},
+        )
+        bucket["runs"] += 1
+        bucket["welfare"].append(_intish(item["report"]["scores"].get("welfare"), 0, minimum=0, maximum=100))
+        bucket["combat"].append(_intish(item["report"]["scores"].get("combat"), 0, minimum=0, maximum=100))
+        bucket["expedition"].append(_intish(item["report"]["scores"].get("expedition"), 0, minimum=0, maximum=100))
+        bucket["run_classes"][item["run"].get("run_class") or "unknown"] += 1
+
+        welfare_breakdown = _sanitize_dict(item["report"].get("score_breakdown")).get("welfare") or {}
+        if _intish(item["report"]["scores"].get("welfare"), 0, minimum=0, maximum=100) > 70 and _intish(welfare_breakdown.get("idle_ticks"), 0, minimum=0) >= 4:
+            warnings.append("welfare_idle_dominance")
+
+    normalized_summary = {
+        policy: {
+            "runs": bucket["runs"],
+            "mean_scores": {
+                "welfare": round(mean(bucket["welfare"]), 2) if bucket["welfare"] else 0.0,
+                "combat": round(mean(bucket["combat"]), 2) if bucket["combat"] else 0.0,
+                "expedition": round(mean(bucket["expedition"]), 2) if bucket["expedition"] else 0.0,
+            },
+            "median_scores": {
+                "welfare": round(float(median(bucket["welfare"])), 2) if bucket["welfare"] else 0.0,
+                "combat": round(float(median(bucket["combat"])), 2) if bucket["combat"] else 0.0,
+                "expedition": round(float(median(bucket["expedition"])), 2) if bucket["expedition"] else 0.0,
+            },
+            "run_classes": dict(bucket["run_classes"]),
+        }
+        for policy, bucket in policy_summary.items()
+    }
+
+    if any(count >= 2 for policy, count in top_policy_counts.items() if policy != "none"):
+        warnings.append("single_policy_multi_family_dominance")
+
+    return {
+        "season": part_b_season_status(season["season_id"]),
+        "total_runs": len(reports),
+        "policy_summary": normalized_summary,
+        "top_policy_counts": dict(top_policy_counts),
+        "warnings": sorted(set(warnings)),
     }
 
 
@@ -1401,6 +1502,29 @@ def _baseline_plan(run_record: dict[str, Any], baseline_policy: str) -> dict[str
             return {"action_verb": "ENTER_CAVE", "zone": "cave", "rationale": "Expedition still promises upside."}
         return {"action_verb": "REST", "zone": observation["active_zone"], "rationale": "Greedy pauses only when energy forces it."}
 
+    if policy == "caremax":
+        if state.get("is_alive") is False:
+            return {"action_verb": "HOLD", "zone": observation["active_zone"], "rationale": "Caremax cannot stabilize the dead."}
+        if state["energy_pct"] < 40:
+            return {"action_verb": "REST", "zone": observation["active_zone"], "rationale": "Caremax restores energy before anything else."}
+        return {"action_verb": "CARE", "zone": observation["active_zone"], "rationale": "Caremax always pushes welfare first."}
+
+    if policy == "arena-spam":
+        if state.get("is_alive") is False:
+            return {"action_verb": "HOLD", "zone": observation["active_zone"], "rationale": "Arena spam stops at death."}
+        if state["energy_pct"] < 28:
+            return {"action_verb": "REST", "zone": "arena", "rationale": "Arena spam reloads only when exhausted."}
+        return {"action_verb": "ENTER_ARENA", "zone": "arena", "rationale": "Arena spam converts every viable tick into combat."}
+
+    if policy == "expedition-max":
+        if state.get("is_alive") is False:
+            return {"action_verb": "HOLD", "zone": observation["active_zone"], "rationale": "Expedition-max stops when the subject collapses."}
+        if state.get("in_cave") and (state.get("current_cave_depth", 0) >= 3 or state.get("current_cave_risk", 0) > state.get("current_cave_value", 0) + 4):
+            return {"action_verb": "EXTRACT", "zone": "cave", "rationale": "Expedition-max banks value before the cave flips EV."}
+        if state["energy_pct"] < 34:
+            return {"action_verb": "REST", "zone": "cave", "rationale": "Expedition-max rests only when stamina collapses."}
+        return {"action_verb": "ENTER_CAVE", "zone": "cave", "rationale": "Expedition-max keeps descending while risk is tolerable."}
+
     allowed = ["HOLD", "CARE", "REST", "TRAIN", "ENTER_ARENA", "ENTER_CAVE", "EXTRACT", "MUTATE"]
     if not state.get("in_cave") and "EXTRACT" in allowed:
         allowed.remove("EXTRACT")
@@ -1430,9 +1554,11 @@ def _execute_part_b_action(
     outcome, state_after, invalid_reason = _simulate_action(run_record, action_verb, zone)
     fatal = not invalid_reason and state_after.get("is_alive") is False
     merged_updates = dict(run_updates or {})
-    if fatal:
+    if fatal or invalid_reason == "pet_not_alive":
         merged_updates["status"] = "completed"
         merged_updates["autopause_reason"] = "subject_not_alive"
+        merged_updates["queue_state"] = []
+        merged_updates["house_agent_enabled"] = False
     event_payload = {
         "actor_type": actor_type,
         "event_type": "tick_skipped" if invalid_reason else "action_applied",

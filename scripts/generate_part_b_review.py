@@ -8,11 +8,12 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from part_b_state import PART_B_SEASON_CURRENT_ID, export_part_b_season_archive
+from part_b_state import PART_B_SEASON_CURRENT_ID, export_part_b_season_archive, part_b_calibration_report
 
 
 def build_review(season_id: str) -> str:
     archive = export_part_b_season_archive(season_id)
+    calibration = part_b_calibration_report(season_id)
     boards = archive["leaderboards"]
     counts = boards["counts"]
     lines = [
@@ -44,11 +45,15 @@ def build_review(season_id: str) -> str:
         )
     lines.extend(
         [
-            "## Guardrails",
+        "## Guardrails",
             "",
             f"- Composite headline enabled: `{archive['season']['composite_headline_enabled']}`",
             f"- House agent allowed in benchmark: `{archive['season']['house_agent_benchmark_allowed']}`",
             f"- Rule: {archive['season']['house_agent_benchmark_rule']}",
+            "",
+            "## Calibration",
+            "",
+            f"- Warnings: `{', '.join(calibration['warnings']) if calibration['warnings'] else 'none'}`",
             "",
             "## Continue / Pivot / Kill",
             "",
@@ -58,6 +63,14 @@ def build_review(season_id: str) -> str:
             "",
         ]
     )
+    if calibration["policy_summary"]:
+        lines.extend(["## Policy Summary", ""])
+        for policy, payload in sorted(calibration["policy_summary"].items()):
+            means = payload["mean_scores"]
+            lines.append(
+                f"- `{policy}`: welfare `{means['welfare']}`, combat `{means['combat']}`, expedition `{means['expedition']}`, runs `{payload['runs']}`"
+            )
+        lines.append("")
     return "\n".join(lines) + "\n"
 
 

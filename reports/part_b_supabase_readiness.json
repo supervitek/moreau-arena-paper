@@ -1,0 +1,27 @@
+{
+  "env": {
+    "SUPABASE_SERVICE_ROLE_KEY": false,
+    "SUPABASE_URL": false
+  },
+  "next_manual_steps": [
+    "Apply sql/PART_B_STATE_MIGRATION_B1_5.sql to production Supabase",
+    "Set SUPABASE_URL",
+    "Set SUPABASE_SERVICE_ROLE_KEY",
+    "Verify /api/v1/island/part-b/storage-status returns backend=supabase"
+  ],
+  "schema_exists": true,
+  "schema_path": "/Users/cc/Desktop/Claude/a/moreau-arena-paper/sql/PART_B_STATE_MIGRATION_B1_5.sql",
+  "storage_status": {
+    "backend": "file",
+    "base_dir": "/tmp/moreau_part_b_b5",
+    "configured": true,
+    "current_season_id": "part-b-s1-first-descent",
+    "current_season_name": "Part B Season 1: First Descent",
+    "dev_fallback": true,
+    "house_agent_provider_default": "anthropic",
+    "house_agent_supported": true,
+    "public_contract_ready": true,
+    "queue_supported": true,
+    "replay_supported": true
+  }
+}

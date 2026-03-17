@@ -630,6 +630,29 @@
                             <div id="houseAgentHintBody">Only active on agent-only runs. It acts through the public action grammar and auto-pauses when credits are exhausted.</div>
                         </div>
                     </div>
+
+                    <div>
+                        <div class="eyebrow">Baseline Controls</div>
+                        <div class="run-row">
+                            <select id="baselinePolicySelect">
+                                <option value="conservative">conservative</option>
+                                <option value="greedy">greedy</option>
+                                <option value="random">random</option>
+                                <option value="caremax">caremax</option>
+                                <option value="arena-spam">arena-spam</option>
+                                <option value="expedition-max">expedition-max</option>
+                            </select>
+                            <button id="previewBaselineBtn" type="button" class="ghost-btn">Preview Baseline</button>
+                        </div>
+                        <div class="run-row">
+                            <button id="runBaselineTickBtn" type="button" class="ghost-btn">Run Baseline Tick</button>
+                            <button id="runBaselineThreeBtn" type="button" class="ghost-btn">Run 3 Baseline Ticks</button>
+                        </div>
+                        <div class="hint" id="baselineHint">
+                            <strong>Baselines</strong>
+                            <div id="baselineHintBody">Preview or execute deterministic control policies against the same public contract.</div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -671,6 +694,7 @@
             var lastTickProcessed = [];
             var currentSeason = null;
             var currentLeaderboards = null;
+            var currentCalibration = null;
             var allPets = [];
             var offlineMode = true;
             var currentUserId = null;
@@ -742,7 +766,10 @@
             async function loadSeasonAndLeaderboards() {
                 currentSeason = await fetchJson('/api/v1/island/part-b/season');
                 var selectedRunClass = document.getElementById('leaderboardClassSelect').value || 'all';
-                currentLeaderboards = await fetchJson('/api/v1/island/part-b/leaderboards?run_class=' + encodeURIComponent(selectedRunClass) + '&limit=5');
+                var query = '/api/v1/island/part-b/leaderboards?run_class=' + encodeURIComponent(selectedRunClass) + '&limit=5';
+                if (currentRunId) query += '&focus_run_id=' + encodeURIComponent(currentRunId);
+                currentLeaderboards = await fetchJson(query);
+                currentCalibration = await fetchJson('/api/v1/island/part-b/calibration');
             }
 
             function initialProjection(pet) {
@@ -1258,6 +1285,34 @@
                     (preview.rationale || 'No rationale.') + ' [' + (preview.mode || 'unknown') + ']';
             }
 
+            async function previewBaseline() {
+                await ensureRun();
+                var policy = document.getElementById('baselinePolicySelect').value;
+                var preview = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/baseline/preview?policy=' + encodeURIComponent(policy));
+                document.getElementById('baselineHintBody').textContent =
+                    (preview.policy || policy) + ': ' + (preview.action_verb || 'HOLD') + ' @ ' + (preview.zone || 'arena') + ' — ' +
+                    (preview.rationale || 'No rationale.');
+            }
+
+            async function runBaselineTicks(count) {
+                await ensureRun();
+                var policy = document.getElementById('baselinePolicySelect').value;
+                var result = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/baseline', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ policy: policy, ticks: count })
+                });
+                currentRun = result.run;
+                currentReplay = {
+                    run: result.run,
+                    events: result.replay || [],
+                    report: result.report || {}
+                };
+                lastTickProcessed = Array.isArray(result.processed) ? result.processed : [];
+                await loadSeasonAndLeaderboards();
+                render();
+            }
+
             async function refreshLeaderboards() {
                 await loadSeasonAndLeaderboards();
                 render();
@@ -1447,6 +1502,17 @@
                     '</div>'
                 );
 
+                if (currentLeaderboards && currentLeaderboards.focus_run_ranks) {
+                    blocks.push(
+                        '<div class="inspect-card">' +
+                            '<strong>Benchmark position</strong>' +
+                            '<div class="delta-row"><span>welfare rank</span><span>' + escHtml(currentLeaderboards.focus_run_ranks.welfare || '—') + '</span></div>' +
+                            '<div class="delta-row"><span>combat rank</span><span>' + escHtml(currentLeaderboards.focus_run_ranks.combat || '—') + '</span></div>' +
+                            '<div class="delta-row"><span>expedition rank</span><span>' + escHtml(currentLeaderboards.focus_run_ranks.expedition || '—') + '</span></div>' +
+                        '</div>'
+                    );
+                }
+
                 area.innerHTML = blocks.join('');
             }
 
@@ -1458,6 +1524,9 @@
                 }
                 var selectedClass = currentLeaderboards.selected_run_class || 'all';
                 var families = ['welfare', 'combat', 'expedition'];
+                var warningText = currentCalibration && Array.isArray(currentCalibration.warnings) && currentCalibration.warnings.length
+                    ? currentCalibration.warnings.join(', ')
+                    : 'none';
                 var cards = families.map(function(family) {
                     var rows = Array.isArray(currentLeaderboards.families[family]) ? currentLeaderboards.families[family] : [];
                     var body = rows.length ? rows.map(function(entry, index) {
@@ -1476,7 +1545,8 @@
                 var counts = currentLeaderboards.counts || {};
                 area.innerHTML =
                     '<div class="notice">Season: ' + escHtml(currentLeaderboards.season && currentLeaderboards.season.name || 'unknown') +
-                    ' · eligible runs ' + escHtml(counts.eligible_runs || 0) + ' / ' + escHtml(counts.total_runs || 0) + '</div>' +
+                    ' · eligible runs ' + escHtml(counts.eligible_runs || 0) + ' / ' + escHtml(counts.total_runs || 0) +
+                    ' · warnings ' + escHtml(warningText) + '</div>' +
                     cards;
             }
 
@@ -1583,6 +1653,9 @@
                 document.getElementById('tickThreeBtn').addEventListener('click', function() { processTicks(3); });
                 document.getElementById('saveHouseAgentBtn').addEventListener('click', saveHouseAgent);
                 document.getElementById('previewHouseAgentBtn').addEventListener('click', previewHouseAgent);
+                document.getElementById('previewBaselineBtn').addEventListener('click', previewBaseline);
+                document.getElementById('runBaselineTickBtn').addEventListener('click', function() { runBaselineTicks(1); });
+                document.getElementById('runBaselineThreeBtn').addEventListener('click', function() { runBaselineTicks(3); });
                 document.getElementById('refreshLeaderboardsBtn').addEventListener('click', refreshLeaderboards);
                 document.getElementById('leaderboardClassSelect').addEventListener('change', refreshLeaderboards);
                 document.getElementById('runClassSelect').addEventListener('change', function() {

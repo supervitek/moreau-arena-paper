@@ -51,27 +51,31 @@ def _initial_projection(name: str, animal: str, level: int) -> dict[str, Any]:
     }
 
 
-def run_baselines(ticks: int, policies: list[str]) -> dict[str, Any]:
+def run_baselines(ticks: int, policies: list[str], repeats: int) -> dict[str, Any]:
     animals = ["fox", "wolf", "bear", "monkey", "raven"]
     results: list[dict[str, Any]] = []
-    for index, policy in enumerate(policies):
-        run = create_part_b_run(
-            {
-                "season_id": PART_B_SEASON_CURRENT_ID,
-                "run_class": "agent-only",
-                "subject_pet_name": f"{policy.title()} Baseline",
-                "subject_pet_animal": animals[index % len(animals)],
-                "state_projection": _initial_projection(f"{policy.title()} Baseline", animals[index % len(animals)], index + 1),
-                "metadata": {
-                    "baseline_policy": policy,
-                    "generated_by": "scripts/run_part_b_baselines.py",
-                },
-            }
-        )
-        run_part_b_baseline(run["id"], policy, ticks=ticks)
-        report = part_b_run_report(run["id"])
-        results.append({"run": run, "report": report})
-    return {"season_id": PART_B_SEASON_CURRENT_ID, "ticks": ticks, "policies": policies, "results": results}
+    for repeat in range(repeats):
+        for index, policy in enumerate(policies):
+            animal = animals[(index + repeat) % len(animals)]
+            run = create_part_b_run(
+                {
+                    "season_id": PART_B_SEASON_CURRENT_ID,
+                    "run_class": "agent-only",
+                    "subject_pet_name": f"{policy.title()} Baseline R{repeat + 1}",
+                    "subject_pet_animal": animal,
+                    "priority_profile": "combat-first" if policy == "arena-spam" else ("expedition-first" if policy == "expedition-max" else "balanced"),
+                    "state_projection": _initial_projection(f"{policy.title()} Baseline R{repeat + 1}", animal, index + repeat + 1),
+                    "metadata": {
+                        "baseline_policy": policy,
+                        "baseline_repeat": repeat + 1,
+                        "generated_by": "scripts/run_part_b_baselines.py",
+                    },
+                }
+            )
+            run_part_b_baseline(run["id"], policy, ticks=ticks)
+            report = part_b_run_report(run["id"])
+            results.append({"run": run, "report": report})
+    return {"season_id": PART_B_SEASON_CURRENT_ID, "ticks": ticks, "repeats": repeats, "policies": policies, "results": results}
 
 
 def render_markdown(payload: dict[str, Any]) -> str:
@@ -80,17 +84,19 @@ def render_markdown(payload: dict[str, Any]) -> str:
         "",
         f"- Season: `{payload['season_id']}`",
         f"- Ticks per baseline: `{payload['ticks']}`",
+        f"- Repeats: `{payload['repeats']}`",
         f"- Policies: `{', '.join(payload['policies'])}`",
         "",
-        "| Policy | Welfare | Combat | Expedition | Tick | Status |",
-        "| --- | ---: | ---: | ---: | ---: | --- |",
+        "| Policy | Repeat | Welfare | Combat | Expedition | Tick | Status |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | --- |",
     ]
     for item in payload["results"]:
         report = item["report"] or {}
         scores = report.get("scores") or {}
         policy = (item["run"].get("metadata") or {}).get("baseline_policy", "unknown")
+        repeat = (item["run"].get("metadata") or {}).get("baseline_repeat", 1)
         lines.append(
-            f"| `{policy}` | {scores.get('welfare', 0)} | {scores.get('combat', 0)} | {scores.get('expedition', 0)} | {report.get('world_tick', 0)} | {report.get('status', 'unknown')} |"
+            f"| `{policy}` | {repeat} | {scores.get('welfare', 0)} | {scores.get('combat', 0)} | {scores.get('expedition', 0)} | {report.get('world_tick', 0)} | {report.get('status', 'unknown')} |"
         )
     lines.append("")
     return "\n".join(lines) + "\n"
@@ -99,9 +105,10 @@ def render_markdown(payload: dict[str, Any]) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run deterministic Part B baseline policies for the active ecological season.")
     parser.add_argument("--ticks", type=int, default=12, help="Number of ticks per baseline run.")
+    parser.add_argument("--repeats", type=int, default=2, help="How many runs to generate per baseline policy.")
     parser.add_argument(
         "--policies",
-        default="conservative,greedy,random",
+        default="conservative,greedy,random,caremax,arena-spam,expedition-max",
         help="Comma-separated baseline policies to execute.",
     )
     parser.add_argument("--output", type=Path, default=None, help="Optional output path (.md or .json).")
@@ -112,7 +119,7 @@ def main() -> int:
     if invalid:
         raise SystemExit(f"Unknown baseline policies: {', '.join(invalid)}")
 
-    payload = run_baselines(args.ticks, policies)
+    payload = run_baselines(args.ticks, policies, max(1, args.repeats))
     output_text = render_markdown(payload)
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)

@@ -269,6 +269,13 @@ async function runSuite(baseUrl, headless) {
     await page.waitForTimeout(500);
     const hintText = await page.locator('#houseAgentHint').innerText();
     assert(/House Agent/.test(hintText), 'house agent hint block did not render');
+    await page.selectOption('#baselinePolicySelect', 'arena-spam');
+    await page.click('#previewBaselineBtn');
+    await page.waitForTimeout(400);
+    const baselineHint = await page.locator('#baselineHint').innerText();
+    assert(/arena-spam|ENTER_ARENA|REST/i.test(baselineHint), 'baseline preview did not render');
+    await page.click('#runBaselineTickBtn');
+    await page.waitForTimeout(800);
     await page.click('#tickOnceBtn');
     await page.waitForTimeout(1200);
     const body = await page.locator('body').innerText();
@@ -283,8 +290,8 @@ async function runSuite(baseUrl, headless) {
     const leaderboards = await page.locator('#leaderboardArea').innerText();
     assert(/CARE|REST|ENTER_ARENA|HOLD|tick/i.test(tickReport), 'ecology tick report did not render passive execution');
     assert(/ENTER_ARENA|CARE|action_applied/i.test(replay), 'ecology replay did not log ecological actions');
-    assert(/Run status|Latest transition|Score breakdown/i.test(inspect), 'ecology inspect panel did not render');
-    assert(/WELFARE|COMBAT|EXPEDITION/i.test(leaderboards), 'ecology leaderboards did not render');
+    assert(/Run status|Latest transition|Score breakdown|Benchmark position/i.test(inspect), 'ecology inspect panel did not render');
+    assert(/WELFARE|COMBAT|EXPEDITION|warnings/i.test(leaderboards), 'ecology leaderboards did not render');
     await context.close();
     return {
       snippet: body.slice(0, 300),
