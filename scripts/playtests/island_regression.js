@@ -250,8 +250,11 @@ async function runSuite(baseUrl, headless) {
     const { context, page, pageErrors, consoleErrors } = await makePage(browser, standardStorage(now));
     await page.goto(baseUrl + '/island/ecology', { waitUntil: 'domcontentloaded' });
     await page.waitForSelector('#startRunBtn');
+    await page.waitForSelector('#seasonValue');
     await page.click('#startRunBtn');
     await page.waitForTimeout(400);
+    const seasonValue = await page.locator('#seasonValue').innerText();
+    assert(/s1|first-descent/i.test(seasonValue), 'ecology season value did not render');
     await page.selectOption('#queueActionSelect', 'CARE');
     await page.click('#enqueueBtn');
     await page.waitForTimeout(400);
@@ -276,13 +279,19 @@ async function runSuite(baseUrl, headless) {
     assert(/\d+/.test(welfare) && /\d+/.test(combat) && /\d+/.test(expedition), 'ecology scores did not render');
     const replay = await page.locator('#replayArea').innerText();
     const tickReport = await page.locator('#tickReportArea').innerText();
+    const inspect = await page.locator('#inspectArea').innerText();
+    const leaderboards = await page.locator('#leaderboardArea').innerText();
     assert(/CARE|REST|ENTER_ARENA|HOLD|tick/i.test(tickReport), 'ecology tick report did not render passive execution');
     assert(/ENTER_ARENA|CARE|action_applied/i.test(replay), 'ecology replay did not log ecological actions');
+    assert(/Run status|Latest transition|Score breakdown/i.test(inspect), 'ecology inspect panel did not render');
+    assert(/WELFARE|COMBAT|EXPEDITION/i.test(leaderboards), 'ecology leaderboards did not render');
     await context.close();
     return {
       snippet: body.slice(0, 300),
       replay: replay.slice(0, 240),
       tickReport: tickReport.slice(0, 240),
+      inspect: inspect.slice(0, 240),
+      leaderboards: leaderboards.slice(0, 240),
       scores: { welfare, combat, expedition },
       pageErrors,
       consoleErrors

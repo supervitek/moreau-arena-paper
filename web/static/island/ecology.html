@@ -108,7 +108,7 @@
             gap: 0.75rem;
         }
 
-        .status-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 0.9rem; }
+        .status-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 0.9rem; }
         .score-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
         .control-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
@@ -318,6 +318,46 @@
             line-height: 1.5;
         }
 
+        .inspect-grid {
+            display: grid;
+            gap: 0.7rem;
+        }
+
+        .inspect-card,
+        .leaderboard-family {
+            border: 1px solid var(--border);
+            background: var(--bg-code);
+            border-radius: 8px;
+            padding: 0.8rem;
+        }
+
+        .inspect-card strong,
+        .leaderboard-family strong {
+            display: block;
+            margin-bottom: 0.35rem;
+        }
+
+        .delta-row,
+        .leaderboard-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.35rem 0;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .delta-row:first-child,
+        .leaderboard-row:first-child {
+            border-top: 0;
+            padding-top: 0;
+        }
+
+        .delta-row span:last-child,
+        .leaderboard-row span:last-child {
+            color: var(--text-dim);
+            text-align: right;
+        }
+
         .queue-row {
             display: flex;
             justify-content: space-between;
@@ -397,7 +437,12 @@
                         <div class="label">State Revision</div>
                         <div class="value" id="revisionValue">0</div>
                     </div>
+                    <div class="stat">
+                        <div class="label">Season</div>
+                        <div class="value" id="seasonValue">-</div>
+                    </div>
                 </div>
+                <div class="notice" id="seasonNotice">Loading first measurement season contract…</div>
             </section>
 
             <section class="panel">
@@ -593,6 +638,19 @@
                 <div id="replayArea" class="replay-list"></div>
                 <div class="eyebrow" style="margin-top:1.15rem;">While Away Report</div>
                 <div id="tickReportArea" class="replay-list"></div>
+                <div class="eyebrow" style="margin-top:1.15rem;">Run Inspect</div>
+                <div id="inspectArea" class="inspect-grid"></div>
+                <div class="eyebrow" style="margin-top:1.15rem;">Season Leaderboards</div>
+                <div class="run-row">
+                    <select id="leaderboardClassSelect">
+                        <option value="all">all run classes</option>
+                        <option value="manual">manual</option>
+                        <option value="operator-assisted">operator-assisted</option>
+                        <option value="agent-only">agent-only</option>
+                    </select>
+                    <button id="refreshLeaderboardsBtn" type="button" class="ghost-btn">Refresh Boards</button>
+                </div>
+                <div id="leaderboardArea" class="stack"></div>
             </section>
         </div>
     </div>
@@ -611,6 +669,8 @@
             var currentRun = null;
             var currentReplay = null;
             var lastTickProcessed = [];
+            var currentSeason = null;
+            var currentLeaderboards = null;
             var allPets = [];
             var offlineMode = true;
             var currentUserId = null;
@@ -677,6 +737,12 @@
                 }
                 renderPetSelect();
                 setModeLabel();
+            }
+
+            async function loadSeasonAndLeaderboards() {
+                currentSeason = await fetchJson('/api/v1/island/part-b/season');
+                var selectedRunClass = document.getElementById('leaderboardClassSelect').value || 'all';
+                currentLeaderboards = await fetchJson('/api/v1/island/part-b/leaderboards?run_class=' + encodeURIComponent(selectedRunClass) + '&limit=5');
             }
 
             function initialProjection(pet) {
@@ -751,6 +817,7 @@
                 }
                 currentRun = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId);
                 currentReplay = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/replay');
+                await loadSeasonAndLeaderboards();
                 syncSelectorsFromRun();
                 render();
             }
@@ -769,7 +836,7 @@
                 var priority = document.getElementById('prioritySelect').value;
                 var dailyBudget = parseInt(document.getElementById('budgetSelect').value || '4', 10);
                 var payload = {
-                    season_id: 'part-b-b4-proto',
+                    season_id: currentSeason && currentSeason.season_id ? currentSeason.season_id : 'part-b-s1-first-descent',
                     run_class: runClass,
                     operator_id: currentUserId,
                     subject_pet_id: pet.id || null,
@@ -1147,6 +1214,7 @@
                     report: result.report || {}
                 };
                 lastTickProcessed = Array.isArray(result.processed) ? result.processed : [];
+                await loadSeasonAndLeaderboards();
                 syncSelectorsFromRun();
                 render();
             }
@@ -1188,6 +1256,11 @@
                 document.getElementById('houseAgentHintBody').textContent =
                     (preview.action_verb || 'HOLD') + ' @ ' + (preview.zone || 'arena') + ' — ' +
                     (preview.rationale || 'No rationale.') + ' [' + (preview.mode || 'unknown') + ']';
+            }
+
+            async function refreshLeaderboards() {
+                await loadSeasonAndLeaderboards();
+                render();
             }
 
             function renderHint() {
@@ -1316,6 +1389,97 @@
                 }).join('');
             }
 
+            function renderInspect() {
+                var area = document.getElementById('inspectArea');
+                var report = currentReplay && currentReplay.report ? currentReplay.report : null;
+                if (!report) {
+                    area.innerHTML = '<div class="empty">Start a run to see conflict summaries, state deltas, and benchmark eligibility.</div>';
+                    return;
+                }
+                var inspect = report.inspect || {};
+                var latest = inspect.latest_transition || null;
+                var latestConflict = inspect.latest_conflict || null;
+                var breakdown = report.score_breakdown || {};
+                var blocks = [];
+
+                blocks.push(
+                    '<div class="inspect-card">' +
+                        '<strong>Run status</strong>' +
+                        '<div class="delta-row"><span>class</span><span>' + escHtml(report.run_class || 'unknown') + '</span></div>' +
+                        '<div class="delta-row"><span>status</span><span>' + escHtml(report.status || 'unknown') + '</span></div>' +
+                        '<div class="delta-row"><span>accepted events</span><span>' + escHtml(report.accepted_event_count || 0) + ' / ' + escHtml(report.event_count || 0) + '</span></div>' +
+                        '<div class="delta-row"><span>conflicts</span><span>' + escHtml(report.conflict_count || 0) + '</span></div>' +
+                    '</div>'
+                );
+
+                if (latest) {
+                    var latestRows = (latest.delta || []).map(function(row) {
+                        var sign = Number(row.delta || 0) > 0 ? '+' : '';
+                        return '<div class="delta-row"><span>' + escHtml(row.label) + '</span><span>' +
+                            escHtml(String(row.before)) + ' → ' + escHtml(String(row.after)) + ' (' + sign + row.delta + ')</span></div>';
+                    }).join('');
+                    blocks.push(
+                        '<div class="inspect-card">' +
+                            '<strong>Latest transition</strong>' +
+                            '<div class="delta-row"><span>action</span><span>' + escHtml(latest.action_verb || 'unknown') + ' · tick ' + escHtml(latest.world_tick || 0) + '</span></div>' +
+                            (latestRows || '<div class="delta-row"><span>delta</span><span>No material state change captured.</span></div>') +
+                        '</div>'
+                    );
+                }
+
+                if (latestConflict) {
+                    blocks.push(
+                        '<div class="inspect-card">' +
+                            '<strong>Latest conflict</strong>' +
+                            '<div class="delta-row"><span>status</span><span>' + escHtml(latestConflict.conflict_status || 'none') + '</span></div>' +
+                            '<div class="delta-row"><span>action</span><span>' + escHtml(latestConflict.action_verb || latestConflict.actor_type || 'unknown') + '</span></div>' +
+                            '<div class="delta-row"><span>tick</span><span>' + escHtml(latestConflict.world_tick || 0) + '</span></div>' +
+                        '</div>'
+                    );
+                }
+
+                blocks.push(
+                    '<div class="inspect-card">' +
+                        '<strong>Score breakdown</strong>' +
+                        '<div class="delta-row"><span>welfare pressure</span><span>neglect ' + escHtml(breakdown.welfare && breakdown.welfare.neglect_ticks || 0) + ' · idle ' + escHtml(breakdown.welfare && breakdown.welfare.idle_ticks || 0) + '</span></div>' +
+                        '<div class="delta-row"><span>combat</span><span>' + escHtml(breakdown.combat && breakdown.combat.wins || 0) + 'W / ' + escHtml(breakdown.combat && breakdown.combat.losses || 0) + 'L</span></div>' +
+                        '<div class="delta-row"><span>expedition</span><span>depth ' + escHtml(breakdown.expedition && breakdown.expedition.max_depth || 0) + ' · value ' + escHtml(breakdown.expedition && breakdown.expedition.extract_value_total || 0) + '</span></div>' +
+                    '</div>'
+                );
+
+                area.innerHTML = blocks.join('');
+            }
+
+            function renderLeaderboards() {
+                var area = document.getElementById('leaderboardArea');
+                if (!currentLeaderboards || !currentLeaderboards.families) {
+                    area.innerHTML = '<div class="empty">Leaderboards not loaded yet.</div>';
+                    return;
+                }
+                var selectedClass = currentLeaderboards.selected_run_class || 'all';
+                var families = ['welfare', 'combat', 'expedition'];
+                var cards = families.map(function(family) {
+                    var rows = Array.isArray(currentLeaderboards.families[family]) ? currentLeaderboards.families[family] : [];
+                    var body = rows.length ? rows.map(function(entry, index) {
+                        var currentMark = entry.run_id === currentRunId ? ' · current' : '';
+                        var baseline = entry.baseline_policy ? ' · baseline:' + entry.baseline_policy : '';
+                        return '<div class="leaderboard-row">' +
+                            '<span>#' + (index + 1) + ' ' + escHtml(entry.subject_pet_name || 'Unnamed') + ' · ' + escHtml(entry.run_class || 'unknown') + currentMark + baseline + '</span>' +
+                            '<span>' + escHtml(entry.scores && entry.scores[family] || 0) + ' · tick ' + escHtml(entry.world_tick || 0) + '</span>' +
+                        '</div>';
+                    }).join('') : '<div class="empty">No eligible runs for this view yet.</div>';
+                    return '<div class="leaderboard-family">' +
+                        '<strong>' + escHtml(family.toUpperCase()) + ' · ' + escHtml(selectedClass) + '</strong>' +
+                        body +
+                    '</div>';
+                }).join('');
+                var counts = currentLeaderboards.counts || {};
+                area.innerHTML =
+                    '<div class="notice">Season: ' + escHtml(currentLeaderboards.season && currentLeaderboards.season.name || 'unknown') +
+                    ' · eligible runs ' + escHtml(counts.eligible_runs || 0) + ' / ' + escHtml(counts.total_runs || 0) + '</div>' +
+                    cards;
+            }
+
             function renderRunModeState() {
                 var agentOnly = activeRunClass() === 'agent-only';
                 [
@@ -1334,6 +1498,10 @@
                 var state = currentState();
                 document.getElementById('runValue').textContent = currentRunId ? currentRunId.slice(0, 8) : 'None';
                 document.getElementById('revisionValue').textContent = currentRun ? String(currentRun.state_revision || 0) : '0';
+                document.getElementById('seasonValue').textContent = currentSeason ? String(currentSeason.season_id || '-').replace('part-b-', '') : '-';
+                document.getElementById('seasonNotice').textContent = currentSeason
+                    ? (currentSeason.name + ' · ' + (currentSeason.house_agent_benchmark_rule || ''))
+                    : 'Loading first measurement season contract…';
                 document.getElementById('healthValue').textContent = state ? Math.round(state.health_pct || 0) + '%' : '-';
                 document.getElementById('moraleValue').textContent = state ? Math.round(state.morale_pct || 0) + '%' : '-';
                 document.getElementById('happinessValue').textContent = state ? Math.round(state.happiness_pct || 0) + '%' : '-';
@@ -1377,12 +1545,15 @@
                 renderQueue();
                 renderReplay();
                 renderTickReport();
+                renderInspect();
+                renderLeaderboards();
                 renderHint();
                 renderRunModeState();
             }
 
             async function main() {
                 await initPets();
+                await loadSeasonAndLeaderboards();
                 switchZone(activeZone);
                 if (currentRunId) {
                     try {
@@ -1412,6 +1583,8 @@
                 document.getElementById('tickThreeBtn').addEventListener('click', function() { processTicks(3); });
                 document.getElementById('saveHouseAgentBtn').addEventListener('click', saveHouseAgent);
                 document.getElementById('previewHouseAgentBtn').addEventListener('click', previewHouseAgent);
+                document.getElementById('refreshLeaderboardsBtn').addEventListener('click', refreshLeaderboards);
+                document.getElementById('leaderboardClassSelect').addEventListener('change', refreshLeaderboards);
                 document.getElementById('runClassSelect').addEventListener('change', function() {
                     renderHint();
                     renderRunModeState();

@@ -43,19 +43,26 @@ from chronicler import chronicler_summary, generate_chronicler_reading, log_chro
 from part_b_state import (
     ACTION_VERBS,
     ACTOR_TYPES,
+    PART_B_BASELINE_POLICIES,
+    PART_B_SEASON_CURRENT_ID,
     RUN_CLASSES,
     append_part_b_event,
     create_part_b_run,
     clear_part_b_queue,
     enqueue_part_b_action,
+    export_part_b_season_archive,
     get_part_b_run,
     list_part_b_runs,
+    part_b_leaderboards,
     part_b_run_report,
+    part_b_season_status,
     part_b_storage_status,
+    preview_part_b_baseline,
     preview_part_b_house_agent,
     process_part_b_ticks,
     remove_part_b_queued_action,
     replay_part_b_run,
+    run_part_b_baseline,
     update_part_b_run,
     update_part_b_house_agent,
 )
@@ -1537,7 +1544,7 @@ class ChroniclerEventRequest(BaseModel):
 
 
 class PartBRunCreateRequest(BaseModel):
-    season_id: str = Field(default="part-b-proto", max_length=48)
+    season_id: str = Field(default=PART_B_SEASON_CURRENT_ID, max_length=48)
     run_class: str = Field(..., max_length=32)
     status: str = Field(default="active", max_length=24)
     operator_id: str | None = Field(default=None, max_length=64)
@@ -1676,6 +1683,19 @@ class PartBHouseAgentRequest(BaseModel):
     world_access_active: bool = Field(default=True)
 
 
+class PartBBaselineRequest(BaseModel):
+    policy: str = Field(..., max_length=32)
+    ticks: int = Field(default=1, ge=1, le=48)
+
+    @field_validator("policy")
+    @classmethod
+    def validate_policy(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if normalized not in PART_B_BASELINE_POLICIES:
+            raise ValueError(f"policy must be one of: {', '.join(sorted(PART_B_BASELINE_POLICIES))}")
+        return normalized
+
+
 @app.post("/api/v1/island/arena-fight")
 async def arena_fight(req: ArenaFightRequest, request: Request):
     """Run an arena fight between two pets using their stored stats.
@@ -1759,6 +1779,25 @@ def island_part_b_storage_status() -> dict[str, Any]:
     return part_b_storage_status()
 
 
+@app.get("/api/v1/island/part-b/season")
+def island_part_b_season(season_id: str | None = Query(default=None, max_length=64)) -> dict[str, Any]:
+    """Return the active Part B measurement-season contract."""
+    return part_b_season_status(season_id)
+
+
+@app.get("/api/v1/island/part-b/leaderboards")
+def island_part_b_leaderboards(
+    season_id: str | None = Query(default=None, max_length=64),
+    run_class: str | None = Query(default=None, max_length=32),
+    limit: int = Query(default=10, ge=1, le=50),
+) -> dict[str, Any]:
+    """Return family-score leaderboards, split by run class when requested."""
+    try:
+        return part_b_leaderboards(season_id, run_class, limit)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
 @app.post("/api/v1/island/part-b/runs")
 def island_part_b_create_run(req: PartBRunCreateRequest) -> dict[str, Any]:
     """Create one Part B run envelope with server-side state projection."""
@@ -1837,6 +1876,30 @@ def island_part_b_tick(run_id: str, req: PartBTickRequest) -> dict[str, Any]:
     return result
 
 
+@app.get("/api/v1/island/part-b/runs/{run_id}/baseline/preview")
+def island_part_b_baseline_preview(run_id: str, policy: str = Query(..., max_length=32)) -> dict[str, Any]:
+    """Preview a deterministic baseline policy under the public contract."""
+    try:
+        plan = preview_part_b_baseline(run_id, policy)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if not plan:
+        raise HTTPException(status_code=404, detail="Part B run not found")
+    return plan
+
+
+@app.post("/api/v1/island/part-b/runs/{run_id}/baseline")
+def island_part_b_baseline_run(run_id: str, req: PartBBaselineRequest) -> dict[str, Any]:
+    """Advance one Part B run via a published deterministic baseline policy."""
+    try:
+        result = run_part_b_baseline(run_id, req.policy, ticks=req.ticks)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if not result:
+        raise HTTPException(status_code=404, detail="Part B run not found")
+    return result
+
+
 @app.get("/api/v1/island/part-b/runs/{run_id}/house-agent/preview")
 def island_part_b_house_agent_preview(run_id: str) -> dict[str, Any]:
     """Preview the next bounded house-agent plan under the public contract."""
@@ -1874,6 +1937,15 @@ def island_part_b_report(run_id: str) -> dict[str, Any]:
     if not report:
         raise HTTPException(status_code=404, detail="Part B run not found")
     return report
+
+
+@app.get("/api/v1/island/part-b/season/archive")
+def island_part_b_season_archive(
+    season_id: str | None = Query(default=None, max_length=64),
+    limit: int = Query(default=500, ge=1, le=2000),
+) -> dict[str, Any]:
+    """Return a benchmark/archive export payload for the chosen Part B season."""
+    return export_part_b_season_archive(season_id, limit=limit)
 
 
 @app.get("/island/{page}")

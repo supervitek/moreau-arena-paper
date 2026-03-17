@@ -10,7 +10,7 @@ Turn Part B into a valid ecological benchmark without blowing scope or losing be
 
 The next mandatory focus is:
 
-- `B5 — First Measurement Season`
+- `Live calibration and season operations`
 
 ---
 
@@ -139,15 +139,34 @@ Exit rule:
 
 ## Phase B5 — First Measurement Season
 
-- [ ] Name first Part B season.
-- [ ] Freeze season contract.
-- [ ] Publish family score leaderboards.
-- [ ] Separate leaderboard views by run class.
-- [ ] Permit house agent in benchmark season only if it is using the public contract.
-- [ ] Keep composite score out of headline presentation.
+- [x] Name first Part B season.
+- [x] Freeze season contract.
+- [x] Publish family score leaderboards.
+- [x] Separate leaderboard views by run class.
+- [x] Permit house agent in benchmark season only if it is using the public contract.
+- [x] Keep composite score out of headline presentation.
+
+Artifacts:
+- `docs/PART_B_FIRST_MEASUREMENT_SEASON_B5.md`
+- `docs/PART_B_SCORE_CALIBRATION.md`
+- `docs/PART_B_SEASON_ARCHIVE_FORMAT.md`
+- `docs/PART_B_SUPABASE_PRODUCTION_READINESS.md`
+- `reports/part_b_b5_baselines.md`
+- `reports/part_b_b5_archive.md`
+- `reports/part_b_weekly_review.md`
 
 Exit rule:
 - Part B has a real first measurement season
+
+---
+
+## Next Runtime Focus
+
+- [ ] Run live calibration against real season traces, not only synthetic baselines.
+- [ ] Add manual/operator-assisted/agent-only depth to the season leaderboards.
+- [ ] Apply Part B SQL on production Supabase.
+- [ ] Verify `storage-status` returns `supabase` in production.
+- [ ] Start the first live review cadence against real operator behavior.
 
 ---
 

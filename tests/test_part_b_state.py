@@ -7,14 +7,19 @@ from part_b_state import (
     clear_part_b_queue,
     create_part_b_run,
     enqueue_part_b_action,
+    export_part_b_season_archive,
     get_part_b_run,
     list_part_b_runs,
+    part_b_leaderboards,
     part_b_run_report,
+    part_b_season_status,
     part_b_storage_status,
+    preview_part_b_baseline,
     preview_part_b_house_agent,
     process_part_b_ticks,
     remove_part_b_queued_action,
     replay_part_b_run,
+    run_part_b_baseline,
     update_part_b_run,
     update_part_b_house_agent,
 )
@@ -268,3 +273,115 @@ def test_part_b_house_agent_requires_agent_only(monkeypatch, tmp_path):
     run_record = create_part_b_run({"run_class": "manual"})
     with pytest.raises(ValueError):
         update_part_b_house_agent(run_record["id"], {"house_agent_enabled": True})
+
+
+def test_part_b_season_status_and_leaderboards(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+
+    season = part_b_season_status()
+    assert season["season_id"].startswith("part-b-s1")
+    assert season["composite_headline_enabled"] is False
+
+    manual = create_part_b_run(
+        {
+            "run_class": "manual",
+            "subject_pet_name": "Iris",
+            "subject_pet_animal": "fox",
+            "world_tick": 4,
+            "state_projection": {
+                "health_pct": 92,
+                "morale_pct": 88,
+                "happiness_pct": 90,
+                "energy_pct": 74,
+                "care_like_ticks": 3,
+                "total_ticks": 4,
+            },
+        }
+    )
+    append_part_b_event(
+        manual["id"],
+        {
+            "actor_type": "manual",
+            "event_type": "action_applied",
+            "action_verb": "ENTER_ARENA",
+            "world_tick": 1,
+            "expected_state_revision": 0,
+            "outcome": {"result": "win", "reward": 12, "xp_gain": 20},
+        },
+    )
+
+    boards = part_b_leaderboards(run_class="manual", limit=5)
+    assert boards["selected_run_class"] == "manual"
+    assert boards["counts"]["eligible_runs"] >= 1
+    assert boards["families"]["welfare"][0]["run_id"] == manual["id"]
+
+
+def test_part_b_baseline_preview_and_run(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+
+    run_record = create_part_b_run(
+        {
+            "run_class": "agent-only",
+            "state_projection": {"health_pct": 38, "happiness_pct": 42, "morale_pct": 51, "energy_pct": 28},
+        }
+    )
+    preview = preview_part_b_baseline(run_record["id"], "conservative")
+    assert preview is not None
+    assert preview["action_verb"] in {"CARE", "REST", "HOLD", "EXTRACT"}
+
+    result = run_part_b_baseline(run_record["id"], "conservative", ticks=2)
+    assert result is not None
+    assert result["processed"]
+    stored = get_part_b_run(run_record["id"])
+    assert stored is not None
+    assert stored["metadata"]["baseline_policy"] == "conservative"
+
+
+def test_part_b_fatal_run_is_completed(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+
+    run_record = create_part_b_run(
+        {
+            "run_class": "operator-assisted",
+            "state_projection": {
+                "health_pct": 2,
+                "morale_pct": 20,
+                "happiness_pct": 20,
+                "energy_pct": 60,
+            },
+        }
+    )
+    enqueue_part_b_action(run_record["id"], {"action_verb": "ENTER_ARENA", "actor_type": "operator"})
+    result = process_part_b_ticks(run_record["id"], count=1)
+    assert result is not None
+    stored = get_part_b_run(run_record["id"])
+    assert stored is not None
+    assert stored["status"] == "completed"
+    assert stored["autopause_reason"] == "subject_not_alive"
+
+
+def test_part_b_season_archive_includes_leaderboards(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+
+    run_record = create_part_b_run({"run_class": "manual", "subject_pet_name": "Moss"})
+    append_part_b_event(
+        run_record["id"],
+        {
+            "actor_type": "manual",
+            "event_type": "action_applied",
+            "action_verb": "CARE",
+            "world_tick": 1,
+            "expected_state_revision": 0,
+            "outcome": {"welfare_delta": 10},
+            "state_after": {"health_pct": 96, "morale_pct": 84, "happiness_pct": 88, "energy_pct": 84},
+        },
+    )
+
+    archive = export_part_b_season_archive(limit=25)
+    assert archive["season"]["season_id"].startswith("part-b-s1")
+    assert archive["leaderboards"]["headline_note"]
+    assert archive["runs"]

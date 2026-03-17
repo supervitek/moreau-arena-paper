@@ -5,6 +5,7 @@ import logging
 import os
 import re
 import uuid
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -25,6 +26,40 @@ HOUSE_AGENT_MODEL_DEFAULT = "claude-haiku-4-5-20251001"
 HOUSE_AGENT_PROVIDER_DEFAULT = "anthropic"
 HOUSE_AGENT_ALLOWED_ZONES = {"arena", "cave"}
 QUEUE_EXECUTABLE_ACTORS = {"manual", "operator", "agent"}
+PART_B_BASELINE_POLICIES = {"conservative", "greedy", "random"}
+PART_B_SEASON_CURRENT_ID = "part-b-s1-first-descent"
+PART_B_SEASONS: dict[str, dict[str, Any]] = {
+    PART_B_SEASON_CURRENT_ID: {
+        "season_id": PART_B_SEASON_CURRENT_ID,
+        "name": "Part B Season 1: First Descent",
+        "status": "active",
+        "headline": "The first public ecological season for the two-zone Part B world.",
+        "zones": ["arena", "cave"],
+        "run_classes": ["manual", "operator-assisted", "agent-only"],
+        "composite_headline_enabled": False,
+        "house_agent_benchmark_allowed": True,
+        "house_agent_benchmark_rule": "Only runs that stay inside the published observation/action/scoring contract are eligible.",
+        "versions": {
+            "observation": "B1",
+            "action": "B1",
+            "scoring": "B1",
+        },
+        "contract": {
+            "tick_real_hours": 6,
+            "queue_capacity_default": QUEUE_CAPACITY_DEFAULT,
+            "budget_default_daily": 4,
+            "budget_mode": "hybrid",
+            "score_families": ["welfare", "combat", "expedition"],
+            "welfare_decay": "health -1, morale -1, happiness -2 on HOLD; health -1, morale -1, happiness -1 on other non-care ticks",
+            "red_lines": [
+                "No Black Orchard",
+                "No composite headline score",
+                "No hidden house-agent privileges",
+                "No priority queue",
+            ],
+        },
+    }
+}
 HOUSE_AGENT_FORBIDDEN_PATTERNS = [
     re.compile(pattern, re.IGNORECASE)
     for pattern in [
@@ -190,6 +225,12 @@ def _deterministic_roll(*parts: Any, modulo: int = 100) -> int:
 def _normalize_zone(value: Any, default: str = "arena") -> str:
     zone = str(value or default).strip().lower()
     return zone if zone in HOUSE_AGENT_ALLOWED_ZONES else default
+
+
+def _current_part_b_season(season_id: str | None = None) -> dict[str, Any]:
+    if season_id and season_id in PART_B_SEASONS:
+        return dict(PART_B_SEASONS[season_id])
+    return dict(PART_B_SEASONS[PART_B_SEASON_CURRENT_ID])
 
 
 def _normalize_queue_item(item: Any, *, default_actor: str = "operator", enqueued_revision: int = 0) -> dict[str, Any] | None:
@@ -575,6 +616,74 @@ def _derive_scores(run_record: dict[str, Any], events: list[dict[str, Any]]) -> 
     }
 
 
+def _score_breakdown(run_record: dict[str, Any], events: list[dict[str, Any]]) -> dict[str, Any]:
+    state = _ensure_state_projection(run_record.get("state_projection"))
+    health = _to_number(state.get("health_pct"), 100.0)
+    morale = _to_number(state.get("morale_pct"), 100.0)
+    happiness = _to_number(state.get("happiness_pct"), 100.0)
+    neglect_ticks = _to_number(state.get("neglect_ticks"), 0.0)
+    idle_ticks = _to_number(state.get("idle_ticks"), 0.0)
+    critical_state_ticks = _to_number(state.get("critical_state_ticks"), 0.0)
+    total_ticks = max(1.0, _to_number(state.get("total_ticks"), 0.0))
+    care_like_ticks = _to_number(state.get("care_like_ticks"), 0.0)
+    alive = state.get("is_alive", True) is not False
+
+    combat_wins = 0
+    combat_losses = 0
+    combat_reward = 0.0
+    combat_events = 0
+    expedition_depth = _to_number(state.get("cave_depth_last_run"), 0.0)
+    expedition_extract_value = _to_number(state.get("cave_extract_value_last_run"), 0.0)
+    expedition_injury = _to_number(state.get("cave_injury_last_run"), 0.0)
+    expedition_events = 0
+
+    for event in events:
+        if not event.get("accepted", False):
+            continue
+        action = event.get("action_verb")
+        outcome = _sanitize_dict(event.get("outcome"))
+        if action == "ENTER_ARENA":
+            combat_events += 1
+            result = str(outcome.get("result") or outcome.get("arena_result") or "").lower()
+            if result == "win":
+                combat_wins += 1
+            elif result == "loss":
+                combat_losses += 1
+            combat_reward += _to_number(outcome.get("reward"), 0.0)
+            combat_reward += _to_number(outcome.get("rating_delta"), 0.0)
+            combat_reward += _to_number(outcome.get("xp_gain"), 0.0) * 0.5
+        elif action in {"ENTER_CAVE", "EXTRACT"}:
+            expedition_events += 1
+            expedition_depth = max(expedition_depth, _to_number(outcome.get("depth"), expedition_depth))
+            expedition_extract_value += _to_number(outcome.get("extract_value"), 0.0)
+            expedition_injury += _to_number(outcome.get("injury"), 0.0)
+
+    return {
+        "welfare": {
+            "survival_ratio": round(1.0 if alive else 0.0, 4),
+            "health_pct": _clamp_pct(health),
+            "morale_pct": _clamp_pct(morale),
+            "happiness_pct": _clamp_pct(happiness),
+            "active_care_ratio": round(care_like_ticks / total_ticks, 4),
+            "neglect_ticks": int(neglect_ticks),
+            "idle_ticks": int(idle_ticks),
+            "critical_state_ticks": int(critical_state_ticks),
+        },
+        "combat": {
+            "wins": combat_wins,
+            "losses": combat_losses,
+            "events": combat_events,
+            "reward_total": round(combat_reward, 2),
+        },
+        "expedition": {
+            "max_depth": int(expedition_depth),
+            "extract_value_total": round(expedition_extract_value, 2),
+            "injury_total": round(expedition_injury, 2),
+            "events": expedition_events,
+        },
+    }
+
+
 def _completed_action_summaries(events: list[dict[str, Any]], limit: int = 6) -> list[dict[str, Any]]:
     summaries: list[dict[str, Any]] = []
     for event in reversed(events):
@@ -600,11 +709,63 @@ def _completed_action_summaries(events: list[dict[str, Any]], limit: int = 6) ->
     return summaries
 
 
+def _state_delta(before: dict[str, Any] | None, after: dict[str, Any] | None) -> list[dict[str, Any]]:
+    before_state = _ensure_state_projection(before or {})
+    after_state = _ensure_state_projection(after or {})
+    rows: list[dict[str, Any]] = []
+    labels = {
+        "health_pct": "Health",
+        "morale_pct": "Morale",
+        "happiness_pct": "Happiness",
+        "energy_pct": "Energy",
+        "current_cave_depth": "Depth",
+        "current_cave_value": "Held Value",
+        "current_cave_risk": "Held Risk",
+        "mutation_count": "Mutations",
+        "neglect_ticks": "Neglect",
+    }
+    for key, label in labels.items():
+        before_value = before_state.get(key)
+        after_value = after_state.get(key)
+        if before_value == after_value:
+            continue
+        rows.append(
+            {
+                "key": key,
+                "label": label,
+                "before": before_value,
+                "after": after_value,
+                "delta": (_to_number(after_value, 0.0) - _to_number(before_value, 0.0)),
+            }
+        )
+    rows.sort(key=lambda item: abs(_to_number(item["delta"], 0.0)), reverse=True)
+    return rows[:8]
+
+
+def _latest_transition(events: list[dict[str, Any]], current_state: dict[str, Any]) -> dict[str, Any] | None:
+    accepted = [event for event in events if event.get("accepted", False) and event.get("event_type") == "action_applied"]
+    if not accepted:
+        return None
+    last = accepted[-1]
+    previous_state = _sanitize_dict(accepted[-2].get("state_after")) if len(accepted) > 1 else {}
+    after_state = _sanitize_dict(last.get("state_after")) or current_state
+    return {
+        "sequence": last.get("sequence"),
+        "world_tick": last.get("world_tick"),
+        "actor_type": last.get("actor_type"),
+        "action_verb": last.get("action_verb"),
+        "zone": last.get("zone"),
+        "outcome": _sanitize_dict(last.get("outcome")),
+        "delta": _state_delta(previous_state, after_state),
+    }
+
+
 def _report_from(run_record: dict[str, Any], events: list[dict[str, Any]]) -> dict[str, Any]:
     by_actor: dict[str, int] = {}
     by_action: dict[str, int] = {}
     conflicts = 0
     accepted = 0
+    latest_conflict: dict[str, Any] | None = None
     for event in events:
         actor = event.get("actor_type", "unknown")
         by_actor[actor] = by_actor.get(actor, 0) + 1
@@ -613,9 +774,20 @@ def _report_from(run_record: dict[str, Any], events: list[dict[str, Any]]) -> di
             by_action[action] = by_action.get(action, 0) + 1
         if event.get("conflict_status") and event.get("conflict_status") != "none":
             conflicts += 1
+            latest_conflict = {
+                "sequence": event.get("sequence"),
+                "world_tick": event.get("world_tick"),
+                "actor_type": event.get("actor_type"),
+                "action_verb": event.get("action_verb"),
+                "conflict_status": event.get("conflict_status"),
+                "details": _sanitize_dict(event.get("details")),
+            }
         if event.get("accepted", False):
             accepted += 1
     queue_state, capacity = _queue_defaults(run_record)
+    season = _current_part_b_season(run_record.get("season_id"))
+    current_state = _ensure_state_projection(run_record.get("state_projection"))
+    scores = _derive_scores(run_record, events)
     return {
         "run_id": run_record["id"],
         "season_id": run_record["season_id"],
@@ -631,8 +803,17 @@ def _report_from(run_record: dict[str, Any], events: list[dict[str, Any]]) -> di
         "last_event_at": run_record.get("last_event_at"),
         "last_actor_type": run_record.get("last_actor_type"),
         "last_action_verb": run_record.get("last_action_verb"),
-        "scores": _derive_scores(run_record, events),
-        "state_projection": _ensure_state_projection(run_record.get("state_projection")),
+        "scores": scores,
+        "score_breakdown": _score_breakdown(run_record, events),
+        "state_projection": current_state,
+        "season": {
+            "season_id": season["season_id"],
+            "name": season["name"],
+            "versions": season["versions"],
+            "zones": season["zones"],
+            "composite_headline_enabled": season["composite_headline_enabled"],
+            "house_agent_benchmark_allowed": season["house_agent_benchmark_allowed"],
+        },
         "queue": {
             "pending_count": len(queue_state),
             "capacity": capacity,
@@ -652,11 +833,17 @@ def _report_from(run_record: dict[str, Any], events: list[dict[str, Any]]) -> di
             "inference_budget_daily": _intish(run_record.get("inference_budget_daily"), 4, minimum=0),
             "autopause_reason": run_record.get("autopause_reason"),
         },
+        "inspect": {
+            "latest_transition": _latest_transition(events, current_state),
+            "latest_conflict": latest_conflict,
+            "event_density_per_tick": round(len(events) / max(1, _intish(run_record.get("world_tick"), 0, minimum=0)), 3),
+        },
     }
 
 
 def _base_run(payload: dict[str, Any], backend: str) -> dict[str, Any]:
     now = _utcnow()
+    season = _current_part_b_season(payload.get("season_id"))
     queue_capacity = _intish(payload.get("queue_capacity"), QUEUE_CAPACITY_DEFAULT, minimum=1, maximum=20)
     run_class = _coerce_run_class(payload.get("run_class", "manual"))
     state_revision = _intish(payload.get("state_revision"), 0, minimum=0)
@@ -665,7 +852,7 @@ def _base_run(payload: dict[str, Any], backend: str) -> dict[str, Any]:
     state_projection = _ensure_state_projection(payload.get("state_projection"))
     return {
         "id": payload.get("id") or str(uuid.uuid4()),
-        "season_id": (payload.get("season_id") or "part-b-proto").strip(),
+        "season_id": season["season_id"],
         "run_class": run_class,
         "status": (payload.get("status") or "active").strip(),
         "operator_id": payload.get("operator_id"),
@@ -689,9 +876,9 @@ def _base_run(payload: dict[str, Any], backend: str) -> dict[str, Any]:
         "house_agent_model": (payload.get("house_agent_model") or os.environ.get("MOREAU_PART_B_HOUSE_AGENT_MODEL", HOUSE_AGENT_MODEL_DEFAULT)).strip(),
         "house_agent_last_plan": _sanitize_dict(payload.get("house_agent_last_plan")),
         "autopause_reason": _sanitize_text(payload.get("autopause_reason"), 64),
-        "observation_version": (payload.get("observation_version") or "B1").strip(),
-        "action_version": (payload.get("action_version") or "B1").strip(),
-        "scoring_version": (payload.get("scoring_version") or "B1").strip(),
+        "observation_version": (payload.get("observation_version") or season["versions"]["observation"]).strip(),
+        "action_version": (payload.get("action_version") or season["versions"]["action"]).strip(),
+        "scoring_version": (payload.get("scoring_version") or season["versions"]["scoring"]).strip(),
         "conflict_policy": (payload.get("conflict_policy") or "operator_wins_before_execution").strip(),
         "queue_capacity": queue_capacity,
         "queue_state": queue_state,
@@ -1051,7 +1238,29 @@ def part_b_storage_status() -> dict[str, Any]:
     status["queue_supported"] = True
     status["house_agent_supported"] = True
     status["house_agent_provider_default"] = HOUSE_AGENT_PROVIDER_DEFAULT
+    status["current_season_id"] = PART_B_SEASON_CURRENT_ID
+    status["current_season_name"] = PART_B_SEASONS[PART_B_SEASON_CURRENT_ID]["name"]
     return status
+
+
+def part_b_season_status(season_id: str | None = None) -> dict[str, Any]:
+    season = _current_part_b_season(season_id)
+    return {
+        "season_id": season["season_id"],
+        "name": season["name"],
+        "status": season["status"],
+        "headline": season["headline"],
+        "versions": season["versions"],
+        "zones": season["zones"],
+        "run_classes": season["run_classes"],
+        "budget_mode": season["contract"]["budget_mode"],
+        "tick_real_hours": season["contract"]["tick_real_hours"],
+        "score_families": season["contract"]["score_families"],
+        "composite_headline_enabled": season["composite_headline_enabled"],
+        "house_agent_benchmark_allowed": season["house_agent_benchmark_allowed"],
+        "house_agent_benchmark_rule": season["house_agent_benchmark_rule"],
+        "red_lines": season["contract"]["red_lines"],
+    }
 
 
 def create_part_b_run(payload: dict[str, Any]) -> dict[str, Any]:
@@ -1083,6 +1292,208 @@ def part_b_run_report(run_id: str) -> dict[str, Any] | None:
     if not replay:
         return None
     return replay["report"]
+
+
+def _leaderboard_entry(run_record: dict[str, Any], report: dict[str, Any]) -> dict[str, Any]:
+    metadata = _sanitize_dict(run_record.get("metadata"))
+    scores = _sanitize_dict(report.get("scores"))
+    season = _current_part_b_season(run_record.get("season_id"))
+    versions = {
+        "observation": run_record.get("observation_version"),
+        "action": run_record.get("action_version"),
+        "scoring": run_record.get("scoring_version"),
+    }
+    public_contract_compliant = versions == season["versions"]
+    house_agent_eligible = (
+        _sanitize_bool(run_record.get("house_agent_enabled"), False) is False
+        or (season["house_agent_benchmark_allowed"] and public_contract_compliant)
+    )
+    return {
+        "run_id": run_record["id"],
+        "season_id": run_record["season_id"],
+        "run_class": run_record["run_class"],
+        "status": run_record["status"],
+        "subject_pet_name": run_record.get("subject_pet_name") or "Unnamed",
+        "subject_pet_animal": run_record.get("subject_pet_animal") or "creature",
+        "world_tick": _intish(run_record.get("world_tick"), 0, minimum=0),
+        "scores": {
+            "welfare": _intish(scores.get("welfare"), 0, minimum=0, maximum=100),
+            "combat": _intish(scores.get("combat"), 0, minimum=0, maximum=100),
+            "expedition": _intish(scores.get("expedition"), 0, minimum=0, maximum=100),
+        },
+        "house_agent_enabled": _sanitize_bool(run_record.get("house_agent_enabled"), False),
+        "public_contract_compliant": public_contract_compliant,
+        "benchmark_eligible": house_agent_eligible,
+        "baseline_policy": _sanitize_text(metadata.get("baseline_policy"), 32),
+        "updated_at": run_record.get("updated_at"),
+    }
+
+
+def part_b_leaderboards(season_id: str | None = None, run_class: str | None = None, limit: int = 10) -> dict[str, Any]:
+    season = _current_part_b_season(season_id)
+    chosen_class = (run_class or "all").strip().lower()
+    if chosen_class != "all":
+        chosen_class = _coerce_run_class(chosen_class)
+    all_runs = [run for run in list_part_b_runs(limit=500) if run.get("season_id") == season["season_id"]]
+    entries = [_leaderboard_entry(run, part_b_run_report(run["id"]) or {}) for run in all_runs]
+    eligible = [entry for entry in entries if entry["benchmark_eligible"]]
+    if chosen_class != "all":
+        entries = [entry for entry in entries if entry["run_class"] == chosen_class]
+        eligible = [entry for entry in eligible if entry["run_class"] == chosen_class]
+
+    counts_by_class = Counter(entry["run_class"] for entry in entries)
+
+    def top_for_family(family: str) -> list[dict[str, Any]]:
+        ranked = sorted(
+            eligible,
+            key=lambda item: (
+                -_intish(item["scores"].get(family), 0, minimum=0, maximum=100),
+                -_intish(item.get("world_tick"), 0, minimum=0),
+                item.get("updated_at") or "",
+            ),
+        )[:limit]
+        return ranked
+
+    return {
+        "season": part_b_season_status(season["season_id"]),
+        "selected_run_class": chosen_class,
+        "counts": {
+            "total_runs": len(entries),
+            "eligible_runs": len(eligible),
+            "by_run_class": dict(counts_by_class),
+        },
+        "families": {
+            "welfare": top_for_family("welfare"),
+            "combat": top_for_family("combat"),
+            "expedition": top_for_family("expedition"),
+        },
+        "recent_runs": sorted(entries, key=lambda item: item.get("updated_at") or "", reverse=True)[:limit],
+        "headline_note": "Composite score intentionally omitted for the first ecological season.",
+    }
+
+
+def _baseline_plan(run_record: dict[str, Any], baseline_policy: str) -> dict[str, Any]:
+    observation = _observation_from(run_record)
+    state = observation["state_projection"]
+    policy = baseline_policy.strip().lower()
+    if policy not in PART_B_BASELINE_POLICIES:
+        raise ValueError(f"Unknown baseline policy: {baseline_policy}")
+
+    if policy == "conservative":
+        if state.get("is_alive") is False:
+            return {"action_verb": "HOLD", "zone": observation["active_zone"], "rationale": "The conservative baseline freezes around death."}
+        if state["health_pct"] < observation["care_threshold"] + 8 or state["happiness_pct"] < observation["care_threshold"] + 5:
+            return {"action_verb": "CARE", "zone": observation["active_zone"], "rationale": "Welfare dipped under the conservative floor."}
+        if state["energy_pct"] < 55:
+            return {"action_verb": "REST", "zone": observation["active_zone"], "rationale": "Energy is too thin for clean risk."}
+        if state.get("in_cave") and (state.get("current_cave_depth", 0) >= 2 or state.get("current_cave_risk", 0) >= state.get("current_cave_value", 0)):
+            return {"action_verb": "EXTRACT", "zone": "cave", "rationale": "The cave has become too expensive."}
+        return {"action_verb": "HOLD", "zone": observation["active_zone"], "rationale": "No safe edge exceeds inactivity."}
+
+    if policy == "greedy":
+        if state.get("is_alive") is False:
+            return {"action_verb": "HOLD", "zone": observation["active_zone"], "rationale": "The greedy baseline can no longer exploit the run."}
+        if state.get("in_cave") and state.get("current_cave_depth", 0) >= 3:
+            return {"action_verb": "EXTRACT", "zone": "cave", "rationale": "Greedy takes value before collapse."}
+        if state["energy_pct"] >= 35 and state.get("arena_available", True):
+            return {"action_verb": "ENTER_ARENA", "zone": "arena", "rationale": "Combat pressure gets first call."}
+        if state.get("cave_available", True):
+            return {"action_verb": "ENTER_CAVE", "zone": "cave", "rationale": "Expedition still promises upside."}
+        return {"action_verb": "REST", "zone": observation["active_zone"], "rationale": "Greedy pauses only when energy forces it."}
+
+    allowed = ["HOLD", "CARE", "REST", "TRAIN", "ENTER_ARENA", "ENTER_CAVE", "EXTRACT", "MUTATE"]
+    if not state.get("in_cave") and "EXTRACT" in allowed:
+        allowed.remove("EXTRACT")
+    if state.get("mutation_count", 0) >= 6 and "MUTATE" in allowed:
+        allowed.remove("MUTATE")
+    index = _deterministic_roll(run_record.get("id"), run_record.get("world_tick"), "baseline-random", modulo=len(allowed))
+    action = allowed[index]
+    return {
+        "action_verb": action,
+        "zone": _normalize_zone("cave" if action in {"ENTER_CAVE", "EXTRACT"} else observation["active_zone"], observation["active_zone"]),
+        "rationale": "The random baseline samples a legal action without memory.",
+    }
+
+
+def _execute_part_b_action(
+    run_id: str,
+    run_record: dict[str, Any],
+    *,
+    source: str,
+    actor_type: str,
+    action_verb: str,
+    zone: str,
+    expected_revision: int | None,
+    planned_action: dict[str, Any] | None = None,
+    run_updates: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    outcome, state_after, invalid_reason = _simulate_action(run_record, action_verb, zone)
+    fatal = not invalid_reason and state_after.get("is_alive") is False
+    merged_updates = dict(run_updates or {})
+    if fatal:
+        merged_updates["status"] = "completed"
+        merged_updates["autopause_reason"] = "subject_not_alive"
+    event_payload = {
+        "actor_type": actor_type,
+        "event_type": "tick_skipped" if invalid_reason else "action_applied",
+        "action_verb": action_verb,
+        "zone": zone,
+        "world_tick": _intish(run_record.get("world_tick"), 0, minimum=0) + 1,
+        "expected_state_revision": expected_revision,
+        "observation": _observation_from(run_record),
+        "outcome": outcome,
+        "details": {"source": source, "invalid_reason": invalid_reason, "planned_action": planned_action or {}},
+        "state_after": {} if invalid_reason else state_after,
+        "run_updates": merged_updates,
+    }
+    if invalid_reason and source == "queue":
+        event_payload["details"]["queue_dropped"] = True
+    event = append_part_b_event(run_id, event_payload)
+    return _tick_summary(event or {}, source, planned_action)
+
+
+def preview_part_b_baseline(run_id: str, baseline_policy: str) -> dict[str, Any] | None:
+    run_record = get_part_b_run(run_id)
+    if not run_record:
+        return None
+    plan = _baseline_plan(run_record, baseline_policy)
+    plan["policy"] = baseline_policy
+    plan["observation"] = _observation_from(run_record)
+    return plan
+
+
+def run_part_b_baseline(run_id: str, baseline_policy: str, *, ticks: int = 1) -> dict[str, Any] | None:
+    requested = _intish(ticks, 1, minimum=1, maximum=48)
+    processed: list[dict[str, Any]] = []
+    for _ in range(requested):
+        run_record = get_part_b_run(run_id)
+        if not run_record:
+            break
+        if run_record.get("status") != "active":
+            processed.append({"source": "baseline", "status": "run_not_active"})
+            break
+        plan = _baseline_plan(run_record, baseline_policy)
+        summary = _execute_part_b_action(
+            run_id,
+            run_record,
+            source=f"baseline:{baseline_policy}",
+            actor_type="agent",
+            action_verb=plan["action_verb"],
+            zone=plan["zone"],
+            expected_revision=_intish(run_record.get("state_revision"), 0, minimum=0),
+            planned_action={**plan, "policy": baseline_policy},
+            run_updates={"metadata": {**_sanitize_dict(run_record.get("metadata")), "baseline_policy": baseline_policy}},
+        )
+        processed.append(summary)
+        if summary.get("status") == "run_not_active":
+            break
+    replay = replay_part_b_run(run_id)
+    return {
+        "run": replay["run"] if replay else get_part_b_run(run_id),
+        "processed": processed,
+        "replay": replay["events"] if replay else [],
+        "report": replay["report"] if replay else part_b_run_report(run_id),
+    }
 
 
 def enqueue_part_b_action(run_id: str, payload: dict[str, Any]) -> dict[str, Any] | None:
@@ -1372,25 +1783,22 @@ def process_part_b_ticks(run_id: str, *, count: int = 1) -> dict[str, Any] | Non
             processed.append({"source": source, "status": "no_action_selected"})
             break
 
-        outcome, state_after, invalid_reason = _simulate_action(run_record, action_verb, zone)
-        event_payload = {
-            "actor_type": actor_type,
-            "event_type": "tick_skipped" if invalid_reason else "action_applied",
-            "action_verb": action_verb,
-            "zone": zone,
-            "world_tick": _intish(run_record.get("world_tick"), 0, minimum=0) + 1,
-            "expected_state_revision": expected_revision,
-            "observation": _observation_from(run_record),
-            "outcome": outcome,
-            "details": {"source": source, "invalid_reason": invalid_reason, "planned_action": planned_action or {}},
-            "state_after": {} if invalid_reason else state_after,
-            "run_updates": run_updates,
-        }
-        if invalid_reason and source == "queue":
-            event_payload["details"]["queue_dropped"] = True
-        event = append_part_b_event(run_id, event_payload)
-        processed.append(_tick_summary(event or {}, source, planned_action))
-        if event and event.get("accepted") is False and event.get("conflict_status") == "stale_rejected":
+        processed.append(
+            _execute_part_b_action(
+                run_id,
+                run_record,
+                source=source,
+                actor_type=actor_type,
+                action_verb=action_verb,
+                zone=zone,
+                expected_revision=expected_revision,
+                planned_action=planned_action,
+                run_updates=run_updates,
+            )
+        )
+        event = replay_part_b_run(run_id)
+        latest = event["events"][-1] if event and event.get("events") else None
+        if latest and latest.get("accepted") is False and latest.get("conflict_status") == "stale_rejected":
             continue
 
     replay = replay_part_b_run(run_id)
@@ -1399,4 +1807,26 @@ def process_part_b_ticks(run_id: str, *, count: int = 1) -> dict[str, Any] | Non
         "processed": processed,
         "replay": replay["events"] if replay else [],
         "report": replay["report"] if replay else part_b_run_report(run_id),
+    }
+
+
+def export_part_b_season_archive(season_id: str | None = None, *, limit: int = 500) -> dict[str, Any]:
+    season = _current_part_b_season(season_id)
+    runs = [run for run in list_part_b_runs(limit=limit) if run.get("season_id") == season["season_id"]]
+    archive_runs: list[dict[str, Any]] = []
+    for run in runs:
+        replay = replay_part_b_run(run["id"])
+        if not replay:
+            continue
+        archive_runs.append(
+            {
+                "run": replay["run"],
+                "report": replay["report"],
+                "events": replay["events"],
+            }
+        )
+    return {
+        "season": part_b_season_status(season["season_id"]),
+        "leaderboards": part_b_leaderboards(season["season_id"], limit=25),
+        "runs": archive_runs,
     }

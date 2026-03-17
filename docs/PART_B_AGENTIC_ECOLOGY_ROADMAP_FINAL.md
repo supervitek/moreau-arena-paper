@@ -13,7 +13,8 @@ Implementation status:
 - `B2` complete
 - `B3` complete
 - `B4` complete
-- next focus: `B5 — First Measurement Season`
+- `B5` complete
+- next focus: `live calibration + production persistence`
 
 ## Final Verdict
 

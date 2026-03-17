@@ -19,7 +19,11 @@ Last updated: 2026-03-17
 - Manual ecology slice: `docs/PART_B_MANUAL_ECOLOGY_SLICE_B2.md`
 - Passive queue: `docs/PART_B_PASSIVE_QUEUE_B3.md`
 - Hosted house agent: `docs/PART_B_HOUSE_AGENT_B4.md`
-- Current next move: `B5 — First Measurement Season`
+- First measurement season: `docs/PART_B_FIRST_MEASUREMENT_SEASON_B5.md`
+- Score calibration: `docs/PART_B_SCORE_CALIBRATION.md`
+- Season archive format: `docs/PART_B_SEASON_ARCHIVE_FORMAT.md`
+- Supabase production readiness: `docs/PART_B_SUPABASE_PRODUCTION_READINESS.md`
+- Current next move: `live Part B calibration + production persistence`
 
 ## Current Priority Order
 
@@ -73,3 +77,4 @@ Last updated: 2026-03-17
 - [x] Part B B2 manual ecology slice
 - [x] Part B B3 passive queue
 - [x] Part B B4 hosted house agent
+- [x] Part B B5 first measurement season

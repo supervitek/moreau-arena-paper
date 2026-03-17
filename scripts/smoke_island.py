@@ -169,6 +169,11 @@ def main() -> int:
         run_id = str(payload["id"])
         print("OK /api/v1/island/part-b/runs [application/json]")
 
+        status, content_type, body = fetch(base + "/api/v1/island/part-b/season")
+        if status != 200 or content_type != "application/json" or '"season_id"' not in body:
+            raise RuntimeError("Part B season endpoint invalid")
+        print("OK /api/v1/island/part-b/season [application/json]")
+
         status, payload = post_json(
             base + f"/api/v1/island/part-b/runs/{run_id}/queue",
             {"action_verb": "CARE", "actor_type": "operator", "source": "smoke"},
@@ -188,6 +193,26 @@ def main() -> int:
         if status != 200 or payload.get("removed") not in {False, True}:
             raise RuntimeError("Part B queue delete returned invalid payload")
         print("OK /api/v1/island/part-b/runs/{id}/queue/{item} [application/json]")
+
+        status, content_type, body = fetch(base + "/api/v1/island/part-b/leaderboards?run_class=operator-assisted&limit=5")
+        if status != 200 or content_type != "application/json" or '"welfare"' not in body:
+            raise RuntimeError("Part B leaderboards endpoint invalid")
+        print("OK /api/v1/island/part-b/leaderboards [application/json]")
+
+        status, content_type, body = fetch(base + f"/api/v1/island/part-b/runs/{run_id}/baseline/preview?policy=conservative")
+        if status != 200 or content_type != "application/json" or '"action_verb"' not in body:
+            raise RuntimeError("Part B baseline preview invalid")
+        print("OK /api/v1/island/part-b/runs/{id}/baseline/preview [application/json]")
+
+        status, payload = post_json(base + f"/api/v1/island/part-b/runs/{run_id}/baseline", {"policy": "conservative", "ticks": 1})
+        if status != 200 or not payload.get("processed"):
+            raise RuntimeError("Part B baseline execution failed")
+        print("OK /api/v1/island/part-b/runs/{id}/baseline [application/json]")
+
+        status, content_type, body = fetch(base + "/api/v1/island/part-b/season/archive?limit=25")
+        if status != 200 or content_type != "application/json" or '"leaderboards"' not in body:
+            raise RuntimeError("Part B season archive endpoint invalid")
+        print("OK /api/v1/island/part-b/season/archive [application/json]")
 
         status, payload = post_json(
             base + "/api/v1/island/part-b/runs",
