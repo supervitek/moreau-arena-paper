@@ -25,7 +25,25 @@ Short version:
 
 The project must preserve measurement integrity without collapsing into a generic AI platform.
 
-## 2. Canonical Principles
+## 2. Human / Research Context
+
+Project owner:
+- Victor Stasiuc
+
+Working identity in-project:
+- independent AI safety researcher
+- primary human decision-maker
+- final authority on strategic direction
+
+Research frame:
+- Moreau Arena sits inside a broader line of “inside-the-interaction” AI work
+- Round Table and multi-agent critique are not decorative workflow choices; they are part of the research method
+
+Practical meaning for new agents:
+- do not strip away the project’s human/research context in the name of “clean productization”
+- the benchmark, the world, and the method of building it are linked
+
+## 3. Canonical Principles
 
 These principles are load-bearing.
 
@@ -37,7 +55,7 @@ These principles are load-bearing.
 6. `Part B` is operator-first and agent-native, not casual-human-first.
 7. Small-team pragmatism matters more than platform ambition.
 
-## 3. Source-of-Truth Order
+## 4. Source-of-Truth Order
 
 When context conflicts, use this order:
 
@@ -56,7 +74,42 @@ Actual working reality on this project is different:
 - local commits on `main` are normal
 - `git pull --rebase` before push remains the correct hygiene rule
 
-## 4. Frozen / High-Risk Areas
+## 5. Origin Story
+
+There are two real arcs behind the project:
+
+1. the research arc
+2. the building arc
+
+### Research arc
+
+Moreau Arena emerged as a stronger, more concrete benchmark direction out of Victor’s broader AI safety and prompt/interaction research.
+
+It is not just “a cool game idea that later got measured.”
+It is also not just “a paper site with lore pasted on top.”
+
+It came from the overlap of:
+- contamination-resistant benchmarking
+- prompt sensitivity / framing effects
+- model comparison under novel rules
+- collaborative use of multiple frontier and local models as working partners
+
+### Building arc
+
+The project has been built as a real human + AI crew effort:
+
+- Claude web chat: strategy, task shaping, continuity
+- Claude Code: heavy implementation
+- Codex: audits, hardening, fresh-eyes engineering
+- ChatGPT: strategic critique and cross-checks
+- Round Table Council: debated decisions
+- Ollama/local models: low-cost critique and brainstorming
+
+This matters because a new agent should expect:
+- many project decisions were already debated across multiple models
+- some “weird” design choices are intentional and historically grounded
+
+## 6. Frozen / High-Risk Areas
 
 These are the strongest guardrails in the repo.
 
@@ -81,7 +134,7 @@ Rule:
 - version new measurement behavior
 - do not “quietly improve” old benchmark regimes
 
-## 5. Current Product Shape
+## 7. Current Product Shape
 
 ### Part A — Controlled benchmark
 
@@ -135,11 +188,31 @@ Current approved structure:
   - `agent-only`
 - family scores:
   - `welfare`
-  - `combat`
-  - `expedition`
+- `combat`
+- `expedition`
 - `composite` is intentionally not the headline score in the first season
 
-## 6. Current Strategic Decisions
+## 8. Infrastructure and Deployment
+
+Canonical repo:
+- [supervitek/moreau-arena-paper](https://github.com/supervitek/moreau-arena-paper)
+
+Live site:
+- [moreauarena.com](https://moreauarena.com)
+
+Hosting:
+- Render
+- auto-deploy from `main`
+
+Current persistence reality:
+- much of legacy pets/island state historically lived in `localStorage`
+- `Part B` now has a server-backed abstraction with file/dev fallback and Supabase-ready production path
+
+Production persistence status:
+- code path is ready
+- live Supabase enablement is the remaining external step
+
+## 9. Current Strategic Decisions
 
 ### Agentic Moreau decision
 
@@ -167,7 +240,32 @@ House agent benchmark integrity rule:
 - house agent may not enjoy hidden privileges
 - benchmark participation only counts once the public contract exists and parity is real
 
-## 7. What Has Already Been Done
+## 10. Round Table Methodology
+
+Round Table is part of the project’s real operating method.
+
+Use it for:
+- strategic forks
+- architecture decisions with major scope implications
+- design tensions where benchmark integrity and product identity may conflict
+
+Do not use it for:
+- routine bugfixes
+- straightforward implementation details
+- questions already settled in current roadmap docs
+
+Round Table outputs are useful, but they are not higher authority than:
+- current code
+- finalized roadmap docs
+- explicit project decisions already adopted into the repo
+
+The correct pattern is:
+- debate
+- synthesize
+- codify the result in repo docs
+- then treat the codified version as canonical
+
+## 11. What Has Already Been Done
 
 This section is here so a new agent does not redo settled work.
 
@@ -217,7 +315,7 @@ Primary files:
 - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_AGENTIC_ECOLOGY_EXECUTION_TODO.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_AGENTIC_ECOLOGY_EXECUTION_TODO.md)
 - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_10_POINT_COMPLETION_CHECKLIST.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_10_POINT_COMPLETION_CHECKLIST.md)
 
-## 8. Actual Current State
+## 12. Actual Current State
 
 ### What is live and working
 
@@ -245,7 +343,25 @@ Mostly external/operational, not conceptual:
 The codebase is much more mature than the old handoff suggests.  
 The main unfinished edge is no longer “build the thing,” but “run the thing with real persistence and real usage.”
 
-## 9. Key Files a New Agent Should Read First
+## 13. Team and Workflow Reality
+
+Working crew:
+- Victor: captain / project owner / final human authority
+- Claude web chat
+- Claude Code
+- Codex
+- ChatGPT
+- Round Table Council
+
+The real workflow is collaborative and iterative, not formal-enterprise.
+
+Best practical behavior for a new agent:
+- take prior decisions seriously
+- challenge only where there is real new evidence
+- prefer concrete implementation over re-theorizing solved issues
+- leave short, high-signal documentation after major passes
+
+## 14. Key Files a New Agent Should Read First
 
 If a fresh agent has limited context window, this is the reading order.
 
@@ -258,7 +374,7 @@ If a fresh agent has limited context window, this is the reading order.
 7. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/part_b_state.py`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/part_b_state.py)
 8. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/chronicler.py`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/chronicler.py)
 
-## 10. Runtime and Commands
+## 15. Runtime and Commands
 
 ### Core test command
 
@@ -300,7 +416,7 @@ python3 scripts/export_part_b_season.py --json-output reports/part_b_b5_archive.
 python3 scripts/verify_part_b_supabase.py --output reports/part_b_supabase_readiness.json
 ```
 
-## 11. Workflow Rules That Matter in Practice
+## 16. Workflow Rules That Matter in Practice
 
 These reflect actual working practice, not stale generic policy.
 
@@ -311,7 +427,7 @@ These reflect actual working practice, not stale generic policy.
 5. Do not revert unrelated untracked or user-created files.
 6. Do not touch `council_records/` unless the task is specifically about Round Table outputs.
 
-## 12. Claude Code / KK Orchestration
+## 17. Claude Code / KK Orchestration
 
 This machine has working local KK orchestration.
 
@@ -329,7 +445,7 @@ Use KK when it creates leverage:
 
 Do not rely on KK for the primary truth over tests and code.
 
-## 13. Current Highest-Value Next Steps
+## 18. Current Highest-Value Next Steps
 
 If a new agent takes over now, the next best moves are:
 
@@ -339,7 +455,28 @@ If a new agent takes over now, the next best moves are:
 4. run the first live Part B review cadence
 5. calibrate Part B scores against real traces, not only seeded ones
 
-## 14. What Not to Waste Time On
+## 19. Philosophy / Style Constraints
+
+There is a real project philosophy here.
+
+Useful reading of it:
+- Moreau should stay strange
+- narrative texture is part of the measurement world, not decoration
+- AI agents are collaborators and test subjects, not just tools
+- the project should feel authored, not flattened into generic SaaS language
+
+That does not mean:
+- preserve every mystical sentence forever
+- prefer obscurity over clarity
+- excuse broken systems because they feel atmospheric
+
+The correct balance is:
+- clarity in engineering
+- strangeness in world identity
+- rigor in benchmarks
+- restraint in scope
+
+## 20. What Not to Waste Time On
 
 Do not restart solved debates unless there is new evidence.
 
@@ -351,7 +488,7 @@ Not the right next move:
 - reworking old benchmark history
 - “cleaning up” frozen tournament data
 
-## 15. If This File Is Used on Another Account
+## 21. If This File Is Used on Another Account
 
 Tell the new agent:
 
@@ -368,7 +505,7 @@ Short prompt to pair with this file:
 
 > Read [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_BIBLE.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_BIBLE.md) first. Treat it as the high-context source of truth unless the current code on `main` contradicts it. Then inspect the current code and continue from the highest-value unfinished operational work without re-litigating settled design decisions.
 
-## 16. Companion Documents
+## 22. Companion Documents
 
 These are the most relevant companion docs.
 
