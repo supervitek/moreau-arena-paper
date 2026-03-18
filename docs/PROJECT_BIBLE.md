@@ -7,6 +7,9 @@ This file is the fastest way to bring a new coding agent up to the real current 
 
 It is intentionally opinionated. When this file conflicts with older agent docs, prefer this file plus the current code on `main`.
 
+Technical companion:
+- [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_BIBLE_TECHNICAL_APPENDIX.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_BIBLE_TECHNICAL_APPENDIX.md)
+
 ## 1. Project in One Page
 
 Moreau Arena is no longer just one thing.
@@ -366,13 +369,14 @@ Best practical behavior for a new agent:
 If a fresh agent has limited context window, this is the reading order.
 
 1. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_BIBLE.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_BIBLE.md)
-2. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_TODO.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_TODO.md)
-3. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/AGENTIC_MOREAU_ROADMAP_FINAL.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/AGENTIC_MOREAU_ROADMAP_FINAL.md)
-4. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_AGENTIC_ECOLOGY_ROADMAP_FINAL.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_AGENTIC_ECOLOGY_ROADMAP_FINAL.md)
-5. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_AGENTIC_ECOLOGY_EXECUTION_TODO.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_AGENTIC_ECOLOGY_EXECUTION_TODO.md)
-6. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/web/app.py`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/web/app.py)
-7. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/part_b_state.py`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/part_b_state.py)
-8. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/chronicler.py`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/chronicler.py)
+2. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_BIBLE_TECHNICAL_APPENDIX.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_BIBLE_TECHNICAL_APPENDIX.md)
+3. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_TODO.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_TODO.md)
+4. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/AGENTIC_MOREAU_ROADMAP_FINAL.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/AGENTIC_MOREAU_ROADMAP_FINAL.md)
+5. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_AGENTIC_ECOLOGY_ROADMAP_FINAL.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_AGENTIC_ECOLOGY_ROADMAP_FINAL.md)
+6. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_AGENTIC_ECOLOGY_EXECUTION_TODO.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_AGENTIC_ECOLOGY_EXECUTION_TODO.md)
+7. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/web/app.py`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/web/app.py)
+8. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/part_b_state.py`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/part_b_state.py)
+9. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/chronicler.py`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/chronicler.py)
 
 ## 15. Runtime and Commands
 
@@ -510,6 +514,7 @@ Short prompt to pair with this file:
 These are the most relevant companion docs.
 
 - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_TODO.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_TODO.md)
+- [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_BIBLE_TECHNICAL_APPENDIX.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_BIBLE_TECHNICAL_APPENDIX.md)
 - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/LAUNCH_CHECKLIST.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/LAUNCH_CHECKLIST.md)
 - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PAPER_VERIFICATION_REPORT.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PAPER_VERIFICATION_REPORT.md)
 - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/AGENTIC_MOREAU_ROADMAP_FINAL.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/AGENTIC_MOREAU_ROADMAP_FINAL.md)
