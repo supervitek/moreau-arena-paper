@@ -4,6 +4,7 @@ Last updated: 2026-03-17
 
 ## Agentic Moreau
 
+- Project bible: `docs/PROJECT_BIBLE.md`
 - Final roadmap: `docs/AGENTIC_MOREAU_ROADMAP_FINAL.md`
 - Execution TODO: `docs/AGENTIC_MOREAU_EXECUTION_TODO.md`
 - Current approved path: `Chronicler-first` on `/island/home`
@@ -11,6 +12,7 @@ Last updated: 2026-03-17
 
 ## Part B Ecology
 
+- Project bible: `docs/PROJECT_BIBLE.md`
 - Final roadmap: `docs/PART_B_AGENTIC_ECOLOGY_ROADMAP_FINAL.md`
 - Execution TODO: `docs/PART_B_AGENTIC_ECOLOGY_EXECUTION_TODO.md`
 - Measurement contract: `docs/PART_B_MEASUREMENT_CONTRACT_B1.md`
