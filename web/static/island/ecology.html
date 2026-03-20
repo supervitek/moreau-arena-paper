@@ -632,7 +632,7 @@
                                 <option value="anthropic">anthropic</option>
                                 <option value="fallback">fallback</option>
                             </select>
-                            <input id="houseAgentModelInput" type="text" value="gemini-2.0-flash-lite" spellcheck="false" aria-label="house agent model">
+                            <input id="houseAgentModelInput" type="text" value="gemini-2.5-flash-lite" spellcheck="false" aria-label="house agent model">
                         </div>
                         <div class="run-row">
                             <select id="budgetSelect">
@@ -857,7 +857,7 @@
                 if (currentRun.priority_profile) document.getElementById('prioritySelect').value = currentRun.priority_profile;
                 document.getElementById('budgetSelect').value = String(currentRun.inference_budget_daily || currentRun.inference_budget_remaining || 4);
                 document.getElementById('houseAgentProviderSelect').value = currentRun.house_agent_provider || 'gemini';
-                document.getElementById('houseAgentModelInput').value = currentRun.house_agent_model || 'gemini-2.0-flash-lite';
+                document.getElementById('houseAgentModelInput').value = currentRun.house_agent_model || 'gemini-2.5-flash-lite';
             }
 
             async function loadRun() {
@@ -889,7 +889,7 @@
                 var priority = document.getElementById('prioritySelect').value;
                 var dailyBudget = parseInt(document.getElementById('budgetSelect').value || '4', 10);
                 var houseAgentProvider = document.getElementById('houseAgentProviderSelect').value || 'gemini';
-                var houseAgentModel = document.getElementById('houseAgentModelInput').value || 'gemini-2.0-flash-lite';
+                var houseAgentModel = document.getElementById('houseAgentModelInput').value || 'gemini-2.5-flash-lite';
                 var payload = {
                     season_id: currentSeason && currentSeason.season_id ? currentSeason.season_id : 'part-b-s1-first-descent',
                     run_class: runClass,
@@ -1279,7 +1279,7 @@
                 var enabled = activeRunClass() === 'agent-only';
                 var dailyBudget = parseInt(document.getElementById('budgetSelect').value || '4', 10);
                 var provider = document.getElementById('houseAgentProviderSelect').value || 'gemini';
-                var model = document.getElementById('houseAgentModelInput').value || 'gemini-2.0-flash-lite';
+                var model = document.getElementById('houseAgentModelInput').value || 'gemini-2.5-flash-lite';
                 try {
                     var result = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/house-agent', {
                         method: 'POST',

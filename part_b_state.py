@@ -40,8 +40,14 @@ QUEUE_CAPACITY_DEFAULT = 6
 HOUSE_AGENT_PROVIDERS = {"anthropic", "gemini", "fallback"}
 HOUSE_AGENT_PROVIDER_DEFAULT = (os.environ.get("MOREAU_PART_B_HOUSE_AGENT_PROVIDER", "anthropic").strip().lower() or "anthropic")
 HOUSE_AGENT_MODEL_DEFAULT_ANTHROPIC = "claude-haiku-4-5-20251001"
-HOUSE_AGENT_MODEL_DEFAULT_GEMINI = "gemini-2.0-flash-lite"
+HOUSE_AGENT_MODEL_DEFAULT_GEMINI = "gemini-2.5-flash-lite"
 HOUSE_AGENT_MODEL_DEFAULT = HOUSE_AGENT_MODEL_DEFAULT_ANTHROPIC
+HOUSE_AGENT_MODEL_ALIASES = {
+    "gemini-2.0-flash-lite": "gemini-2.5-flash-lite",
+    "gemini-2.0-flash-lite-001": "gemini-2.5-flash-lite",
+    "gemini-2.0-flash": "gemini-2.5-flash",
+    "gemini-2.0-flash-001": "gemini-2.5-flash",
+}
 HOUSE_AGENT_ALLOWED_ZONES = {"arena", "cave"}
 QUEUE_EXECUTABLE_ACTORS = {"manual", "operator", "agent"}
 PART_B_BASELINE_POLICIES = {"conservative", "greedy", "random", "caremax", "arena-spam", "expedition-max"}
@@ -206,10 +212,17 @@ def _sanitize_bool(value: Any, default: bool = False) -> bool:
 def _default_house_agent_model(provider: str) -> str:
     env_model = os.environ.get("MOREAU_PART_B_HOUSE_AGENT_MODEL", "").strip()
     if env_model:
-        return env_model
+        return HOUSE_AGENT_MODEL_ALIASES.get(env_model, env_model)
     if provider == "gemini":
         return HOUSE_AGENT_MODEL_DEFAULT_GEMINI
     return HOUSE_AGENT_MODEL_DEFAULT_ANTHROPIC
+
+
+def _normalize_house_agent_model(provider: str, value: Any) -> str:
+    model = _sanitize_text(value, 64) or _default_house_agent_model(provider)
+    if provider == "gemini":
+        return HOUSE_AGENT_MODEL_ALIASES.get(model, model)
+    return model
 
 
 def _clamp_score(value: float) -> int:
@@ -899,7 +912,7 @@ def _base_run(payload: dict[str, Any], backend: str) -> dict[str, Any]:
     queue_state = _sanitize_queue(payload.get("queue_state"), default_actor=queue_actor, enqueued_revision=state_revision, capacity=queue_capacity)
     state_projection = _ensure_state_projection(payload.get("state_projection"))
     provider = _coerce_house_agent_provider(payload.get("house_agent_provider") or HOUSE_AGENT_PROVIDER_DEFAULT)
-    model = _sanitize_text(payload.get("house_agent_model"), 64) or _default_house_agent_model(provider)
+    model = _normalize_house_agent_model(provider, payload.get("house_agent_model"))
     return {
         "id": payload.get("id") or str(uuid.uuid4()),
         "season_id": season["season_id"],
@@ -1835,7 +1848,7 @@ def _anthropic_house_plan(run_record: dict[str, Any]) -> dict[str, Any] | None:
 
     fallback = _fallback_house_plan(run_record)
     fallback["requested_provider"] = "anthropic"
-    fallback["requested_model"] = run_record.get("house_agent_model") or _default_house_agent_model("anthropic")
+    fallback["requested_model"] = _normalize_house_agent_model("anthropic", run_record.get("house_agent_model"))
     try:
         client = anthropic.Anthropic(api_key=api_key)
         message = client.messages.create(
@@ -1865,7 +1878,7 @@ def _gemini_house_plan(run_record: dict[str, Any]) -> dict[str, Any] | None:
 
     fallback = _fallback_house_plan(run_record)
     fallback["requested_provider"] = "gemini"
-    fallback["requested_model"] = run_record.get("house_agent_model") or _default_house_agent_model("gemini")
+    fallback["requested_model"] = _normalize_house_agent_model("gemini", run_record.get("house_agent_model"))
     body = {
         "contents": [{"parts": [{"text": "Choose one action for the next tick.\n\n" + _house_agent_prompt(_observation_from(run_record))}]}],
         "generationConfig": {
@@ -1933,7 +1946,10 @@ def update_part_b_house_agent(run_id: str, payload: dict[str, Any]) -> dict[str,
     update_payload = {
         "house_agent_enabled": _sanitize_bool(payload.get("house_agent_enabled"), _sanitize_bool(run_record.get("house_agent_enabled"), False)),
         "house_agent_provider": provider,
-        "house_agent_model": _sanitize_text(payload.get("house_agent_model"), 64) or run_record.get("house_agent_model") or _default_house_agent_model(provider),
+        "house_agent_model": _normalize_house_agent_model(
+            provider,
+            payload.get("house_agent_model") or run_record.get("house_agent_model"),
+        ),
         "billing_mode": _sanitize_text(payload.get("billing_mode"), 32) or run_record.get("billing_mode") or "hybrid",
         "inference_budget_remaining": _intish(payload.get("inference_budget_remaining"), _intish(run_record.get("inference_budget_remaining"), 4, minimum=0), minimum=0, maximum=999),
         "inference_budget_daily": _intish(payload.get("inference_budget_daily"), _intish(run_record.get("inference_budget_daily"), 4, minimum=0), minimum=0, maximum=999),

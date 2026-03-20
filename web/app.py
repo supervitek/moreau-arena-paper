@@ -1565,7 +1565,7 @@ class PartBRunCreateRequest(BaseModel):
     world_access_active: bool = Field(default=True)
     house_agent_enabled: bool = Field(default=False)
     house_agent_provider: str = Field(default="anthropic", max_length=32)
-    house_agent_model: str = Field(default="claude-haiku-4-5-20251001", max_length=64)
+    house_agent_model: str = Field(default="gemini-2.5-flash-lite", max_length=64)
     observation_version: str = Field(default="B1", max_length=16)
     action_version: str = Field(default="B1", max_length=16)
     scoring_version: str = Field(default="B1", max_length=16)
@@ -1677,7 +1677,7 @@ class PartBTickRequest(BaseModel):
 class PartBHouseAgentRequest(BaseModel):
     house_agent_enabled: bool = Field(default=True)
     house_agent_provider: str = Field(default="anthropic", max_length=32)
-    house_agent_model: str = Field(default="claude-haiku-4-5-20251001", max_length=64)
+    house_agent_model: str = Field(default="gemini-2.5-flash-lite", max_length=64)
     billing_mode: str = Field(default="hybrid", max_length=32)
     inference_budget_remaining: int | None = Field(default=None, ge=0, le=999)
     inference_budget_daily: int | None = Field(default=None, ge=0, le=999)

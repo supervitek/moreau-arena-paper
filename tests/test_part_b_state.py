@@ -637,7 +637,7 @@ def test_part_b_gemini_house_agent_uses_model_path(monkeypatch, tmp_path):
     assert preview is not None
     assert preview["mode"] == "model"
     assert preview["provider"] == "gemini"
-    assert preview["model"] == "gemini-2.0-flash-lite"
+    assert preview["model"] == "gemini-2.5-flash-lite"
     assert preview["action_verb"] == "ENTER_CAVE"
 
 
@@ -694,3 +694,18 @@ def test_part_b_gemini_house_agent_malformed_output_falls_back(monkeypatch, tmp_
     assert preview is not None
     assert preview["mode"] == "fallback"
     assert preview["provider"] == "fallback"
+
+
+def test_part_b_gemini_house_agent_alias_normalized_on_create(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+
+    run_record = create_part_b_run(
+        {
+            "run_class": "agent-only",
+            "house_agent_enabled": True,
+            "house_agent_provider": "gemini",
+            "house_agent_model": "gemini-2.0-flash-lite",
+        }
+    )
+    assert run_record["house_agent_model"] == "gemini-2.5-flash-lite"
