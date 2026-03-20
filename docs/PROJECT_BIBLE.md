@@ -1,6 +1,6 @@
 # Project Bible — Moreau Arena
 
-Last updated: 2026-03-17  
+Last updated: 2026-03-20  
 Status: Canonical high-context handoff for new agents and new accounts
 
 This file is the fastest way to bring a new coding agent up to the real current state of the project.
@@ -9,6 +9,8 @@ It is intentionally opinionated. When this file conflicts with older agent docs,
 
 Technical companion:
 - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_BIBLE_TECHNICAL_APPENDIX.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_BIBLE_TECHNICAL_APPENDIX.md)
+- House-agent boundary:
+- [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_HOUSE_AGENT_BOUNDARY_FINAL.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_HOUSE_AGENT_BOUNDARY_FINAL.md)
 
 ## 1. Project in One Page
 
@@ -239,9 +241,17 @@ The approved `Part B` direction is:
 - hosted house agent first
 - BYO-agent later, if ever, and only after public contract maturity
 
-House agent benchmark integrity rule:
-- house agent may not enjoy hidden privileges
-- benchmark participation only counts once the public contract exists and parity is real
+House agent boundary rule:
+- the house agent may be richer on the product side
+- benchmark truth remains inside the public contract
+- the house agent may not enjoy hidden benchmark privileges
+- trust comes from visible labels plus machine-enforced gates
+- if a run goes through the public contract, it counts as Part B benchmark data
+
+Operational meaning:
+- one public Part B contract
+- one benchmark board per family
+- filter by run class rather than inventing a separate product board
 
 ## 10. Round Table Methodology
 

@@ -1,6 +1,6 @@
 # Part B Agentic Ecology Execution TODO
 
-Last updated: 2026-03-17
+Last updated: 2026-03-20
 Status: Active
 Source of truth: `docs/PART_B_AGENTIC_ECOLOGY_ROADMAP_FINAL.md`
 
@@ -10,7 +10,7 @@ Turn Part B into a valid ecological benchmark without blowing scope or losing be
 
 The next mandatory focus is:
 
-- `Live calibration and season operations`
+- `House-agent boundary enforcement and trust surfacing`
 
 ---
 
@@ -181,9 +181,10 @@ Artifact:
 ## Next Runtime Focus
 
 - [ ] Accumulate real operator traces beyond seeded local calibration runs.
-- [ ] Apply Part B SQL on production Supabase.
-- [ ] Verify `storage-status` returns `supabase` in production.
+- [x] Apply Part B SQL on production Supabase.
+- [x] Verify `storage-status` returns `supabase` in production.
 - [ ] Start the first live review cadence against real operator behavior.
+- [x] Close the house-agent boundary package from `docs/PART_B_HOUSE_AGENT_BOUNDARY_EXECUTION_TODO.md`.
 
 ---
 

@@ -3,6 +3,11 @@ from __future__ import annotations
 import pytest
 
 from part_b_state import (
+    ACTION_VERBS,
+    PUBLIC_OBSERVATION_KEYS,
+    _derive_scores,
+    _leaderboard_entry,
+    _observation_from,
     append_part_b_event,
     clear_part_b_queue,
     create_part_b_run,
@@ -246,7 +251,11 @@ def test_part_b_house_agent_preview_and_autopause(monkeypatch, tmp_path):
     )
     preview = preview_part_b_house_agent(run_record["id"])
     assert preview is not None
-    assert preview["action_verb"] in {"CARE", "REST", "HOLD", "ENTER_ARENA", "ENTER_CAVE", "EXTRACT"}
+    assert preview["action_verb"] in ACTION_VERBS
+    assert set(preview["observation"]) == set(PUBLIC_OBSERVATION_KEYS)
+    assert preview["memory_input"]["mode"] == "public_observation_only"
+    assert set(preview["memory_input"]["observation"]) == set(PUBLIC_OBSERVATION_KEYS)
+    assert preview["memory_input"]["memory_notes"] == []
 
     tick_one = process_part_b_ticks(run_record["id"], count=1)
     assert tick_one is not None
@@ -256,6 +265,8 @@ def test_part_b_house_agent_preview_and_autopause(monkeypatch, tmp_path):
     assert stored is not None
     assert stored["inference_budget_remaining"] == 0
     assert stored["house_agent_last_plan"]["action_verb"]
+    assert stored["house_agent_last_plan"]["action_verb"] in ACTION_VERBS
+    assert set(stored["house_agent_last_plan"]["memory_input"]["observation"]) == set(PUBLIC_OBSERVATION_KEYS)
 
     tick_two = process_part_b_ticks(run_record["id"], count=1)
     assert tick_two is not None
@@ -468,3 +479,99 @@ def test_part_b_leaderboards_include_run_class_depth(monkeypatch, tmp_path):
 
     boards = part_b_leaderboards(limit=5)
     assert set(boards["by_run_class_top"]) == {"manual", "operator-assisted", "agent-only"}
+
+
+def test_part_b_house_agent_observation_contract_is_public_only(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+
+    run_record = create_part_b_run(
+        {
+            "run_class": "agent-only",
+            "house_agent_enabled": True,
+            "state_projection": {"health_pct": 76, "morale_pct": 74, "happiness_pct": 72, "energy_pct": 64},
+            "metadata": {"private_debug": "should_not_leak"},
+        }
+    )
+
+    observation = _observation_from(run_record)
+    assert set(observation) == set(PUBLIC_OBSERVATION_KEYS)
+    assert "metadata" not in observation
+    assert "subject_pet_name" not in observation
+
+    preview = preview_part_b_house_agent(run_record["id"])
+    assert preview is not None
+    assert set(preview["memory_input"]["observation_keys"]) == set(PUBLIC_OBSERVATION_KEYS)
+    assert set(preview["memory_input"]["observation"]) == set(PUBLIC_OBSERVATION_KEYS)
+
+
+def test_part_b_scoring_independent_of_house_agent_flag(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+
+    base_run = create_part_b_run(
+        {
+            "run_class": "agent-only",
+            "house_agent_enabled": False,
+            "state_projection": {"health_pct": 91, "morale_pct": 83, "happiness_pct": 86, "energy_pct": 72},
+        }
+    )
+    events = [
+        {
+            "actor_type": "agent",
+            "event_type": "action_applied",
+            "action_verb": "ENTER_ARENA",
+            "world_tick": 1,
+            "expected_state_revision": 0,
+            "outcome": {"result": "win", "reward": 12, "xp_gain": 20},
+        },
+        {
+            "actor_type": "agent",
+            "event_type": "action_applied",
+            "action_verb": "ENTER_CAVE",
+            "world_tick": 2,
+            "expected_state_revision": 1,
+            "outcome": {"depth": 2, "extract_value": 16, "injury": 3},
+        },
+    ]
+    for payload in events:
+        append_part_b_event(base_run["id"], payload)
+
+    report = part_b_run_report(base_run["id"])
+    assert report is not None
+    compare_run = dict(base_run)
+    compare_run["house_agent_enabled"] = True
+    assert _derive_scores(base_run, replay_part_b_run(base_run["id"])["events"]) == _derive_scores(compare_run, replay_part_b_run(base_run["id"])["events"])
+
+
+def test_part_b_leaderboard_entries_expose_labels_and_compliance(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+
+    run_record = create_part_b_run(
+        {
+            "run_class": "agent-only",
+            "house_agent_enabled": True,
+            "subject_pet_name": "Signal",
+            "state_projection": {"health_pct": 92, "morale_pct": 85, "happiness_pct": 84, "energy_pct": 79},
+        }
+    )
+    append_part_b_event(
+        run_record["id"],
+        {
+            "actor_type": "agent",
+            "event_type": "action_applied",
+            "action_verb": "CARE",
+            "world_tick": 1,
+            "expected_state_revision": 0,
+            "outcome": {"welfare_delta": 8},
+            "state_after": {"health_pct": 96, "morale_pct": 88, "happiness_pct": 89, "energy_pct": 77},
+        },
+    )
+    report = part_b_run_report(run_record["id"])
+    assert report is not None
+    entry = _leaderboard_entry(get_part_b_run(run_record["id"]), report)
+    assert entry["run_class"] == "agent-only"
+    assert entry["agent_type"] == "house-agent"
+    assert entry["public_contract_compliant"] is True
+    assert entry["benchmark_eligible"] is True

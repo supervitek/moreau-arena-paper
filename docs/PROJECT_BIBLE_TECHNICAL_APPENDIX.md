@@ -1,6 +1,6 @@
 # Project Bible — Technical Appendix
 
-Last updated: 2026-03-17  
+Last updated: 2026-03-20  
 Status: Technical companion to `docs/PROJECT_BIBLE.md`
 
 This appendix exists for new agents who already understand the high-level shape of the project and need the concrete implementation map.
@@ -86,6 +86,20 @@ Current approved season shape:
 - composite headline:
   - intentionally disabled
 
+### House-agent boundary
+
+Canonical rule:
+- richer product behavior may exist above the contract
+- benchmark legitimacy depends on the contract chokepoints, not on house-agent internal simplicity
+
+Current technical chokepoints live in:
+- `_observation_from(...)`
+- `_coerce_action(...)`
+- `_normalize_house_agent_plan(...)`
+- `_derive_scores(...)`
+
+New work should preserve those functions as the contract wall.
+
 ## 3. Part B Run Classes
 
 ### `manual`
@@ -120,6 +134,7 @@ Technical reality:
 
 Important integrity rule:
 - house-agent benchmark legitimacy depends on public-contract parity, not on hidden internal shortcuts
+- run labels must keep that parity legible in UI, not just in API payloads
 
 ## 4. Part B Action Grammar
 
@@ -138,6 +153,8 @@ These are the actions used by:
 - baselines
 - house agent
 - calibration tooling
+
+No product enrichment is allowed to emit actions outside this set without a new season boundary.
 
 ## 5. Part B Zone Rules
 
@@ -230,6 +247,8 @@ Per-run score explanation is available in report payloads:
 
 These are used by inspect/report UI and review tooling.
 
+Scoring validity does not depend on whether a run used the house agent.
+
 ## 7. Part B Queue and Tick Runtime
 
 ### Queue
@@ -258,6 +277,10 @@ Important runtime behavior:
 - invalid queue actions are logged and can be dropped
 - stale conflicts are replayable
 - fatal runs clear queue and disable house agent
+
+Important boundary behavior:
+- house-agent planning must remain auditable
+- decision context may be richer internally, but the executed plan must still reduce to one public verb chosen from public observation
 - exhausted inference budget triggers autopause
 
 ## 8. Part B Baselines

@@ -1,11 +1,13 @@
 # Project TODO
 
-Last updated: 2026-03-17
+Last updated: 2026-03-20
 
 ## Agentic Moreau
 
 - Project bible: `docs/PROJECT_BIBLE.md`
 - Technical appendix: `docs/PROJECT_BIBLE_TECHNICAL_APPENDIX.md`
+- House-agent boundary: `docs/PART_B_HOUSE_AGENT_BOUNDARY_FINAL.md`
+- House-agent boundary TODO: `docs/PART_B_HOUSE_AGENT_BOUNDARY_EXECUTION_TODO.md`
 - Final roadmap: `docs/AGENTIC_MOREAU_ROADMAP_FINAL.md`
 - Execution TODO: `docs/AGENTIC_MOREAU_EXECUTION_TODO.md`
 - Current approved path: `Chronicler-first` on `/island/home`
@@ -28,7 +30,7 @@ Last updated: 2026-03-17
 - Season archive format: `docs/PART_B_SEASON_ARCHIVE_FORMAT.md`
 - Supabase production readiness: `docs/PART_B_SUPABASE_PRODUCTION_READINESS.md`
 - 10-point closure checklist: `docs/PART_B_10_POINT_COMPLETION_CHECKLIST.md`
-- Current next move: `live Part B calibration + production persistence`
+- Current next move: `real operator traces + live Part B review cadence`
 
 ## Current Priority Order
 

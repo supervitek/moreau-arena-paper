@@ -1,6 +1,6 @@
 # Part B Agentic Ecology Roadmap — Final
 
-Last updated: 2026-03-17
+Last updated: 2026-03-20
 Status: Finalized after Round Table review
 Owner: Codex acting as chief engineer
 Supersedes:
@@ -14,7 +14,7 @@ Implementation status:
 - `B3` complete
 - `B4` complete
 - `B5` complete
-- next focus: `live calibration + production persistence`
+- next focus: `house-agent boundary enforcement + trust surfacing`
 
 ## Final Verdict
 
@@ -122,6 +122,12 @@ Therefore the final rule is:
 1. The house agent is excluded from the benchmark leaderboard until a public observation/action/scoring contract exists.
 2. Once that contract exists, the house agent may participate in Part B benchmark seasons.
 3. If the house agent participates, it must do so under the exact same published contract as any other valid run class.
+
+After the 2026-03-20 synthesis pass, that rule is now interpreted more sharply:
+
+- product richness may live above the contract
+- benchmark legitimacy lives inside the contract
+- separation should happen through labels and enforcement, not through empty parallel leaderboards
 
 This resolves the earlier paradox:
 - no premature contamination

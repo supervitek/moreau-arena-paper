@@ -21,6 +21,20 @@ DEFAULT_STATE_DIR = PROJECT_ROOT / "results" / "part_b_state_runtime"
 RUN_CLASSES = {"manual", "operator-assisted", "agent-only"}
 ACTOR_TYPES = {"manual", "operator", "agent", "system"}
 ACTION_VERBS = {"HOLD", "CARE", "REST", "TRAIN", "ENTER_ARENA", "ENTER_CAVE", "EXTRACT", "MUTATE"}
+PUBLIC_OBSERVATION_KEYS = (
+    "world_tick",
+    "active_zone",
+    "priority_profile",
+    "risk_appetite",
+    "care_threshold",
+    "combat_bias",
+    "expedition_bias",
+    "queue_length",
+    "queue_capacity",
+    "inference_budget_remaining",
+    "house_agent_enabled",
+    "state_projection",
+)
 CONFLICT_STATUSES = {"none", "stale_rejected", "operator_preempted", "manual_freeze"}
 QUEUE_CAPACITY_DEFAULT = 6
 HOUSE_AGENT_MODEL_DEFAULT = "claude-haiku-4-5-20251001"
@@ -337,7 +351,7 @@ def _queue_defaults(run_record: dict[str, Any]) -> tuple[list[dict[str, Any]], i
 def _observation_from(run_record: dict[str, Any]) -> dict[str, Any]:
     state = _ensure_state_projection(run_record.get("state_projection"))
     queue_state, capacity = _queue_defaults(run_record)
-    return {
+    observation = {
         "world_tick": _intish(run_record.get("world_tick"), 0, minimum=0),
         "active_zone": _normalize_zone(run_record.get("active_zone"), "arena"),
         "priority_profile": _sanitize_text(run_record.get("priority_profile"), 32) or "balanced",
@@ -350,6 +364,18 @@ def _observation_from(run_record: dict[str, Any]) -> dict[str, Any]:
         "inference_budget_remaining": _intish(run_record.get("inference_budget_remaining"), 0, minimum=0),
         "house_agent_enabled": _sanitize_bool(run_record.get("house_agent_enabled"), False),
         "state_projection": state,
+    }
+    return {key: observation[key] for key in PUBLIC_OBSERVATION_KEYS}
+
+
+def _house_agent_memory_input(run_record: dict[str, Any], observation: dict[str, Any] | None = None) -> dict[str, Any]:
+    observed = observation or _observation_from(run_record)
+    return {
+        "mode": "public_observation_only",
+        "contract_version": run_record.get("observation_version") or _current_part_b_season(run_record.get("season_id"))["versions"]["observation"],
+        "observation_keys": list(PUBLIC_OBSERVATION_KEYS),
+        "observation": observed,
+        "memory_notes": [],
     }
 
 
@@ -1257,6 +1283,8 @@ def part_b_season_status(season_id: str | None = None) -> dict[str, Any]:
         "budget_mode": season["contract"]["budget_mode"],
         "tick_real_hours": season["contract"]["tick_real_hours"],
         "score_families": season["contract"]["score_families"],
+        "public_action_grammar": sorted(ACTION_VERBS),
+        "public_observation_keys": list(PUBLIC_OBSERVATION_KEYS),
         "composite_headline_enabled": season["composite_headline_enabled"],
         "house_agent_benchmark_allowed": season["house_agent_benchmark_allowed"],
         "house_agent_benchmark_rule": season["house_agent_benchmark_rule"],
@@ -1309,6 +1337,7 @@ def _leaderboard_entry(run_record: dict[str, Any], report: dict[str, Any]) -> di
         _sanitize_bool(run_record.get("house_agent_enabled"), False) is False
         or (season["house_agent_benchmark_allowed"] and public_contract_compliant)
     )
+    agent_type = "house-agent" if _sanitize_bool(run_record.get("house_agent_enabled"), False) else "human-led"
     return {
         "run_id": run_record["id"],
         "season_id": run_record["season_id"],
@@ -1322,6 +1351,7 @@ def _leaderboard_entry(run_record: dict[str, Any], report: dict[str, Any]) -> di
             "combat": _intish(scores.get("combat"), 0, minimum=0, maximum=100),
             "expedition": _intish(scores.get("expedition"), 0, minimum=0, maximum=100),
         },
+        "agent_type": agent_type,
         "house_agent_enabled": _sanitize_bool(run_record.get("house_agent_enabled"), False),
         "public_contract_compliant": public_contract_compliant,
         "benchmark_eligible": house_agent_eligible,
@@ -1709,6 +1739,7 @@ def _house_agent_prompt(observation: dict[str, Any]) -> str:
 def _fallback_house_plan(run_record: dict[str, Any]) -> dict[str, Any]:
     observation = _observation_from(run_record)
     state = observation["state_projection"]
+    memory_input = _house_agent_memory_input(run_record, observation)
     action = "HOLD"
     zone = observation["active_zone"]
     rationale = "Nothing urgent rises above uncertainty."
@@ -1738,6 +1769,7 @@ def _fallback_house_plan(run_record: dict[str, Any]) -> dict[str, Any]:
         "action_verb": action,
         "zone": zone,
         "rationale": rationale,
+        "memory_input": memory_input,
         "mode": "fallback",
         "provider": "fallback",
         "model": None,
@@ -1761,6 +1793,7 @@ def _normalize_house_agent_plan(plan: dict[str, Any] | None, fallback: dict[str,
         "action_verb": action,
         "zone": _normalize_zone(plan.get("zone"), fallback["zone"]),
         "rationale": rationale,
+        "memory_input": fallback.get("memory_input") or {},
         "mode": "model",
         "provider": HOUSE_AGENT_PROVIDER_DEFAULT,
         "model": os.environ.get("MOREAU_PART_B_HOUSE_AGENT_MODEL", HOUSE_AGENT_MODEL_DEFAULT),
@@ -1923,6 +1956,7 @@ def process_part_b_ticks(run_id: str, *, count: int = 1) -> dict[str, Any] | Non
                 "action_verb": action_verb,
                 "zone": zone,
                 "rationale": planned_action.get("rationale"),
+                "memory_input": planned_action.get("memory_input") or {},
                 "mode": planned_action.get("mode"),
                 "provider": planned_action.get("provider"),
                 "model": planned_action.get("model"),

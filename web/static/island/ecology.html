@@ -305,6 +305,15 @@
         .badge-operator { color: var(--purple); }
         .badge-agent { color: var(--blue); }
         .badge-zone { color: var(--orange); }
+        .badge-eligible { color: var(--green); }
+        .badge-warning { color: var(--accent); }
+
+        .row-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+            margin-top: 0.3rem;
+        }
 
         .empty {
             color: var(--text-muted);
@@ -352,8 +361,8 @@
             padding-top: 0;
         }
 
-        .delta-row span:last-child,
-        .leaderboard-row span:last-child {
+        .delta-row > span:last-child,
+        .leaderboard-row > span:last-child {
             color: var(--text-dim);
             text-align: right;
         }
@@ -673,6 +682,9 @@
                     </select>
                     <button id="refreshLeaderboardsBtn" type="button" class="ghost-btn">Refresh Boards</button>
                 </div>
+                <div class="notice" id="leaderboardExplainer">
+                    Every benchmarked Part B run uses the same public action grammar and score rules. Product richness can change the voice and planning feel, not the legal verbs or scoring formula.
+                </div>
                 <div id="leaderboardArea" class="stack"></div>
             </section>
         </div>
@@ -704,6 +716,10 @@
                 var div = document.createElement('div');
                 div.textContent = value == null ? '' : String(value);
                 return div.innerHTML;
+            }
+
+            function badgeHtml(text, klass) {
+                return '<span class="badge ' + klass + '">' + escHtml(text) + '</span>';
             }
 
             function setModeLabel() {
@@ -1532,8 +1548,19 @@
                     var body = rows.length ? rows.map(function(entry, index) {
                         var currentMark = entry.run_id === currentRunId ? ' · current' : '';
                         var baseline = entry.baseline_policy ? ' · baseline:' + entry.baseline_policy : '';
+                        var agentType = entry.agent_type || (entry.house_agent_enabled ? 'house-agent' : 'human-led');
+                        var complianceBadge = entry.public_contract_compliant
+                            ? badgeHtml('contract:B1', 'badge-eligible')
+                            : badgeHtml('contract drift', 'badge-warning');
+                        var eligibilityBadge = entry.benchmark_eligible
+                            ? badgeHtml('benchmark eligible', 'badge-eligible')
+                            : badgeHtml('not eligible', 'badge-warning');
+                        var runClassBadge = badgeHtml(entry.run_class || 'unknown', 'badge-' + ((entry.run_class || '').indexOf('agent') >= 0 ? 'agent' : (entry.run_class === 'manual' ? 'manual' : 'operator')));
+                        var agentBadge = badgeHtml(agentType, entry.house_agent_enabled ? 'badge-agent' : (entry.run_class === 'manual' ? 'badge-manual' : 'badge-operator'));
                         return '<div class="leaderboard-row">' +
-                            '<span>#' + (index + 1) + ' ' + escHtml(entry.subject_pet_name || 'Unnamed') + ' · ' + escHtml(entry.run_class || 'unknown') + currentMark + baseline + '</span>' +
+                            '<span>#' + (index + 1) + ' ' + escHtml(entry.subject_pet_name || 'Unnamed') + currentMark + baseline +
+                                '<span class="row-meta">' + runClassBadge + agentBadge + complianceBadge + eligibilityBadge + '</span>' +
+                            '</span>' +
                             '<span>' + escHtml(entry.scores && entry.scores[family] || 0) + ' · tick ' + escHtml(entry.world_tick || 0) + '</span>' +
                         '</div>';
                     }).join('') : '<div class="empty">No eligible runs for this view yet.</div>';
@@ -1549,6 +1576,11 @@
                     var welfareLeader = bucket.welfare && bucket.welfare[0] ? bucket.welfare[0].subject_pet_name + ' (' + bucket.welfare[0].scores.welfare + ')' : '—';
                     return runClass + ': ' + welfareLeader;
                 }).join(' · ');
+                var season = currentLeaderboards.season || {};
+                var grammar = Array.isArray(season.public_action_grammar) ? season.public_action_grammar.join(', ') : 'HOLD, CARE, REST, TRAIN, ENTER_ARENA, ENTER_CAVE, EXTRACT, MUTATE';
+                var explainer = 'Public grammar: ' + grammar + ' · same scoring for every benchmark-eligible run' +
+                    ' · house-agent rule: ' + (season.house_agent_benchmark_rule || 'visible labels + public contract parity');
+                document.getElementById('leaderboardExplainer').textContent = explainer;
                 area.innerHTML =
                     '<div class="notice">Season: ' + escHtml(currentLeaderboards.season && currentLeaderboards.season.name || 'unknown') +
                     ' · eligible runs ' + escHtml(counts.eligible_runs || 0) + ' / ' + escHtml(counts.total_runs || 0) +
