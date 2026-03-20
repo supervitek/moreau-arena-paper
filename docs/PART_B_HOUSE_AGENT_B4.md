@@ -1,6 +1,6 @@
 # Part B Hosted House Agent — B4
 
-Last updated: 2026-03-17
+Last updated: 2026-03-20
 Status: Implemented
 Owner: Codex acting as chief engineer
 
@@ -29,6 +29,7 @@ Verification:
 - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/tests/test_part_b_state.py`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/tests/test_part_b_state.py)
 - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/scripts/smoke_island.py`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/scripts/smoke_island.py)
 - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/scripts/playtests/island_regression.js`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/scripts/playtests/island_regression.js)
+- [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/scripts/verify_part_b_gemini_live.py`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/scripts/verify_part_b_gemini_live.py)
 
 ## Hosted-Agent Contract
 
@@ -47,12 +48,21 @@ The hosted agent can:
 
 ## Provider Path
 
-Configured default:
-- `Anthropic`
+Configured providers:
+- `gemini`
+- `anthropic`
+- `fallback`
 
 Runtime behavior:
+- if `GOOGLE_API_KEY` or `GEMINI_API_KEY` is available and the run requests `gemini`, the house agent uses the Gemini path
 - if `ANTHROPIC_API_KEY` and the `anthropic` package are available, the house agent uses the Anthropic path
 - otherwise it falls back to a bounded heuristic planner
+
+Current Gemini default:
+- `gemini-2.5-flash-lite`
+
+Compatibility note:
+- the runtime normalizes older `gemini-2.0-*` aliases to current `gemini-2.5-*` replacements so stale env or UI values do not silently kill the product path
 
 This keeps the product operational locally without faking a different contract.
 
@@ -113,6 +123,9 @@ Core B4 endpoints:
 - `GET /api/v1/island/part-b/runs/{run_id}/house-agent/preview`
 - `POST /api/v1/island/part-b/runs/{run_id}/house-agent`
 - `POST /api/v1/island/part-b/runs/{run_id}/tick`
+
+Operational verifier:
+- `python3 scripts/verify_part_b_gemini_live.py --base-url https://moreauarena.com --ticks 3 --output reports/part_b_gemini_live_review.md --json-output reports/part_b_gemini_live_review.json`
 
 ## Exit Rule
 

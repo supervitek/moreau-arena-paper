@@ -469,6 +469,10 @@ This is the main operator-facing `Part B` interface.
 - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/scripts/verify_part_b_supabase.py`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/scripts/verify_part_b_supabase.py)
   - readiness report for production Supabase cutover
 
+- [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/scripts/verify_part_b_gemini_live.py`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/scripts/verify_part_b_gemini_live.py)
+  - live verifier for Part B Gemini house-agent preview/tick/report path
+  - writes both markdown and JSON review artifacts
+
 ### Browser regression
 
 Checked-in browser pack:
