@@ -627,6 +627,14 @@
                     <div>
                         <div class="eyebrow">Hosted House Agent</div>
                         <div class="run-row">
+                            <select id="houseAgentProviderSelect">
+                                <option value="gemini">gemini</option>
+                                <option value="anthropic">anthropic</option>
+                                <option value="fallback">fallback</option>
+                            </select>
+                            <input id="houseAgentModelInput" type="text" value="gemini-2.0-flash-lite" spellcheck="false" aria-label="house agent model">
+                        </div>
+                        <div class="run-row">
                             <select id="budgetSelect">
                                 <option value="4">4 credits / day</option>
                                 <option value="8">8 credits / day</option>
@@ -636,7 +644,7 @@
                         </div>
                         <div class="hint" id="houseAgentHint">
                             <strong>House Agent</strong>
-                            <div id="houseAgentHintBody">Only active on agent-only runs. It acts through the public action grammar and auto-pauses when credits are exhausted.</div>
+                            <div id="houseAgentHintBody">Only active on agent-only runs. It acts through the public action grammar and auto-pauses when credits are exhausted. Provider and model are visible here, but legal verbs stay the same.</div>
                         </div>
                     </div>
 
@@ -848,6 +856,8 @@
                 if (currentRun.run_class) document.getElementById('runClassSelect').value = currentRun.run_class;
                 if (currentRun.priority_profile) document.getElementById('prioritySelect').value = currentRun.priority_profile;
                 document.getElementById('budgetSelect').value = String(currentRun.inference_budget_daily || currentRun.inference_budget_remaining || 4);
+                document.getElementById('houseAgentProviderSelect').value = currentRun.house_agent_provider || 'gemini';
+                document.getElementById('houseAgentModelInput').value = currentRun.house_agent_model || 'gemini-2.0-flash-lite';
             }
 
             async function loadRun() {
@@ -878,6 +888,8 @@
                 var runClass = document.getElementById('runClassSelect').value;
                 var priority = document.getElementById('prioritySelect').value;
                 var dailyBudget = parseInt(document.getElementById('budgetSelect').value || '4', 10);
+                var houseAgentProvider = document.getElementById('houseAgentProviderSelect').value || 'gemini';
+                var houseAgentModel = document.getElementById('houseAgentModelInput').value || 'gemini-2.0-flash-lite';
                 var payload = {
                     season_id: currentSeason && currentSeason.season_id ? currentSeason.season_id : 'part-b-s1-first-descent',
                     run_class: runClass,
@@ -893,8 +905,8 @@
                     billing_mode: 'hybrid',
                     world_access_active: true,
                     house_agent_enabled: runClass === 'agent-only',
-                    house_agent_provider: 'anthropic',
-                    house_agent_model: 'claude-haiku-4-5-20251001',
+                    house_agent_provider: houseAgentProvider,
+                    house_agent_model: houseAgentModel,
                     state_projection: initialProjection(pet),
                     metadata: {
                         source: 'ecology-page',
@@ -1266,14 +1278,16 @@
                 await ensureRun();
                 var enabled = activeRunClass() === 'agent-only';
                 var dailyBudget = parseInt(document.getElementById('budgetSelect').value || '4', 10);
+                var provider = document.getElementById('houseAgentProviderSelect').value || 'gemini';
+                var model = document.getElementById('houseAgentModelInput').value || 'gemini-2.0-flash-lite';
                 try {
                     var result = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/house-agent', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             house_agent_enabled: enabled,
-                            house_agent_provider: 'anthropic',
-                            house_agent_model: 'claude-haiku-4-5-20251001',
+                            house_agent_provider: provider,
+                            house_agent_model: model,
                             billing_mode: 'hybrid',
                             inference_budget_daily: dailyBudget,
                             inference_budget_remaining: currentRun && typeof currentRun.inference_budget_remaining === 'number'
@@ -1298,7 +1312,7 @@
                 var preview = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/house-agent/preview');
                 document.getElementById('houseAgentHintBody').textContent =
                     (preview.action_verb || 'HOLD') + ' @ ' + (preview.zone || 'arena') + ' — ' +
-                    (preview.rationale || 'No rationale.') + ' [' + (preview.mode || 'unknown') + ']';
+                    (preview.rationale || 'No rationale.') + ' [' + (preview.mode || 'unknown') + ' · ' + (preview.provider || 'unknown') + ' · ' + (preview.model || 'default') + ']';
             }
 
             async function previewBaseline() {
@@ -1622,7 +1636,9 @@
                 document.getElementById('creditsValue').textContent = currentRun
                     ? String(currentRun.inference_budget_remaining || 0) + ' / ' + String(currentRun.inference_budget_daily || 0)
                     : '-';
-                document.getElementById('houseAgentValue').textContent = currentRun && currentRun.house_agent_enabled ? 'on' : 'off';
+                document.getElementById('houseAgentValue').textContent = currentRun && currentRun.house_agent_enabled
+                    ? ('on / ' + (currentRun.house_agent_provider || 'unknown'))
+                    : 'off';
                 if (currentReplay && currentReplay.report && currentReplay.report.scores) {
                     var scores = currentReplay.report.scores;
                     document.getElementById('scoreWelfare').textContent = scores.welfare;

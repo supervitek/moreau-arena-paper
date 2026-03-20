@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import pytest
 
 from part_b_state import (
@@ -575,3 +576,121 @@ def test_part_b_leaderboard_entries_expose_labels_and_compliance(monkeypatch, tm
     assert entry["agent_type"] == "house-agent"
     assert entry["public_contract_compliant"] is True
     assert entry["benchmark_eligible"] is True
+
+
+def test_part_b_gemini_house_agent_uses_model_path(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+    monkeypatch.setenv("GOOGLE_API_KEY", "test-google-key")
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+
+    class _FakeResponse:
+        def __init__(self, payload):
+            self._payload = payload
+
+        def read(self):
+            return json.dumps(self._payload).encode("utf-8")
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+    def fake_urlopen(req, timeout=0):  # noqa: ARG001
+        assert "generativelanguage.googleapis.com" in req.full_url
+        body = json.loads(req.data.decode("utf-8"))
+        assert body["generationConfig"]["responseMimeType"] == "application/json"
+        return _FakeResponse(
+            {
+                "candidates": [
+                    {
+                        "content": {
+                            "parts": [
+                                {
+                                    "text": json.dumps(
+                                        {
+                                            "action_verb": "ENTER_CAVE",
+                                            "zone": "cave",
+                                            "rationale": "Cave pressure slightly outweighs arena pull.",
+                                        }
+                                    )
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        )
+
+    monkeypatch.setattr("part_b_state.request.urlopen", fake_urlopen)
+
+    run_record = create_part_b_run(
+        {
+            "run_class": "agent-only",
+            "house_agent_enabled": True,
+            "house_agent_provider": "gemini",
+            "house_agent_model": "gemini-2.0-flash-lite",
+        }
+    )
+    preview = preview_part_b_house_agent(run_record["id"])
+    assert preview is not None
+    assert preview["mode"] == "model"
+    assert preview["provider"] == "gemini"
+    assert preview["model"] == "gemini-2.0-flash-lite"
+    assert preview["action_verb"] == "ENTER_CAVE"
+
+
+def test_part_b_gemini_house_agent_falls_back_without_key(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+
+    run_record = create_part_b_run(
+        {
+            "run_class": "agent-only",
+            "house_agent_enabled": True,
+            "house_agent_provider": "gemini",
+            "house_agent_model": "gemini-2.0-flash-lite",
+            "state_projection": {"health_pct": 44, "happiness_pct": 39, "morale_pct": 60, "energy_pct": 32},
+        }
+    )
+    preview = preview_part_b_house_agent(run_record["id"])
+    assert preview is not None
+    assert preview["mode"] == "fallback"
+    assert preview["provider"] == "fallback"
+    assert preview["action_verb"] in ACTION_VERBS
+
+
+def test_part_b_gemini_house_agent_malformed_output_falls_back(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+    monkeypatch.setenv("GOOGLE_API_KEY", "test-google-key")
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+
+    class _BadResponse:
+        def read(self):
+            return json.dumps({"candidates": [{"content": {"parts": [{"text": '{"action_verb":"FLY"}'}]}}]}).encode("utf-8")
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+    monkeypatch.setattr("part_b_state.request.urlopen", lambda req, timeout=0: _BadResponse())  # noqa: ARG005
+
+    run_record = create_part_b_run(
+        {
+            "run_class": "agent-only",
+            "house_agent_enabled": True,
+            "house_agent_provider": "gemini",
+            "house_agent_model": "gemini-2.0-flash-lite",
+        }
+    )
+    preview = preview_part_b_house_agent(run_record["id"])
+    assert preview is not None
+    assert preview["mode"] == "fallback"
+    assert preview["provider"] == "fallback"
