@@ -47,7 +47,8 @@ def build_report(payload: dict[str, Any]) -> str:
                 "",
             ]
         )
-    scores = payload["report"]["scores"]
+    report = payload["report"]
+    scores = report["scores"]
     lines.extend(
         [
             "## Report",
@@ -55,8 +56,8 @@ def build_report(payload: dict[str, Any]) -> str:
             f"- Welfare: `{scores['welfare']}`",
             f"- Combat: `{scores['combat']}`",
             f"- Expedition: `{scores['expedition']}`",
-            f"- Queue pending: `{payload['report']['queue']['pending']}`",
-            f"- Event count: `{payload['report']['timeline']['event_count']}`",
+            f"- Queue pending: `{report['queue']['pending_count']}`",
+            f"- Event count: `{report['event_count']}`",
             "",
         ]
     )

@@ -126,12 +126,14 @@ Exit rule:
   - auto-pause on exhausted budget
 - [x] Add operator controls for house agent.
 - [x] Ensure house agent acts only through published action grammar.
+- [x] Verify a live Gemini house-agent run on production.
 
 Artifacts:
 - `docs/PART_B_HOUSE_AGENT_B4.md`
 - `part_b_state.py`
 - `web/static/island/ecology.html`
 - `scripts/verify_part_b_gemini_live.py`
+- `reports/part_b_gemini_live_review.md`
 
 Exit rule:
 - house agent can run without invalidating future benchmark claims

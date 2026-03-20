@@ -30,6 +30,8 @@ Verification:
 - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/scripts/smoke_island.py`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/scripts/smoke_island.py)
 - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/scripts/playtests/island_regression.js`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/scripts/playtests/island_regression.js)
 - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/scripts/verify_part_b_gemini_live.py`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/scripts/verify_part_b_gemini_live.py)
+- [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/reports/part_b_gemini_live_review.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/reports/part_b_gemini_live_review.md)
+- [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/reports/part_b_gemini_live_review.json`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/reports/part_b_gemini_live_review.json)
 
 ## Hosted-Agent Contract
 
@@ -126,6 +128,11 @@ Core B4 endpoints:
 
 Operational verifier:
 - `python3 scripts/verify_part_b_gemini_live.py --base-url https://moreauarena.com --ticks 3 --output reports/part_b_gemini_live_review.md --json-output reports/part_b_gemini_live_review.json`
+
+Latest live result:
+- a production `agent-only` run completed three ticks through the real Gemini path
+- preview: `mode=model`, `provider=gemini`, `model=gemini-2.5-flash-lite`
+- the sample run opened with `ENTER_ARENA`, inserted one `CARE`, then returned to `ENTER_ARENA`
 
 ## Exit Rule
 
