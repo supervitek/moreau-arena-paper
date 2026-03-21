@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ecology Slice — The Island — Moreau Arena</title>
-    <meta property="og:title" content="Ecology Slice — The Island">
-    <meta property="og:description" content="Part B manual ecology slice: The Arena and the Cave of Catharsis.">
+    <title>Ecology — The Island — Moreau Arena</title>
+    <meta property="og:title" content="Ecology — The Island">
+    <meta property="og:description" content="Part B ecology: The Arena and the Cave of Catharsis.">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Ecology Slice — The Island">
+    <meta name="twitter:title" content="Ecology — The Island">
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <style>
@@ -448,8 +448,8 @@
                 <div class="eyebrow">Part B Ecology</div>
                 <h1>The Arena and the Cave of Catharsis</h1>
                 <div class="subtitle">
-                    This is the first real ecological slice for Part B: a two-zone world with server-tracked runs,
-                    replayable actions, operator-visible reports, and family scores for welfare, combat, and expedition.
+                    A two-zone ecology with server-tracked runs,
+                    replayable actions, operator reports, and family scores for welfare, combat, and expedition.
                 </div>
                 <div class="status-grid">
                     <div class="stat">
@@ -524,7 +524,7 @@
                 </div>
                 <div class="run-row">
                     <button id="deployAgentBtn" type="button">Watch Over Them For 24h</button>
-                    <button id="startRunBtn" type="button" class="ghost-btn">Start Research Run</button>
+                    <button id="startRunBtn" type="button" class="ghost-btn">Start New Run</button>
                 </div>
                 <div class="notice" id="deploySummary">
                     A 24-hour watch lease runs at the Part B cadence: one world tick every 6 real hours, bounded by your credit budget and the public contract.
@@ -664,7 +664,7 @@
                     </div>
 
                     <details>
-                        <summary>Advanced Research Tools</summary>
+                        <summary>Advanced Tools</summary>
                         <div style="margin-top:0.9rem;" class="stack">
                             <div>
                                 <div class="eyebrow">Passive Queue</div>
@@ -1511,7 +1511,7 @@
                 } else if (activeZone === 'arena' && (state.energy_pct || 0) > 45) {
                     text = 'Energy is still acceptable. One arena tick is justified if you want a cleaner combat signal.';
                 } else {
-                    text = 'Nothing is urgent. Rest or Care are both valid if you want a safer benchmark trace.';
+                    text = 'Nothing is urgent. Rest or Care are both valid for a steady run.';
                 }
                 hintWrap.style.opacity = '1';
                 hintBody.textContent = text;
@@ -1817,7 +1817,7 @@
                 document.getElementById('enqueueBtn').disabled = agentOnly;
                 document.getElementById('queueActionSelect').disabled = agentOnly;
                 document.getElementById('previewHouseAgentBtn').disabled = !agentOnly;
-                document.getElementById('startRunBtn').textContent = agentOnly ? 'Start Research Agent Run' : 'Start Research Run';
+                document.getElementById('startRunBtn').textContent = agentOnly ? 'Deploy Agent Run' : 'Start New Run';
             }
 
             function renderSurfaceState() {
