@@ -349,6 +349,9 @@ def test_part_b_watch_sync_completes_expired_watch(monkeypatch, tmp_path):
     assert synced["run"]["status"] == "completed"
     assert synced["run"]["house_agent_enabled"] is False
     assert synced["run"]["autopause_reason"] == "watch_window_complete"
+    assert synced["report"]["watch"]["next_due_at"] is None
+    assert synced["report"]["watch"]["estimated_ticks_remaining"] == 0
+    assert "finished" in synced["report"]["return_report"]["recommendation"].lower()
 
 
 def test_part_b_fallback_house_agent_samples_cave_when_expedition_untouched(monkeypatch, tmp_path):

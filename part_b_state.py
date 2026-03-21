@@ -920,7 +920,11 @@ def _watch_summary(run_record: dict[str, Any], events: list[dict[str, Any]], cur
         headline = "They chose survival over spectacle."
 
     recommendation = "Nothing urgent. Let them keep moving."
-    if current_state.get("health_pct", 100) < 45 or current_state.get("happiness_pct", 100) < 45:
+    if status == "completed":
+        recommendation = "This watch window is finished. Review the return report, then deploy a fresh watch if you want them moving again."
+    elif status == "exhausted":
+        recommendation = "Their credits are spent. Refill the budget before you send them back out."
+    elif current_state.get("health_pct", 100) < 45 or current_state.get("happiness_pct", 100) < 45:
         recommendation = "Stabilize them before renting another watch window."
     elif current_state.get("energy_pct", 100) < 35:
         recommendation = "Rest first. The next autonomous push would start depleted."
@@ -947,6 +951,8 @@ def _watch_summary(run_record: dict[str, Any], events: list[dict[str, Any]], cur
                 int(max(0, (expires_at - datetime.now(timezone.utc)).total_seconds()) // (tick_hours * 3600)),
             ),
         )
+    if status in {"completed", "exhausted"} or remaining_hours <= 0 or estimated_ticks_remaining <= 0:
+        next_due_at = None
 
     return {
         "enabled": watch["enabled"],
