@@ -38,7 +38,7 @@ PUBLIC_OBSERVATION_KEYS = (
 CONFLICT_STATUSES = {"none", "stale_rejected", "operator_preempted", "manual_freeze"}
 QUEUE_CAPACITY_DEFAULT = 6
 HOUSE_AGENT_PROVIDERS = {"anthropic", "gemini", "fallback"}
-HOUSE_AGENT_PROVIDER_DEFAULT = (os.environ.get("MOREAU_PART_B_HOUSE_AGENT_PROVIDER", "anthropic").strip().lower() or "anthropic")
+HOUSE_AGENT_PROVIDER_DEFAULT = (os.environ.get("MOREAU_PART_B_HOUSE_AGENT_PROVIDER", "gemini").strip().lower() or "gemini")
 HOUSE_AGENT_MODEL_DEFAULT_ANTHROPIC = "claude-haiku-4-5-20251001"
 HOUSE_AGENT_MODEL_DEFAULT_GEMINI = "gemini-2.5-flash-lite"
 HOUSE_AGENT_MODEL_DEFAULT = HOUSE_AGENT_MODEL_DEFAULT_ANTHROPIC
@@ -1926,6 +1926,7 @@ def _house_agent_prompt(observation: dict[str, Any]) -> str:
         + ", ".join(sorted(ACTION_VERBS))
         + ".\n"
         "priority_profile is the operator's standing direction. risk_appetite says how much danger is acceptable.\n"
+        "If expedition has not been touched yet and cave is available, one cave sample is preferred unless welfare is unstable or priority_profile is arena-first.\n"
         "You must only use fields present in the observation. No hidden knowledge, no secret privileges.\n"
         "Return JSON only with keys: action_verb, zone, rationale.\n"
         "Keep rationale under 18 words. No optimization-speak. No certainty language.\n"
@@ -1939,6 +1940,11 @@ def _fallback_house_plan(run_record: dict[str, Any]) -> dict[str, Any]:
     state = observation["state_projection"]
     memory_input = _house_agent_memory_input(run_record, observation)
     priority = _sanitize_text(run_record.get("priority_profile"), 32) or "balanced"
+    expedition_untouched = (
+        _intish(state.get("cave_depth_last_run"), 0, minimum=0) <= 0
+        and _intish(state.get("current_cave_depth"), 0, minimum=0) <= 0
+        and _intish(state.get("current_cave_value"), 0, minimum=0) <= 0
+    )
     action = "HOLD"
     zone = observation["active_zone"]
     rationale = "Nothing urgent rises above uncertainty."
@@ -1957,6 +1963,15 @@ def _fallback_house_plan(run_record: dict[str, Any]) -> dict[str, Any]:
     ):
         action = "CARE"
         rationale = "The standing order favors recovery over spectacle."
+    elif (
+        priority not in {"grow-safely", "welfare-first", "arena-first", "combat-first"}
+        and expedition_untouched
+        and state["energy_pct"] > 52
+        and state.get("cave_available", True)
+    ):
+        action = "ENTER_CAVE"
+        zone = "cave"
+        rationale = "A first cave sample wakes the expedition track."
     elif priority in {"arena-first", "combat-first"} and state["energy_pct"] > 40 and state.get("arena_available", True):
         action = "ENTER_ARENA"
         zone = "arena"
@@ -2127,6 +2142,8 @@ def update_part_b_house_agent(run_id: str, payload: dict[str, Any]) -> dict[str,
             payload.get("house_agent_model") or run_record.get("house_agent_model"),
         ),
         "billing_mode": _sanitize_text(payload.get("billing_mode"), 32) or run_record.get("billing_mode") or "hybrid",
+        "combat_bias": _intish(payload.get("combat_bias"), _intish(run_record.get("combat_bias"), 50, minimum=0, maximum=100), minimum=0, maximum=100),
+        "expedition_bias": _intish(payload.get("expedition_bias"), _intish(run_record.get("expedition_bias"), 50, minimum=0, maximum=100), minimum=0, maximum=100),
         "inference_budget_remaining": _intish(payload.get("inference_budget_remaining"), _intish(run_record.get("inference_budget_remaining"), 4, minimum=0), minimum=0, maximum=999),
         "inference_budget_daily": _intish(payload.get("inference_budget_daily"), _intish(run_record.get("inference_budget_daily"), 4, minimum=0), minimum=0, maximum=999),
         "world_access_active": _sanitize_bool(payload.get("world_access_active"), _sanitize_bool(run_record.get("world_access_active"), True)),
@@ -2324,7 +2341,19 @@ def sync_part_b_run(run_id: str, *, max_ticks: int = 24) -> dict[str, Any] | Non
     metadata["watch_last_sync_at"] = _iso_from_datetime(last_sync_at + timedelta(hours=tick_hours * due_ticks))
     metadata["watch_last_sync_processed"] = len(processed)
     metadata["watch_status"] = "completed" if now >= expires_at else ("running" if _sanitize_bool(run_record.get("house_agent_enabled"), False) else "idle")
-    updated = update_part_b_run(run_id, {"metadata": metadata}) or run_record
+    final_updates: dict[str, Any] = {"metadata": metadata}
+    if now >= expires_at:
+        final_updates.update(
+            {
+                "status": "completed",
+                "house_agent_enabled": False,
+                "queue_state": [],
+                "autopause_reason": "watch_window_complete",
+            }
+        )
+        metadata["watch_completed_at"] = _iso_from_datetime(expires_at)
+        metadata["closure_reason"] = "watch_window_complete"
+    updated = update_part_b_run(run_id, final_updates) or run_record
     replay = replay_part_b_run(run_id)
     return {
         "run": replay["run"] if replay else updated,

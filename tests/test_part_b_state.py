@@ -7,6 +7,7 @@ from part_b_state import (
     ACTION_VERBS,
     PUBLIC_OBSERVATION_KEYS,
     _derive_scores,
+    _fallback_house_plan,
     _leaderboard_entry,
     _observation_from,
     append_part_b_event,
@@ -323,6 +324,56 @@ def test_part_b_watch_sync_catches_up_due_ticks(monkeypatch, tmp_path):
     assert "estimated_ticks_remaining" in synced["report"]["watch"]
     assert "headline" in synced["report"]["return_report"]
     assert "summary" in synced["report"]["return_report"]
+
+
+def test_part_b_watch_sync_completes_expired_watch(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+
+    run_record = create_part_b_run(
+        {
+            "run_class": "agent-only",
+            "house_agent_enabled": True,
+            "metadata": {
+                "watch_mode": True,
+                "watch_started_at": "2026-03-19T00:00:00Z",
+                "watch_last_sync_at": "2026-03-19T18:00:00Z",
+                "watch_expires_at": "2026-03-20T00:00:00Z",
+                "watch_window_hours": 24,
+                "watch_status": "running",
+            },
+        }
+    )
+    synced = sync_part_b_run(run_record["id"], max_ticks=2)
+    assert synced is not None
+    assert synced["run"]["status"] == "completed"
+    assert synced["run"]["house_agent_enabled"] is False
+    assert synced["run"]["autopause_reason"] == "watch_window_complete"
+
+
+def test_part_b_fallback_house_agent_samples_cave_when_expedition_untouched(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+
+    run_record = create_part_b_run(
+        {
+            "run_class": "agent-only",
+            "house_agent_enabled": True,
+            "priority_profile": "keep-moving",
+            "state_projection": {
+                "health_pct": 88,
+                "morale_pct": 80,
+                "happiness_pct": 81,
+                "energy_pct": 84,
+                "cave_depth_last_run": 0,
+                "current_cave_depth": 0,
+                "current_cave_value": 0,
+            },
+        }
+    )
+    plan = _fallback_house_plan(run_record)
+    assert plan["action_verb"] == "ENTER_CAVE"
+    assert plan["zone"] == "cave"
 
 
 def test_part_b_watch_sync_noop_for_non_watch_run(monkeypatch, tmp_path):

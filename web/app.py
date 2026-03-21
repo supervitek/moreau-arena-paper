@@ -1377,10 +1377,101 @@ def _inject_standard_nav(html: str, request_path: str) -> str:
     return NAV_BLOCK_RE.sub(_render_standard_nav(request_path), html, count=1)
 
 
-def _serve_html(file_path: Path, request_path: str, html: str | None = None) -> HTMLResponse:
+def _serve_html(file_path: Path, request_path: str, html: str | None = None, status_code: int = 200) -> HTMLResponse:
     content = html if html is not None else file_path.read_text(encoding="utf-8")
     content = _inject_standard_nav(content, request_path)
-    return HTMLResponse(_inject_default_meta(content, request_path))
+    return HTMLResponse(_inject_default_meta(content, request_path), status_code=status_code)
+
+
+def _island_not_found_html(page: str) -> str:
+    missing = re.sub(r"[^a-zA-Z0-9._/-]", "", page)[:48] or "unknown"
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Island Route Not Found</title>
+  <style>
+    :root {{
+      --bg: #120d0d;
+      --panel: rgba(25, 17, 17, 0.92);
+      --border: rgba(214, 95, 73, 0.24);
+      --text: #f5ebea;
+      --dim: #c8b3b0;
+      --accent: #e06749;
+    }}
+    body {{
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at top, rgba(224,103,73,0.18), transparent 28rem),
+        linear-gradient(180deg, #1a1111 0%, #0e0909 100%);
+      color: var(--text);
+      font-family: Georgia, "Times New Roman", serif;
+    }}
+    .shell {{
+      width: min(92vw, 42rem);
+      padding: 2rem;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--panel);
+      box-shadow: 0 22px 60px rgba(0,0,0,0.35);
+    }}
+    .eyebrow {{
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 0.78rem;
+      margin-bottom: 0.85rem;
+    }}
+    h1 {{
+      margin: 0 0 0.75rem;
+      font-size: clamp(2rem, 5vw, 3rem);
+    }}
+    p {{
+      color: var(--dim);
+      line-height: 1.6;
+    }}
+    .actions {{
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      margin-top: 1.2rem;
+    }}
+    a {{
+      text-decoration: none;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.82rem 1rem;
+      border-radius: 999px;
+      background: rgba(224,103,73,0.1);
+    }}
+    a.primary {{
+      background: linear-gradient(180deg, #e06749 0%, #b64f37 100%);
+      border-color: transparent;
+    }}
+    code {{
+      color: var(--text);
+      background: rgba(255,255,255,0.06);
+      padding: 0.15rem 0.35rem;
+      border-radius: 6px;
+    }}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="eyebrow">Island Drift</div>
+    <h1>That path is gone.</h1>
+    <p>The island has no page at <code>/island/{missing}</code>. Return to the hub or open Ecology instead of landing on a raw error.</p>
+    <div class="actions">
+      <a class="primary" href="/island/home">Return to Island Home</a>
+      <a href="/island/ecology">Open Ecology</a>
+    </div>
+  </main>
+</body>
+</html>"""
 
 
 # -- Page routes ----------------------------------------------------------------
@@ -1565,7 +1656,7 @@ class PartBRunCreateRequest(BaseModel):
     billing_mode: str = Field(default="hybrid", max_length=32)
     world_access_active: bool = Field(default=True)
     house_agent_enabled: bool = Field(default=False)
-    house_agent_provider: str = Field(default="anthropic", max_length=32)
+    house_agent_provider: str = Field(default="gemini", max_length=32)
     house_agent_model: str = Field(default="gemini-2.5-flash-lite", max_length=64)
     observation_version: str = Field(default="B1", max_length=16)
     action_version: str = Field(default="B1", max_length=16)
@@ -1677,9 +1768,11 @@ class PartBTickRequest(BaseModel):
 
 class PartBHouseAgentRequest(BaseModel):
     house_agent_enabled: bool = Field(default=True)
-    house_agent_provider: str = Field(default="anthropic", max_length=32)
+    house_agent_provider: str = Field(default="gemini", max_length=32)
     house_agent_model: str = Field(default="gemini-2.5-flash-lite", max_length=64)
     billing_mode: str = Field(default="hybrid", max_length=32)
+    combat_bias: int | None = Field(default=None, ge=0, le=100)
+    expedition_bias: int | None = Field(default=None, ge=0, le=100)
     inference_budget_remaining: int | None = Field(default=None, ge=0, le=999)
     inference_budget_daily: int | None = Field(default=None, ge=0, le=999)
     world_access_active: bool = Field(default=True)
@@ -1974,7 +2067,7 @@ def island_part_b_season_archive(
 def island_page(page: str) -> HTMLResponse:
     allowed = {"index", "home", "create", "kennel", "train", "lab", "pit", "graveyard", "profile", "leaderboard", "achievements", "onboarding", "dreams", "crimson", "rivals", "prophecy", "shrine", "artifacts", "menagerie", "succession", "deep-tide", "black-market", "tides", "pact", "genesis", "confessions", "oath", "arena", "breeding", "lineage", "synergies", "cosmetics", "caretaker", "ecology"}
     if page not in allowed:
-        raise HTTPException(404, f"Unknown island page: {page}")
+        return _serve_html(STATIC_DIR / "island" / "index.html", "/island", html=_island_not_found_html(page), status_code=404)
     route_path = "/island" if page == "index" else f"/island/{page}"
     return _serve_html(STATIC_DIR / "island" / f"{page}.html", route_path)
 

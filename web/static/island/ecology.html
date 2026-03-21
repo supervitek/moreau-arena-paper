@@ -265,6 +265,28 @@
             margin-bottom: 0.3rem;
         }
 
+        .subhint {
+            margin-top: 0.5rem;
+            font-size: 0.86rem;
+            color: var(--text-dim);
+        }
+
+        .progress {
+            margin-top: 0.8rem;
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.08);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--accent), var(--blue));
+            transition: width 220ms ease;
+        }
+
         .replay-list {
             display: grid;
             gap: 0.65rem;
@@ -489,7 +511,7 @@
                     </div>
                 </div>
                 <div class="notice">
-                    Composite score stays out of the headline. This slice only exposes the three family signals agreed in Part B.
+                    Composite score stays out of the headline. Ecology tracks three separate signals: welfare, combat, and expedition.
                 </div>
             </section>
         </div>
@@ -507,6 +529,9 @@
                         <option value="operator-assisted">operator-assisted</option>
                         <option value="agent-only">agent-only</option>
                     </select>
+                </div>
+                <div class="subhint" id="runClassHint">
+                    Manual: you make every move. Operator-assisted: you decide with hints. Agent-only: the house agent runs the watch for you.
                 </div>
                 <div class="run-row">
                     <select id="prioritySelect">
@@ -526,12 +551,16 @@
                     <button id="deployAgentBtn" type="button">Watch Over Them For 24h</button>
                     <button id="startRunBtn" type="button" class="ghost-btn">Start New Run</button>
                 </div>
+                <div class="run-row">
+                    <button id="completeRunBtn" type="button" class="ghost-btn">Complete Active Run</button>
+                </div>
                 <div class="notice" id="deploySummary">
                     A 24-hour watch lease runs at the Part B cadence: one world tick every 6 real hours, bounded by your credit budget and the public contract.
                 </div>
                 <div class="hint" id="watchStatusHint">
                     <strong>House Watch</strong>
                     <div id="watchStatusBody">No live watch yet. Deploy an agent-only run to get a 24h lease, catch-up sync, and return report.</div>
+                    <div class="progress"><div id="watchProgressFill" class="progress-fill"></div></div>
                 </div>
                 <div class="control-grid">
                     <div class="control">
@@ -638,28 +667,20 @@
                     <div>
                         <div class="eyebrow">Hosted House Agent</div>
                         <div class="run-row">
-                            <select id="houseAgentProviderSelect">
-                                <option value="gemini">gemini</option>
-                                <option value="anthropic">anthropic</option>
-                                <option value="fallback">fallback</option>
-                            </select>
-                            <input id="houseAgentModelInput" type="text" value="gemini-2.5-flash-lite" spellcheck="false" aria-label="house agent model">
-                        </div>
-                        <div class="run-row">
                             <select id="budgetSelect">
                                 <option value="4">4 credits / day</option>
                                 <option value="8">8 credits / day</option>
                                 <option value="12">12 credits / day</option>
                             </select>
-                            <button id="saveHouseAgentBtn" type="button">Apply Agent Settings</button>
+                            <button id="saveHouseAgentBtn" type="button">Save Watch Settings</button>
                         </div>
+                        <div class="subhint" id="budgetHint">1 credit funds 1 house-agent decision. A 4-credit watch can act up to 4 times in a day before pausing.</div>
                         <div class="run-row">
                             <button id="syncWatchBtn" type="button" class="ghost-btn">Catch Up Now</button>
-                            <button id="previewHouseAgentBtn" type="button" class="ghost-btn">Preview Agent Plan</button>
                         </div>
                         <div class="hint" id="houseAgentHint">
                             <strong>House Agent</strong>
-                            <div id="houseAgentHintBody">Only active on agent-only runs. It acts through the public action grammar, catches up when you return, and auto-pauses when credits are exhausted.</div>
+                            <div id="houseAgentHintBody">Only active on agent-only runs. It acts through the public action grammar, catches up when you return, and pauses cleanly when its daily credits run out.</div>
                         </div>
                     </div>
 
@@ -689,6 +710,25 @@
                                     <button id="clearQueueBtn" type="button" class="ghost-btn">Clear Queue</button>
                                 </div>
                                 <div id="queueArea" class="replay-list"></div>
+                            </div>
+
+                            <div>
+                                <div class="eyebrow">Agent Tuning</div>
+                                <div class="run-row">
+                                    <select id="houseAgentProviderSelect">
+                                        <option value="gemini">gemini</option>
+                                        <option value="anthropic">anthropic</option>
+                                        <option value="fallback">fallback</option>
+                                    </select>
+                                    <input id="houseAgentModelInput" type="text" value="gemini-2.5-flash-lite" spellcheck="false" aria-label="house agent model">
+                                </div>
+                                <div class="run-row">
+                                    <button id="previewHouseAgentBtn" type="button" class="ghost-btn">Preview Agent Plan</button>
+                                </div>
+                                <div class="hint">
+                                    <strong>Agent Tuning</strong>
+                                    <div>Product runs use Gemini by default. Only touch provider/model if you are explicitly testing the agent layer.</div>
+                                </div>
                             </div>
 
                             <div>
@@ -737,7 +777,7 @@
                     <button id="refreshLeaderboardsBtn" type="button" class="ghost-btn">Refresh Boards</button>
                 </div>
                 <div class="notice" id="leaderboardExplainer">
-                    Every benchmarked Part B run uses the same public action grammar and score rules. Product richness can change the voice and planning feel, not the legal verbs or scoring formula.
+                    Every ranked run uses the same public actions and score rules. House mode can change voice and pacing, not the legal moves or the scoring formula.
                 </div>
                 <div id="leaderboardArea" class="stack"></div>
             </section>
@@ -765,6 +805,7 @@
             var offlineMode = true;
             var currentUserId = null;
             var storageBackend = 'file';
+            var surfaceMessageTimeout = null;
 
             function escHtml(value) {
                 var div = document.createElement('div');
@@ -888,9 +929,28 @@
                 var response = await fetch(url, options || {});
                 if (!response.ok) {
                     var text = await response.text();
+                    try {
+                        var parsed = JSON.parse(text);
+                        if (parsed && parsed.detail) {
+                            throw new Error(String(parsed.detail));
+                        }
+                    } catch (parseError) {
+                        if (!(parseError instanceof SyntaxError)) throw parseError;
+                    }
                     throw new Error(text || ('HTTP ' + response.status));
                 }
                 return response.json();
+            }
+
+            function setSurfaceMessage(text, kind) {
+                var notice = document.getElementById('deploySummary');
+                if (!notice) return;
+                notice.textContent = text;
+                notice.style.borderColor = kind === 'error' ? 'rgba(231, 88, 88, 0.45)' : 'rgba(224, 103, 73, 0.24)';
+                if (surfaceMessageTimeout) window.clearTimeout(surfaceMessageTimeout);
+                if (kind === 'error') {
+                    surfaceMessageTimeout = window.setTimeout(renderDeploySummary, 4500);
+                }
             }
 
             function activeRunClass() {
@@ -974,16 +1034,22 @@
             async function startRun(overrides) {
                 var pet = getSelectedPet();
                 if (!pet) {
-                    alert('Create a living pet first.');
+                    setSurfaceMessage('Create a living pet first.', 'error');
                     return;
                 }
                 var opts = overrides || {};
+                if (!opts.skipCompletionPrompt && currentRun && currentRun.status === 'active' && currentRunId) {
+                    var replace = window.confirm('A run is already active. Complete it and start a fresh run?');
+                    if (!replace) return;
+                    await completeRun({ silent: true });
+                }
                 var runClass = opts.runClass || document.getElementById('runClassSelect').value;
                 var priority = opts.priority || document.getElementById('prioritySelect').value;
                 var riskAppetite = opts.riskAppetite || document.getElementById('riskSelect').value || 'measured';
                 var dailyBudget = parseInt(String(opts.dailyBudget || document.getElementById('budgetSelect').value || '4'), 10);
                 var houseAgentProvider = opts.houseAgentProvider || document.getElementById('houseAgentProviderSelect').value || 'gemini';
                 var houseAgentModel = opts.houseAgentModel || document.getElementById('houseAgentModelInput').value || 'gemini-2.5-flash-lite';
+                var biases = priorityBiases(priority);
                 var projection = initialProjection(pet);
                 var payload = {
                     season_id: currentSeason && currentSeason.season_id ? currentSeason.season_id : 'part-b-s1-first-descent',
@@ -995,6 +1061,8 @@
                     active_zone: activeZone === 'cave' ? 'cave' : 'arena',
                     priority_profile: priority,
                     risk_appetite: riskAppetite,
+                    combat_bias: biases.combat,
+                    expedition_bias: biases.expedition,
                     inference_budget_remaining: dailyBudget,
                     inference_budget_daily: dailyBudget,
                     billing_mode: 'hybrid',
@@ -1013,6 +1081,13 @@
                 currentRunId = currentRun.id;
                 localStorage.setItem(RUN_KEY, currentRunId);
                 await loadRun();
+            }
+
+            function priorityBiases(priority) {
+                if (priority === 'arena-first') return { combat: 76, expedition: 34 };
+                if (priority === 'cave-first') return { combat: 34, expedition: 76 };
+                if (priority === 'grow-safely') return { combat: 42, expedition: 48 };
+                return { combat: 58, expedition: 62 };
             }
 
             async function deployAgentWatch() {
@@ -1038,8 +1113,43 @@
                     riskAppetite: risk,
                     dailyBudget: budget,
                     houseAgentProvider: 'gemini',
-                    houseAgentModel: document.getElementById('houseAgentModelInput').value || 'gemini-2.5-flash-lite'
+                    houseAgentModel: document.getElementById('houseAgentModelInput').value || 'gemini-2.5-flash-lite',
+                    skipCompletionPrompt: false
                 });
+            }
+
+            async function completeRun(options) {
+                options = options || {};
+                if (!currentRunId || !currentRun) {
+                    setSurfaceMessage('There is no active run to complete.', 'error');
+                    return;
+                }
+                if (!options.silent) {
+                    var confirmed = window.confirm('Complete this run and archive it from the active slot? You can still inspect its report afterward.');
+                    if (!confirmed) return;
+                }
+                var nextMetadata = Object.assign({}, currentRun.metadata || {}, {
+                    watch_status: 'completed',
+                    closed_at: new Date().toISOString(),
+                    closure_reason: 'operator_completed'
+                });
+                currentRun = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        status: 'completed',
+                        house_agent_enabled: false,
+                        queue_state: [],
+                        autopause_reason: 'operator_completed',
+                        metadata: nextMetadata
+                    })
+                });
+                currentReplay = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/replay');
+                currentRunId = '';
+                localStorage.removeItem(RUN_KEY);
+                await loadSeasonAndLeaderboards();
+                render();
+                setSurfaceMessage('Run completed. You can inspect the report or start a fresh run.', 'info');
             }
 
             async function catchUpNow() {
@@ -1221,7 +1331,7 @@
                 var state = currentState();
                 if (!state) return;
                 if (!(state.in_cave || state.current_cave_depth > 0)) {
-                    alert('There is nothing to extract yet.');
+                    setSurfaceMessage('There is nothing to extract yet.', 'error');
                     return;
                 }
                 var next = Object.assign({}, state, {
@@ -1345,7 +1455,7 @@
             async function enqueueSelectedAction() {
                 await ensureRun();
                 if (activeRunClass() === 'agent-only') {
-                    alert('Agent-only runs do not accept operator queue authoring. Use priorities and the hosted agent.');
+                    setSurfaceMessage('Agent-only runs do not accept operator queue authoring. Use priorities and the hosted agent.', 'error');
                     return;
                 }
                 var actionVerb = document.getElementById('queueActionSelect').value;
@@ -1362,7 +1472,7 @@
                     });
                     await loadRun();
                 } catch (error) {
-                    alert(error.message || 'Queue update failed.');
+                    setSurfaceMessage(error.message || 'Queue update failed.', 'error');
                 }
             }
 
@@ -1408,6 +1518,7 @@
                 var dailyBudget = parseInt(document.getElementById('budgetSelect').value || '4', 10);
                 var provider = document.getElementById('houseAgentProviderSelect').value || 'gemini';
                 var model = document.getElementById('houseAgentModelInput').value || 'gemini-2.5-flash-lite';
+                var biases = priorityBiases(document.getElementById('prioritySelect').value || 'keep-moving');
                 try {
                     var result = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/house-agent', {
                         method: 'POST',
@@ -1417,6 +1528,8 @@
                             house_agent_provider: provider,
                             house_agent_model: model,
                             billing_mode: 'hybrid',
+                            combat_bias: biases.combat,
+                            expedition_bias: biases.expedition,
                             inference_budget_daily: dailyBudget,
                             inference_budget_remaining: currentRun && typeof currentRun.inference_budget_remaining === 'number'
                                 ? Math.min(currentRun.inference_budget_remaining, dailyBudget)
@@ -1427,14 +1540,14 @@
                     currentRun = result.run;
                     await loadRun();
                 } catch (error) {
-                    alert(error.message || 'House agent update failed.');
+                    setSurfaceMessage(error.message || 'House agent update failed.', 'error');
                 }
             }
 
             async function previewHouseAgent() {
                 await ensureRun();
                 if (activeRunClass() !== 'agent-only') {
-                    alert('House-agent preview only applies to agent-only runs.');
+                    setSurfaceMessage('House-agent preview only applies to agent-only runs.', 'error');
                     return;
                 }
                 var preview = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/house-agent/preview');
@@ -1519,11 +1632,13 @@
 
             function renderWatchStatus() {
                 var body = document.getElementById('watchStatusBody');
+                var fill = document.getElementById('watchProgressFill');
                 var report = currentReplay && currentReplay.report ? currentReplay.report : null;
                 if (!report || !report.watch || !report.watch.enabled) {
                     body.textContent = activeRunClass() === 'agent-only'
                         ? 'Agent-only mode is selected, but the 24h watch has not been deployed yet.'
                         : 'No live watch yet. Deploy an agent-only run to get a 24h lease, catch-up sync, and return report.';
+                    if (fill) fill.style.width = '0%';
                     return;
                 }
                 var watch = report.watch;
@@ -1543,6 +1658,24 @@
                     pieces.push('next due ' + watch.next_due_at);
                 }
                 body.textContent = (watch.label || 'Watch Over Them') + ' — ' + pieces.join(' · ');
+                if (fill) {
+                    var remaining = Number(watch.window_remaining_hours || 0);
+                    var total = Number(watch.window_hours || 24) || 24;
+                    var used = Math.max(0, total - remaining);
+                    fill.style.width = String(Math.max(0, Math.min(100, (used / total) * 100))) + '%';
+                }
+            }
+
+            function renderRunClassHint() {
+                var hint = document.getElementById('runClassHint');
+                var runClass = document.getElementById('runClassSelect').value || 'manual';
+                if (runClass === 'agent-only') {
+                    hint.textContent = 'Agent-only: our house agent runs the watch for you, spends credits, and returns a report when you come back.';
+                } else if (runClass === 'operator-assisted') {
+                    hint.textContent = 'Operator-assisted: you still choose the actions, but bounded hints stay live beside the run.';
+                } else {
+                    hint.textContent = 'Manual: you make every move yourself. Useful for learning the surfaces before handing them off.';
+                }
             }
 
             function renderDeploySummary() {
@@ -1550,13 +1683,15 @@
                 var priority = document.getElementById('prioritySelect').value || 'keep-moving';
                 var risk = document.getElementById('riskSelect').value || 'measured';
                 var budget = parseInt(document.getElementById('budgetSelect').value || '4', 10);
-                var sentence = 'A 24-hour watch lease runs at the Part B cadence: one world tick every 6 real hours, bounded by your credit budget and the public contract.';
+                var sentence = 'A 24-hour watch lease runs at the Part B cadence: one world tick every 6 real hours. 1 credit funds 1 house-agent decision.';
                 if (priority === 'grow-safely') {
                     sentence = 'This watch leans toward recovery. Expect more Care/Rest pressure before riskier moves.';
                 } else if (priority === 'arena-first') {
                     sentence = 'This watch leans toward combat pressure. Expect cleaner arena reads when energy is still intact.';
                 } else if (priority === 'cave-first') {
                     sentence = 'This watch leans toward expedition value. Expect cave pressure unless welfare starts to slip.';
+                } else {
+                    sentence = 'This watch keeps the run moving. If expedition is untouched and the pet is stable, it may sample the cave early.';
                 }
                 summary.textContent = sentence + ' Current setup: ' + budget + ' credits, ' + risk + ' risk appetite.';
             }
@@ -1581,6 +1716,7 @@
                         '<div class="delta-row"><span>recommendation</span><span>' + escHtml(summary.recommendation || 'None') + '</span></div>' +
                         '<div class="delta-row"><span>credits used</span><span>' + escHtml(summary.credits_used || 0) + '</span></div>' +
                         '<div class="delta-row"><span>window left</span><span>' + escHtml(summary.window_remaining_hours || 0) + 'h</span></div>' +
+                        '<div class="delta-row"><span>ticks left</span><span>' + escHtml(summary.estimated_ticks_remaining || 0) + '</span></div>' +
                         (deltaRows || '<div class="delta-row"><span>delta</span><span>No material state change captured yet.</span></div>') +
                     '</div>';
             }
@@ -1680,7 +1816,7 @@
                 var area = document.getElementById('inspectArea');
                 var report = currentReplay && currentReplay.report ? currentReplay.report : null;
                 if (!report) {
-                    area.innerHTML = '<div class="empty">Start a run to see conflict summaries, state deltas, and benchmark eligibility.</div>';
+                    area.innerHTML = '<div class="empty">Start a run to see state deltas, conflicts, and season position.</div>';
                     return;
                 }
                 var inspect = report.inspect || {};
@@ -1737,7 +1873,7 @@
                 if (currentLeaderboards && currentLeaderboards.focus_run_ranks) {
                     blocks.push(
                         '<div class="inspect-card">' +
-                            '<strong>Benchmark position</strong>' +
+                            '<strong>Season position</strong>' +
                             '<div class="delta-row"><span>welfare rank</span><span>' + escHtml(currentLeaderboards.focus_run_ranks.welfare || '—') + '</span></div>' +
                             '<div class="delta-row"><span>combat rank</span><span>' + escHtml(currentLeaderboards.focus_run_ranks.combat || '—') + '</span></div>' +
                             '<div class="delta-row"><span>expedition rank</span><span>' + escHtml(currentLeaderboards.focus_run_ranks.expedition || '—') + '</span></div>' +
@@ -1756,8 +1892,15 @@
                 }
                 var selectedClass = currentLeaderboards.selected_run_class || 'all';
                 var families = ['welfare', 'combat', 'expedition'];
+                var warningMap = {
+                    expedition_flatlined: 'expedition still quiet',
+                    welfare_flatlined: 'welfare still quiet',
+                    combat_flatlined: 'combat still quiet',
+                    welfare_idle_dominance: 'too much idle welfare padding',
+                    single_policy_multi_family_dominance: 'one policy dominates too many families'
+                };
                 var warningText = currentCalibration && Array.isArray(currentCalibration.warnings) && currentCalibration.warnings.length
-                    ? currentCalibration.warnings.join(', ')
+                    ? currentCalibration.warnings.map(function(item) { return warningMap[item] || item.replace(/_/g, ' '); }).join(', ')
                     : 'none';
                 var cards = families.map(function(family) {
                     var rows = Array.isArray(currentLeaderboards.families[family]) ? currentLeaderboards.families[family] : [];
@@ -1766,11 +1909,11 @@
                         var baseline = entry.baseline_policy ? ' · baseline:' + entry.baseline_policy : '';
                         var agentType = entry.agent_type || (entry.house_agent_enabled ? 'house-agent' : 'human-led');
                         var complianceBadge = entry.public_contract_compliant
-                            ? badgeHtml('contract:B1', 'badge-eligible')
-                            : badgeHtml('contract drift', 'badge-warning');
+                            ? badgeHtml('season rules', 'badge-eligible')
+                            : badgeHtml('rules drift', 'badge-warning');
                         var eligibilityBadge = entry.benchmark_eligible
-                            ? badgeHtml('benchmark eligible', 'badge-eligible')
-                            : badgeHtml('not eligible', 'badge-warning');
+                            ? badgeHtml('ranked', 'badge-eligible')
+                            : badgeHtml('unranked', 'badge-warning');
                         var runClassBadge = badgeHtml(entry.run_class || 'unknown', 'badge-' + ((entry.run_class || '').indexOf('agent') >= 0 ? 'agent' : (entry.run_class === 'manual' ? 'manual' : 'operator')));
                         var agentBadge = badgeHtml(agentType, entry.house_agent_enabled ? 'badge-agent' : (entry.run_class === 'manual' ? 'badge-manual' : 'badge-operator'));
                         return '<div class="leaderboard-row">' +
@@ -1779,7 +1922,7 @@
                             '</span>' +
                             '<span>' + escHtml(entry.scores && entry.scores[family] || 0) + ' · tick ' + escHtml(entry.world_tick || 0) + '</span>' +
                         '</div>';
-                    }).join('') : '<div class="empty">No eligible runs for this view yet.</div>';
+                    }).join('') : '<div class="empty">No ranked runs for this view yet.</div>';
                     return '<div class="leaderboard-family">' +
                         '<strong>' + escHtml(family.toUpperCase()) + ' · ' + escHtml(selectedClass) + '</strong>' +
                         body +
@@ -1792,14 +1935,16 @@
                     var welfareLeader = bucket.welfare && bucket.welfare[0] ? bucket.welfare[0].subject_pet_name + ' (' + bucket.welfare[0].scores.welfare + ')' : '—';
                     return runClass + ': ' + welfareLeader;
                 }).join(' · ');
-                var season = currentLeaderboards.season || {};
-                var grammar = Array.isArray(season.public_action_grammar) ? season.public_action_grammar.join(', ') : 'HOLD, CARE, REST, TRAIN, ENTER_ARENA, ENTER_CAVE, EXTRACT, MUTATE';
-                var explainer = 'Public grammar: ' + grammar + ' · same scoring for every benchmark-eligible run' +
-                    ' · house-agent rule: ' + (season.house_agent_benchmark_rule || 'visible labels + public contract parity');
-                document.getElementById('leaderboardExplainer').textContent = explainer;
+                var warnings = [];
+                if (currentCalibration && Array.isArray(currentCalibration.warnings)) warnings = currentCalibration.warnings.slice();
+                if (warnings.indexOf('expedition_flatlined') >= 0) {
+                    document.getElementById('leaderboardExplainer').textContent = 'Expedition wakes up the moment a run starts banking cave value. Arena-heavy history can leave that track quiet until a descent lands.';
+                } else {
+                    document.getElementById('leaderboardExplainer').textContent = 'All ranked runs share the same public actions and scoring. House mode can change pacing and voice, not the legal move set.';
+                }
                 area.innerHTML =
                     '<div class="notice">Season: ' + escHtml(currentLeaderboards.season && currentLeaderboards.season.name || 'unknown') +
-                    ' · eligible runs ' + escHtml(counts.eligible_runs || 0) + ' / ' + escHtml(counts.total_runs || 0) +
+                    ' · ranked runs ' + escHtml(counts.eligible_runs || 0) + ' / ' + escHtml(counts.total_runs || 0) +
                     ' · warnings ' + escHtml(warningText) + '</div>' +
                     '<div class="notice">class leaders (welfare): ' + escHtml(classTopText) + '</div>' +
                     cards;
@@ -1826,7 +1971,7 @@
                 document.getElementById('revisionValue').textContent = currentRun ? String(currentRun.state_revision || 0) : '0';
                 document.getElementById('seasonValue').textContent = currentSeason ? String(currentSeason.season_id || '-').replace('part-b-', '') : '-';
                 document.getElementById('seasonNotice').textContent = currentSeason
-                    ? (currentSeason.name + ' · ' + (currentSeason.house_agent_benchmark_rule || ''))
+                    ? (currentSeason.name + ' · same rules for every ranked run')
                     : 'Loading first measurement season contract…';
                 document.getElementById('healthValue').textContent = state ? Math.round(state.health_pct || 0) + '%' : '-';
                 document.getElementById('moraleValue').textContent = state ? Math.round(state.morale_pct || 0) + '%' : '-';
@@ -1840,7 +1985,7 @@
                     ? String(currentRun.inference_budget_remaining || 0) + ' / ' + String(currentRun.inference_budget_daily || 0)
                     : '-';
                 document.getElementById('houseAgentValue').textContent = currentRun && currentRun.house_agent_enabled
-                    ? ('on / ' + (currentRun.house_agent_provider || 'unknown'))
+                    ? 'on'
                     : 'off';
                 if (currentReplay && currentReplay.report && currentReplay.report.scores) {
                     var scores = currentReplay.report.scores;
@@ -1870,6 +2015,7 @@
 
             function render() {
                 renderDeploySummary();
+                renderRunClassHint();
                 renderSurfaceState();
                 renderQueue();
                 renderReplay();
@@ -1899,6 +2045,7 @@
 
                 document.getElementById('startRunBtn').addEventListener('click', startRun);
                 document.getElementById('deployAgentBtn').addEventListener('click', deployAgentWatch);
+                document.getElementById('completeRunBtn').addEventListener('click', completeRun);
                 document.getElementById('tabArena').addEventListener('click', function() { switchZone('arena'); });
                 document.getElementById('tabCave').addEventListener('click', function() { switchZone('cave'); });
                 document.getElementById('btnArenaEnter').addEventListener('click', actArena);
@@ -1924,6 +2071,7 @@
                 document.getElementById('runClassSelect').addEventListener('change', function() {
                     renderHint();
                     renderRunModeState();
+                    renderRunClassHint();
                 });
                 document.getElementById('prioritySelect').addEventListener('change', renderHint);
                 document.getElementById('riskSelect').addEventListener('change', renderHint);
@@ -1934,7 +2082,7 @@
 
             main().catch(function(error) {
                 console.error(error);
-                alert('Ecology surface failed to initialize.');
+                setSurfaceMessage('Ecology surface failed to initialize.', 'error');
             });
         })();
     </script>
