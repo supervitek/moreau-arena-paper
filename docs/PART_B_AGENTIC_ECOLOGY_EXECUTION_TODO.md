@@ -127,6 +127,7 @@ Exit rule:
 - [x] Add operator controls for house agent.
 - [x] Ensure house agent acts only through published action grammar.
 - [x] Verify a live Gemini house-agent run on production.
+- [x] Verify a live watch-sync catch-up run on production.
 
 Artifacts:
 - `docs/PART_B_HOUSE_AGENT_B4.md`
@@ -134,6 +135,7 @@ Artifacts:
 - `web/static/island/ecology.html`
 - `scripts/verify_part_b_gemini_live.py`
 - `reports/part_b_gemini_live_review.md`
+- `reports/part_b_watch_sync_live_review.md`
 
 Exit rule:
 - house agent can run without invalidating future benchmark claims

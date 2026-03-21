@@ -128,11 +128,13 @@ Core B4 endpoints:
 
 Operational verifier:
 - `python3 scripts/verify_part_b_gemini_live.py --base-url https://moreauarena.com --ticks 3 --output reports/part_b_gemini_live_review.md --json-output reports/part_b_gemini_live_review.json`
+- `python3 scripts/verify_part_b_gemini_live.py --base-url https://moreauarena.com --watch-mode --backdate-hours 12 --ticks 12 --output reports/part_b_watch_sync_live_review.md --json-output reports/part_b_watch_sync_live_review.json`
 
 Latest live result:
 - a production `agent-only` run completed three ticks through the real Gemini path
 - preview: `mode=model`, `provider=gemini`, `model=gemini-2.5-flash-lite`
 - the sample run opened with `ENTER_ARENA`, inserted one `CARE`, then returned to `ENTER_ARENA`
+- a second production run verified the new watch-sync path with a backdated lease and a real return report
 
 ## Exit Rule
 

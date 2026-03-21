@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 from urllib import request
@@ -30,6 +31,7 @@ def build_report(payload: dict[str, Any]) -> str:
         f"- Preview provider: `{payload['preview']['provider']}`",
         f"- Preview model: `{payload['preview']['model']}`",
         f"- Preview action: `{payload['preview']['action_verb']}`",
+        f"- Watch mode: `{payload['watch_mode']}`",
         "",
         "## Tick Results",
         "",
@@ -89,7 +91,27 @@ def main() -> int:
     parser.add_argument("--model", default="gemini-2.5-flash-lite")
     parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--json-output", type=Path, default=None)
+    parser.add_argument("--watch-mode", action="store_true")
+    parser.add_argument("--backdate-hours", type=int, default=0)
     args = parser.parse_args()
+
+    now = datetime.now(timezone.utc).replace(microsecond=0)
+    metadata = {"source": "verify-part-b-gemini-live"}
+    if args.watch_mode:
+        started_at = now - timedelta(hours=max(0, args.backdate_hours))
+        expires_at = started_at + timedelta(hours=24)
+        metadata.update(
+            {
+                "watch_mode": True,
+                "watch_label": "Watch Over Them",
+                "watch_window_hours": 24,
+                "watch_started_at": started_at.isoformat().replace("+00:00", "Z"),
+                "watch_last_sync_at": started_at.isoformat().replace("+00:00", "Z"),
+                "watch_expires_at": expires_at.isoformat().replace("+00:00", "Z"),
+                "watch_departure_seen_at": started_at.isoformat().replace("+00:00", "Z"),
+                "watch_departure_tick": 0,
+            }
+        )
 
     create = request_json(
         args.base_url,
@@ -106,17 +128,22 @@ def main() -> int:
             "inference_budget_daily": max(args.ticks, 1),
             "billing_mode": "hybrid",
             "world_access_active": True,
+            "metadata": metadata,
         },
     )
     run_id = create["id"]
     run = request_json(args.base_url, "GET", f"/api/v1/island/part-b/runs/{run_id}")
     preview = request_json(args.base_url, "GET", f"/api/v1/island/part-b/runs/{run_id}/house-agent/preview")
-    tick = request_json(args.base_url, "POST", f"/api/v1/island/part-b/runs/{run_id}/tick", {"count": args.ticks})
+    if args.watch_mode:
+        tick = request_json(args.base_url, "POST", f"/api/v1/island/part-b/runs/{run_id}/sync", {"max_ticks": args.ticks})
+    else:
+        tick = request_json(args.base_url, "POST", f"/api/v1/island/part-b/runs/{run_id}/tick", {"count": args.ticks})
     report = request_json(args.base_url, "GET", f"/api/v1/island/part-b/runs/{run_id}/report")
 
     payload = {
         "base_url": args.base_url,
         "run_id": run_id,
+        "watch_mode": args.watch_mode,
         "stored_model": run.get("house_agent_model"),
         "preview": {
             "mode": preview.get("mode"),

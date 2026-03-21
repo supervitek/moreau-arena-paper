@@ -67,6 +67,11 @@ The server now produces:
 
 This powers the `While Away Report` panel.
 
+Live verification artifacts:
+
+- [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/reports/part_b_watch_sync_live_review.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/reports/part_b_watch_sync_live_review.md)
+- [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/reports/part_b_watch_sync_live_review.json`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/reports/part_b_watch_sync_live_review.json)
+
 ## Honesty Rule
 
 The rental layer must not claim more than the system does.
