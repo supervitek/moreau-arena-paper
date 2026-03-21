@@ -26,11 +26,15 @@ Last updated: 2026-03-20
 - Passive queue: `docs/PART_B_PASSIVE_QUEUE_B3.md`
 - Hosted house agent: `docs/PART_B_HOUSE_AGENT_B4.md`
 - First measurement season: `docs/PART_B_FIRST_MEASUREMENT_SEASON_B5.md`
+- House-agent rental spec: `docs/PART_B_HOUSE_AGENT_RENTAL_SPEC.md`
+- Public agent path: `docs/PART_B_PUBLIC_AGENT_PATH.md`
+- Raids and pens spec: `docs/PART_B_RAIDS_AND_PENS_SPEC.md`
+- Ecology expansion next: `docs/PART_B_ECOLOGY_EXPANSION_NEXT.md`
 - Score calibration: `docs/PART_B_SCORE_CALIBRATION.md`
 - Season archive format: `docs/PART_B_SEASON_ARCHIVE_FORMAT.md`
 - Supabase production readiness: `docs/PART_B_SUPABASE_PRODUCTION_READINESS.md`
 - 10-point closure checklist: `docs/PART_B_10_POINT_COMPLETION_CHECKLIST.md`
-- Current next move: `real operator traces + live Part B review cadence`
+- Current next move: `longer live traces + rental polish + next ecology/spec layers`
 
 ## Current Priority Order
 

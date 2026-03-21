@@ -240,6 +240,11 @@ def main() -> int:
             raise RuntimeError("Part B house-agent preview invalid")
         print("OK /api/v1/island/part-b/runs/{id}/house-agent/preview [application/json]")
 
+        status, payload = post_json(base + f"/api/v1/island/part-b/runs/{agent_run_id}/sync", {"max_ticks": 24})
+        if status != 200 or "synced_ticks" not in payload or "report" not in payload:
+            raise RuntimeError("Part B sync endpoint invalid")
+        print("OK /api/v1/island/part-b/runs/{id}/sync [application/json]")
+
         status, payload = post_json(base + f"/api/v1/island/part-b/runs/{agent_run_id}/tick", {"count": 2})
         if status != 200 or not payload.get("processed"):
             raise RuntimeError("Part B house-agent ticks failed")

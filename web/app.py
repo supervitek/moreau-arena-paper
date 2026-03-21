@@ -64,6 +64,7 @@ from part_b_state import (
     remove_part_b_queued_action,
     replay_part_b_run,
     run_part_b_baseline,
+    sync_part_b_run,
     update_part_b_run,
     update_part_b_house_agent,
 )
@@ -1684,6 +1685,10 @@ class PartBHouseAgentRequest(BaseModel):
     world_access_active: bool = Field(default=True)
 
 
+class PartBSyncRequest(BaseModel):
+    max_ticks: int = Field(default=24, ge=1, le=240)
+
+
 class PartBBaselineRequest(BaseModel):
     policy: str = Field(..., max_length=32)
     ticks: int = Field(default=1, ge=1, le=48)
@@ -1924,6 +1929,15 @@ def island_part_b_house_agent_update(run_id: str, req: PartBHouseAgentRequest) -
         result = update_part_b_house_agent(run_id, req.model_dump(exclude_none=True))
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if not result:
+        raise HTTPException(status_code=404, detail="Part B run not found")
+    return result
+
+
+@app.post("/api/v1/island/part-b/runs/{run_id}/sync")
+def island_part_b_sync(run_id: str, req: PartBSyncRequest) -> dict[str, Any]:
+    """Catch up one watch-enabled agent-only run to the current wall clock."""
+    result = sync_part_b_run(run_id, max_ticks=req.max_ticks)
     if not result:
         raise HTTPException(status_code=404, detail="Part B run not found")
     return result

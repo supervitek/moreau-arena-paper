@@ -319,7 +319,11 @@ Already done:
 - `B3` passive queue
 - `B4` hosted house agent
 - `B5` first measurement season
-- 10-point follow-up package, closed locally except live Supabase enablement
+- house-agent boundary package
+- Supabase production persistence
+- live Gemini house-agent path
+- 24-hour watch lease + catch-up sync
+- return-report / while-away product pass
 
 Primary files:
 - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/part_b_state.py`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/part_b_state.py)
@@ -327,6 +331,8 @@ Primary files:
 - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_AGENTIC_ECOLOGY_ROADMAP_FINAL.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_AGENTIC_ECOLOGY_ROADMAP_FINAL.md)
 - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_AGENTIC_ECOLOGY_EXECUTION_TODO.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_AGENTIC_ECOLOGY_EXECUTION_TODO.md)
 - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_10_POINT_COMPLETION_CHECKLIST.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_10_POINT_COMPLETION_CHECKLIST.md)
+- [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_HOUSE_AGENT_RENTAL_SPEC.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_HOUSE_AGENT_RENTAL_SPEC.md)
+- [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_PUBLIC_AGENT_PATH.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PART_B_PUBLIC_AGENT_PATH.md)
 
 ## 12. Actual Current State
 
@@ -341,15 +347,19 @@ Primary files:
 - Part B ecology surface
 - Part B queue and hosted house agent logic
 - Part B season leaderboards and report/archive tooling
+- live Supabase-backed Part B persistence
+- live Gemini house-agent verification on production
+- watch-lease and catch-up sync flow on ecology
 
 ### What remains not fully complete
 
-Mostly external/operational, not conceptual:
+Mostly product-expansion work, not substrate work:
 
-1. real live operator traces for Part B
-2. production Supabase enablement for Part B persistence
-3. confirmation that production `storage-status` switches to `supabase`
-4. real recurring review cadence based on live use
+1. longer live operator/agent traces for Part B
+2. stronger rental framing and morning-return polish
+3. ecology expansion beyond the current two-zone first season
+4. raids/pens design and later implementation
+5. public/BYO agent path after contract hardening
 
 ### Practical truth
 

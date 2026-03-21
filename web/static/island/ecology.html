@@ -479,6 +479,9 @@
         <div class="main">
             <section class="panel">
                 <div class="eyebrow">Run Control</div>
+                <div class="notice" id="deployExplainer">
+                    House mode is the product path: hire our agent for a bounded 24-hour watch, let it act through the public contract, and come back to a catch-up report.
+                </div>
                 <div class="run-row">
                     <select id="petSelect"></select>
                     <select id="runClassSelect">
@@ -489,12 +492,25 @@
                 </div>
                 <div class="run-row">
                     <select id="prioritySelect">
-                        <option value="balanced">balanced</option>
-                        <option value="welfare-first">welfare-first</option>
-                        <option value="combat-first">combat-first</option>
-                        <option value="expedition-first">expedition-first</option>
+                        <option value="keep-moving">keep-moving</option>
+                        <option value="grow-safely">grow-safely</option>
+                        <option value="arena-first">arena-first</option>
+                        <option value="cave-first">cave-first</option>
                     </select>
-                    <button id="startRunBtn" type="button">Start New Run</button>
+                    <select id="riskSelect">
+                        <option value="guarded">guarded</option>
+                        <option value="measured" selected>measured</option>
+                        <option value="bold">bold</option>
+                        <option value="reckless">reckless</option>
+                    </select>
+                </div>
+                <div class="run-row">
+                    <button id="deployAgentBtn" type="button">Watch Over Them For 24h</button>
+                    <button id="startRunBtn" type="button" class="ghost-btn">Start Research Run</button>
+                </div>
+                <div class="hint" id="watchStatusHint">
+                    <strong>House Watch</strong>
+                    <div id="watchStatusBody">No live watch yet. Deploy an agent-only run to get a 24h lease, catch-up sync, and return report.</div>
                 </div>
                 <div class="control-grid">
                     <div class="control">
@@ -677,6 +693,7 @@
                 <div class="eyebrow">Replay</div>
                 <div id="replayArea" class="replay-list"></div>
                 <div class="eyebrow" style="margin-top:1.15rem;">While Away Report</div>
+                <div id="returnSummaryArea" class="inspect-grid" style="margin-bottom:0.8rem;"></div>
                 <div id="tickReportArea" class="replay-list"></div>
                 <div class="eyebrow" style="margin-top:1.15rem;">Run Inspect</div>
                 <div id="inspectArea" class="inspect-grid"></div>
@@ -851,13 +868,56 @@
                 return (currentRun && currentRun.run_class) || document.getElementById('runClassSelect').value;
             }
 
+            function currentRiskAppetite() {
+                return (currentRun && currentRun.risk_appetite) || document.getElementById('riskSelect').value || 'measured';
+            }
+
+            function watchMetadata(runClass, projection) {
+                if (runClass !== 'agent-only') return { source: 'ecology-page', pet_index: parseInt(document.getElementById('petSelect').value || '0', 10) };
+                var now = new Date();
+                var expires = new Date(now.getTime() + (24 * 60 * 60 * 1000));
+                return {
+                    source: 'ecology-page',
+                    pet_index: parseInt(document.getElementById('petSelect').value || '0', 10),
+                    watch_mode: true,
+                    watch_label: 'Watch Over Them',
+                    watch_window_hours: 24,
+                    watch_started_at: now.toISOString(),
+                    watch_last_sync_at: now.toISOString(),
+                    watch_expires_at: expires.toISOString(),
+                    watch_departure_seen_at: now.toISOString(),
+                    watch_departure_tick: 0,
+                    watch_departure_state: projection,
+                    watch_status: 'running'
+                };
+            }
+
             function syncSelectorsFromRun() {
                 if (!currentRun) return;
                 if (currentRun.run_class) document.getElementById('runClassSelect').value = currentRun.run_class;
                 if (currentRun.priority_profile) document.getElementById('prioritySelect').value = currentRun.priority_profile;
+                if (currentRun.risk_appetite) document.getElementById('riskSelect').value = currentRun.risk_appetite;
                 document.getElementById('budgetSelect').value = String(currentRun.inference_budget_daily || currentRun.inference_budget_remaining || 4);
                 document.getElementById('houseAgentProviderSelect').value = currentRun.house_agent_provider || 'gemini';
                 document.getElementById('houseAgentModelInput').value = currentRun.house_agent_model || 'gemini-2.5-flash-lite';
+            }
+
+            async function syncWatchWindow() {
+                if (!currentRunId) return;
+                var result = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ max_ticks: 24 })
+                });
+                currentRun = result.run;
+                currentReplay = {
+                    run: result.run,
+                    events: result.replay || [],
+                    report: result.report || {}
+                };
+                if (Array.isArray(result.processed) && result.processed.length) {
+                    lastTickProcessed = result.processed;
+                }
             }
 
             async function loadRun() {
@@ -868,8 +928,11 @@
                     render();
                     return;
                 }
-                currentRun = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId);
-                currentReplay = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/replay');
+                await syncWatchWindow();
+                if (!currentRun) {
+                    currentRun = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId);
+                    currentReplay = await fetchJson('/api/v1/island/part-b/runs/' + currentRunId + '/replay');
+                }
                 await loadSeasonAndLeaderboards();
                 syncSelectorsFromRun();
                 render();
@@ -879,17 +942,20 @@
                 return activeRunClass() === 'manual' ? 'manual' : 'operator';
             }
 
-            async function startRun() {
+            async function startRun(overrides) {
                 var pet = getSelectedPet();
                 if (!pet) {
                     alert('Create a living pet first.');
                     return;
                 }
-                var runClass = document.getElementById('runClassSelect').value;
-                var priority = document.getElementById('prioritySelect').value;
-                var dailyBudget = parseInt(document.getElementById('budgetSelect').value || '4', 10);
-                var houseAgentProvider = document.getElementById('houseAgentProviderSelect').value || 'gemini';
-                var houseAgentModel = document.getElementById('houseAgentModelInput').value || 'gemini-2.5-flash-lite';
+                var opts = overrides || {};
+                var runClass = opts.runClass || document.getElementById('runClassSelect').value;
+                var priority = opts.priority || document.getElementById('prioritySelect').value;
+                var riskAppetite = opts.riskAppetite || document.getElementById('riskSelect').value || 'measured';
+                var dailyBudget = parseInt(String(opts.dailyBudget || document.getElementById('budgetSelect').value || '4'), 10);
+                var houseAgentProvider = opts.houseAgentProvider || document.getElementById('houseAgentProviderSelect').value || 'gemini';
+                var houseAgentModel = opts.houseAgentModel || document.getElementById('houseAgentModelInput').value || 'gemini-2.5-flash-lite';
+                var projection = initialProjection(pet);
                 var payload = {
                     season_id: currentSeason && currentSeason.season_id ? currentSeason.season_id : 'part-b-s1-first-descent',
                     run_class: runClass,
@@ -899,7 +965,7 @@
                     subject_pet_animal: pet.animal || 'creature',
                     active_zone: activeZone === 'cave' ? 'cave' : 'arena',
                     priority_profile: priority,
-                    risk_appetite: priority === 'expedition-first' ? 'bold' : (priority === 'welfare-first' ? 'guarded' : 'measured'),
+                    risk_appetite: riskAppetite,
                     inference_budget_remaining: dailyBudget,
                     inference_budget_daily: dailyBudget,
                     billing_mode: 'hybrid',
@@ -907,11 +973,8 @@
                     house_agent_enabled: runClass === 'agent-only',
                     house_agent_provider: houseAgentProvider,
                     house_agent_model: houseAgentModel,
-                    state_projection: initialProjection(pet),
-                    metadata: {
-                        source: 'ecology-page',
-                        pet_index: parseInt(document.getElementById('petSelect').value || '0', 10)
-                    }
+                    state_projection: projection,
+                    metadata: watchMetadata(runClass, projection)
                 };
                 currentRun = await fetchJson('/api/v1/island/part-b/runs', {
                     method: 'POST',
@@ -921,6 +984,22 @@
                 currentRunId = currentRun.id;
                 localStorage.setItem(RUN_KEY, currentRunId);
                 await loadRun();
+            }
+
+            async function deployAgentWatch() {
+                document.getElementById('runClassSelect').value = 'agent-only';
+                document.getElementById('houseAgentProviderSelect').value = 'gemini';
+                if (!document.getElementById('houseAgentModelInput').value) {
+                    document.getElementById('houseAgentModelInput').value = 'gemini-2.5-flash-lite';
+                }
+                await startRun({
+                    runClass: 'agent-only',
+                    priority: document.getElementById('prioritySelect').value || 'keep-moving',
+                    riskAppetite: document.getElementById('riskSelect').value || 'measured',
+                    dailyBudget: parseInt(document.getElementById('budgetSelect').value || '4', 10),
+                    houseAgentProvider: 'gemini',
+                    houseAgentModel: document.getElementById('houseAgentModelInput').value || 'gemini-2.5-flash-lite'
+                });
             }
 
             async function ensureRun() {
@@ -1374,6 +1453,12 @@
                     text = 'Welfare is slipping. Care first; otherwise a passive queue later will inherit a damaged baseline.';
                 } else if (activeZone === 'cave' && (state.current_cave_depth || 0) >= 2 && (state.current_cave_risk || 0) > (state.current_cave_value || 0)) {
                     text = 'You have value in hand and risk is overtaking it. Extract now instead of turning expedition into theater.';
+                } else if (document.getElementById('prioritySelect').value === 'grow-safely') {
+                    text = 'The standing order is protective. Care and Rest are valid even when the arena is open.';
+                } else if (document.getElementById('prioritySelect').value === 'cave-first') {
+                    text = 'The standing order favors expedition value. Push cave only if welfare is still stable.';
+                } else if (document.getElementById('prioritySelect').value === 'arena-first') {
+                    text = 'The standing order favors combat pressure. One clean arena tick is justified if energy holds.';
                 } else if (activeZone === 'arena' && (state.energy_pct || 0) > 45) {
                     text = 'Energy is still acceptable. One arena tick is justified if you want a cleaner combat signal.';
                 } else {
@@ -1381,6 +1466,53 @@
                 }
                 hintWrap.style.opacity = '1';
                 hintBody.textContent = text;
+            }
+
+            function renderWatchStatus() {
+                var body = document.getElementById('watchStatusBody');
+                var report = currentReplay && currentReplay.report ? currentReplay.report : null;
+                if (!report || !report.watch || !report.watch.enabled) {
+                    body.textContent = activeRunClass() === 'agent-only'
+                        ? 'Agent-only mode is selected, but the 24h watch has not been deployed yet.'
+                        : 'No live watch yet. Deploy an agent-only run to get a 24h lease, catch-up sync, and return report.';
+                    return;
+                }
+                var watch = report.watch;
+                var pieces = [
+                    'status ' + (watch.status || 'unknown'),
+                    (watch.window_remaining_hours || 0) + 'h left',
+                    (report.billing && typeof report.billing.inference_budget_remaining === 'number'
+                        ? report.billing.inference_budget_remaining + '/' + report.billing.inference_budget_daily + ' credits'
+                        : 'budget unknown')
+                ];
+                if (watch.last_agent_action_at) {
+                    pieces.push('last action ' + watch.last_agent_action_at);
+                }
+                body.textContent = (watch.label || 'Watch Over Them') + ' — ' + pieces.join(' · ');
+            }
+
+            function renderReturnSummary() {
+                var area = document.getElementById('returnSummaryArea');
+                var report = currentReplay && currentReplay.report ? currentReplay.report : null;
+                if (!report || !report.return_report) {
+                    area.innerHTML = '<div class="empty">No return report yet. Once the watch runs, this panel summarizes what changed while you were away.</div>';
+                    return;
+                }
+                var summary = report.return_report;
+                var deltaRows = Array.isArray(summary.delta) ? summary.delta.map(function(row) {
+                    var sign = Number(row.delta || 0) > 0 ? '+' : '';
+                    return '<div class="delta-row"><span>' + escHtml(row.label) + '</span><span>' +
+                        escHtml(String(row.before)) + ' → ' + escHtml(String(row.after)) + ' (' + sign + row.delta + ')</span></div>';
+                }).join('') : '';
+                area.innerHTML =
+                    '<div class="inspect-card">' +
+                        '<strong>' + escHtml(summary.headline || 'While you were away') + '</strong>' +
+                        '<div style="margin-top:0.4rem;">' + escHtml(summary.summary || 'No summary yet.') + '</div>' +
+                        '<div class="delta-row"><span>recommendation</span><span>' + escHtml(summary.recommendation || 'None') + '</span></div>' +
+                        '<div class="delta-row"><span>credits used</span><span>' + escHtml(summary.credits_used || 0) + '</span></div>' +
+                        '<div class="delta-row"><span>window left</span><span>' + escHtml(summary.window_remaining_hours || 0) + 'h</span></div>' +
+                        (deltaRows || '<div class="delta-row"><span>delta</span><span>No material state change captured yet.</span></div>') +
+                    '</div>';
             }
 
             function renderQueue() {
@@ -1445,7 +1577,7 @@
                     ? lastTickProcessed
                     : ((currentReplay && currentReplay.report && currentReplay.report.queue && currentReplay.report.queue.completed_recent) || []);
                 if (!items.length) {
-                    area.innerHTML = '<div class="empty">No passive execution yet. Queue actions or enable the hosted agent, then advance ticks.</div>';
+                    area.innerHTML = '<div class="empty">No passive execution yet. Queue actions, deploy the house watch, or return later for catch-up sync.</div>';
                     return;
                 }
                 area.innerHTML = items.slice(-6).reverse().map(function(item) {
@@ -1615,6 +1747,7 @@
                 document.getElementById('enqueueBtn').disabled = agentOnly;
                 document.getElementById('queueActionSelect').disabled = agentOnly;
                 document.getElementById('previewHouseAgentBtn').disabled = !agentOnly;
+                document.getElementById('startRunBtn').textContent = agentOnly ? 'Start Research Agent Run' : 'Start Research Run';
             }
 
             function renderSurfaceState() {
@@ -1669,6 +1802,8 @@
                 renderSurfaceState();
                 renderQueue();
                 renderReplay();
+                renderWatchStatus();
+                renderReturnSummary();
                 renderTickReport();
                 renderInspect();
                 renderLeaderboards();
@@ -1692,6 +1827,7 @@
                 render();
 
                 document.getElementById('startRunBtn').addEventListener('click', startRun);
+                document.getElementById('deployAgentBtn').addEventListener('click', deployAgentWatch);
                 document.getElementById('tabArena').addEventListener('click', function() { switchZone('arena'); });
                 document.getElementById('tabCave').addEventListener('click', function() { switchZone('cave'); });
                 document.getElementById('btnArenaEnter').addEventListener('click', actArena);
@@ -1718,6 +1854,7 @@
                     renderRunModeState();
                 });
                 document.getElementById('prioritySelect').addEventListener('change', renderHint);
+                document.getElementById('riskSelect').addEventListener('change', renderHint);
             }
 
             main().catch(function(error) {

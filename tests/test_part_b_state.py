@@ -27,6 +27,7 @@ from part_b_state import (
     remove_part_b_queued_action,
     replay_part_b_run,
     run_part_b_baseline,
+    sync_part_b_run,
     update_part_b_run,
     update_part_b_house_agent,
 )
@@ -158,6 +159,8 @@ def test_part_b_report_includes_family_scores(monkeypatch, tmp_path):
     assert report["scores"]["welfare"] > 0
     assert report["scores"]["combat"] > 0
     assert report["scores"]["expedition"] > 0
+    assert "return_report" in report
+    assert "watch" in report
 
 
 def test_part_b_storage_status_and_listing(monkeypatch, tmp_path):
@@ -277,6 +280,56 @@ def test_part_b_house_agent_preview_and_autopause(monkeypatch, tmp_path):
     assert paused is not None
     assert paused["status"] == "paused"
     assert paused["autopause_reason"] == "inference_budget_exhausted"
+
+
+def test_part_b_watch_sync_catches_up_due_ticks(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+
+    departure = "2026-03-20T00:00:00Z"
+    last_sync = "2026-03-20T00:00:00Z"
+    expires = "2026-03-21T00:00:00Z"
+    run_record = create_part_b_run(
+        {
+            "run_class": "agent-only",
+            "house_agent_enabled": True,
+            "inference_budget_remaining": 4,
+            "inference_budget_daily": 4,
+            "state_projection": {"health_pct": 90, "happiness_pct": 78, "morale_pct": 82, "energy_pct": 86},
+            "metadata": {
+                "watch_mode": True,
+                "watch_label": "Watch Over Them",
+                "watch_window_hours": 24,
+                "watch_started_at": departure,
+                "watch_last_sync_at": "2026-03-19T12:00:00Z",
+                "watch_expires_at": expires,
+                "watch_departure_seen_at": departure,
+                "watch_departure_tick": 0,
+                "watch_departure_state": {"health_pct": 90, "happiness_pct": 78, "morale_pct": 82, "energy_pct": 86},
+            },
+        }
+    )
+
+    synced = sync_part_b_run(run_record["id"], max_ticks=24)
+    assert synced is not None
+    assert "synced_ticks" in synced
+    assert "watch_status" in synced
+    assert synced["report"]["watch"]["enabled"] is True
+    assert "headline" in synced["report"]["return_report"]
+    assert "summary" in synced["report"]["return_report"]
+
+
+def test_part_b_watch_sync_noop_for_non_watch_run(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+
+    run_record = create_part_b_run({"run_class": "manual"})
+    synced = sync_part_b_run(run_record["id"], max_ticks=24)
+    assert synced is not None
+    assert synced["synced_ticks"] == 0
 
 
 def test_part_b_house_agent_requires_agent_only(monkeypatch, tmp_path):

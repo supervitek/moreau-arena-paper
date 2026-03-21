@@ -6,7 +6,7 @@ import os
 import re
 import uuid
 from collections import Counter
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from statistics import mean, median
 from typing import Any
@@ -98,6 +98,20 @@ HOUSE_AGENT_FORBIDDEN_PATTERNS = [
 
 def _utcnow() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def _parse_utc(value: Any) -> datetime | None:
+    text = _sanitize_text(value, 64)
+    if not text:
+        return None
+    try:
+        return datetime.fromisoformat(text.replace("Z", "+00:00")).astimezone(timezone.utc)
+    except ValueError:
+        return None
+
+
+def _iso_from_datetime(value: datetime) -> str:
+    return value.astimezone(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def _state_dir() -> Path:
@@ -280,6 +294,11 @@ def _current_part_b_season(season_id: str | None = None) -> dict[str, Any]:
     if season_id and season_id in PART_B_SEASONS:
         return dict(PART_B_SEASONS[season_id])
     return dict(PART_B_SEASONS[PART_B_SEASON_CURRENT_ID])
+
+
+def _world_tick_hours(run_record: dict[str, Any]) -> int:
+    season = _current_part_b_season(run_record.get("season_id"))
+    return _intish(season["contract"].get("tick_real_hours"), 6, minimum=1, maximum=24)
 
 
 def _normalize_queue_item(item: Any, *, default_actor: str = "operator", enqueued_revision: int = 0) -> dict[str, Any] | None:
@@ -821,6 +840,119 @@ def _latest_transition(events: list[dict[str, Any]], current_state: dict[str, An
     }
 
 
+def _watch_metadata(run_record: dict[str, Any]) -> dict[str, Any]:
+    metadata = _sanitize_dict(run_record.get("metadata"))
+    return {
+        "enabled": _sanitize_bool(metadata.get("watch_mode"), False),
+        "label": _sanitize_text(metadata.get("watch_label"), 48) or "Watch Over Them",
+        "window_hours": _intish(metadata.get("watch_window_hours"), 24, minimum=1, maximum=168),
+        "started_at": metadata.get("watch_started_at") or run_record.get("created_at"),
+        "expires_at": metadata.get("watch_expires_at"),
+        "last_sync_at": metadata.get("watch_last_sync_at") or metadata.get("watch_started_at") or run_record.get("created_at"),
+        "departure_state": _sanitize_dict(metadata.get("watch_departure_state")),
+        "departure_tick": _intish(metadata.get("watch_departure_tick"), 0, minimum=0),
+        "departure_seen_at": metadata.get("watch_departure_seen_at") or metadata.get("watch_started_at") or run_record.get("created_at"),
+        "last_sync_processed": _intish(metadata.get("watch_last_sync_processed"), 0, minimum=0),
+        "status": _sanitize_text(metadata.get("watch_status"), 24) or "idle",
+    }
+
+
+def _agent_status(run_record: dict[str, Any], current_state: dict[str, Any], events: list[dict[str, Any]]) -> tuple[str, str | None]:
+    watch = _watch_metadata(run_record)
+    last_agent_event = None
+    for event in reversed(events):
+        if event.get("actor_type") == "agent":
+            last_agent_event = event
+            break
+    last_agent_action_at = last_agent_event.get("created_at") if last_agent_event else None
+    if current_state.get("is_alive") is False:
+        return "completed", last_agent_action_at
+    if run_record.get("status") == "completed":
+        return "completed", last_agent_action_at
+    if run_record.get("status") == "paused":
+        return "paused", last_agent_action_at
+    if run_record.get("autopause_reason") == "inference_budget_exhausted":
+        return "exhausted", last_agent_action_at
+    expires_at = _parse_utc(watch["expires_at"])
+    if watch["enabled"] and expires_at and datetime.now(timezone.utc) >= expires_at:
+        return "completed", last_agent_action_at
+    if _sanitize_bool(run_record.get("house_agent_enabled"), False):
+        return "running", last_agent_action_at
+    return "idle", last_agent_action_at
+
+
+def _watch_summary(run_record: dict[str, Any], events: list[dict[str, Any]], current_state: dict[str, Any]) -> dict[str, Any]:
+    watch = _watch_metadata(run_record)
+    status, last_agent_action_at = _agent_status(run_record, current_state, events)
+    departure_state = _ensure_state_projection(watch["departure_state"])
+    departure_tick = watch["departure_tick"]
+    delta = _state_delta(departure_state, current_state)
+    tick_span = max(0, _intish(run_record.get("world_tick"), 0, minimum=0) - departure_tick)
+    by_action = Counter()
+    for event in events:
+        if event.get("accepted", False) and event.get("actor_type") == "agent" and event.get("action_verb"):
+            by_action[str(event["action_verb"])] += 1
+    summary_parts = []
+    if by_action:
+        for action, count in by_action.most_common(3):
+            summary_parts.append(f"{count}x {action.lower()}")
+    summary_text = ", ".join(summary_parts) if summary_parts else "no autonomous action yet"
+    credits_used = max(
+        0,
+        _intish(run_record.get("inference_budget_daily"), 0, minimum=0)
+        - _intish(run_record.get("inference_budget_remaining"), 0, minimum=0),
+    )
+    headline = "The watch has not truly started."
+    if current_state.get("is_alive") is False:
+        headline = "They did not come back whole."
+    elif status == "exhausted":
+        headline = "The watch ended when the credits ran dry."
+    elif tick_span <= 0:
+        headline = "Nothing moved while you were away."
+    elif by_action.get("CARE", 0) and by_action.get("ENTER_ARENA", 0):
+        headline = "They kept moving and still remembered to recover."
+    elif by_action.get("ENTER_CAVE", 0):
+        headline = "They pushed into the cave and came back changed."
+    elif by_action.get("ENTER_ARENA", 0):
+        headline = "They kept throwing themselves into the arena."
+    elif by_action.get("CARE", 0):
+        headline = "They chose survival over spectacle."
+
+    recommendation = "Nothing urgent. Let them keep moving."
+    if current_state.get("health_pct", 100) < 45 or current_state.get("happiness_pct", 100) < 45:
+        recommendation = "Stabilize them before renting another watch window."
+    elif current_state.get("energy_pct", 100) < 35:
+        recommendation = "Rest first. The next autonomous push would start depleted."
+    elif current_state.get("in_cave"):
+        recommendation = "They are still in the cave. Extract if you want to bank the run."
+    elif (run_record.get("priority_profile") or "").strip() in {"cave-first", "expedition-first"}:
+        recommendation = "If you keep the watch running, the next high-value read is the cave."
+    elif (run_record.get("priority_profile") or "").strip() in {"arena-first", "combat-first"}:
+        recommendation = "If you keep the watch running, the arena remains the cleaner pressure lane."
+
+    expires_at = _parse_utc(watch["expires_at"])
+    remaining_hours = 0
+    if expires_at:
+        remaining_hours = max(0, int((expires_at - datetime.now(timezone.utc)).total_seconds() // 3600))
+
+    return {
+        "enabled": watch["enabled"],
+        "label": watch["label"],
+        "status": status,
+        "headline": headline,
+        "summary": f"{tick_span} ticks since departure; {summary_text}.",
+        "recommendation": recommendation,
+        "credits_used": credits_used,
+        "credits_remaining": _intish(run_record.get("inference_budget_remaining"), 0, minimum=0),
+        "window_hours": watch["window_hours"],
+        "window_remaining_hours": remaining_hours,
+        "last_agent_action_at": last_agent_action_at,
+        "departure_tick": departure_tick,
+        "current_tick": _intish(run_record.get("world_tick"), 0, minimum=0),
+        "delta": delta[:6],
+    }
+
+
 def _report_from(run_record: dict[str, Any], events: list[dict[str, Any]]) -> dict[str, Any]:
     by_actor: dict[str, int] = {}
     by_action: dict[str, int] = {}
@@ -849,6 +981,7 @@ def _report_from(run_record: dict[str, Any], events: list[dict[str, Any]]) -> di
     season = _current_part_b_season(run_record.get("season_id"))
     current_state = _ensure_state_projection(run_record.get("state_projection"))
     scores = _derive_scores(run_record, events)
+    watch = _watch_summary(run_record, events, current_state)
     return {
         "run_id": run_record["id"],
         "season_id": run_record["season_id"],
@@ -893,6 +1026,16 @@ def _report_from(run_record: dict[str, Any], events: list[dict[str, Any]]) -> di
             "inference_budget_remaining": _intish(run_record.get("inference_budget_remaining"), 0, minimum=0),
             "inference_budget_daily": _intish(run_record.get("inference_budget_daily"), 4, minimum=0),
             "autopause_reason": run_record.get("autopause_reason"),
+        },
+        "watch": watch,
+        "return_report": {
+            "headline": watch["headline"],
+            "summary": watch["summary"],
+            "recommendation": watch["recommendation"],
+            "credits_used": watch["credits_used"],
+            "window_remaining_hours": watch["window_remaining_hours"],
+            "last_agent_action_at": watch["last_agent_action_at"],
+            "delta": watch["delta"],
         },
         "inspect": {
             "latest_transition": _latest_transition(events, current_state),
@@ -1764,6 +1907,7 @@ def _house_agent_prompt(observation: dict[str, Any]) -> str:
         "You must choose exactly one action from the public action grammar: "
         + ", ".join(sorted(ACTION_VERBS))
         + ".\n"
+        "priority_profile is the operator's standing direction. risk_appetite says how much danger is acceptable.\n"
         "You must only use fields present in the observation. No hidden knowledge, no secret privileges.\n"
         "Return JSON only with keys: action_verb, zone, rationale.\n"
         "Keep rationale under 18 words. No optimization-speak. No certainty language.\n"
@@ -1776,6 +1920,7 @@ def _fallback_house_plan(run_record: dict[str, Any]) -> dict[str, Any]:
     observation = _observation_from(run_record)
     state = observation["state_projection"]
     memory_input = _house_agent_memory_input(run_record, observation)
+    priority = _sanitize_text(run_record.get("priority_profile"), 32) or "balanced"
     action = "HOLD"
     zone = observation["active_zone"]
     rationale = "Nothing urgent rises above uncertainty."
@@ -1789,6 +1934,19 @@ def _fallback_house_plan(run_record: dict[str, Any]) -> dict[str, Any]:
     elif state["energy_pct"] < 35:
         action = "REST"
         rationale = "Energy is too thin for clean pressure."
+    elif priority in {"grow-safely", "welfare-first"} and (
+        state["health_pct"] < 78 or state["happiness_pct"] < 78 or state["morale_pct"] < 72
+    ):
+        action = "CARE"
+        rationale = "The standing order favors recovery over spectacle."
+    elif priority in {"arena-first", "combat-first"} and state["energy_pct"] > 40 and state.get("arena_available", True):
+        action = "ENTER_ARENA"
+        zone = "arena"
+        rationale = "The standing order leans toward combat pressure."
+    elif priority in {"cave-first", "expedition-first"} and state.get("cave_available", True):
+        action = "ENTER_CAVE"
+        zone = "cave"
+        rationale = "The standing order leans toward expedition value."
     elif state.get("in_cave") and state.get("current_cave_depth", 0) >= 2 and state.get("current_cave_risk", 0) > state.get("current_cave_value", 0):
         action = "EXTRACT"
         zone = "cave"
@@ -2098,6 +2256,65 @@ def process_part_b_ticks(run_id: str, *, count: int = 1) -> dict[str, Any] | Non
         "processed": processed,
         "replay": replay["events"] if replay else [],
         "report": replay["report"] if replay else part_b_run_report(run_id),
+    }
+
+
+def sync_part_b_run(run_id: str, *, max_ticks: int = 24) -> dict[str, Any] | None:
+    run_record = get_part_b_run(run_id)
+    if not run_record:
+        return None
+    watch = _watch_metadata(run_record)
+    replay = replay_part_b_run(run_id)
+    if not watch["enabled"] or run_record.get("run_class") != "agent-only" or not _sanitize_bool(run_record.get("house_agent_enabled"), False):
+        return {
+            "run": replay["run"] if replay else run_record,
+            "processed": [],
+            "replay": replay["events"] if replay else [],
+            "report": replay["report"] if replay else part_b_run_report(run_id),
+            "synced_ticks": 0,
+            "watch_status": watch["status"],
+        }
+
+    now = datetime.now(timezone.utc)
+    expires_at = _parse_utc(watch["expires_at"]) or (now + timedelta(hours=watch["window_hours"]))
+    last_sync_at = _parse_utc(watch["last_sync_at"]) or _parse_utc(run_record.get("created_at")) or now
+    effective_now = min(now, expires_at)
+    if effective_now <= last_sync_at:
+        metadata = _sanitize_dict(run_record.get("metadata"))
+        metadata["watch_status"] = "running" if now < expires_at else "completed"
+        updated = update_part_b_run(run_id, {"metadata": metadata})
+        replay = replay_part_b_run(run_id)
+        return {
+            "run": replay["run"] if replay else updated or run_record,
+            "processed": [],
+            "replay": replay["events"] if replay else [],
+            "report": replay["report"] if replay else part_b_run_report(run_id),
+            "synced_ticks": 0,
+            "watch_status": metadata["watch_status"],
+        }
+
+    tick_hours = _world_tick_hours(run_record)
+    due_ticks = int((effective_now - last_sync_at).total_seconds() // (tick_hours * 3600))
+    due_ticks = max(0, min(due_ticks, _intish(max_ticks, 24, minimum=1, maximum=240)))
+    processed: list[dict[str, Any]] = []
+    if due_ticks > 0:
+        result = process_part_b_ticks(run_id, count=due_ticks)
+        if result:
+            processed = result.get("processed") or []
+    run_record = get_part_b_run(run_id) or run_record
+    metadata = _sanitize_dict(run_record.get("metadata"))
+    metadata["watch_last_sync_at"] = _iso_from_datetime(last_sync_at + timedelta(hours=tick_hours * due_ticks))
+    metadata["watch_last_sync_processed"] = len(processed)
+    metadata["watch_status"] = "completed" if now >= expires_at else ("running" if _sanitize_bool(run_record.get("house_agent_enabled"), False) else "idle")
+    updated = update_part_b_run(run_id, {"metadata": metadata}) or run_record
+    replay = replay_part_b_run(run_id)
+    return {
+        "run": replay["run"] if replay else updated,
+        "processed": processed,
+        "replay": replay["events"] if replay else [],
+        "report": replay["report"] if replay else part_b_run_report(run_id),
+        "synced_ticks": len(processed),
+        "watch_status": metadata["watch_status"],
     }
 
 
