@@ -467,7 +467,7 @@ def _simulate_action(run_record: dict[str, Any], action_verb: str, zone: str) ->
     combat_bias = _intish(run_record.get("combat_bias"), 50, minimum=0, maximum=100)
     expedition_bias = _intish(run_record.get("expedition_bias"), 50, minimum=0, maximum=100)
     risk_appetite = _sanitize_text(run_record.get("risk_appetite"), 16) or "measured"
-    risk_bonus = {"guarded": -4, "measured": 0, "bold": 6}.get(risk_appetite, 0)
+    risk_bonus = {"guarded": -4, "measured": 0, "bold": 6, "reckless": 10}.get(risk_appetite, 0)
 
     if state["is_alive"] is False:
         return {"skipped_reason": "pet_not_alive"}, state, "pet_not_alive"
@@ -884,6 +884,7 @@ def _agent_status(run_record: dict[str, Any], current_state: dict[str, Any], eve
 def _watch_summary(run_record: dict[str, Any], events: list[dict[str, Any]], current_state: dict[str, Any]) -> dict[str, Any]:
     watch = _watch_metadata(run_record)
     status, last_agent_action_at = _agent_status(run_record, current_state, events)
+    tick_hours = _world_tick_hours(run_record)
     departure_state = _ensure_state_projection(watch["departure_state"])
     departure_tick = watch["departure_tick"]
     delta = _state_delta(departure_state, current_state)
@@ -932,8 +933,20 @@ def _watch_summary(run_record: dict[str, Any], events: list[dict[str, Any]], cur
 
     expires_at = _parse_utc(watch["expires_at"])
     remaining_hours = 0
+    next_due_at = None
+    estimated_ticks_remaining = 0
+    if watch["enabled"]:
+        last_sync_at = _parse_utc(watch["last_sync_at"]) or datetime.now(timezone.utc)
+        next_due_at = _iso_from_datetime(last_sync_at + timedelta(hours=tick_hours))
     if expires_at:
         remaining_hours = max(0, int((expires_at - datetime.now(timezone.utc)).total_seconds() // 3600))
+        estimated_ticks_remaining = max(
+            0,
+            min(
+                _intish(run_record.get("inference_budget_remaining"), 0, minimum=0),
+                int(max(0, (expires_at - datetime.now(timezone.utc)).total_seconds()) // (tick_hours * 3600)),
+            ),
+        )
 
     return {
         "enabled": watch["enabled"],
@@ -946,6 +959,9 @@ def _watch_summary(run_record: dict[str, Any], events: list[dict[str, Any]], cur
         "credits_remaining": _intish(run_record.get("inference_budget_remaining"), 0, minimum=0),
         "window_hours": watch["window_hours"],
         "window_remaining_hours": remaining_hours,
+        "tick_cadence_hours": tick_hours,
+        "estimated_ticks_remaining": estimated_ticks_remaining,
+        "next_due_at": next_due_at,
         "last_agent_action_at": last_agent_action_at,
         "departure_tick": departure_tick,
         "current_tick": _intish(run_record.get("world_tick"), 0, minimum=0),
@@ -1034,6 +1050,8 @@ def _report_from(run_record: dict[str, Any], events: list[dict[str, Any]]) -> di
             "recommendation": watch["recommendation"],
             "credits_used": watch["credits_used"],
             "window_remaining_hours": watch["window_remaining_hours"],
+            "estimated_ticks_remaining": watch["estimated_ticks_remaining"],
+            "next_due_at": watch["next_due_at"],
             "last_agent_action_at": watch["last_agent_action_at"],
             "delta": watch["delta"],
         },

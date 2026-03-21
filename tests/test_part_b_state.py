@@ -318,6 +318,9 @@ def test_part_b_watch_sync_catches_up_due_ticks(monkeypatch, tmp_path):
     assert "synced_ticks" in synced
     assert "watch_status" in synced
     assert synced["report"]["watch"]["enabled"] is True
+    assert synced["report"]["watch"]["tick_cadence_hours"] == 6
+    assert "next_due_at" in synced["report"]["watch"]
+    assert "estimated_ticks_remaining" in synced["report"]["watch"]
     assert "headline" in synced["report"]["return_report"]
     assert "summary" in synced["report"]["return_report"]
 

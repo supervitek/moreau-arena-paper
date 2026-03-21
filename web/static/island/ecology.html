@@ -151,7 +151,7 @@
             margin-bottom: 0.75rem;
         }
 
-        .run-row select, .run-row button {
+        .run-row select, .run-row button, .run-row input {
             width: 100%;
             border-radius: 8px;
             border: 1px solid var(--border);
@@ -275,6 +275,24 @@
             display: grid;
             gap: 0.85rem;
             margin-top: 1rem;
+        }
+
+        details {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: rgba(18,12,12,0.55);
+            padding: 0.8rem;
+        }
+
+        details summary {
+            cursor: pointer;
+            color: var(--text-dim);
+            font-weight: 700;
+            list-style: none;
+        }
+
+        details summary::-webkit-details-marker {
+            display: none;
         }
 
         .event {
@@ -508,6 +526,9 @@
                     <button id="deployAgentBtn" type="button">Watch Over Them For 24h</button>
                     <button id="startRunBtn" type="button" class="ghost-btn">Start Research Run</button>
                 </div>
+                <div class="notice" id="deploySummary">
+                    A 24-hour watch lease runs at the Part B cadence: one world tick every 6 real hours, bounded by your credit budget and the public contract.
+                </div>
                 <div class="hint" id="watchStatusHint">
                     <strong>House Watch</strong>
                     <div id="watchStatusBody">No live watch yet. Deploy an agent-only run to get a 24h lease, catch-up sync, and return report.</div>
@@ -615,32 +636,6 @@
 
                 <div class="stack">
                     <div>
-                        <div class="eyebrow">Passive Queue</div>
-                        <div class="run-row">
-                            <select id="queueActionSelect">
-                                <option value="HOLD">HOLD</option>
-                                <option value="CARE">CARE</option>
-                                <option value="REST">REST</option>
-                                <option value="TRAIN">TRAIN</option>
-                                <option value="ENTER_ARENA">ENTER_ARENA</option>
-                                <option value="ENTER_CAVE">ENTER_CAVE</option>
-                                <option value="EXTRACT">EXTRACT</option>
-                                <option value="MUTATE">MUTATE</option>
-                            </select>
-                            <button id="enqueueBtn" type="button">Queue Action</button>
-                        </div>
-                        <div class="run-row">
-                            <button id="tickOnceBtn" type="button">Advance 1 Tick</button>
-                            <button id="tickThreeBtn" type="button">Advance 3 Ticks</button>
-                        </div>
-                        <div class="run-row">
-                            <button id="clearQueueBtn" type="button" class="ghost-btn">Clear Queue</button>
-                            <button id="previewHouseAgentBtn" type="button" class="ghost-btn">Preview Agent Plan</button>
-                        </div>
-                        <div id="queueArea" class="replay-list"></div>
-                    </div>
-
-                    <div>
                         <div class="eyebrow">Hosted House Agent</div>
                         <div class="run-row">
                             <select id="houseAgentProviderSelect">
@@ -658,34 +653,68 @@
                             </select>
                             <button id="saveHouseAgentBtn" type="button">Apply Agent Settings</button>
                         </div>
+                        <div class="run-row">
+                            <button id="syncWatchBtn" type="button" class="ghost-btn">Catch Up Now</button>
+                            <button id="previewHouseAgentBtn" type="button" class="ghost-btn">Preview Agent Plan</button>
+                        </div>
                         <div class="hint" id="houseAgentHint">
                             <strong>House Agent</strong>
-                            <div id="houseAgentHintBody">Only active on agent-only runs. It acts through the public action grammar and auto-pauses when credits are exhausted. Provider and model are visible here, but legal verbs stay the same.</div>
+                            <div id="houseAgentHintBody">Only active on agent-only runs. It acts through the public action grammar, catches up when you return, and auto-pauses when credits are exhausted.</div>
                         </div>
                     </div>
 
-                    <div>
-                        <div class="eyebrow">Baseline Controls</div>
-                        <div class="run-row">
-                            <select id="baselinePolicySelect">
-                                <option value="conservative">conservative</option>
-                                <option value="greedy">greedy</option>
-                                <option value="random">random</option>
-                                <option value="caremax">caremax</option>
-                                <option value="arena-spam">arena-spam</option>
-                                <option value="expedition-max">expedition-max</option>
-                            </select>
-                            <button id="previewBaselineBtn" type="button" class="ghost-btn">Preview Baseline</button>
+                    <details>
+                        <summary>Advanced Research Tools</summary>
+                        <div style="margin-top:0.9rem;" class="stack">
+                            <div>
+                                <div class="eyebrow">Passive Queue</div>
+                                <div class="run-row">
+                                    <select id="queueActionSelect">
+                                        <option value="HOLD">HOLD</option>
+                                        <option value="CARE">CARE</option>
+                                        <option value="REST">REST</option>
+                                        <option value="TRAIN">TRAIN</option>
+                                        <option value="ENTER_ARENA">ENTER_ARENA</option>
+                                        <option value="ENTER_CAVE">ENTER_CAVE</option>
+                                        <option value="EXTRACT">EXTRACT</option>
+                                        <option value="MUTATE">MUTATE</option>
+                                    </select>
+                                    <button id="enqueueBtn" type="button">Queue Action</button>
+                                </div>
+                                <div class="run-row">
+                                    <button id="tickOnceBtn" type="button">Advance 1 Tick</button>
+                                    <button id="tickThreeBtn" type="button">Advance 3 Ticks</button>
+                                </div>
+                                <div class="run-row">
+                                    <button id="clearQueueBtn" type="button" class="ghost-btn">Clear Queue</button>
+                                </div>
+                                <div id="queueArea" class="replay-list"></div>
+                            </div>
+
+                            <div>
+                                <div class="eyebrow">Baseline Controls</div>
+                                <div class="run-row">
+                                    <select id="baselinePolicySelect">
+                                        <option value="conservative">conservative</option>
+                                        <option value="greedy">greedy</option>
+                                        <option value="random">random</option>
+                                        <option value="caremax">caremax</option>
+                                        <option value="arena-spam">arena-spam</option>
+                                        <option value="expedition-max">expedition-max</option>
+                                    </select>
+                                    <button id="previewBaselineBtn" type="button" class="ghost-btn">Preview Baseline</button>
+                                </div>
+                                <div class="run-row">
+                                    <button id="runBaselineTickBtn" type="button" class="ghost-btn">Run Baseline Tick</button>
+                                    <button id="runBaselineThreeBtn" type="button" class="ghost-btn">Run 3 Baseline Ticks</button>
+                                </div>
+                                <div class="hint" id="baselineHint">
+                                    <strong>Baselines</strong>
+                                    <div id="baselineHintBody">Preview or execute deterministic control policies against the same public contract.</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="run-row">
-                            <button id="runBaselineTickBtn" type="button" class="ghost-btn">Run Baseline Tick</button>
-                            <button id="runBaselineThreeBtn" type="button" class="ghost-btn">Run 3 Baseline Ticks</button>
-                        </div>
-                        <div class="hint" id="baselineHint">
-                            <strong>Baselines</strong>
-                            <div id="baselineHintBody">Preview or execute deterministic control policies against the same public contract.</div>
-                        </div>
-                    </div>
+                    </details>
                 </div>
             </section>
 
@@ -987,6 +1016,17 @@
             }
 
             async function deployAgentWatch() {
+                var budget = parseInt(document.getElementById('budgetSelect').value || '4', 10);
+                var priority = document.getElementById('prioritySelect').value || 'keep-moving';
+                var risk = document.getElementById('riskSelect').value || 'measured';
+                var confirmed = window.confirm(
+                    'Deploy the house agent for a 24-hour watch?\n\n' +
+                    'Priority: ' + priority + '\n' +
+                    'Risk: ' + risk + '\n' +
+                    'Budget: ' + budget + ' credits for this day\n\n' +
+                    'The run will stay inside the public Part B contract and catch up when you return.'
+                );
+                if (!confirmed) return;
                 document.getElementById('runClassSelect').value = 'agent-only';
                 document.getElementById('houseAgentProviderSelect').value = 'gemini';
                 if (!document.getElementById('houseAgentModelInput').value) {
@@ -994,12 +1034,21 @@
                 }
                 await startRun({
                     runClass: 'agent-only',
-                    priority: document.getElementById('prioritySelect').value || 'keep-moving',
-                    riskAppetite: document.getElementById('riskSelect').value || 'measured',
-                    dailyBudget: parseInt(document.getElementById('budgetSelect').value || '4', 10),
+                    priority: priority,
+                    riskAppetite: risk,
+                    dailyBudget: budget,
                     houseAgentProvider: 'gemini',
                     houseAgentModel: document.getElementById('houseAgentModelInput').value || 'gemini-2.5-flash-lite'
                 });
+            }
+
+            async function catchUpNow() {
+                await ensureRun();
+                if (!currentRunId) return;
+                await syncWatchWindow();
+                await loadSeasonAndLeaderboards();
+                syncSelectorsFromRun();
+                render();
             }
 
             async function ensureRun() {
@@ -1481,6 +1530,8 @@
                 var pieces = [
                     'status ' + (watch.status || 'unknown'),
                     (watch.window_remaining_hours || 0) + 'h left',
+                    'cadence ' + (watch.tick_cadence_hours || 6) + 'h',
+                    'est. ' + (watch.estimated_ticks_remaining || 0) + ' ticks left',
                     (report.billing && typeof report.billing.inference_budget_remaining === 'number'
                         ? report.billing.inference_budget_remaining + '/' + report.billing.inference_budget_daily + ' credits'
                         : 'budget unknown')
@@ -1488,7 +1539,26 @@
                 if (watch.last_agent_action_at) {
                     pieces.push('last action ' + watch.last_agent_action_at);
                 }
+                if (watch.next_due_at) {
+                    pieces.push('next due ' + watch.next_due_at);
+                }
                 body.textContent = (watch.label || 'Watch Over Them') + ' — ' + pieces.join(' · ');
+            }
+
+            function renderDeploySummary() {
+                var summary = document.getElementById('deploySummary');
+                var priority = document.getElementById('prioritySelect').value || 'keep-moving';
+                var risk = document.getElementById('riskSelect').value || 'measured';
+                var budget = parseInt(document.getElementById('budgetSelect').value || '4', 10);
+                var sentence = 'A 24-hour watch lease runs at the Part B cadence: one world tick every 6 real hours, bounded by your credit budget and the public contract.';
+                if (priority === 'grow-safely') {
+                    sentence = 'This watch leans toward recovery. Expect more Care/Rest pressure before riskier moves.';
+                } else if (priority === 'arena-first') {
+                    sentence = 'This watch leans toward combat pressure. Expect cleaner arena reads when energy is still intact.';
+                } else if (priority === 'cave-first') {
+                    sentence = 'This watch leans toward expedition value. Expect cave pressure unless welfare starts to slip.';
+                }
+                summary.textContent = sentence + ' Current setup: ' + budget + ' credits, ' + risk + ' risk appetite.';
             }
 
             function renderReturnSummary() {
@@ -1799,6 +1869,7 @@
             }
 
             function render() {
+                renderDeploySummary();
                 renderSurfaceState();
                 renderQueue();
                 renderReplay();
@@ -1843,6 +1914,7 @@
                 document.getElementById('tickOnceBtn').addEventListener('click', function() { processTicks(1); });
                 document.getElementById('tickThreeBtn').addEventListener('click', function() { processTicks(3); });
                 document.getElementById('saveHouseAgentBtn').addEventListener('click', saveHouseAgent);
+                document.getElementById('syncWatchBtn').addEventListener('click', catchUpNow);
                 document.getElementById('previewHouseAgentBtn').addEventListener('click', previewHouseAgent);
                 document.getElementById('previewBaselineBtn').addEventListener('click', previewBaseline);
                 document.getElementById('runBaselineTickBtn').addEventListener('click', function() { runBaselineTicks(1); });
@@ -1855,6 +1927,9 @@
                 });
                 document.getElementById('prioritySelect').addEventListener('change', renderHint);
                 document.getElementById('riskSelect').addEventListener('change', renderHint);
+                document.getElementById('prioritySelect').addEventListener('change', renderDeploySummary);
+                document.getElementById('riskSelect').addEventListener('change', renderDeploySummary);
+                document.getElementById('budgetSelect').addEventListener('change', renderDeploySummary);
             }
 
             main().catch(function(error) {
