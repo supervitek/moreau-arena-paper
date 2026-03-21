@@ -26,6 +26,10 @@ def build_report(payload: dict[str, Any]) -> str:
         "",
         f"- Base URL: `{payload['base_url']}`",
         f"- Run ID: `{payload['run_id']}`",
+        f"- Priority profile: `{payload['priority_profile']}`",
+        f"- Risk appetite: `{payload['risk_appetite']}`",
+        f"- Combat bias: `{payload['combat_bias']}`",
+        f"- Expedition bias: `{payload['expedition_bias']}`",
         f"- Stored model: `{payload['stored_model']}`",
         f"- Preview mode: `{payload['preview']['mode']}`",
         f"- Preview provider: `{payload['preview']['provider']}`",
@@ -89,6 +93,11 @@ def main() -> int:
     parser.add_argument("--base-url", default="https://moreauarena.com")
     parser.add_argument("--ticks", type=int, default=3)
     parser.add_argument("--model", default="gemini-2.5-flash-lite")
+    parser.add_argument("--priority-profile", default="balanced")
+    parser.add_argument("--risk-appetite", default="measured")
+    parser.add_argument("--combat-bias", type=int, default=50)
+    parser.add_argument("--expedition-bias", type=int, default=50)
+    parser.add_argument("--pet-name", default="GeminiLive")
     parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--json-output", type=Path, default=None)
     parser.add_argument("--watch-mode", action="store_true")
@@ -119,8 +128,12 @@ def main() -> int:
         "/api/v1/island/part-b/runs",
         {
             "run_class": "agent-only",
-            "subject_pet_name": "GeminiLive",
+            "subject_pet_name": args.pet_name,
             "subject_pet_animal": "fox",
+            "priority_profile": args.priority_profile,
+            "risk_appetite": args.risk_appetite,
+            "combat_bias": args.combat_bias,
+            "expedition_bias": args.expedition_bias,
             "house_agent_enabled": True,
             "house_agent_provider": "gemini",
             "house_agent_model": args.model,
@@ -144,6 +157,10 @@ def main() -> int:
         "base_url": args.base_url,
         "run_id": run_id,
         "watch_mode": args.watch_mode,
+        "priority_profile": run.get("priority_profile"),
+        "risk_appetite": run.get("risk_appetite"),
+        "combat_bias": run.get("combat_bias"),
+        "expedition_bias": run.get("expedition_bias"),
         "stored_model": run.get("house_agent_model"),
         "preview": {
             "mode": preview.get("mode"),

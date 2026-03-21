@@ -1,6 +1,6 @@
 # Part B Agentic Ecology Execution TODO
 
-Last updated: 2026-03-20
+Last updated: 2026-03-21
 Status: Active
 Source of truth: `docs/PART_B_AGENTIC_ECOLOGY_ROADMAP_FINAL.md`
 
@@ -127,6 +127,7 @@ Exit rule:
 - [x] Add operator controls for house agent.
 - [x] Ensure house agent acts only through published action grammar.
 - [x] Verify a live Gemini house-agent run on production.
+- [x] Verify a live cave-first Gemini run on production with expedition score > 0.
 - [x] Verify a live watch-sync catch-up run on production.
 
 Artifacts:
@@ -135,6 +136,7 @@ Artifacts:
 - `web/static/island/ecology.html`
 - `scripts/verify_part_b_gemini_live.py`
 - `reports/part_b_gemini_live_review.md`
+- `reports/part_b_cave_first_live_review.md`
 - `reports/part_b_watch_sync_live_review.md`
 
 Exit rule:
@@ -188,6 +190,7 @@ Artifact:
 - [ ] Accumulate real operator traces beyond seeded local calibration runs.
 - [x] Apply Part B SQL on production Supabase.
 - [x] Verify `storage-status` returns `supabase` in production.
+- [x] Prove expedition is live on production through a real cave-first Gemini run.
 - [ ] Start the first live review cadence against real operator behavior.
 - [x] Close the house-agent boundary package from `docs/PART_B_HOUSE_AGENT_BOUNDARY_EXECUTION_TODO.md`.
 
