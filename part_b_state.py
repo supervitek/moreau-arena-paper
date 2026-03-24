@@ -2090,7 +2090,10 @@ def _house_agent_prompt(observation: dict[str, Any]) -> str:
         + ", ".join(sorted(ACTION_VERBS))
         + ".\n"
         "priority_profile is the operator's standing direction. risk_appetite says how much danger is acceptable.\n"
-        "If expedition has not been touched yet and cave is available, one cave sample is preferred unless welfare is unstable or priority_profile is arena-first.\n"
+        "If priority_profile is arena-first and arena is available, do not sample the cave unless welfare is unstable or the subject is already in the cave.\n"
+        "If priority_profile is grow-safely, prefer CARE or REST over new arena/cave pressure unless the subject is exceptionally stable.\n"
+        "If priority_profile is cave-first and cave is available, prefer cave pressure unless welfare is unstable.\n"
+        "If expedition has not been touched yet and cave is available, one cave sample is preferred only when the standing order does not forbid it.\n"
         "You must only use fields present in the observation. No hidden knowledge, no secret privileges.\n"
         "Return JSON only with keys: action_verb, zone, rationale.\n"
         "Keep rationale under 18 words. No optimization-speak. No certainty language.\n"
@@ -2167,7 +2170,90 @@ def _fallback_house_plan(run_record: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _normalize_house_agent_plan(plan: dict[str, Any] | None, fallback: dict[str, Any]) -> dict[str, Any]:
+def _enforce_house_agent_policy(run_record: dict[str, Any], plan: dict[str, Any], fallback: dict[str, Any]) -> dict[str, Any]:
+    observation = _observation_from(run_record)
+    state = observation["state_projection"]
+    priority = _sanitize_text(run_record.get("priority_profile"), 32) or "balanced"
+    action = plan.get("action_verb")
+    zone = plan.get("zone")
+    rationale = _sanitize_text(plan.get("rationale"), 120) or fallback["rationale"]
+
+    if action not in ACTION_VERBS:
+        return fallback
+
+    in_cave = _sanitize_bool(state.get("in_cave"), False)
+    welfare_unstable = state["health_pct"] < observation["care_threshold"] or state["happiness_pct"] < observation["care_threshold"]
+    high_stability = (
+        state["health_pct"] >= 88
+        and state["happiness_pct"] >= 82
+        and state["morale_pct"] >= 78
+        and state["energy_pct"] >= 62
+    )
+
+    if priority in {"grow-safely", "welfare-first"}:
+        if in_cave and action == "ENTER_CAVE":
+            return {
+                **plan,
+                "action_verb": "EXTRACT",
+                "zone": "cave",
+                "rationale": "The standing order protects the return window.",
+                "policy_corrected": True,
+            }
+        if action in {"ENTER_CAVE", "ENTER_ARENA", "MUTATE"} and not high_stability:
+            safer_action = "CARE" if (state["health_pct"] < 90 or state["happiness_pct"] < 84 or state["morale_pct"] < 80) else "REST"
+            safer_zone = observation["active_zone"]
+            safer_reason = "The standing order favors stability before fresh risk."
+            return {
+                **plan,
+                "action_verb": safer_action,
+                "zone": safer_zone,
+                "rationale": safer_reason,
+                "policy_corrected": True,
+            }
+
+    if priority in {"arena-first", "combat-first"}:
+        if in_cave and action == "ENTER_CAVE":
+            return {
+                **plan,
+                "action_verb": "EXTRACT",
+                "zone": "cave",
+                "rationale": "Bank the cave first, then return to combat pressure.",
+                "policy_corrected": True,
+            }
+        if (
+            action in {"ENTER_CAVE", "EXTRACT"}
+            and not in_cave
+            and not welfare_unstable
+            and state["energy_pct"] > 40
+            and state.get("arena_available", True)
+        ):
+            return {
+                **plan,
+                "action_verb": "ENTER_ARENA",
+                "zone": "arena",
+                "rationale": "The standing order keeps pressure on the arena lane.",
+                "policy_corrected": True,
+            }
+
+    if priority in {"cave-first", "expedition-first"}:
+        if (
+            action == "ENTER_ARENA"
+            and not welfare_unstable
+            and state.get("cave_available", True)
+        ):
+            return {
+                **plan,
+                "action_verb": "ENTER_CAVE",
+                "zone": "cave",
+                "rationale": "The standing order keeps pressure on the cave lane.",
+                "policy_corrected": True,
+            }
+
+    plan["rationale"] = rationale
+    return plan
+
+
+def _normalize_house_agent_plan(run_record: dict[str, Any], plan: dict[str, Any] | None, fallback: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(plan, dict):
         return fallback
     try:
@@ -2180,7 +2266,7 @@ def _normalize_house_agent_plan(plan: dict[str, Any] | None, fallback: dict[str,
     joined = f"{action} {rationale}"
     if any(pattern.search(joined) for pattern in HOUSE_AGENT_FORBIDDEN_PATTERNS):
         return fallback
-    return {
+    normalized = {
         "action_verb": action,
         "zone": _normalize_zone(plan.get("zone"), fallback["zone"]),
         "rationale": rationale,
@@ -2189,6 +2275,7 @@ def _normalize_house_agent_plan(plan: dict[str, Any] | None, fallback: dict[str,
         "provider": fallback.get("requested_provider") or fallback.get("provider") or HOUSE_AGENT_PROVIDER_DEFAULT,
         "model": fallback.get("requested_model") or fallback.get("model") or _default_house_agent_model(fallback.get("requested_provider") or HOUSE_AGENT_PROVIDER_DEFAULT),
     }
+    return _enforce_house_agent_policy(run_record, normalized, fallback)
 
 
 def _anthropic_house_plan(run_record: dict[str, Any]) -> dict[str, Any] | None:
@@ -2216,7 +2303,7 @@ def _anthropic_house_plan(run_record: dict[str, Any]) -> dict[str, Any] | None:
         )
         text = message.content[0].text
         parsed = _json_from_text(text)
-        return _normalize_house_agent_plan(parsed, fallback)
+        return _normalize_house_agent_plan(run_record, parsed, fallback)
     except Exception:
         logger.warning("part_b_house_agent_api_error", exc_info=True)
         return None
@@ -2269,7 +2356,7 @@ def _gemini_house_plan(run_record: dict[str, Any]) -> dict[str, Any] | None:
             if parts:
                 text = parts[0].get("text", "")
         parsed = _json_from_text(text)
-        return _normalize_house_agent_plan(parsed, fallback)
+        return _normalize_house_agent_plan(run_record, parsed, fallback)
     except Exception:
         logger.warning("part_b_gemini_house_agent_api_error", exc_info=True)
         return None

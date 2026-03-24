@@ -760,6 +760,127 @@ def test_part_b_gemini_house_agent_uses_model_path(monkeypatch, tmp_path):
     assert preview["action_verb"] == "ENTER_CAVE"
 
 
+def test_part_b_gemini_house_agent_enforces_arena_first_lane(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+    monkeypatch.setenv("GOOGLE_API_KEY", "test-google-key")
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+
+    class _FakeResponse:
+        def __init__(self, payload):
+            self._payload = payload
+
+        def read(self):
+            return json.dumps(self._payload).encode("utf-8")
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+    def fake_urlopen(req, timeout=0):  # noqa: ARG001
+        return _FakeResponse(
+            {
+                "candidates": [
+                    {
+                        "content": {
+                            "parts": [
+                                {
+                                    "text": json.dumps(
+                                        {
+                                            "action_verb": "ENTER_CAVE",
+                                            "zone": "cave",
+                                            "rationale": "Cave pressure slightly outweighs arena pull.",
+                                        }
+                                    )
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        )
+
+    monkeypatch.setattr("part_b_state.request.urlopen", fake_urlopen)
+
+    run_record = create_part_b_run(
+        {
+            "run_class": "agent-only",
+            "house_agent_enabled": True,
+            "house_agent_provider": "gemini",
+            "priority_profile": "arena-first",
+            "state_projection": {"health_pct": 90, "morale_pct": 82, "happiness_pct": 78, "energy_pct": 86},
+        }
+    )
+    preview = preview_part_b_house_agent(run_record["id"])
+    assert preview is not None
+    assert preview["mode"] == "model"
+    assert preview["action_verb"] == "ENTER_ARENA"
+    assert preview["zone"] == "arena"
+    assert preview.get("policy_corrected") is True
+
+
+def test_part_b_gemini_house_agent_enforces_grow_safely_lane(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+    monkeypatch.setenv("GOOGLE_API_KEY", "test-google-key")
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+
+    class _FakeResponse:
+        def __init__(self, payload):
+            self._payload = payload
+
+        def read(self):
+            return json.dumps(self._payload).encode("utf-8")
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+    def fake_urlopen(req, timeout=0):  # noqa: ARG001
+        return _FakeResponse(
+            {
+                "candidates": [
+                    {
+                        "content": {
+                            "parts": [
+                                {
+                                    "text": json.dumps(
+                                        {
+                                            "action_verb": "ENTER_CAVE",
+                                            "zone": "cave",
+                                            "rationale": "A cave sample could still pay off.",
+                                        }
+                                    )
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        )
+
+    monkeypatch.setattr("part_b_state.request.urlopen", fake_urlopen)
+
+    run_record = create_part_b_run(
+        {
+            "run_class": "agent-only",
+            "house_agent_enabled": True,
+            "house_agent_provider": "gemini",
+            "priority_profile": "grow-safely",
+            "state_projection": {"health_pct": 90, "morale_pct": 82, "happiness_pct": 78, "energy_pct": 86},
+        }
+    )
+    preview = preview_part_b_house_agent(run_record["id"])
+    assert preview is not None
+    assert preview["mode"] == "model"
+    assert preview["action_verb"] == "CARE"
+    assert preview.get("policy_corrected") is True
+
+
 def test_part_b_gemini_house_agent_falls_back_without_key(monkeypatch, tmp_path):
     monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
     monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
