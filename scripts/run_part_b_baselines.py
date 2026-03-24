@@ -13,6 +13,18 @@ if str(ROOT) not in sys.path:
 from part_b_state import PART_B_BASELINE_POLICIES, PART_B_SEASON_CURRENT_ID, create_part_b_run, part_b_run_report, run_part_b_baseline
 
 
+def _preset_for_policy(policy: str) -> tuple[str, str]:
+    mapping = {
+        "conservative": ("grow-safely", "guarded"),
+        "caremax": ("grow-safely", "guarded"),
+        "greedy": ("keep-moving", "bold"),
+        "random": ("keep-moving", "measured"),
+        "arena-spam": ("arena-first", "reckless"),
+        "expedition-max": ("cave-first", "bold"),
+    }
+    return mapping.get(policy, ("keep-moving", "measured"))
+
+
 def _initial_projection(name: str, animal: str, level: int) -> dict[str, Any]:
     return {
         "name": name,
@@ -57,16 +69,20 @@ def run_baselines(ticks: int, policies: list[str], repeats: int) -> dict[str, An
     for repeat in range(repeats):
         for index, policy in enumerate(policies):
             animal = animals[(index + repeat) % len(animals)]
+            priority_profile, risk_appetite = _preset_for_policy(policy)
             run = create_part_b_run(
                 {
                     "season_id": PART_B_SEASON_CURRENT_ID,
                     "run_class": "agent-only",
                     "subject_pet_name": f"{policy.title()} Baseline R{repeat + 1}",
                     "subject_pet_animal": animal,
-                    "priority_profile": "combat-first" if policy == "arena-spam" else ("expedition-first" if policy == "expedition-max" else "balanced"),
+                    "priority_profile": priority_profile,
+                    "risk_appetite": risk_appetite,
                     "state_projection": _initial_projection(f"{policy.title()} Baseline R{repeat + 1}", animal, index + repeat + 1),
                     "metadata": {
                         "baseline_policy": policy,
+                        "product_preset_priority": priority_profile,
+                        "product_preset_risk": risk_appetite,
                         "baseline_repeat": repeat + 1,
                         "generated_by": "scripts/run_part_b_baselines.py",
                     },
@@ -87,16 +103,19 @@ def render_markdown(payload: dict[str, Any]) -> str:
         f"- Repeats: `{payload['repeats']}`",
         f"- Policies: `{', '.join(payload['policies'])}`",
         "",
-        "| Policy | Repeat | Welfare | Combat | Expedition | Tick | Status |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | --- |",
+        "| Policy | Standing Order | Risk | Repeat | Welfare | Combat | Expedition | Tick | Status |",
+        "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |",
     ]
     for item in payload["results"]:
         report = item["report"] or {}
         scores = report.get("scores") or {}
-        policy = (item["run"].get("metadata") or {}).get("baseline_policy", "unknown")
-        repeat = (item["run"].get("metadata") or {}).get("baseline_repeat", 1)
+        metadata = item["run"].get("metadata") or {}
+        policy = metadata.get("baseline_policy", "unknown")
+        repeat = metadata.get("baseline_repeat", 1)
+        priority = item["run"].get("priority_profile", "keep-moving")
+        risk = item["run"].get("risk_appetite", "measured")
         lines.append(
-            f"| `{policy}` | {repeat} | {scores.get('welfare', 0)} | {scores.get('combat', 0)} | {scores.get('expedition', 0)} | {report.get('world_tick', 0)} | {report.get('status', 'unknown')} |"
+            f"| `{policy}` | `{priority}` | `{risk}` | {repeat} | {scores.get('welfare', 0)} | {scores.get('combat', 0)} | {scores.get('expedition', 0)} | {report.get('world_tick', 0)} | {report.get('status', 'unknown')} |"
         )
     lines.append("")
     return "\n".join(lines) + "\n"

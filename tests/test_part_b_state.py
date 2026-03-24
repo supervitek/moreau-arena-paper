@@ -324,6 +324,9 @@ def test_part_b_watch_sync_catches_up_due_ticks(monkeypatch, tmp_path):
     assert "estimated_ticks_remaining" in synced["report"]["watch"]
     assert "headline" in synced["report"]["return_report"]
     assert "summary" in synced["report"]["return_report"]
+    assert "status_line" in synced["report"]["return_report"]
+    assert "primary_lane" in synced["report"]["return_report"]
+    assert "action_digest" in synced["report"]["return_report"]
 
 
 def test_part_b_watch_sync_completes_expired_watch(monkeypatch, tmp_path):
@@ -516,6 +519,9 @@ def test_part_b_season_archive_includes_leaderboards(monkeypatch, tmp_path):
     assert archive["season"]["season_id"].startswith("part-b-s1")
     assert archive["leaderboards"]["headline_note"]
     assert archive["runs"]
+    assert archive["trace_summary"]["total_runs"] >= 1
+    assert "manual" in archive["trace_summary"]["by_run_class"]
+    assert archive["review_cadence"]["daily"]
 
 
 def test_part_b_calibration_report_flags_flatlined_family(monkeypatch, tmp_path):
@@ -547,6 +553,9 @@ def test_part_b_calibration_report_flags_flatlined_family(monkeypatch, tmp_path)
     assert calibration["total_runs"] == 3
     assert "combat_flatlined" in calibration["warnings"]
     assert calibration["policy_summary"]["conservative"]["runs"] == 1
+    assert "balanced" in calibration["priority_summary"]
+    assert "measured" in calibration["risk_summary"]
+    assert "house-agent" in calibration["agent_summary"]
 
 
 def test_part_b_invalid_queue_action_is_dropped(monkeypatch, tmp_path):

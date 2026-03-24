@@ -4,6 +4,18 @@ Ready-to-copy-paste posts for launch day. Site: moreauarena.com
 
 ---
 
+## Part B Alpha Short Post
+
+Moreau Arena is live, and Part B is now a public alpha.
+
+You can run a pet manually, use bounded operator hints, or rent the house agent for a 24-hour watch. When you return, the site catches the run up through the same public contract and hands back a replayable report: lane taken, credits spent, tick span, state delta.
+
+This is not "secret autonomous magic." It's a bounded, inspectable ecology loop with separate welfare / combat / expedition scores.
+
+Live benchmark + island + ecology alpha: [moreauarena.com](https://moreauarena.com)
+
+---
+
 ## X/Twitter Thread (6 tweets)
 
 **Tweet 1 (Hook):**

@@ -535,16 +535,16 @@
                 </div>
                 <div class="run-row">
                     <select id="prioritySelect">
-                        <option value="keep-moving">keep-moving</option>
-                        <option value="grow-safely">grow-safely</option>
-                        <option value="arena-first">arena-first</option>
-                        <option value="cave-first">cave-first</option>
+                        <option value="keep-moving">keep-moving · balanced push</option>
+                        <option value="grow-safely">grow-safely · protect the pet</option>
+                        <option value="arena-first">arena-first · lean combat</option>
+                        <option value="cave-first">cave-first · lean expedition</option>
                     </select>
                     <select id="riskSelect">
-                        <option value="guarded">guarded</option>
-                        <option value="measured" selected>measured</option>
-                        <option value="bold">bold</option>
-                        <option value="reckless">reckless</option>
+                        <option value="guarded">guarded · low damage tolerance</option>
+                        <option value="measured" selected>measured · default</option>
+                        <option value="bold">bold · allow sharper swings</option>
+                        <option value="reckless">reckless · spend the body</option>
                     </select>
                 </div>
                 <div class="run-row">
@@ -959,6 +959,20 @@
 
             function currentRiskAppetite() {
                 return (currentRun && currentRun.risk_appetite) || document.getElementById('riskSelect').value || 'measured';
+            }
+
+            function priorityLabel(priority) {
+                if (priority === 'grow-safely') return 'grow-safely';
+                if (priority === 'arena-first') return 'arena-first';
+                if (priority === 'cave-first') return 'cave-first';
+                return 'keep-moving';
+            }
+
+            function riskLabel(risk) {
+                if (risk === 'guarded') return 'guarded';
+                if (risk === 'bold') return 'bold';
+                if (risk === 'reckless') return 'reckless';
+                return 'measured';
             }
 
             function watchMetadata(runClass, projection) {
@@ -1657,12 +1671,19 @@
                 if (watch.next_due_at) {
                     pieces.push('next due ' + watch.next_due_at);
                 }
+                if (watch.primary_lane) {
+                    pieces.push('lane ' + watch.primary_lane);
+                }
                 body.textContent = (watch.label || 'Watch Over Them') + ' — ' + pieces.join(' · ');
                 if (fill) {
-                    var remaining = Number(watch.window_remaining_hours || 0);
-                    var total = Number(watch.window_hours || 24) || 24;
-                    var used = Math.max(0, total - remaining);
-                    fill.style.width = String(Math.max(0, Math.min(100, (used / total) * 100))) + '%';
+                    var pct = Number(watch.window_progress_pct || 0);
+                    if (!pct) {
+                        var remaining = Number(watch.window_remaining_hours || 0);
+                        var total = Number(watch.window_hours || 24) || 24;
+                        var used = Math.max(0, total - remaining);
+                        pct = Math.max(0, Math.min(100, (used / total) * 100));
+                    }
+                    fill.style.width = String(Math.max(0, Math.min(100, pct))) + '%';
                 }
             }
 
@@ -1670,11 +1691,11 @@
                 var hint = document.getElementById('runClassHint');
                 var runClass = document.getElementById('runClassSelect').value || 'manual';
                 if (runClass === 'agent-only') {
-                    hint.textContent = 'Agent-only: our house agent runs the watch for you, spends credits, and returns a report when you come back.';
+                    hint.textContent = 'Agent-only: the house agent spends your watch budget, keeps a replayable trace, and hands back a morning-style report when you return.';
                 } else if (runClass === 'operator-assisted') {
-                    hint.textContent = 'Operator-assisted: you still choose the actions, but bounded hints stay live beside the run.';
+                    hint.textContent = 'Operator-assisted: you still choose the actions, but bounded hints and return traces stay visible beside the run.';
                 } else {
-                    hint.textContent = 'Manual: you make every move yourself. Useful for learning the surfaces before handing them off.';
+                    hint.textContent = 'Manual: you make every move yourself. Best for learning the surfaces before you rent the watch out.';
                 }
             }
 
@@ -1685,15 +1706,15 @@
                 var budget = parseInt(document.getElementById('budgetSelect').value || '4', 10);
                 var sentence = 'A 24-hour watch lease runs at the Part B cadence: one world tick every 6 real hours. 1 credit funds 1 house-agent decision.';
                 if (priority === 'grow-safely') {
-                    sentence = 'This watch leans toward recovery. Expect more Care/Rest pressure before riskier moves.';
+                    sentence = 'This watch leans toward recovery. Expect more Care/Rest pressure before riskier moves and a safer return posture.';
                 } else if (priority === 'arena-first') {
-                    sentence = 'This watch leans toward combat pressure. Expect cleaner arena reads when energy is still intact.';
+                    sentence = 'This watch leans toward combat pressure. Expect cleaner arena reads while energy is still intact.';
                 } else if (priority === 'cave-first') {
                     sentence = 'This watch leans toward expedition value. Expect cave pressure unless welfare starts to slip.';
                 } else {
                     sentence = 'This watch keeps the run moving. If expedition is untouched and the pet is stable, it may sample the cave early.';
                 }
-                summary.textContent = sentence + ' Current setup: ' + budget + ' credits, ' + risk + ' risk appetite.';
+                summary.textContent = sentence + ' Current setup: ' + priorityLabel(priority) + ', ' + riskLabel(risk) + ', ' + budget + ' credits.';
             }
 
             function renderReturnSummary() {
@@ -1704,6 +1725,9 @@
                     return;
                 }
                 var summary = report.return_report;
+                var actionDigest = Array.isArray(summary.action_digest) ? summary.action_digest.map(function(entry) {
+                    return (entry.count || 0) + 'x ' + (entry.action_verb || 'HOLD').toLowerCase();
+                }).join(', ') : '';
                 var deltaRows = Array.isArray(summary.delta) ? summary.delta.map(function(row) {
                     var sign = Number(row.delta || 0) > 0 ? '+' : '';
                     return '<div class="delta-row"><span>' + escHtml(row.label) + '</span><span>' +
@@ -1713,10 +1737,17 @@
                     '<div class="inspect-card">' +
                         '<strong>' + escHtml(summary.headline || 'While you were away') + '</strong>' +
                         '<div style="margin-top:0.4rem;">' + escHtml(summary.summary || 'No summary yet.') + '</div>' +
+                        '<div style="margin-top:0.4rem; color:rgba(244, 233, 208, 0.7);">' + escHtml(summary.status_line || '') + '</div>' +
                         '<div class="delta-row"><span>recommendation</span><span>' + escHtml(summary.recommendation || 'None') + '</span></div>' +
+                        '<div class="delta-row"><span>standing order</span><span>' + escHtml(summary.priority_profile || 'keep-moving') + ' / ' + escHtml(summary.risk_appetite || 'measured') + '</span></div>' +
+                        '<div class="delta-row"><span>primary lane</span><span>' + escHtml(summary.primary_lane || 'keep-moving') + '</span></div>' +
+                        '<div class="delta-row"><span>return posture</span><span>' + escHtml(summary.return_posture || 'unknown') + '</span></div>' +
+                        '<div class="delta-row"><span>tick span</span><span>' + escHtml(summary.tick_span || 0) + '</span></div>' +
                         '<div class="delta-row"><span>credits used</span><span>' + escHtml(summary.credits_used || 0) + '</span></div>' +
                         '<div class="delta-row"><span>window left</span><span>' + escHtml(summary.window_remaining_hours || 0) + 'h</span></div>' +
                         '<div class="delta-row"><span>ticks left</span><span>' + escHtml(summary.estimated_ticks_remaining || 0) + '</span></div>' +
+                        '<div class="delta-row"><span>watch progress</span><span>' + escHtml(summary.window_progress_pct || 0) + '%</span></div>' +
+                        '<div class="delta-row"><span>action mix</span><span>' + escHtml(actionDigest || 'No autonomous action mix yet.') + '</span></div>' +
                         (deltaRows || '<div class="delta-row"><span>delta</span><span>No material state change captured yet.</span></div>') +
                     '</div>';
             }

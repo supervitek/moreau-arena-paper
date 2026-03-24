@@ -16,6 +16,7 @@ def build_review(season_id: str) -> str:
     calibration = part_b_calibration_report(season_id)
     boards = archive["leaderboards"]
     counts = boards["counts"]
+    trace_summary = archive.get("trace_summary") or {}
     lines = [
         "# Part B Weekly Review",
         "",
@@ -23,6 +24,8 @@ def build_review(season_id: str) -> str:
         f"- Name: {archive['season']['name']}",
         f"- Total runs: `{counts['total_runs']}`",
         f"- Eligible runs: `{counts['eligible_runs']}`",
+        f"- Watch runs: `{trace_summary.get('watch_runs', 0)}`",
+        f"- Completed watches: `{trace_summary.get('completed_watches', 0)}`",
         "",
         "## Top Signals",
     ]
@@ -45,12 +48,27 @@ def build_review(season_id: str) -> str:
         )
     lines.extend(
         [
-        "## Guardrails",
+            "## Guardrails",
             "",
             f"- Composite headline enabled: `{archive['season']['composite_headline_enabled']}`",
             f"- House agent allowed in benchmark: `{archive['season']['house_agent_benchmark_allowed']}`",
             f"- Rule: {archive['season']['house_agent_benchmark_rule']}",
             "",
+        ]
+    )
+    cadence = archive.get("review_cadence") or {}
+    if cadence:
+        lines.extend(["## Review Cadence", ""])
+        for label in ("daily", "midweek", "weekly"):
+            items = cadence.get(label) or []
+            if not items:
+                continue
+            lines.extend([f"### {label.title()}", ""])
+            for item in items:
+                lines.append(f"- {item}")
+            lines.append("")
+    lines.extend(
+        [
             "## Calibration",
             "",
             f"- Warnings: `{', '.join(calibration['warnings']) if calibration['warnings'] else 'none'}`",
@@ -63,12 +81,59 @@ def build_review(season_id: str) -> str:
             "",
         ]
     )
+    by_run_class = trace_summary.get("by_run_class") or {}
+    if by_run_class:
+        lines.extend(["## Operator Traces", ""])
+        for run_class in ("manual", "operator-assisted", "agent-only"):
+            payload = by_run_class.get(run_class) or {}
+            if not payload.get("runs"):
+                continue
+            means = payload.get("mean_scores") or {}
+            lines.append(
+                f"- `{run_class}`: runs `{payload.get('runs', 0)}`, welfare `{means.get('welfare', 0)}`, combat `{means.get('combat', 0)}`, expedition `{means.get('expedition', 0)}`, avg tick span `{payload.get('mean_tick_span', 0)}`, avg credits used `{payload.get('mean_credits_used', 0)}`"
+            )
+            if payload.get("action_digest"):
+                lines.append(f"  Top actions: {payload['action_digest']}")
+            primary_lanes = payload.get("primary_lanes") or {}
+            if primary_lanes:
+                lines.append(f"  Primary lanes: {', '.join(f'{k}={v}' for k, v in sorted(primary_lanes.items()))}")
+            return_postures = payload.get("return_postures") or {}
+            if return_postures:
+                lines.append(f"  Return postures: {', '.join(f'{k}={v}' for k, v in sorted(return_postures.items()))}")
+        lines.append("")
+    recent_traces = trace_summary.get("recent_operator_traces") or []
+    if recent_traces:
+        lines.extend(["## Recent Highlights", ""])
+        for entry in recent_traces[:5]:
+            scores = entry.get("scores") or {}
+            lines.append(
+                f"- `{entry.get('subject_pet_name', 'Unnamed')}` [{entry.get('run_class', 'unknown')}] `{entry.get('priority_profile', 'balanced')}` / `{entry.get('risk_appetite', 'measured')}` -> {entry.get('headline', 'No headline')} Score `{scores.get('welfare', 0)}/{scores.get('combat', 0)}/{scores.get('expedition', 0)}`"
+            )
+            if entry.get("status_line"):
+                lines.append(f"  {entry['status_line']}")
+        lines.append("")
     if calibration["policy_summary"]:
         lines.extend(["## Policy Summary", ""])
         for policy, payload in sorted(calibration["policy_summary"].items()):
             means = payload["mean_scores"]
             lines.append(
                 f"- `{policy}`: welfare `{means['welfare']}`, combat `{means['combat']}`, expedition `{means['expedition']}`, runs `{payload['runs']}`"
+            )
+        lines.append("")
+    if calibration.get("priority_summary"):
+        lines.extend(["## Standing Orders", ""])
+        for priority, payload in sorted(calibration["priority_summary"].items()):
+            means = payload["mean_scores"]
+            lines.append(
+                f"- `{priority}`: welfare `{means['welfare']}`, combat `{means['combat']}`, expedition `{means['expedition']}`, avg tick span `{payload['mean_tick_span']}`, avg credits used `{payload['mean_credits_used']}`, runs `{payload['runs']}`"
+            )
+        lines.append("")
+    if calibration.get("risk_summary"):
+        lines.extend(["## Risk Calibration", ""])
+        for risk, payload in sorted(calibration["risk_summary"].items()):
+            means = payload["mean_scores"]
+            lines.append(
+                f"- `{risk}`: welfare `{means['welfare']}`, combat `{means['combat']}`, expedition `{means['expedition']}`, avg tick span `{payload['mean_tick_span']}`, avg credits used `{payload['mean_credits_used']}`, runs `{payload['runs']}`"
             )
         lines.append("")
     if calibration["run_class_summary"]:
@@ -79,6 +144,29 @@ def build_review(season_id: str) -> str:
                 f"- `{run_class}`: welfare `{means['welfare']}`, combat `{means['combat']}`, expedition `{means['expedition']}`, runs `{payload['runs']}`"
             )
         lines.append("")
+    if calibration.get("agent_summary"):
+        lines.extend(["## Agent Modes", ""])
+        for agent_mode, payload in sorted(calibration["agent_summary"].items()):
+            means = payload["mean_scores"]
+            lines.append(
+                f"- `{agent_mode}`: welfare `{means['welfare']}`, combat `{means['combat']}`, expedition `{means['expedition']}`, avg tick span `{payload['mean_tick_span']}`, avg credits used `{payload['mean_credits_used']}`, runs `{payload['runs']}`"
+            )
+        lines.append("")
+    watch_summary = calibration.get("watch_summary") or {}
+    if watch_summary.get("runs"):
+        means = watch_summary.get("mean_scores") or {}
+        lines.extend(
+            [
+                "## Watch Quality",
+                "",
+                f"- Watch runs: `{watch_summary.get('runs', 0)}`",
+                f"- Mean scores: welfare `{means.get('welfare', 0)}`, combat `{means.get('combat', 0)}`, expedition `{means.get('expedition', 0)}`",
+                f"- Avg tick span: `{watch_summary.get('mean_tick_span', 0)}`",
+                f"- Avg credits used: `{watch_summary.get('mean_credits_used', 0)}`",
+                f"- Dominant action mix: {watch_summary.get('action_digest', 'none')}",
+                "",
+            ]
+        )
     return "\n".join(lines) + "\n"
 
 

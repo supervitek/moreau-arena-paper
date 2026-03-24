@@ -881,6 +881,49 @@ def _agent_status(run_record: dict[str, Any], current_state: dict[str, Any], eve
     return "idle", last_agent_action_at
 
 
+def _top_action_digest(by_action: Counter[str], *, limit: int = 3) -> tuple[str, list[dict[str, Any]]]:
+    if not by_action:
+        return "no autonomous action yet", []
+    parts: list[str] = []
+    entries: list[dict[str, Any]] = []
+    for action, count in by_action.most_common(limit):
+        parts.append(f"{count}x {action.lower()}")
+        entries.append({"action_verb": action, "count": count})
+    return ", ".join(parts), entries
+
+
+def _watch_primary_lane(run_record: dict[str, Any], by_action: Counter[str]) -> str:
+    if by_action.get("ENTER_CAVE", 0) + by_action.get("EXTRACT", 0) >= max(1, by_action.get("ENTER_ARENA", 0)):
+        if by_action.get("ENTER_CAVE", 0) > 0 or by_action.get("EXTRACT", 0) > 0:
+            return "cave-first"
+    if by_action.get("ENTER_ARENA", 0) > 0:
+        return "arena-first"
+    if by_action.get("CARE", 0) + by_action.get("REST", 0) > 0:
+        return "stabilizing"
+    priority = (run_record.get("priority_profile") or "").strip()
+    if priority in {"cave-first", "expedition-first"}:
+        return "cave-first"
+    if priority in {"arena-first", "combat-first"}:
+        return "arena-first"
+    if priority in {"grow-safely", "welfare-first"}:
+        return "stabilizing"
+    return "keep-moving"
+
+
+def _return_posture(current_state: dict[str, Any]) -> str:
+    if current_state.get("is_alive") is False:
+        return "collapsed"
+    if current_state.get("in_cave"):
+        return "deep in the cave"
+    if current_state.get("health_pct", 100) < 45 or current_state.get("happiness_pct", 100) < 45:
+        return "fragile"
+    if current_state.get("energy_pct", 100) < 35:
+        return "depleted"
+    if current_state.get("health_pct", 0) >= 75 and current_state.get("happiness_pct", 0) >= 72 and current_state.get("energy_pct", 0) >= 48:
+        return "stable"
+    return "recovering"
+
+
 def _watch_summary(run_record: dict[str, Any], events: list[dict[str, Any]], current_state: dict[str, Any]) -> dict[str, Any]:
     watch = _watch_metadata(run_record)
     status, last_agent_action_at = _agent_status(run_record, current_state, events)
@@ -893,11 +936,9 @@ def _watch_summary(run_record: dict[str, Any], events: list[dict[str, Any]], cur
     for event in events:
         if event.get("accepted", False) and event.get("actor_type") == "agent" and event.get("action_verb"):
             by_action[str(event["action_verb"])] += 1
-    summary_parts = []
-    if by_action:
-        for action, count in by_action.most_common(3):
-            summary_parts.append(f"{count}x {action.lower()}")
-    summary_text = ", ".join(summary_parts) if summary_parts else "no autonomous action yet"
+    summary_text, action_digest = _top_action_digest(by_action)
+    primary_lane = _watch_primary_lane(run_record, by_action)
+    return_posture = _return_posture(current_state)
     credits_used = max(
         0,
         _intish(run_record.get("inference_budget_daily"), 0, minimum=0)
@@ -954,23 +995,40 @@ def _watch_summary(run_record: dict[str, Any], events: list[dict[str, Any]], cur
     if status in {"completed", "exhausted"} or remaining_hours <= 0 or estimated_ticks_remaining <= 0:
         next_due_at = None
 
+    progress_pct = 0
+    if watch["enabled"]:
+        total_window = max(1, watch["window_hours"])
+        progress_pct = int(round(max(0.0, min(1.0, (total_window - remaining_hours) / total_window)) * 100))
+
+    status_line = f"{tick_span} ticks processed, {credits_used} credits spent, posture now {return_posture}."
+    if status == "completed":
+        status_line = f"Watch complete after {tick_span} ticks. They returned {return_posture} with {credits_used} credits spent."
+    elif status == "exhausted":
+        status_line = f"Credits ran dry after {tick_span} ticks. They returned {return_posture}."
+
     return {
         "enabled": watch["enabled"],
         "label": watch["label"],
         "status": status,
         "headline": headline,
         "summary": f"{tick_span} ticks since departure; {summary_text}.",
+        "status_line": status_line,
         "recommendation": recommendation,
         "credits_used": credits_used,
         "credits_remaining": _intish(run_record.get("inference_budget_remaining"), 0, minimum=0),
         "window_hours": watch["window_hours"],
         "window_remaining_hours": remaining_hours,
+        "window_progress_pct": progress_pct,
         "tick_cadence_hours": tick_hours,
         "estimated_ticks_remaining": estimated_ticks_remaining,
         "next_due_at": next_due_at,
         "last_agent_action_at": last_agent_action_at,
         "departure_tick": departure_tick,
         "current_tick": _intish(run_record.get("world_tick"), 0, minimum=0),
+        "tick_span": tick_span,
+        "primary_lane": primary_lane,
+        "return_posture": return_posture,
+        "action_digest": action_digest,
         "delta": delta[:6],
     }
 
@@ -1053,12 +1111,20 @@ def _report_from(run_record: dict[str, Any], events: list[dict[str, Any]]) -> di
         "return_report": {
             "headline": watch["headline"],
             "summary": watch["summary"],
+            "status_line": watch["status_line"],
             "recommendation": watch["recommendation"],
             "credits_used": watch["credits_used"],
             "window_remaining_hours": watch["window_remaining_hours"],
+            "window_progress_pct": watch["window_progress_pct"],
             "estimated_ticks_remaining": watch["estimated_ticks_remaining"],
             "next_due_at": watch["next_due_at"],
             "last_agent_action_at": watch["last_agent_action_at"],
+            "tick_span": watch["tick_span"],
+            "primary_lane": watch["primary_lane"],
+            "return_posture": watch["return_posture"],
+            "action_digest": watch["action_digest"],
+            "priority_profile": _sanitize_text(run_record.get("priority_profile"), 32) or "balanced",
+            "risk_appetite": _sanitize_text(run_record.get("risk_appetite"), 32) or "measured",
             "delta": watch["delta"],
         },
         "inspect": {
@@ -1574,6 +1640,84 @@ def _rank_entries(entries: list[dict[str, Any]], family: str) -> list[dict[str, 
     )
 
 
+def _score_means(items: list[dict[str, Any]]) -> dict[str, float]:
+    payload: dict[str, float] = {}
+    for family in ("welfare", "combat", "expedition"):
+        values = [_intish(_sanitize_dict(item.get("report")).get("scores", {}).get(family), 0, minimum=0, maximum=100) for item in items]
+        payload[family] = round(mean(values), 2) if values else 0.0
+    return payload
+
+
+def _bucket_trace_summary(items: list[dict[str, Any]]) -> dict[str, Any]:
+    actions = Counter()
+    statuses = Counter()
+    primary_lanes = Counter()
+    return_postures = Counter()
+    credits_used: list[int] = []
+    tick_spans: list[int] = []
+    for item in items:
+        report = _sanitize_dict(item.get("report"))
+        watch = _sanitize_dict(report.get("watch"))
+        summary = _sanitize_dict(report.get("return_report"))
+        actions.update(_sanitize_dict(report.get("actions_by_verb")))
+        statuses[watch.get("status") or report.get("status") or "unknown"] += 1
+        primary_lanes[summary.get("primary_lane") or watch.get("primary_lane") or "unknown"] += 1
+        return_postures[summary.get("return_posture") or watch.get("return_posture") or "unknown"] += 1
+        credits_used.append(_intish(summary.get("credits_used"), 0, minimum=0))
+        tick_spans.append(_intish(summary.get("tick_span") or watch.get("tick_span"), 0, minimum=0))
+    digest, _ = _top_action_digest(actions)
+    return {
+        "runs": len(items),
+        "mean_scores": _score_means(items),
+        "status_counts": dict(statuses),
+        "primary_lanes": dict(primary_lanes),
+        "return_postures": dict(return_postures),
+        "top_actions": [{"action_verb": action, "count": count} for action, count in actions.most_common(3)],
+        "action_digest": digest,
+        "mean_credits_used": round(mean(credits_used), 2) if credits_used else 0.0,
+        "mean_tick_span": round(mean(tick_spans), 2) if tick_spans else 0.0,
+    }
+
+
+def _archive_trace_entry(item: dict[str, Any]) -> dict[str, Any]:
+    run = _sanitize_dict(item.get("run"))
+    report = _sanitize_dict(item.get("report"))
+    summary = _sanitize_dict(report.get("return_report"))
+    watch = _sanitize_dict(report.get("watch"))
+    metadata = _sanitize_dict(run.get("metadata"))
+    action_counts = Counter()
+    for action, count in sorted(_sanitize_dict(report.get("actions_by_verb")).items()):
+        action_counts[str(action)] += _intish(count, 0, minimum=0)
+    action_digest, top_actions = _top_action_digest(action_counts)
+    return {
+        "run_id": run.get("id"),
+        "subject_pet_name": run.get("subject_pet_name") or "Unnamed",
+        "subject_pet_animal": run.get("subject_pet_animal") or "creature",
+        "run_class": run.get("run_class") or "unknown",
+        "agent_mode": "house-agent" if _sanitize_bool(run.get("house_agent_enabled"), False) else "human-led",
+        "priority_profile": _sanitize_text(run.get("priority_profile"), 32) or "balanced",
+        "risk_appetite": _sanitize_text(run.get("risk_appetite"), 32) or "measured",
+        "baseline_policy": _sanitize_text(metadata.get("baseline_policy"), 32),
+        "world_tick": _intish(run.get("world_tick"), 0, minimum=0),
+        "watch_status": watch.get("status") or "idle",
+        "tick_span": _intish(summary.get("tick_span"), 0, minimum=0),
+        "primary_lane": summary.get("primary_lane") or "keep-moving",
+        "return_posture": summary.get("return_posture") or "unknown",
+        "headline": summary.get("headline") or watch.get("headline") or "No return headline yet.",
+        "summary": summary.get("summary") or "No return summary yet.",
+        "status_line": summary.get("status_line") or "",
+        "credits_used": _intish(summary.get("credits_used"), 0, minimum=0),
+        "scores": {
+            "welfare": _intish(_sanitize_dict(report.get("scores")).get("welfare"), 0, minimum=0, maximum=100),
+            "combat": _intish(_sanitize_dict(report.get("scores")).get("combat"), 0, minimum=0, maximum=100),
+            "expedition": _intish(_sanitize_dict(report.get("scores")).get("expedition"), 0, minimum=0, maximum=100),
+        },
+        "top_actions": top_actions,
+        "action_digest": action_digest,
+        "updated_at": run.get("updated_at"),
+    }
+
+
 def part_b_leaderboards(season_id: str | None = None, run_class: str | None = None, limit: int = 10, focus_run_id: str | None = None) -> dict[str, Any]:
     season = _current_part_b_season(season_id)
     chosen_class = (run_class or "all").strip().lower()
@@ -1657,6 +1801,9 @@ def part_b_calibration_report(season_id: str | None = None) -> dict[str, Any]:
     policy_summary: dict[str, dict[str, Any]] = {}
     top_policy_counts = Counter()
     run_class_summary: dict[str, dict[str, Any]] = {}
+    priority_summary: dict[str, list[dict[str, Any]]] = {}
+    risk_summary: dict[str, list[dict[str, Any]]] = {}
+    agent_summary: dict[str, list[dict[str, Any]]] = {}
     warnings: list[str] = []
 
     for family in ("welfare", "combat", "expedition"):
@@ -1692,6 +1839,13 @@ def part_b_calibration_report(season_id: str | None = None) -> dict[str, Any]:
         class_bucket["welfare"].append(_intish(item["report"]["scores"].get("welfare"), 0, minimum=0, maximum=100))
         class_bucket["combat"].append(_intish(item["report"]["scores"].get("combat"), 0, minimum=0, maximum=100))
         class_bucket["expedition"].append(_intish(item["report"]["scores"].get("expedition"), 0, minimum=0, maximum=100))
+
+        priority = _sanitize_text(item["run"].get("priority_profile"), 32) or "balanced"
+        priority_summary.setdefault(priority, []).append(item)
+        risk = _sanitize_text(item["run"].get("risk_appetite"), 32) or "measured"
+        risk_summary.setdefault(risk, []).append(item)
+        agent_mode = "house-agent" if _sanitize_bool(item["run"].get("house_agent_enabled"), False) else "human-led"
+        agent_summary.setdefault(agent_mode, []).append(item)
 
     normalized_summary = {
         policy: {
@@ -1729,6 +1883,10 @@ def part_b_calibration_report(season_id: str | None = None) -> dict[str, Any]:
             }
             for klass, bucket in run_class_summary.items()
         },
+        "priority_summary": {key: _bucket_trace_summary(items) for key, items in priority_summary.items()},
+        "risk_summary": {key: _bucket_trace_summary(items) for key, items in risk_summary.items()},
+        "agent_summary": {key: _bucket_trace_summary(items) for key, items in agent_summary.items()},
+        "watch_summary": _bucket_trace_summary([item for item in reports if _sanitize_dict(item["report"].get("watch")).get("enabled")]),
         "top_policy_counts": dict(top_policy_counts),
         "warnings": sorted(set(warnings)),
     }
@@ -2386,8 +2544,43 @@ def export_part_b_season_archive(season_id: str | None = None, *, limit: int = 5
                 "events": replay["events"],
             }
         )
+    trace_entries = [_archive_trace_entry(item) for item in archive_runs]
+    trace_entries_sorted = sorted(trace_entries, key=lambda item: item.get("updated_at") or "", reverse=True)
+    watch_runs = [item for item in archive_runs if _sanitize_dict(_sanitize_dict(item.get("report", {})).get("watch")).get("enabled")]
+    manual_runs = [item for item in archive_runs if _sanitize_dict(item.get("run", {})).get("run_class") == "manual"]
+    operator_runs = [item for item in archive_runs if _sanitize_dict(item.get("run", {})).get("run_class") == "operator-assisted"]
+    agent_runs = [item for item in archive_runs if _sanitize_dict(item.get("run", {})).get("run_class") == "agent-only"]
+    completed_watches = [entry for entry in trace_entries if entry.get("watch_status") == "completed"]
+    running_watches = [entry for entry in trace_entries if entry.get("watch_status") == "running"]
     return {
         "season": part_b_season_status(season["season_id"]),
         "leaderboards": part_b_leaderboards(season["season_id"], limit=25),
+        "review_cadence": {
+            "daily": [
+                "Check for stalled live watches, depleted credits, and fragile return postures.",
+                "Read at least one manual, one operator-assisted, and one agent-only trace to keep operator fantasy honest.",
+            ],
+            "midweek": [
+                "Compare priority presets against current score families.",
+                "Look for one clean cave-first run and one clean arena-first run before changing copy or defaults.",
+            ],
+            "weekly": [
+                "Review score-family leaders, watch completion quality, and whether the house-agent stories still feel human-readable.",
+                "Keep launch copy aligned with the actual return-report experience and live traces.",
+            ],
+        },
+        "trace_summary": {
+            "total_runs": len(trace_entries),
+            "watch_runs": len(watch_runs),
+            "completed_watches": len(completed_watches),
+            "running_watches": len(running_watches),
+            "by_run_class": {
+                "manual": _bucket_trace_summary(manual_runs),
+                "operator-assisted": _bucket_trace_summary(operator_runs),
+                "agent-only": _bucket_trace_summary(agent_runs),
+            },
+            "recent_operator_traces": trace_entries_sorted[:8],
+            "completed_watch_highlights": sorted(completed_watches, key=lambda item: item.get("updated_at") or "", reverse=True)[:5],
+        },
         "runs": archive_runs,
     }

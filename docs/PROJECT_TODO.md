@@ -1,6 +1,6 @@
 # Project TODO
 
-Last updated: 2026-03-21
+Last updated: 2026-03-23
 
 ## Agentic Moreau
 
@@ -34,7 +34,7 @@ Last updated: 2026-03-21
 - Season archive format: `docs/PART_B_SEASON_ARCHIVE_FORMAT.md`
 - Supabase production readiness: `docs/PART_B_SUPABASE_PRODUCTION_READINESS.md`
 - 10-point closure checklist: `docs/PART_B_10_POINT_COMPLETION_CHECKLIST.md`
-- Current next move: `live review cadence + operator traces + cave-first/expedition season evidence`
+- Current next move: `public alpha cadence + richer live traces + operator return proof`
 
 ## Current Priority Order
 
@@ -90,3 +90,6 @@ Last updated: 2026-03-21
 - [x] Part B B4 hosted house agent
 - [x] Part B B5 first measurement season
 - [x] Live Gemini cave-first production verification
+- [x] Part B live review cadence and operator trace summaries
+- [x] Part B standing-order / risk calibration layer
+- [x] Part B public alpha packaging pass
