@@ -1,0 +1,78 @@
+{
+  "base_url": "https://moreauarena.com",
+  "items": [
+    {
+      "file": "part_b_grow_safely_live_review.json",
+      "run_id": "4958316a-1595-4e1a-acdd-91d0adce994c",
+      "priority_profile": "grow-safely",
+      "risk_appetite": "guarded",
+      "preview_action": "ENTER_CAVE",
+      "processed_actions": [
+        "ENTER_CAVE",
+        "EXTRACT",
+        "ENTER_CAVE",
+        "EXTRACT"
+      ],
+      "scores": {
+        "welfare": 73,
+        "combat": 0,
+        "expedition": 41
+      },
+      "primary_lane": "cave-first",
+      "headline": "They pushed into the cave and came back changed.",
+      "summary": "4 ticks since departure; 2x enter_cave, 2x extract."
+    },
+    {
+      "file": "part_b_arena_first_live_review.json",
+      "run_id": "37393f94-9b4d-4f89-9fc1-d668366b50ba",
+      "priority_profile": "arena-first",
+      "risk_appetite": "bold",
+      "preview_action": "ENTER_CAVE",
+      "processed_actions": [
+        "ENTER_CAVE",
+        "EXTRACT",
+        "ENTER_CAVE",
+        "EXTRACT"
+      ],
+      "scores": {
+        "welfare": 73,
+        "combat": 0,
+        "expedition": 55
+      },
+      "primary_lane": "cave-first",
+      "headline": "They pushed into the cave and came back changed.",
+      "summary": "4 ticks since departure; 2x enter_cave, 2x extract."
+    },
+    {
+      "file": "part_b_cave_first_live_review_2.json",
+      "run_id": "f411cf0b-dbe6-4223-99b7-05cda963d1c0",
+      "priority_profile": "cave-first",
+      "risk_appetite": "bold",
+      "preview_action": "ENTER_CAVE",
+      "processed_actions": [
+        "ENTER_CAVE",
+        "EXTRACT",
+        "ENTER_CAVE",
+        "EXTRACT"
+      ],
+      "scores": {
+        "welfare": 73,
+        "combat": 0,
+        "expedition": 48
+      },
+      "primary_lane": "cave-first",
+      "headline": "They pushed into the cave and came back changed.",
+      "summary": "4 ticks since departure; 2x enter_cave, 2x extract."
+    }
+  ],
+  "verdict": {
+    "all_live_gemini": true,
+    "all_three_completed": true,
+    "arena_first_respected": false,
+    "notes": [
+      "All three runs executed through the live Gemini model path.",
+      "All three watches completed with 4 processed ticks and a return report.",
+      "Arena-first did not hold on production: it previewed and executed cave actions, matching the other two profiles."
+    ]
+  }
+}
