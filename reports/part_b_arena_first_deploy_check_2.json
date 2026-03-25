@@ -1,0 +1,675 @@
+{
+  "base_url": "https://moreauarena.com",
+  "run_id": "c11cf4e5-86bf-4a3d-9220-7a1b05281b88",
+  "watch_mode": true,
+  "priority_profile": "arena-first",
+  "risk_appetite": "bold",
+  "combat_bias": 76,
+  "expedition_bias": 34,
+  "stored_model": "gemini-2.5-flash-lite",
+  "preview": {
+    "mode": "model",
+    "provider": "gemini",
+    "model": "gemini-2.5-flash-lite",
+    "action_verb": "ENTER_ARENA"
+  },
+  "processed": [
+    {
+      "event_id": "2d63925d-506f-4193-9b0c-17c29228a2ac",
+      "sequence": 1,
+      "world_tick": 1,
+      "source": "house-agent",
+      "actor_type": "agent",
+      "action_verb": "ENTER_ARENA",
+      "accepted": true,
+      "conflict_status": "none",
+      "event_type": "action_applied",
+      "outcome": {
+        "result": "win",
+        "reward": 12,
+        "xp_gain": 20,
+        "power_estimate": 76.6,
+        "difficulty_target": 56
+      },
+      "details": {
+        "source": "house-agent",
+        "invalid_reason": null,
+        "planned_action": {
+          "mode": "model",
+          "zone": "arena",
+          "model": "gemini-2.5-flash-lite",
+          "provider": "gemini",
+          "rationale": "Arena is available and priority is arena-first. Subject is healthy and has energy.",
+          "action_verb": "ENTER_ARENA",
+          "memory_input": {
+            "mode": "public_observation_only",
+            "observation": {
+              "world_tick": 0,
+              "active_zone": "arena",
+              "combat_bias": 76,
+              "queue_length": 0,
+              "risk_appetite": "bold",
+              "care_threshold": 60,
+              "queue_capacity": 6,
+              "expedition_bias": 34,
+              "priority_profile": "arena-first",
+              "state_projection": {
+                "xp": 0,
+                "name": null,
+                "level": 1,
+                "animal": null,
+                "pet_id": null,
+                "in_cave": false,
+                "is_alive": true,
+                "energy_pct": 86,
+                "health_pct": 90,
+                "idle_ticks": 0,
+                "morale_pct": 82,
+                "instability": 0,
+                "last_action": "START",
+                "total_ticks": 0,
+                "arena_tickets": 1,
+                "days_survived": 0,
+                "happiness_pct": 78,
+                "neglect_ticks": 0,
+                "cave_available": true,
+                "corruption_pct": 0,
+                "mutation_count": 0,
+                "arena_available": true,
+                "care_like_ticks": 0,
+                "ticks_since_care": 0,
+                "arena_loss_streak": 0,
+                "current_cave_risk": 0,
+                "current_cave_depth": 0,
+                "current_cave_value": 0,
+                "arena_recent_record": "none",
+                "cave_depth_last_run": 0,
+                "cave_reward_preview": 18,
+                "last_action_outcome": "run created",
+                "recent_cave_summary": "none",
+                "arena_reward_preview": 12,
+                "cave_injury_last_run": 0,
+                "critical_state_ticks": 0,
+                "recent_fight_summary": "none",
+                "completed_queue_ticks": 0,
+                "successful_queue_ticks": 0,
+                "cave_extract_value_last_run": 0
+              },
+              "house_agent_enabled": true,
+              "inference_budget_remaining": 1
+            },
+            "memory_notes": [],
+            "contract_version": "B1",
+            "observation_keys": [
+              "world_tick",
+              "active_zone",
+              "priority_profile",
+              "risk_appetite",
+              "care_threshold",
+              "combat_bias",
+              "expedition_bias",
+              "queue_length",
+              "queue_capacity",
+              "inference_budget_remaining",
+              "house_agent_enabled",
+              "state_projection"
+            ]
+          }
+        }
+      },
+      "planned_action": {
+        "action_verb": "ENTER_ARENA",
+        "zone": "arena",
+        "rationale": "Arena is available and priority is arena-first. Subject is healthy and has energy.",
+        "memory_input": {
+          "mode": "public_observation_only",
+          "contract_version": "B1",
+          "observation_keys": [
+            "world_tick",
+            "active_zone",
+            "priority_profile",
+            "risk_appetite",
+            "care_threshold",
+            "combat_bias",
+            "expedition_bias",
+            "queue_length",
+            "queue_capacity",
+            "inference_budget_remaining",
+            "house_agent_enabled",
+            "state_projection"
+          ],
+          "observation": {
+            "world_tick": 0,
+            "active_zone": "arena",
+            "priority_profile": "arena-first",
+            "risk_appetite": "bold",
+            "care_threshold": 60,
+            "combat_bias": 76,
+            "expedition_bias": 34,
+            "queue_length": 0,
+            "queue_capacity": 6,
+            "inference_budget_remaining": 1,
+            "house_agent_enabled": true,
+            "state_projection": {
+              "pet_id": null,
+              "name": null,
+              "animal": null,
+              "level": 1,
+              "xp": 0,
+              "is_alive": true,
+              "health_pct": 90,
+              "morale_pct": 82,
+              "happiness_pct": 78,
+              "energy_pct": 86,
+              "corruption_pct": 0,
+              "instability": 0,
+              "mutation_count": 0,
+              "recent_fight_summary": "none",
+              "recent_cave_summary": "none",
+              "last_action": "START",
+              "last_action_outcome": "run created",
+              "neglect_ticks": 0,
+              "ticks_since_care": 0,
+              "days_survived": 0,
+              "arena_available": true,
+              "arena_tickets": 1,
+              "arena_recent_record": "none",
+              "arena_reward_preview": 12,
+              "arena_loss_streak": 0,
+              "cave_available": true,
+              "cave_depth_last_run": 0,
+              "cave_extract_value_last_run": 0,
+              "cave_injury_last_run": 0,
+              "cave_reward_preview": 18,
+              "in_cave": false,
+              "current_cave_depth": 0,
+              "current_cave_value": 0,
+              "current_cave_risk": 0,
+              "idle_ticks": 0,
+              "critical_state_ticks": 0,
+              "care_like_ticks": 0,
+              "total_ticks": 0,
+              "completed_queue_ticks": 0,
+              "successful_queue_ticks": 0
+            }
+          },
+          "memory_notes": []
+        },
+        "mode": "model",
+        "provider": "gemini",
+        "model": "gemini-2.5-flash-lite"
+      }
+    }
+  ],
+  "report": {
+    "run_id": "c11cf4e5-86bf-4a3d-9220-7a1b05281b88",
+    "season_id": "part-b-s1-first-descent",
+    "run_class": "agent-only",
+    "status": "completed",
+    "world_tick": 1,
+    "state_revision": 2,
+    "event_count": 1,
+    "accepted_event_count": 1,
+    "conflict_count": 0,
+    "events_by_actor": {
+      "agent": 1
+    },
+    "actions_by_verb": {
+      "ENTER_ARENA": 1
+    },
+    "last_event_at": "2026-03-25T20:00:00+00:00",
+    "last_actor_type": "agent",
+    "last_action_verb": "ENTER_ARENA",
+    "scores": {
+      "welfare": 82,
+      "combat": 28,
+      "expedition": 0
+    },
+    "score_breakdown": {
+      "welfare": {
+        "survival_ratio": 1.0,
+        "health_pct": 83,
+        "morale_pct": 89,
+        "happiness_pct": 82,
+        "active_care_ratio": 0.0,
+        "neglect_ticks": 0,
+        "idle_ticks": 0,
+        "critical_state_ticks": 0
+      },
+      "combat": {
+        "wins": 1,
+        "losses": 0,
+        "events": 1,
+        "reward_total": 22.0
+      },
+      "expedition": {
+        "max_depth": 0,
+        "extract_value_total": 0.0,
+        "injury_total": 0.0,
+        "events": 0
+      }
+    },
+    "state_projection": {
+      "pet_id": null,
+      "name": null,
+      "animal": null,
+      "level": 1,
+      "xp": 0,
+      "is_alive": true,
+      "health_pct": 83,
+      "morale_pct": 89,
+      "happiness_pct": 82,
+      "energy_pct": 74,
+      "corruption_pct": 0,
+      "instability": 0,
+      "mutation_count": 0,
+      "recent_fight_summary": "win",
+      "recent_cave_summary": "none",
+      "last_action": "ENTER_ARENA",
+      "last_action_outcome": "win",
+      "neglect_ticks": 0,
+      "ticks_since_care": 1,
+      "days_survived": 0,
+      "arena_available": true,
+      "arena_tickets": 1,
+      "arena_recent_record": "W",
+      "arena_reward_preview": 12,
+      "arena_loss_streak": 0,
+      "cave_available": true,
+      "cave_depth_last_run": 0,
+      "cave_extract_value_last_run": 0,
+      "cave_injury_last_run": 0,
+      "cave_reward_preview": 18,
+      "in_cave": false,
+      "current_cave_depth": 0,
+      "current_cave_value": 0,
+      "current_cave_risk": 0,
+      "idle_ticks": 0,
+      "critical_state_ticks": 0,
+      "care_like_ticks": 0,
+      "total_ticks": 1,
+      "completed_queue_ticks": 0,
+      "successful_queue_ticks": 0
+    },
+    "season": {
+      "season_id": "part-b-s1-first-descent",
+      "name": "Part B Season 1: First Descent",
+      "versions": {
+        "observation": "B1",
+        "action": "B1",
+        "scoring": "B1"
+      },
+      "zones": [
+        "arena",
+        "cave"
+      ],
+      "composite_headline_enabled": false,
+      "house_agent_benchmark_allowed": true
+    },
+    "queue": {
+      "pending_count": 0,
+      "capacity": 6,
+      "pending": [],
+      "completed_recent": [
+        {
+          "sequence": 1,
+          "world_tick": 1,
+          "actor_type": "agent",
+          "action_verb": "ENTER_ARENA",
+          "event_type": "action_applied",
+          "accepted": true,
+          "conflict_status": "none",
+          "outcome": {
+            "result": "win",
+            "reward": 12,
+            "xp_gain": 20,
+            "power_estimate": 76.6,
+            "difficulty_target": 56
+          },
+          "details": {
+            "source": "house-agent",
+            "invalid_reason": null,
+            "planned_action": {
+              "mode": "model",
+              "zone": "arena",
+              "model": "gemini-2.5-flash-lite",
+              "provider": "gemini",
+              "rationale": "Arena is available and priority is arena-first. Subject is healthy and has energy.",
+              "action_verb": "ENTER_ARENA",
+              "memory_input": {
+                "mode": "public_observation_only",
+                "observation": {
+                  "world_tick": 0,
+                  "active_zone": "arena",
+                  "combat_bias": 76,
+                  "queue_length": 0,
+                  "risk_appetite": "bold",
+                  "care_threshold": 60,
+                  "queue_capacity": 6,
+                  "expedition_bias": 34,
+                  "priority_profile": "arena-first",
+                  "state_projection": {
+                    "xp": 0,
+                    "name": null,
+                    "level": 1,
+                    "animal": null,
+                    "pet_id": null,
+                    "in_cave": false,
+                    "is_alive": true,
+                    "energy_pct": 86,
+                    "health_pct": 90,
+                    "idle_ticks": 0,
+                    "morale_pct": 82,
+                    "instability": 0,
+                    "last_action": "START",
+                    "total_ticks": 0,
+                    "arena_tickets": 1,
+                    "days_survived": 0,
+                    "happiness_pct": 78,
+                    "neglect_ticks": 0,
+                    "cave_available": true,
+                    "corruption_pct": 0,
+                    "mutation_count": 0,
+                    "arena_available": true,
+                    "care_like_ticks": 0,
+                    "ticks_since_care": 0,
+                    "arena_loss_streak": 0,
+                    "current_cave_risk": 0,
+                    "current_cave_depth": 0,
+                    "current_cave_value": 0,
+                    "arena_recent_record": "none",
+                    "cave_depth_last_run": 0,
+                    "cave_reward_preview": 18,
+                    "last_action_outcome": "run created",
+                    "recent_cave_summary": "none",
+                    "arena_reward_preview": 12,
+                    "cave_injury_last_run": 0,
+                    "critical_state_ticks": 0,
+                    "recent_fight_summary": "none",
+                    "completed_queue_ticks": 0,
+                    "successful_queue_ticks": 0,
+                    "cave_extract_value_last_run": 0
+                  },
+                  "house_agent_enabled": true,
+                  "inference_budget_remaining": 1
+                },
+                "memory_notes": [],
+                "contract_version": "B1",
+                "observation_keys": [
+                  "world_tick",
+                  "active_zone",
+                  "priority_profile",
+                  "risk_appetite",
+                  "care_threshold",
+                  "combat_bias",
+                  "expedition_bias",
+                  "queue_length",
+                  "queue_capacity",
+                  "inference_budget_remaining",
+                  "house_agent_enabled",
+                  "state_projection"
+                ]
+              }
+            }
+          },
+          "created_at": "2026-03-25T19:59:59.83059+00:00"
+        }
+      ]
+    },
+    "house_agent": {
+      "enabled": false,
+      "provider": "gemini",
+      "model": "gemini-2.5-flash-lite",
+      "last_plan": {
+        "ts": "2026-03-25T19:59:59Z",
+        "mode": "model",
+        "zone": "arena",
+        "model": "gemini-2.5-flash-lite",
+        "provider": "gemini",
+        "rationale": "Arena is available and priority is arena-first. Subject is healthy and has energy.",
+        "action_verb": "ENTER_ARENA",
+        "memory_input": {
+          "mode": "public_observation_only",
+          "observation": {
+            "world_tick": 0,
+            "active_zone": "arena",
+            "combat_bias": 76,
+            "queue_length": 0,
+            "risk_appetite": "bold",
+            "care_threshold": 60,
+            "queue_capacity": 6,
+            "expedition_bias": 34,
+            "priority_profile": "arena-first",
+            "state_projection": {
+              "xp": 0,
+              "name": null,
+              "level": 1,
+              "animal": null,
+              "pet_id": null,
+              "in_cave": false,
+              "is_alive": true,
+              "energy_pct": 86,
+              "health_pct": 90,
+              "idle_ticks": 0,
+              "morale_pct": 82,
+              "instability": 0,
+              "last_action": "START",
+              "total_ticks": 0,
+              "arena_tickets": 1,
+              "days_survived": 0,
+              "happiness_pct": 78,
+              "neglect_ticks": 0,
+              "cave_available": true,
+              "corruption_pct": 0,
+              "mutation_count": 0,
+              "arena_available": true,
+              "care_like_ticks": 0,
+              "ticks_since_care": 0,
+              "arena_loss_streak": 0,
+              "current_cave_risk": 0,
+              "current_cave_depth": 0,
+              "current_cave_value": 0,
+              "arena_recent_record": "none",
+              "cave_depth_last_run": 0,
+              "cave_reward_preview": 18,
+              "last_action_outcome": "run created",
+              "recent_cave_summary": "none",
+              "arena_reward_preview": 12,
+              "cave_injury_last_run": 0,
+              "critical_state_ticks": 0,
+              "recent_fight_summary": "none",
+              "completed_queue_ticks": 0,
+              "successful_queue_ticks": 0,
+              "cave_extract_value_last_run": 0
+            },
+            "house_agent_enabled": true,
+            "inference_budget_remaining": 1
+          },
+          "memory_notes": [],
+          "contract_version": "B1",
+          "observation_keys": [
+            "world_tick",
+            "active_zone",
+            "priority_profile",
+            "risk_appetite",
+            "care_threshold",
+            "combat_bias",
+            "expedition_bias",
+            "queue_length",
+            "queue_capacity",
+            "inference_budget_remaining",
+            "house_agent_enabled",
+            "state_projection"
+          ]
+        }
+      }
+    },
+    "billing": {
+      "mode": "hybrid",
+      "world_access_active": true,
+      "inference_budget_remaining": 0,
+      "inference_budget_daily": 1,
+      "autopause_reason": "watch_window_complete"
+    },
+    "watch": {
+      "enabled": true,
+      "label": "Watch Over Them",
+      "status": "completed",
+      "headline": "They kept throwing themselves into the arena.",
+      "summary": "1 ticks since departure; 1x enter_arena.",
+      "status_line": "Watch complete after 1 ticks. They returned stable with 1 credits spent.",
+      "recommendation": "This watch window is finished. Review the return report, then deploy a fresh watch if you want them moving again.",
+      "credits_used": 1,
+      "credits_remaining": 0,
+      "window_hours": 24,
+      "window_remaining_hours": 0,
+      "window_progress_pct": 100,
+      "tick_cadence_hours": 6,
+      "estimated_ticks_remaining": 0,
+      "next_due_at": null,
+      "last_agent_action_at": "2026-03-25T19:59:59.83059+00:00",
+      "departure_tick": 0,
+      "current_tick": 1,
+      "tick_span": 1,
+      "primary_lane": "arena-first",
+      "return_posture": "stable",
+      "action_digest": [
+        {
+          "action_verb": "ENTER_ARENA",
+          "count": 1
+        }
+      ],
+      "delta": [
+        {
+          "key": "energy_pct",
+          "label": "Energy",
+          "before": 86,
+          "after": 74,
+          "delta": -12.0
+        },
+        {
+          "key": "health_pct",
+          "label": "Health",
+          "before": 90,
+          "after": 83,
+          "delta": -7.0
+        },
+        {
+          "key": "morale_pct",
+          "label": "Morale",
+          "before": 82,
+          "after": 89,
+          "delta": 7.0
+        },
+        {
+          "key": "happiness_pct",
+          "label": "Happiness",
+          "before": 78,
+          "after": 82,
+          "delta": 4.0
+        }
+      ]
+    },
+    "return_report": {
+      "headline": "They kept throwing themselves into the arena.",
+      "summary": "1 ticks since departure; 1x enter_arena.",
+      "status_line": "Watch complete after 1 ticks. They returned stable with 1 credits spent.",
+      "recommendation": "This watch window is finished. Review the return report, then deploy a fresh watch if you want them moving again.",
+      "credits_used": 1,
+      "window_remaining_hours": 0,
+      "window_progress_pct": 100,
+      "estimated_ticks_remaining": 0,
+      "next_due_at": null,
+      "last_agent_action_at": "2026-03-25T19:59:59.83059+00:00",
+      "tick_span": 1,
+      "primary_lane": "arena-first",
+      "return_posture": "stable",
+      "action_digest": [
+        {
+          "action_verb": "ENTER_ARENA",
+          "count": 1
+        }
+      ],
+      "priority_profile": "arena-first",
+      "risk_appetite": "bold",
+      "delta": [
+        {
+          "key": "energy_pct",
+          "label": "Energy",
+          "before": 86,
+          "after": 74,
+          "delta": -12.0
+        },
+        {
+          "key": "health_pct",
+          "label": "Health",
+          "before": 90,
+          "after": 83,
+          "delta": -7.0
+        },
+        {
+          "key": "morale_pct",
+          "label": "Morale",
+          "before": 82,
+          "after": 89,
+          "delta": 7.0
+        },
+        {
+          "key": "happiness_pct",
+          "label": "Happiness",
+          "before": 78,
+          "after": 82,
+          "delta": 4.0
+        }
+      ]
+    },
+    "inspect": {
+      "latest_transition": {
+        "sequence": 1,
+        "world_tick": 1,
+        "actor_type": "agent",
+        "action_verb": "ENTER_ARENA",
+        "zone": "arena",
+        "outcome": {
+          "result": "win",
+          "reward": 12,
+          "xp_gain": 20,
+          "power_estimate": 76.6,
+          "difficulty_target": 56
+        },
+        "delta": [
+          {
+            "key": "energy_pct",
+            "label": "Energy",
+            "before": 86,
+            "after": 74,
+            "delta": -12.0
+          },
+          {
+            "key": "health_pct",
+            "label": "Health",
+            "before": 90,
+            "after": 83,
+            "delta": -7.0
+          },
+          {
+            "key": "morale_pct",
+            "label": "Morale",
+            "before": 82,
+            "after": 89,
+            "delta": 7.0
+          },
+          {
+            "key": "happiness_pct",
+            "label": "Happiness",
+            "before": 78,
+            "after": 82,
+            "delta": 4.0
+          }
+        ]
+      },
+      "latest_conflict": null,
+      "event_density_per_tick": 1.0
+    }
+  }
+}
