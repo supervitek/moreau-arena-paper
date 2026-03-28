@@ -91,6 +91,7 @@ DEFAULT_META_DESCRIPTION = (
     "and experimental pet systems."
 )
 NAV_BLOCK_RE = re.compile(r"<nav class=\"nav\">.*?</nav>", flags=re.IGNORECASE | re.DOTALL)
+FOOTER_BLOCK_RE = re.compile(r"<footer class=\"footer\">.*?</footer>", flags=re.IGNORECASE | re.DOTALL)
 BENCHMARK_NAV_PATHS = {"/tournaments", "/leaderboard", "/compare", "/match-log", "/methodology"}
 SEASONS_NAV_PATHS = {"/s1-leaderboard", "/s1-fighters", "/s1-matchups", "/play", "/s1-compare", "/moreddit"}
 
@@ -1362,7 +1363,7 @@ def _render_standard_nav(request_path: str) -> str:
                 <li>{_render_nav_link('/pets', 'Pets', pets_active)}</li>
                 <li>{_render_nav_link('/paper', 'Paper', paper_active)}</li>
                 <li>{_render_nav_link('/api-docs', 'API', api_active)}</li>
-                <li class="nav-fight"><a href="/island">FIGHT!</a></li>
+                <li class="nav-fight"><a href="/island">Island</a></li>
             </ul>
         </div>
     </nav>
@@ -1377,9 +1378,36 @@ def _inject_standard_nav(html: str, request_path: str) -> str:
     return NAV_BLOCK_RE.sub(_render_standard_nav(request_path), html, count=1)
 
 
+def _render_standard_footer() -> str:
+    return """
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-left">Created by Victor Stasiuc &mdash; Independent Researcher</div>
+            <ul class="footer-links">
+                <li><a href="https://github.com/supervitek/moreau-arena-paper">GitHub</a></li>
+                <li><a href="https://orcid.org/0009-0003-2064-0486" target="_blank" rel="noopener">ORCID</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+                <li><a href="mailto:stvitek@gmail.com">Contact</a></li>
+            </ul>
+            <div class="footer-cite">Stasiuc, V. (2026). Moreau Arena: Not All LLMs Need Hints to Reason Strategically. <a href="/paper" style="color:var(--text-muted);">Preprint available at moreauarena.com/paper</a>.</div>
+        </div>
+    </footer>
+    """.strip()
+
+
+def _inject_standard_footer(html: str, request_path: str) -> str:
+    if request_path.startswith("/island"):
+        return html
+    if '<footer class="footer">' not in html:
+        return html
+    return FOOTER_BLOCK_RE.sub(_render_standard_footer(), html, count=1)
+
+
 def _serve_html(file_path: Path, request_path: str, html: str | None = None, status_code: int = 200) -> HTMLResponse:
     content = html if html is not None else file_path.read_text(encoding="utf-8")
     content = _inject_standard_nav(content, request_path)
+    content = _inject_standard_footer(content, request_path)
     return HTMLResponse(_inject_default_meta(content, request_path), status_code=status_code)
 
 

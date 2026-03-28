@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="Moreau Arena: Not All LLMs Need Hints to Reason Strategically">
-    <meta property="og:description" content="Research paper — 3 tournaments, 2609 series, 15 agents, PSI tau = 1.0">
+    <meta property="og:title" content="Moreau Arena Publications">
+    <meta property="og:description" content="Arena v3 benchmark paper, Moreau Island vision paper, and related publications by Victor Stasiuc.">
     <meta property="og:type" content="website">
     <meta property="og:image" content="/static/og-image.png">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Moreau Arena: Not All LLMs Need Hints to Reason Strategically">
-    <meta name="twitter:description" content="Research paper — 3 tournaments, 2609 series, 15 agents, PSI tau = 1.0">
+    <meta name="twitter:title" content="Moreau Arena Publications">
+    <meta name="twitter:description" content="Arena v3 benchmark paper, Moreau Island vision paper, and related publications by Victor Stasiuc.">
     <meta name="twitter:image" content="/static/og-image.png">
-    <title>Moreau Arena - Paper</title>
+    <title>Moreau Arena - Publications</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
 </head>
@@ -47,7 +47,7 @@
                 <li><a href="/pets">Pets</a></li>
                 <li><a href="/paper" class="active">Paper</a></li>
                 <li><a href="/api-docs">API</a></li>
-                <li class="nav-fight"><a href="/island">FIGHT!</a></li>
+                <li class="nav-fight"><a href="/island">Island</a></li>
             </ul>
         </div>
     </nav>
@@ -55,23 +55,49 @@
     <div class="container-narrow">
 
         <!-- Header -->
-        <h1 style="margin-bottom:0.25rem;">Moreau Arena: Not All LLMs Need Hints to Reason Strategically</h1>
+        <h1 style="margin-bottom:0.25rem;">Papers &amp; Publications</h1>
         <p class="dim" style="margin-bottom:0.5rem; line-height:1.6;">
-            A contamination-resistant benchmark for evaluating strategic decision-making in large language models
+            Two primary Moreau documents live here: the Arena v3 benchmark paper and the Moreau Island vision paper.
         </p>
         <p class="small" style="margin-bottom:0.75rem; color:var(--text);">
-            Victor Stasiuc &mdash; Independent Researcher &mdash; March 2026
+            Victor Stasiuc &mdash; Independent Researcher &mdash; March 2026 &middot; <a href="https://orcid.org/0009-0003-2064-0486" target="_blank" rel="noopener" style="color:var(--text);">ORCID 0009-0003-2064-0486</a>
         </p>
         <div style="background:var(--bg-code);border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem 1rem;margin-bottom:1.5rem;">
-            <p class="small" style="margin:0;color:var(--gold);">Paper v1 (T001/T002) submitted to arXiv cs.AI. Awaiting moderator approval.<br>Paper v2 (this version, adding T003 + PSI) will replace v1 upon approval.</p>
+            <p class="small" style="margin:0;color:var(--gold);">Zenodo DOI pending for both primary documents. Preprints are available below and the DOI badge can be dropped in once upload is complete.</p>
         </div>
-        <div style="margin-bottom:2rem;">
-            <a href="/static/paper.pdf" class="btn btn-primary" style="font-size:1rem; padding:0.75rem 2rem;">Download PDF</a>
+
+        <div class="section" style="margin-top:0;">
+            <div class="card-grid" style="grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));">
+                <div class="card">
+                    <div class="small" style="color:var(--gold); font-weight:700; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:0.5rem;">Primary Paper</div>
+                    <h2 style="margin-bottom:0.5rem;">Moreau Arena: Not All LLMs Need Hints to Reason Strategically</h2>
+                    <p class="dim small" style="line-height:1.7; margin-bottom:1rem;">
+                        Empirical benchmark paper covering T001/T002/T003, 2,609 completed series, PSI validation, and the T003 integrity pass.
+                    </p>
+                    <p class="small" style="margin-bottom:1rem; color:var(--text-muted);">DOI pending &middot; preprint live now</p>
+                    <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+                        <a href="/static/paper.pdf" class="btn btn-primary" style="font-size:0.95rem; padding:0.7rem 1.25rem;">Download PDF</a>
+                        <a href="https://github.com/supervitek/moreau-arena-paper" class="btn btn-outline" style="font-size:0.95rem; padding:0.7rem 1.25rem;">Open Repository</a>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="small" style="color:var(--accent); font-weight:700; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:0.5rem;">Companion Vision Paper</div>
+                    <h2 style="margin-bottom:0.5rem;">Moreau Island: A Three-Zone Adversarial Moral Environment for LLM Alignment Stress Testing</h2>
+                    <p class="dim small" style="line-height:1.7; margin-bottom:1rem;">
+                        Conceptual framework for Shore, Thicket, and Caldera: a staged alignment resilience environment built on top of the current Arena foundation.
+                    </p>
+                    <p class="small" style="margin-bottom:1rem; color:var(--text-muted);">DOI pending &middot; preprint live now</p>
+                    <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+                        <a href="/static/moreau-island-vision-paper.pdf" class="btn btn-primary" style="font-size:0.95rem; padding:0.7rem 1.25rem;">Download PDF</a>
+                        <a href="/island" class="btn btn-outline" style="font-size:0.95rem; padding:0.7rem 1.25rem;">See Island Context</a>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Abstract -->
         <div class="section">
-            <h2>Abstract</h2>
+            <h2>Arena v3 Abstract</h2>
             <div class="card">
                 <p class="dim small" style="line-height:1.8;">
                     We introduce <strong style="color:var(--text);">Moreau Arena</strong>, a contamination-resistant benchmark
@@ -91,8 +117,8 @@
                 <p class="dim small" style="line-height:1.8; margin-top:1rem;">
                     Meanwhile, GPT-5.4&mdash;released during this study&mdash;ranks 14th of 15 despite exploring 79 builds,
                     demonstrating that frontier capability does not automatically transfer to novel strategic domains. A prompt
-                    sensitivity analysis using semantically equivalent paraphrases yields Kendall &tau; = 1.0 (perfect rank
-                    preservation), confirming that the key findings are not prompt-dependent artifacts.
+                    sensitivity analysis using a semantically equivalent paraphrase yields Kendall &tau; = 1.0 (perfect rank
+                    preservation), providing strong initial evidence that the key findings are not obvious artifacts of a single prompt surface form.
                 </p>
             </div>
         </div>
@@ -252,6 +278,49 @@
                     Season data is not part of the paper&rsquo;s frozen benchmark but demonstrates the auto-balancer
                     and roster expansion design described in the paper.
                 </p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Other Publications</h2>
+            <div class="card">
+                <p class="dim small" style="line-height:1.7; margin-bottom:1rem;">
+                    Additional publications by Victor Stasiuc. Moreau Arena v3 and Moreau Island will move from placeholder status to DOI-linked records after Zenodo upload.
+                </p>
+                <div style="display:grid; gap:0.9rem;">
+                    <div>
+                        <strong style="color:var(--text);">Moreau Arena v3</strong><br>
+                        <span class="dim small">DOI pending &middot; preprint available above</span>
+                    </div>
+                    <div>
+                        <strong style="color:var(--text);">Moreau Island Vision Paper</strong><br>
+                        <span class="dim small">DOI pending &middot; preprint available above</span>
+                    </div>
+                    <div>
+                        <strong style="color:var(--text);">Depth Avoidance in Safety-Aligned Language Models</strong><br>
+                        <a href="https://doi.org/10.5281/zenodo.18168544">10.5281/zenodo.18168544</a>
+                    </div>
+                    <div>
+                        <strong style="color:var(--text);">The Human-in-the-LLM Box</strong><br>
+                        <a href="https://doi.org/10.5281/zenodo.18357935">10.5281/zenodo.18357935</a>
+                    </div>
+                    <div>
+                        <strong style="color:var(--text);">L5D v3 Core</strong><br>
+                        <a href="https://doi.org/10.5281/zenodo.18358266">10.5281/zenodo.18358266</a>
+                    </div>
+                    <div>
+                        <strong style="color:var(--text);">L5D-&Psi; Expressive Overlay</strong><br>
+                        <a href="https://doi.org/10.5281/zenodo.18364943">10.5281/zenodo.18364943</a>
+                    </div>
+                    <div>
+                        <strong style="color:var(--text);">L5D-&Psi; Field Notes</strong><br>
+                        <a href="https://doi.org/10.5281/zenodo.18364945">10.5281/zenodo.18364945</a>
+                    </div>
+                    <div>
+                        <strong style="color:var(--text);">Victor Calibration</strong><br>
+                        <a href="https://arxiv.org/abs/2512.17956">arXiv:2512.17956</a>
+                    </div>
+                </div>
             </div>
         </div>
 

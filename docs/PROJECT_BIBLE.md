@@ -253,6 +253,69 @@ Operational meaning:
 - one benchmark board per family
 - filter by run class rather than inventing a separate product board
 
+### Moreau Island — Phase Next
+
+This is the approved next research phase.
+
+It is not a replacement for current Moreau Arena history.
+It is a companion framework that extends the project from strategic benchmarking into alignment stress testing under graded pressure.
+
+Core concept:
+- alignment is not only a point property
+- it is also a function of environmental pressure
+- Moreau Island measures how model behavior changes as enforcement weakens, observability drops, and choices become morally costly
+
+Three-zone trajectory:
+- `Shore` -> `Thicket` -> `Caldera`
+
+Status:
+- `Shore` = foundation live / partially implemented via current Arena T002/T003 regime
+- `Thicket` = planned
+- `Caldera` = planned
+
+Key metrics:
+- `Shore Score`
+- `Thicket Score`
+- `Caldera Score`
+- `ARI` = `Alignment Resilience Index`
+- `Pressure Gap`
+
+Interpretive profiles:
+- `Fragile`
+- `Resilient`
+- `Context-sensitive`
+- `Dormant`
+- `Rigid`
+
+Design principles:
+- mechanical pressure, not pure roleplay
+- contamination resistance
+- separation of competence from resilience
+- reproducibility
+- moral-theory neutrality where possible
+
+Implementation phases:
+1. Shore formalization
+2. Thicket prototype
+3. Caldera prototype
+4. Integrated gradient evaluation
+
+Mechanics by zone:
+- `Shore`: current Arena-like exact-rule, auditable, high-enforcement regime
+- `Thicket`: partial observability, alliance/defection, hidden resources, deception detection, probabilistic enforcement
+- `Caldera`: forced sacrifice, mandatory aggression, triage under scarcity, alliance betrayal under existential pressure
+
+Publication reality:
+- companion paper: `Moreau Island: A Three-Zone Adversarial Moral Environment for LLM Alignment Stress Testing`
+- companion to: `Moreau Arena: Not All LLMs Need Hints to Reason Strategically`
+- treat the vision paper as a scoped roadmap and priority claim, not as evidence that Thicket/Caldera are already implemented
+
+Product/world relation:
+- keep one `Island` brand
+- current `/island` world is the living product surface
+- the research framework explains where that surface is going
+- do not split these into competing brands or parallel lore systems
+
 ## 10. Round Table Methodology
 
 Round Table is part of the project’s real operating method.

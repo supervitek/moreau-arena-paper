@@ -36,6 +36,17 @@ Last updated: 2026-03-23
 - 10-point closure checklist: `docs/PART_B_10_POINT_COMPLETION_CHECKLIST.md`
 - Current next move: `public alpha cadence + richer live traces + operator return proof`
 
+## Moreau Island Phase Next
+
+- Canonical high-context source: `docs/PROJECT_BIBLE.md`
+- Current vision paper source: `self/moreau_island_paper.tex`
+- Public site job now: `Island explainer + /paper two-document surface + publication placeholders`
+- Shore wording: `foundation live / partially implemented via Arena T002/T003`
+- Thicket status: `planned`
+- Caldera status: `planned`
+- DOI status for Arena v3 + Island vision: `pending Zenodo upload`
+- Current next move: `publish the framing cleanly without overstating implementation`
+
 ## Current Priority Order
 
 1. Launch-readiness audit
@@ -58,6 +69,9 @@ Last updated: 2026-03-23
 
 7. Paper adaptation derivation cleanup
 - Keep the committed T002 derivation script and verification docs aligned if the paper changes again.
+
+8. Moreau Island publication surface
+- Keep `/paper`, `/island`, homepage, and the project bible aligned around the new three-zone vision layer.
 
 ## Execution Notes
 
@@ -93,3 +107,4 @@ Last updated: 2026-03-23
 - [x] Part B live review cadence and operator trace summaries
 - [x] Part B standing-order / risk calibration layer
 - [x] Part B public alpha packaging pass
+- [x] Moreau Island phase-next site and bible framing pass

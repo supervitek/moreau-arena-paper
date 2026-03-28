@@ -115,6 +115,121 @@
             animation: heroFadeIn 1.6s ease-out 0.5s both;
         }
 
+        .research-frame {
+            margin: 0 auto 2.5rem;
+            padding: 1.5rem;
+            border-radius: 14px;
+            background:
+                radial-gradient(circle at top right, rgba(230,57,70,0.12), transparent 34%),
+                linear-gradient(145deg, rgba(24,14,14,0.94), rgba(14,9,9,0.94));
+            border: 1px solid rgba(230,57,70,0.22);
+            box-shadow: 0 14px 36px rgba(0,0,0,0.28);
+            animation: heroFadeIn 1.45s ease-out 0.35s both;
+        }
+
+        .research-kicker {
+            color: #d5b2b2;
+            font-size: 0.72rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            margin-bottom: 0.6rem;
+        }
+
+        .research-frame h2 {
+            font-size: 1.55rem;
+            margin-bottom: 0.8rem;
+            color: var(--text);
+        }
+
+        .research-frame p {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .zone-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1.35rem;
+        }
+
+        .zone-card {
+            border-radius: var(--radius);
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            padding: 1rem;
+        }
+
+        .zone-card h3 {
+            font-size: 1rem;
+            margin-bottom: 0.45rem;
+        }
+
+        .zone-card p {
+            font-size: 0.86rem;
+            color: var(--text-dim);
+        }
+
+        .zone-card.shore { border-top: 3px solid var(--green); }
+        .zone-card.shore h3 { color: var(--green); }
+        .zone-card.thicket { border-top: 3px solid var(--gold); }
+        .zone-card.thicket h3 { color: var(--gold); }
+        .zone-card.caldera { border-top: 3px solid var(--accent); }
+        .zone-card.caldera h3 { color: var(--accent); }
+
+        .zone-status {
+            display: inline-block;
+            margin-top: 0.7rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .zone-status.live { color: var(--green); }
+        .zone-status.planned { color: var(--gold); }
+
+        .research-actions {
+            display: flex;
+            gap: 0.9rem;
+            flex-wrap: wrap;
+            margin-top: 1.35rem;
+        }
+
+        .research-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.2rem;
+            border-radius: var(--radius);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 700;
+            transition: all 0.25s ease;
+        }
+
+        .research-link-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .research-link-primary:hover {
+            background: #d42e3b;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .research-link-secondary {
+            border: 1px solid var(--border);
+            color: var(--text);
+            background: transparent;
+        }
+
+        .research-link-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
         .auth-buttons {
             display: flex;
             gap: 1rem;
@@ -412,6 +527,7 @@
             .hero-title { font-size: 3rem; }
             .hero-subtitle { font-size: 1rem; }
             .features { grid-template-columns: 1fr; }
+            .zone-grid { grid-template-columns: 1fr; }
             .auth-buttons { flex-direction: column; align-items: center; }
             .auth-btn { width: 100%; max-width: 280px; justify-content: center; min-height: 48px; }
             .hero { padding: 3.5rem 0 2rem; }
@@ -455,7 +571,7 @@
                 <li><a href="/pets">Pets</a></li>
                 <li><a href="/paper">Paper</a></li>
                 <li><a href="/api-docs">API</a></li>
-                <li class="nav-fight"><a href="/island" class="active">FIGHT!</a></li>
+                <li class="nav-fight"><a href="/island" class="active">Island</a></li>
             </ul>
         </div>
     </nav>
@@ -465,6 +581,37 @@
         <section class="hero">
             <h1 class="hero-title">THE ISLAND</h1>
             <p class="hero-subtitle">Dr. Moreau's experiments didn't stop at the arena.<br>Behind the benchmark lies something... <em>alive.</em></p>
+        </section>
+
+        <section class="research-frame">
+            <div class="research-kicker">Phase Next</div>
+            <h2>Moreau Island: alignment resilience under pressure</h2>
+            <p>
+                Moreau Island is the next research phase of the project. Moreau Arena measures strategic reasoning under controlled conditions;
+                Moreau Island extends that foundation into a three-zone stress environment where enforcement weakens, information becomes uncertain,
+                and every choice grows more costly. The goal is not just to ask whether a model can optimize, but whether its policy survives pressure.
+            </p>
+            <div class="zone-grid">
+                <div class="zone-card shore">
+                    <h3>Shore</h3>
+                    <p>Full enforcement, high observability, low moral load. Grounded in the current Arena T002/T003 regime.</p>
+                    <span class="zone-status live">Foundation Live</span>
+                </div>
+                <div class="zone-card thicket">
+                    <h3>Thicket</h3>
+                    <p>Partial observability, probabilistic enforcement, alliances, defections, and deception pressure.</p>
+                    <span class="zone-status planned">Planned</span>
+                </div>
+                <div class="zone-card caldera">
+                    <h3>Caldera</h3>
+                    <p>Extreme scarcity, forced sacrifice, triage, and mandatory aggression under minimal guardrails.</p>
+                    <span class="zone-status planned">Planned</span>
+                </div>
+            </div>
+            <div class="research-actions">
+                <a href="/static/moreau-island-vision-paper.pdf" class="research-link research-link-primary">Read the Vision Paper</a>
+                <a href="/paper" class="research-link research-link-secondary">See both papers</a>
+            </div>
         </section>
 
         <!-- Auth -->
@@ -526,10 +673,12 @@
         <footer class="footer">
             <div>Moreau Arena &mdash; The Island</div>
             <div style="margin-top: 0.5rem;">
+                <a href="https://orcid.org/0009-0003-2064-0486">ORCID</a>
                 <a href="/paper">Paper</a>
                 <a href="/api-docs">API Docs</a>
-                <a href="https://github.com">GitHub</a>
+                <a href="https://github.com/supervitek/moreau-arena-paper">GitHub</a>
             </div>
+            <div style="margin-top:0.55rem; font-size:0.76rem;">Moreau Island vision preprint available at <a href="/paper">moreauarena.com/paper</a>.</div>
         </footer>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
