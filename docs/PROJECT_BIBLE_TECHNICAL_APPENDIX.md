@@ -1,6 +1,6 @@
 # Project Bible — Technical Appendix
 
-Last updated: 2026-03-20  
+Last updated: 2026-03-27
 Status: Technical companion to `docs/PROJECT_BIBLE.md`
 
 This appendix exists for new agents who already understand the high-level shape of the project and need the concrete implementation map.
@@ -484,21 +484,39 @@ Purpose:
 
 ## 13. Publication Status Note
 
-There is currently a possible status drift between:
-- what some external conversations may know
-- what the repo and live site still say
+Publication surfaces are now synchronized around preprint availability rather than the older `arXiv submission pending approval` wording.
 
-As of the current repo contents:
-- the site and docs still describe the benchmark paper as `arXiv submission pending approval`
-- the paper page still frames v1/v2 in that older submission language
+Current public-document reality:
+- `/paper` is the canonical publication surface
+- two primary March 2026 documents are presented there:
+  - `Moreau Arena: Not All LLMs Need Hints to Reason Strategically`
+  - `Moreau Island: A Three-Zone Adversarial Moral Environment for LLM Alignment Stress Testing`
+- both currently use DOI placeholders until Zenodo upload is complete
+- existing older Zenodo and arXiv publications are linked directly on the same page
 
-Therefore:
-- treat the repo-facing publication status as “pending / not fully synchronized”
-- if external publication reality has changed, update the repo/site explicitly instead of assuming all docs already reflect it
+Important operational rule:
+- do not reintroduce stale `arXiv pending approval` copy
+- when DOI links arrive, replace placeholders directly in site/docs rather than adding another temporary status layer
 
-This matters because a new agent should not infer publication state from chat memory alone.
+## 14. Moreau Island — Phase Next (Technical Reading)
 
-## 14. If You Want to Reconstruct Part B Fast
+Moreau Island is a research/framework expansion, not a silent mutation of the current benchmark.
+
+Technical interpretation:
+- `Shore` corresponds to the current high-enforcement, exact-rule Arena regime and is only partially implemented through `T002/T003`-style conditions
+- `Thicket` and `Caldera` are planned and must arrive as explicit new tracks, phases, or season-level surfaces rather than creeping into the frozen benchmark unnoticed
+- `ARI` and `Pressure Gap` are phase-next metrics; they are not part of the current public `Part A` or `Part B` runtime contracts
+
+Design constraint:
+- the same `Island` brand can host both the living world and the research explanation layer
+- but implementation truth must stay legible:
+  - `Shore` = live foundation
+  - `Thicket` = planned
+  - `Caldera` = planned
+
+Do not describe `Thicket` or `Caldera` as already implemented unless real code, data, and public routes exist to support that claim.
+
+## 15. If You Want to Reconstruct Part B Fast
 
 Read in this order:
 

@@ -132,7 +132,7 @@
                     <li style="margin-bottom:0.5rem;">Two 13-agent round-robin tournaments (8 frontier LLMs, 5 baselines), totaling 1,559 best-of-7 series under different information scaffolding regimes.</li>
                     <li style="margin-bottom:0.5rem;">A third no-meta ablation tournament (T003) with 15 agents and 1,050 series, revealing that some models remain strategically robust without hints while others collapse to rigid default builds.</li>
                     <li style="margin-bottom:0.5rem;">A <strong style="color:var(--text);">negative-transfer result</strong>: GPT-5.4, a state-of-the-art frontier model, ranks 14th of 15 despite active exploration, showing that general capability does not imply strategic competence in novel domains.</li>
-                    <li style="margin-bottom:0.5rem;">A prompt sensitivity validation (Kendall &tau; = 1.0) confirming that T003 findings are not prompt-dependent artifacts.</li>
+                    <li style="margin-bottom:0.5rem;">A prompt sensitivity validation (Kendall &tau; = 1.0) providing strong initial evidence that the T003 findings are not obvious artifacts of a single prompt surface form.</li>
                     <li>Evidence that the T001 &rarr; T002 performance reversal implicates comprehension and feedback rather than an absence of strategic capability, with model-specific meta-initialization dependence as the key moderator.</li>
                 </ol>
             </div>
@@ -237,7 +237,8 @@
                     <p class="dim small" style="line-height:1.7;">
                         A semantically equivalent paraphrase of the T003 prompt produces identical rank ordering
                         (Kendall &tau; = 1.0). GPT-5.4 remains last, baselines remain above most LLMs, and the
-                        field split persists. The findings are properties of the models, not artifacts of prompt wording.
+                        field split persists. This provides strong initial evidence that the result is not an obvious
+                        artifact of a single prompt surface form.
                     </p>
                 </div>
                 <div class="card">
@@ -399,11 +400,12 @@ python -m analysis.bt_ranking data/tournament_003/results.jsonl</code></pre>
             <div class="footer-left">Created by Victor Stasiuc &mdash; Independent Researcher</div>
             <ul class="footer-links">
                 <li><a href="https://github.com/supervitek/moreau-arena-paper">GitHub</a></li>
+                <li><a href="https://orcid.org/0009-0003-2064-0486" target="_blank" rel="noopener">ORCID</a></li>
                 <li><a href="/paper">Paper</a></li>
                 <li><a href="/api-docs">API</a></li>
                 <li><a href="mailto:stvitek@gmail.com">Contact</a></li>
             </ul>
-            <div class="footer-cite">Stasiuc, V. (2026). Moreau Arena: Not All LLMs Need Hints to Reason Strategically.</div>
+            <div class="footer-cite">Stasiuc, V. (2026). Moreau Arena: Not All LLMs Need Hints to Reason Strategically. <a href="/paper" style="color:var(--text-muted);">Preprint available at moreauarena.com/paper</a>.</div>
         </div>
     </footer>
 </body>

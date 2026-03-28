@@ -1,6 +1,6 @@
 # Project Bible — Moreau Arena
 
-Last updated: 2026-03-20  
+Last updated: 2026-03-27
 Status: Canonical high-context handoff for new agents and new accounts
 
 This file is the fastest way to bring a new coding agent up to the real current state of the project.
@@ -536,11 +536,11 @@ Do not rely on KK for the primary truth over tests and code.
 
 If a new agent takes over now, the next best moves are:
 
-1. enable real Supabase persistence for Part B in production
-2. confirm live `storage-status = supabase`
-3. accumulate real operator traces
-4. run the first live Part B review cadence
-5. calibrate Part B scores against real traces, not only seeded ones
+1. accumulate more real `Part B` operator traces under public-alpha conditions
+2. keep the watch/return flow human-legible as live usage increases
+3. calibrate `Part B` standing orders and score families against fresh live traces
+4. publish the `Moreau Island` framing cleanly without overstating `Thicket` or `Caldera`
+5. swap DOI placeholders on `/paper` and `/island` once Zenodo uploads are live
 
 ## 19. Philosophy / Style Constraints
 

@@ -1,6 +1,6 @@
 # Project TODO
 
-Last updated: 2026-03-23
+Last updated: 2026-03-27
 
 ## Agentic Moreau
 
@@ -39,7 +39,7 @@ Last updated: 2026-03-23
 ## Moreau Island Phase Next
 
 - Canonical high-context source: `docs/PROJECT_BIBLE.md`
-- Current vision paper source: `self/moreau_island_paper.tex`
+- Current vision paper source: `paper/moreau_island.tex`
 - Public site job now: `Island explainer + /paper two-document surface + publication placeholders`
 - Shore wording: `foundation live / partially implemented via Arena T002/T003`
 - Thicket status: `planned`
