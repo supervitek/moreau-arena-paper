@@ -16,6 +16,7 @@ COOLDOWN_FILE="$SELF_DIR/.last_escalation"
 PAUSE_FILE="$SELF_DIR/.paused"
 BUDGET_FILE="$SELF_DIR/.budget_today"
 TODAY=$(date +%Y-%m-%d)
+DAILY_LOG="$SELF_DIR/logs/daily/$TODAY.md"
 
 # --- PAUSE CHECK ---
 if [ -f "$PAUSE_FILE" ]; then
@@ -43,6 +44,11 @@ fi
 if [ "$DAILY_COUNT" -ge 15 ]; then
     # Budget exhausted for today
     exit 0
+fi
+
+# --- SYMLINK HEALTH CHECK ---
+if [ ! -d "$SELF_DIR/thinking" ]; then
+    echo "WARNING: self/thinking symlink broken" >> "$DAILY_LOG"
 fi
 
 # --- COOLDOWN CHECK (30 min) ---
