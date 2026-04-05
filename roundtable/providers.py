@@ -102,6 +102,7 @@ def _make_request(
     for key, val in headers.items():
         req.add_header(key, val)
     req.add_header("Content-Type", "application/json")
+    req.add_header("User-Agent", "RoundTable/1.0")
 
     ctx = ssl.create_default_context()
     try:
@@ -117,6 +118,33 @@ def _make_request(
 # ---------------------------------------------------------------------------
 
 def call_anthropic(api_key: str, model: str, prompt: str) -> tuple[str, int, int]:
+    """Call Anthropic — via Max subscription (claude -p) if available, else API."""
+    # Try subscription first (free via Max plan)
+    if os.environ.get("ROUNDTABLE_USE_SUBSCRIPTION", "").lower() in ("1", "true", "yes"):
+        return _call_anthropic_subscription(model, prompt)
+    return _call_anthropic_api(api_key, model, prompt)
+
+
+def _call_anthropic_subscription(model: str, prompt: str) -> tuple[str, int, int]:
+    """Call Claude via 'claude -p' using Max subscription (no API credits)."""
+    import subprocess
+    import shlex
+    env = os.environ.copy()
+    env.pop("ANTHROPIC_API_KEY", None)  # force subscription auth
+    result = subprocess.run(
+        ["claude", "-p", prompt, "--model", model, "--max-turns", "1"],
+        capture_output=True, text=True, timeout=120, env=env,
+    )
+    text = result.stdout.strip()
+    if result.returncode != 0:
+        raise RuntimeError(f"claude -p failed: {result.stderr}")
+    # Token counts not available via CLI — estimate from text length
+    est_input = len(prompt) // 4
+    est_output = len(text) // 4
+    return text, est_input, est_output
+
+
+def _call_anthropic_api(api_key: str, model: str, prompt: str) -> tuple[str, int, int]:
     """Call Anthropic Messages API. Returns (text, input_tokens, output_tokens)."""
     resp = _make_request(
         url="https://api.anthropic.com/v1/messages",
@@ -139,6 +167,28 @@ def call_anthropic(api_key: str, model: str, prompt: str) -> tuple[str, int, int
 
 
 def call_openai(api_key: str, model: str, prompt: str) -> tuple[str, int, int]:
+    """Call OpenAI — via Codex subscription (codex exec) if available, else API."""
+    if os.environ.get("ROUNDTABLE_USE_SUBSCRIPTION", "").lower() in ("1", "true", "yes"):
+        return _call_openai_subscription(model, prompt)
+    return _call_openai_api(api_key, model, prompt)
+
+
+def _call_openai_subscription(model: str, prompt: str) -> tuple[str, int, int]:
+    """Call GPT via 'codex exec' using ChatGPT Pro subscription (no API credits)."""
+    import subprocess
+    result = subprocess.run(
+        ["codex", "exec", prompt],
+        capture_output=True, text=True, timeout=120,
+    )
+    text = result.stdout.strip()
+    if result.returncode != 0:
+        raise RuntimeError(f"codex exec failed: {result.stderr}")
+    est_input = len(prompt) // 4
+    est_output = len(text) // 4
+    return text, est_input, est_output
+
+
+def _call_openai_api(api_key: str, model: str, prompt: str) -> tuple[str, int, int]:
     """Call OpenAI Chat Completions API. Returns (text, input_tokens, output_tokens)."""
     resp = _make_request(
         url="https://api.openai.com/v1/chat/completions",

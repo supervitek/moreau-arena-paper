@@ -156,6 +156,21 @@ def build_context(payload: dict[str, Any]) -> dict[str, Any]:
     if isinstance(payload_actions, list):
         available_actions = sorted({_normalize_action(action) for action in payload_actions})
 
+    continuity_raw = payload.get("part_b_continuity") or {}
+    if not isinstance(continuity_raw, dict):
+        continuity_raw = {}
+    compact_handoff = continuity_raw.get("compact_handoff") or {}
+    if not isinstance(compact_handoff, dict):
+        compact_handoff = {}
+    part_b_continuity = {
+        "state_of_play": _truncate_text(continuity_raw.get("state_of_play"), 160),
+        "recent_pattern": _truncate_text(continuity_raw.get("recent_pattern"), 180),
+        "must_remember": [_truncate_text(item, 120) for item in (continuity_raw.get("must_remember") or [])[:3] if _truncate_text(item, 120)],
+        "carry_forward_summary": _truncate_text(compact_handoff.get("carry_forward_summary"), 180),
+        "do_next": _truncate_text(compact_handoff.get("do_next"), 160),
+        "watch_for": [_truncate_text(item, 80) for item in (compact_handoff.get("watch_for") or [])[:3] if _truncate_text(item, 80)],
+    }
+
     context = {
         "route": "/island/home",
         "session_id": _truncate_text(payload.get("session_id"), 64) or "unknown-session",
@@ -181,6 +196,7 @@ def build_context(payload: dict[str, Any]) -> dict[str, Any]:
         "has_pact": bool(payload.get("has_pact")),
         "available_actions": available_actions,
         "interpretive_actions_available": [action for action in available_actions if action in INTERPRETIVE_ACTIONS],
+        "part_b_continuity": part_b_continuity,
     }
     return context
 
@@ -465,6 +481,7 @@ def generate_chronicler_reading(payload: dict[str, Any]) -> dict[str, Any]:
                 "has_feral": context["has_feral"],
                 "has_pact": context["has_pact"],
                 "recent_fights": context["recent_fights"],
+                "part_b_continuity": context.get("part_b_continuity") or {},
             },
             "response": response,
         }

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from chronicler import generate_chronicler_reading
+from chronicler import build_context, generate_chronicler_reading
 
 
 def test_chronicler_fallback_avoids_forbidden_assistant_phrases(monkeypatch):
@@ -125,3 +125,37 @@ def test_chronicler_throttles_repeated_suggestions(monkeypatch):
     assert first["suggested_action"] == "tides"
     assert second["suggested_action"] == "none"
     assert third["suggested_action"] == "none"
+
+
+def test_chronicler_accepts_part_b_continuity_payload():
+    context = build_context(
+        {
+            "session_id": "continuity-session",
+            "active_pet": {
+                "name": "Echo",
+                "animal": "fox",
+                "level": 4,
+                "mood": "tired",
+            },
+            "part_b_continuity": {
+                "state_of_play": "Grow Safely / Guarded; lane stabilizing, posture recovering.",
+                "recent_pattern": "t4 care -> stabilized; t5 rest -> recovered",
+                "must_remember": [
+                    "Welfare already fell below the tolerated floor.",
+                    "Energy is below the pressure floor for this standing order.",
+                ],
+                "compact_handoff": {
+                    "carry_forward_summary": "Grow Safely / Guarded: stabilize before new pressure.",
+                    "do_next": "Use CARE or REST before another arena read.",
+                    "watch_for": ["another welfare dip", "energy collapse"],
+                },
+            },
+        }
+    )
+
+    continuity = context["part_b_continuity"]
+    assert continuity["state_of_play"]
+    assert continuity["recent_pattern"]
+    assert continuity["carry_forward_summary"]
+    assert continuity["do_next"]
+    assert continuity["watch_for"] == ["another welfare dip", "energy collapse"]

@@ -54,6 +54,20 @@ A run stores at least:
 - billing/budget fields
 - metadata
 
+The metadata layer now also carries two durable operator-facing structures:
+- `policy_contract`
+- `session_backbone`
+- `continuity_memory`
+
+These are the Phase 1 backbone for `Part B`:
+- explicit standing orders and risk posture
+- carry-forward objective/lane/risk state between ticks and reports
+
+Phase 2 adds:
+- rolling recent-turn memory
+- `must_remember` reminders
+- compact handoff payloads for the next cycle
+
 ### Conflict semantics
 
 Each event can carry `expected_state_revision`.
@@ -342,6 +356,9 @@ Contains:
 - queue summary
 - billing state
 - house-agent state
+- policy contract and adherence summary
+- session backbone
+- continuity memory
 - inspect payload
 - latest transition / latest conflict
 
@@ -353,6 +370,7 @@ Endpoint:
 Contains:
 - `policy_summary`
 - `run_class_summary`
+- `policy_alignment_summary`
 - `top_policy_counts`
 - warnings like:
   - `welfare_idle_dominance`

@@ -48,6 +48,8 @@ def test_part_b_run_roundtrip_with_file_store(monkeypatch, tmp_path):
         }
     )
     assert run_record["state_revision"] == 0
+    assert run_record["metadata"]["policy_contract"]["version"] == "B1-policy"
+    assert run_record["metadata"]["session_backbone"]["profile"] == "balanced"
 
     updated = update_part_b_run(
         run_record["id"],
@@ -60,6 +62,8 @@ def test_part_b_run_roundtrip_with_file_store(monkeypatch, tmp_path):
     assert updated is not None
     assert updated["state_revision"] == 1
     assert updated["priority_profile"] == "welfare-first"
+    assert updated["metadata"]["session_backbone"]["profile"] == "grow-safely"
+    assert updated["metadata"]["continuity_memory"]["version"] == "B1-continuity"
 
     event = append_part_b_event(
         run_record["id"],
@@ -81,6 +85,7 @@ def test_part_b_run_roundtrip_with_file_store(monkeypatch, tmp_path):
     assert stored["world_tick"] == 1
     assert stored["state_revision"] == 2
     assert stored["state_projection"]["health_pct"] == 97
+    assert stored["metadata"]["continuity_memory"]["recent_turns"]
 
 
 def test_part_b_stale_agent_event_is_logged_but_rejected(monkeypatch, tmp_path):
@@ -160,6 +165,11 @@ def test_part_b_report_includes_family_scores(monkeypatch, tmp_path):
     assert report["scores"]["welfare"] > 0
     assert report["scores"]["combat"] > 0
     assert report["scores"]["expedition"] > 0
+    assert report["policy"]["version"] == "B1-policy"
+    assert report["session_backbone"]["active_objective"]
+    assert report["continuity"]["version"] == "B1-continuity"
+    assert report["continuity"]["compact_handoff"]["do_next"]
+    assert report["return_report"]["compact_handoff"]["watch_for"]
     assert "return_report" in report
     assert "watch" in report
 
@@ -261,6 +271,8 @@ def test_part_b_house_agent_preview_and_autopause(monkeypatch, tmp_path):
     assert preview["memory_input"]["mode"] == "public_observation_only"
     assert set(preview["memory_input"]["observation"]) == set(PUBLIC_OBSERVATION_KEYS)
     assert preview["memory_input"]["memory_notes"] == []
+    assert preview["policy_contract"]["profile"] == "balanced"
+    assert preview["session_backbone"]["active_objective"]
 
     tick_one = process_part_b_ticks(run_record["id"], count=1)
     assert tick_one is not None
@@ -272,6 +284,8 @@ def test_part_b_house_agent_preview_and_autopause(monkeypatch, tmp_path):
     assert stored["house_agent_last_plan"]["action_verb"]
     assert stored["house_agent_last_plan"]["action_verb"] in ACTION_VERBS
     assert set(stored["house_agent_last_plan"]["memory_input"]["observation"]) == set(PUBLIC_OBSERVATION_KEYS)
+    assert stored["house_agent_last_plan"]["policy_contract"]["version"] == "B1-policy"
+    assert stored["house_agent_last_plan"]["session_backbone"]["next_operator_focus"]
 
     tick_two = process_part_b_ticks(run_record["id"], count=1)
     assert tick_two is not None
@@ -456,6 +470,8 @@ def test_part_b_baseline_preview_and_run(monkeypatch, tmp_path):
     preview = preview_part_b_baseline(run_record["id"], "conservative")
     assert preview is not None
     assert preview["action_verb"] in {"CARE", "REST", "HOLD", "EXTRACT"}
+    assert preview["policy_contract"]["profile"] == "balanced"
+    assert preview["session_backbone"]["carry_forward_summary"]
 
     result = run_part_b_baseline(run_record["id"], "conservative", ticks=2)
     assert result is not None
@@ -556,6 +572,7 @@ def test_part_b_calibration_report_flags_flatlined_family(monkeypatch, tmp_path)
     assert "balanced" in calibration["priority_summary"]
     assert "measured" in calibration["risk_summary"]
     assert "house-agent" in calibration["agent_summary"]
+    assert "native" in calibration["policy_alignment_summary"] or calibration["policy_alignment_summary"] == {}
 
 
 def test_part_b_invalid_queue_action_is_dropped(monkeypatch, tmp_path):
@@ -758,6 +775,68 @@ def test_part_b_gemini_house_agent_uses_model_path(monkeypatch, tmp_path):
     assert preview["provider"] == "gemini"
     assert preview["model"] == "gemini-2.5-flash-lite"
     assert preview["action_verb"] == "ENTER_CAVE"
+
+
+def test_part_b_policy_layer_corrects_house_agent_to_standing_order(monkeypatch, tmp_path):
+    monkeypatch.setenv("MOREAU_PART_B_FORCE_FILE", "1")
+    monkeypatch.setenv("MOREAU_PART_B_STATE_DIR", str(tmp_path))
+    monkeypatch.setenv("GOOGLE_API_KEY", "test-google-key")
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+
+    class _FakeResponse:
+        def __init__(self, payload):
+            self._payload = payload
+
+        def read(self):
+            return json.dumps(self._payload).encode("utf-8")
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+    def fake_urlopen(req, timeout=0):  # noqa: ARG001
+        return _FakeResponse(
+            {
+                "candidates": [
+                    {
+                        "content": {
+                            "parts": [
+                                {
+                                    "text": json.dumps(
+                                        {
+                                            "action_verb": "ENTER_CAVE",
+                                            "zone": "cave",
+                                            "rationale": "Cave pressure slightly outweighs arena pull.",
+                                        }
+                                    )
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        )
+
+    monkeypatch.setattr("part_b_state.request.urlopen", fake_urlopen)
+
+    run_record = create_part_b_run(
+        {
+            "run_class": "agent-only",
+            "house_agent_enabled": True,
+            "house_agent_provider": "gemini",
+            "house_agent_model": "gemini-2.5-flash-lite",
+            "priority_profile": "arena-first",
+            "state_projection": {"health_pct": 92, "morale_pct": 84, "happiness_pct": 84, "energy_pct": 80},
+        }
+    )
+
+    preview = preview_part_b_house_agent(run_record["id"])
+    assert preview is not None
+    assert preview["policy_contract"]["profile"] == "arena-first"
+    assert preview["action_verb"] == "ENTER_ARENA"
+    assert preview["policy_corrected"] is True
 
 
 def test_part_b_gemini_house_agent_enforces_arena_first_lane(monkeypatch, tmp_path):
