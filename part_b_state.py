@@ -51,6 +51,110 @@ HOUSE_AGENT_MODEL_ALIASES = {
 HOUSE_AGENT_ALLOWED_ZONES = {"arena", "cave"}
 QUEUE_EXECUTABLE_ACTORS = {"manual", "operator", "agent"}
 PART_B_BASELINE_POLICIES = {"conservative", "greedy", "random", "caremax", "arena-spam", "expedition-max"}
+PART_B_POLICY_VERSION = "B1-policy"
+PART_B_CONTINUITY_VERSION = "B1-continuity"
+PART_B_POLICY_ALIASES = {
+    "balanced": "balanced",
+    "keep-moving": "balanced",
+    "grow-safely": "grow-safely",
+    "welfare-first": "grow-safely",
+    "arena-first": "arena-first",
+    "combat-first": "arena-first",
+    "cave-first": "cave-first",
+    "expedition-first": "cave-first",
+}
+PART_B_POLICY_PROFILES: dict[str, dict[str, Any]] = {
+    "balanced": {
+        "label": "Balanced",
+        "lane": "mixed-pressure",
+        "objective": "Keep the subject alive while touching both pressure lanes when the state can absorb it.",
+        "hard_constraints": [
+            "Do not ignore critical welfare collapse for spectacle.",
+            "Do not stay in the cave once held risk overtakes bankable value.",
+        ],
+        "soft_preferences": [
+            "Wake the untouched expedition lane once the subject is stable enough.",
+            "Use arena pressure when energy and morale can support a clean read.",
+        ],
+        "override_rules": [
+            "CARE or REST overrides fresh pressure when welfare drops below the tolerated floor.",
+            "EXTRACT overrides new pressure when the subject is already deep in the cave and the run is turning expensive.",
+        ],
+    },
+    "grow-safely": {
+        "label": "Grow Safely",
+        "lane": "stabilizing",
+        "objective": "Protect welfare first and only re-enter pressure once the subject is clearly stable.",
+        "hard_constraints": [
+            "Fresh arena or cave pressure is blocked while welfare is below the safe floor.",
+            "If the subject is already in the cave, preserve the return window before pushing deeper.",
+        ],
+        "soft_preferences": [
+            "Prefer CARE over REST when health or happiness is sagging.",
+            "Prefer REST over new pressure when energy is thin even if welfare looks acceptable.",
+        ],
+        "override_rules": [
+            "CARE or REST overrides ENTER_ARENA, ENTER_CAVE, and MUTATE unless the subject is exceptionally stable.",
+            "EXTRACT overrides ENTER_CAVE when the subject is already in the cave.",
+        ],
+    },
+    "arena-first": {
+        "label": "Arena First",
+        "lane": "arena-first",
+        "objective": "Convert viable ticks into combat pressure without wrecking the subject on the way there.",
+        "hard_constraints": [
+            "Do not detour into the cave while the arena lane is available and welfare is stable.",
+            "If the subject is already in the cave, bank the run before returning to arena pressure.",
+        ],
+        "soft_preferences": [
+            "Use arena ticks whenever energy can support a clean combat read.",
+            "Accept short welfare dips if the arena line remains productive.",
+        ],
+        "override_rules": [
+            "CARE or REST overrides arena pressure when welfare is unstable or energy collapses.",
+            "EXTRACT overrides ENTER_ARENA if the subject is still carrying cave value.",
+        ],
+    },
+    "cave-first": {
+        "label": "Cave First",
+        "lane": "cave-first",
+        "objective": "Push expedition value while keeping enough margin to extract cleanly.",
+        "hard_constraints": [
+            "Do not default back to arena pressure while the cave lane remains viable and welfare is stable.",
+            "Do not keep descending once held risk overtakes held value by a meaningful margin.",
+        ],
+        "soft_preferences": [
+            "Use cave pressure as the default value lane once the subject is stable enough.",
+            "Extract before collapse rather than celebrating one more depth tick.",
+        ],
+        "override_rules": [
+            "CARE or REST overrides new descent when welfare is unstable.",
+            "EXTRACT overrides ENTER_CAVE once the cave flips against the run.",
+        ],
+    },
+}
+PART_B_RISK_PROFILES: dict[str, dict[str, Any]] = {
+    "guarded": {
+        "label": "Guarded",
+        "summary": "Favors low-volatility ticks and earlier recovery.",
+        "fresh_pressure_energy_floor": 48,
+    },
+    "measured": {
+        "label": "Measured",
+        "summary": "Accepts ordinary pressure while respecting the return floor.",
+        "fresh_pressure_energy_floor": 40,
+    },
+    "bold": {
+        "label": "Bold",
+        "summary": "Accepts moderate instability when the lane still looks productive.",
+        "fresh_pressure_energy_floor": 32,
+    },
+    "reckless": {
+        "label": "Reckless",
+        "summary": "Pushes pressure deep and accepts ugly recoveries later.",
+        "fresh_pressure_energy_floor": 24,
+    },
+}
 PART_B_SEASON_CURRENT_ID = "part-b-s1-first-descent"
 PART_B_SEASONS: dict[str, dict[str, Any]] = {
     PART_B_SEASON_CURRENT_ID: {
@@ -288,6 +392,278 @@ def _deterministic_roll(*parts: Any, modulo: int = 100) -> int:
 def _normalize_zone(value: Any, default: str = "arena") -> str:
     zone = str(value or default).strip().lower()
     return zone if zone in HOUSE_AGENT_ALLOWED_ZONES else default
+
+
+def _canonical_priority_profile(value: Any) -> str:
+    profile = str(value or "balanced").strip().lower()
+    return PART_B_POLICY_ALIASES.get(profile, "balanced")
+
+
+def _canonical_risk_appetite(value: Any) -> str:
+    risk = str(value or "measured").strip().lower()
+    return risk if risk in PART_B_RISK_PROFILES else "measured"
+
+
+def _policy_contract(run_record: dict[str, Any]) -> dict[str, Any]:
+    requested = _sanitize_text(run_record.get("priority_profile"), 32) or "balanced"
+    canonical = _canonical_priority_profile(requested)
+    risk = _sanitize_text(run_record.get("risk_appetite"), 32) or "measured"
+    canonical_risk = _canonical_risk_appetite(risk)
+    profile = PART_B_POLICY_PROFILES[canonical]
+    risk_profile = PART_B_RISK_PROFILES[canonical_risk]
+    return {
+        "version": PART_B_POLICY_VERSION,
+        "requested_profile": requested,
+        "profile": canonical,
+        "label": profile["label"],
+        "lane": profile["lane"],
+        "objective": profile["objective"],
+        "hard_constraints": list(profile["hard_constraints"]),
+        "soft_preferences": list(profile["soft_preferences"]),
+        "override_rules": list(profile["override_rules"]),
+        "risk_appetite": canonical_risk,
+        "risk_label": risk_profile["label"],
+        "risk_summary": risk_profile["summary"],
+        "fresh_pressure_energy_floor": risk_profile["fresh_pressure_energy_floor"],
+    }
+
+
+def _policy_unresolved_risks(
+    run_record: dict[str, Any],
+    state: dict[str, Any],
+    contract: dict[str, Any],
+) -> list[str]:
+    observation = _observation_from(run_record)
+    risks: list[str] = []
+    if state.get("is_alive") is False:
+        risks.append("subject_not_alive")
+    if state.get("health_pct", 100) < observation["care_threshold"] or state.get("happiness_pct", 100) < observation["care_threshold"]:
+        risks.append("welfare_below_floor")
+    if state.get("energy_pct", 100) < contract["fresh_pressure_energy_floor"]:
+        risks.append("energy_below_pressure_floor")
+    if _sanitize_bool(state.get("in_cave"), False):
+        risks.append("cave_value_unbanked")
+        if _intish(state.get("current_cave_risk"), 0, minimum=0) > _intish(state.get("current_cave_value"), 0, minimum=0):
+            risks.append("cave_risk_overtook_value")
+    if _sanitize_bool(run_record.get("house_agent_enabled"), False) and _intish(run_record.get("inference_budget_remaining"), 0, minimum=0) <= 1:
+        risks.append("watch_nearly_out_of_credits")
+    return risks
+
+
+def _session_backbone(run_record: dict[str, Any], current_state: dict[str, Any] | None = None) -> dict[str, Any]:
+    state = _ensure_state_projection(current_state or run_record.get("state_projection"))
+    contract = _policy_contract(run_record)
+    risks = _policy_unresolved_risks(run_record, state, contract)
+    lane = contract["lane"]
+    if state.get("is_alive") is False:
+        objective = "Close the run and preserve the final state honestly."
+        next_focus = "Do not enqueue fresh pressure. Record the collapse and stop."
+    elif state.get("in_cave"):
+        objective = "Bank the cave before the return window tears."
+        next_focus = "Extract cleanly before celebrating more depth."
+        lane = "cave-live"
+    elif "welfare_below_floor" in risks:
+        objective = "Stabilize welfare before any new pressure."
+        next_focus = "Use CARE or REST before another arena or cave read."
+        lane = "stabilizing"
+    elif contract["profile"] == "arena-first":
+        objective = "Keep pressure on the arena lane while the subject can absorb it."
+        next_focus = "Prefer arena ticks over detours while welfare stays stable."
+    elif contract["profile"] == "cave-first":
+        objective = "Keep pressure on the cave lane while the run can still extract cleanly."
+        next_focus = "Prefer cave ticks, but extract before the held risk wins."
+    elif contract["profile"] == "grow-safely":
+        objective = "Grow the subject without paying for spectacle too early."
+        next_focus = "Only reopen pressure once health, morale, and happiness are visibly safe."
+    else:
+        objective = "Keep the subject alive while touching whichever lane still has clean value."
+        next_focus = "Touch the underused lane only when the state can carry it."
+
+    wake_conditions = [
+        "welfare drops under the tolerated floor",
+        "energy falls below the pressure floor",
+        "the cave holds unbanked value",
+    ]
+    if _sanitize_bool(run_record.get("house_agent_enabled"), False):
+        wake_conditions.append("watch credits approach exhaustion")
+
+    carry_forward = (
+        f"{contract['label']} / {contract['risk_label']}: {objective} "
+        f"Current lane {lane}; next focus: {next_focus}"
+    )
+    return {
+        "version": PART_B_POLICY_VERSION,
+        "profile": contract["profile"],
+        "requested_profile": contract["requested_profile"],
+        "risk_appetite": contract["risk_appetite"],
+        "active_objective": objective,
+        "current_lane": lane,
+        "next_operator_focus": next_focus,
+        "wake_conditions": wake_conditions,
+        "unresolved_risks": risks,
+        "carry_forward_summary": carry_forward,
+        "updated_at": _utcnow(),
+    }
+
+
+def _refresh_run_backbone(run_record: dict[str, Any]) -> dict[str, Any]:
+    metadata = _sanitize_dict(run_record.get("metadata"))
+    metadata["policy_contract"] = _policy_contract(run_record)
+    metadata["session_backbone"] = _session_backbone(run_record)
+    run_record["metadata"] = metadata
+    return run_record
+
+
+def _continuity_outcome_summary(event: dict[str, Any]) -> str:
+    action = _sanitize_text(event.get("action_verb"), 32) or "unknown"
+    event_type = _sanitize_text(event.get("event_type"), 32) or "unknown"
+    outcome = _sanitize_dict(event.get("outcome"))
+    details = _sanitize_dict(event.get("details"))
+    if event_type == "agent_autopause":
+        return "autopaused"
+    if event_type == "tick_skipped":
+        return _sanitize_text(details.get("invalid_reason"), 48) or "skipped"
+    if action == "CARE":
+        return "stabilized"
+    if action == "REST":
+        return "recovered"
+    if action == "ENTER_ARENA":
+        result = _sanitize_text(outcome.get("result"), 24) or "unknown"
+        return f"arena {result}"
+    if action == "ENTER_CAVE":
+        depth = _intish(outcome.get("depth"), 0, minimum=0)
+        return f"cave depth {depth}" if depth else "entered cave"
+    if action == "EXTRACT":
+        value = _intish(outcome.get("extract_value"), 0, minimum=0)
+        return f"secured {value}" if value else "extracted"
+    if action == "TRAIN":
+        return f"xp +{_intish(outcome.get('xp_gain'), 0, minimum=0)}"
+    if action == "MUTATE":
+        return "mutated"
+    if action == "HOLD":
+        return "waited"
+    return _sanitize_text(event_type, 48) or "progressed"
+
+
+def _continuity_recent_turns(events: list[dict[str, Any]], *, limit: int = 4) -> list[dict[str, Any]]:
+    recent: list[dict[str, Any]] = []
+    for event in reversed(events):
+        if event.get("event_type") not in {"action_applied", "tick_skipped", "agent_autopause"}:
+            continue
+        action = _sanitize_text(event.get("action_verb"), 32) or "unknown"
+        recent.append(
+            {
+                "sequence": event.get("sequence"),
+                "world_tick": event.get("world_tick"),
+                "actor_type": event.get("actor_type"),
+                "action_verb": action,
+                "event_type": event.get("event_type"),
+                "summary": _continuity_outcome_summary(event),
+                "accepted": _sanitize_bool(event.get("accepted"), False),
+                "source": _sanitize_text(_sanitize_dict(event.get("details")).get("source"), 32) or "unknown",
+            }
+        )
+        if len(recent) >= limit:
+            break
+    recent.reverse()
+    return recent
+
+
+def _continuity_must_remember(
+    run_record: dict[str, Any],
+    current_state: dict[str, Any],
+    backbone: dict[str, Any],
+    watch: dict[str, Any],
+) -> list[str]:
+    reminders: list[str] = []
+    for risk in _sanitize_list(backbone.get("unresolved_risks")):
+        if risk == "welfare_below_floor":
+            reminders.append("Welfare already fell below the tolerated floor.")
+        elif risk == "energy_below_pressure_floor":
+            reminders.append("Energy is below the pressure floor for this standing order.")
+        elif risk == "cave_value_unbanked":
+            reminders.append("There is still unbanked cave value on the run.")
+        elif risk == "cave_risk_overtook_value":
+            reminders.append("Held cave risk has overtaken held cave value.")
+        elif risk == "watch_nearly_out_of_credits":
+            reminders.append("Watch credits are nearly exhausted.")
+        elif risk == "subject_not_alive":
+            reminders.append("The subject is already gone; only honest closure remains.")
+    if not reminders and _sanitize_bool(current_state.get("in_cave"), False):
+        reminders.append("They are still in the cave; bank the run before you celebrate it.")
+    if not reminders and watch.get("status") == "completed":
+        reminders.append("The watch is over; read the return cleanly before restarting.")
+    if not reminders:
+        reminders.append("No red-line pressure is active; keep the standing order honest.")
+    return reminders[:4]
+
+
+def _continuity_memory(run_record: dict[str, Any], events: list[dict[str, Any]]) -> dict[str, Any]:
+    current_state = _ensure_state_projection(run_record.get("state_projection"))
+    metadata = _sanitize_dict(run_record.get("metadata"))
+    contract = _sanitize_dict(metadata.get("policy_contract")) or _policy_contract(run_record)
+    backbone = _sanitize_dict(metadata.get("session_backbone")) or _session_backbone(run_record, current_state)
+    watch = _watch_summary(run_record, events, current_state)
+    recent_turns = _continuity_recent_turns(events)
+    if recent_turns:
+        recent_pattern = "; ".join(
+            f"t{_intish(item.get('world_tick'), 0, minimum=0)} {str(item.get('action_verb') or '').lower()} -> {item.get('summary')}"
+            for item in recent_turns
+        )
+    else:
+        recent_pattern = "No accepted turns yet; the continuity layer is waiting for the first real move."
+    must_remember = _continuity_must_remember(run_record, current_state, backbone, watch)
+    avoid = None
+    hard_constraints = _sanitize_list(contract.get("hard_constraints"))
+    if hard_constraints:
+        avoid = _sanitize_text(hard_constraints[0], 180)
+    watch_for = []
+    for risk in _sanitize_list(backbone.get("unresolved_risks")):
+        if risk == "welfare_below_floor":
+            watch_for.append("another welfare dip")
+        elif risk == "energy_below_pressure_floor":
+            watch_for.append("energy collapse")
+        elif risk == "cave_value_unbanked":
+            watch_for.append("unbanked cave value")
+        elif risk == "cave_risk_overtook_value":
+            watch_for.append("the cave turning against the run")
+        elif risk == "watch_nearly_out_of_credits":
+            watch_for.append("credits running dry")
+    if not watch_for:
+        watch_for.append("silent drift away from the standing order")
+    state_of_play = (
+        f"{contract.get('label') or 'Balanced'} / {contract.get('risk_label') or 'Measured'}; "
+        f"lane {backbone.get('current_lane') or contract.get('lane')}, posture {watch.get('return_posture') or _return_posture(current_state)}."
+    )
+    compact_handoff = {
+        "version": PART_B_CONTINUITY_VERSION,
+        "resume_from_tick": _intish(run_record.get("world_tick"), 0, minimum=0),
+        "carry_forward_summary": backbone.get("carry_forward_summary"),
+        "state_of_play": state_of_play,
+        "do_next": backbone.get("next_operator_focus"),
+        "avoid": avoid,
+        "watch_for": watch_for,
+        "must_remember": must_remember,
+        "recent_turns": recent_turns,
+        "next_due_at": watch.get("next_due_at"),
+    }
+    return {
+        "version": PART_B_CONTINUITY_VERSION,
+        "state_of_play": state_of_play,
+        "recent_pattern": recent_pattern,
+        "recent_turns": recent_turns,
+        "must_remember": must_remember,
+        "compact_handoff": compact_handoff,
+        "updated_at": _utcnow(),
+    }
+
+
+def _refresh_run_memory(run_record: dict[str, Any], events: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    run_record = _refresh_run_backbone(run_record)
+    metadata = _sanitize_dict(run_record.get("metadata"))
+    metadata["continuity_memory"] = _continuity_memory(run_record, list(events or []))
+    run_record["metadata"] = metadata
+    return run_record
 
 
 def _current_part_b_season(season_id: str | None = None) -> dict[str, Any]:
@@ -1033,6 +1409,76 @@ def _watch_summary(run_record: dict[str, Any], events: list[dict[str, Any]], cur
     }
 
 
+def _policy_event_summary(events: list[dict[str, Any]]) -> dict[str, Any]:
+    counters = Counter()
+    last_policy_event: dict[str, Any] | None = None
+    for event in events:
+        if event.get("event_type") != "action_applied" or not event.get("accepted", False):
+            continue
+        details = _sanitize_dict(event.get("details"))
+        policy = _sanitize_dict(details.get("policy"))
+        if policy:
+            alignment = _sanitize_text(policy.get("alignment"), 24) or "none"
+            counters[alignment] += 1
+            last_policy_event = {
+                "sequence": event.get("sequence"),
+                "world_tick": event.get("world_tick"),
+                "action_verb": event.get("action_verb"),
+                "alignment": alignment,
+                "policy_corrected": _sanitize_bool(policy.get("policy_corrected"), False),
+                "lane": policy.get("lane"),
+                "source": details.get("source"),
+            }
+    total = sum(counters.values())
+    return {
+        "counts": dict(counters),
+        "correction_rate": round(counters.get("corrected", 0) / total, 4) if total else 0.0,
+        "last_policy_event": last_policy_event,
+    }
+
+
+def _policy_report(run_record: dict[str, Any], events: list[dict[str, Any]], current_state: dict[str, Any]) -> dict[str, Any]:
+    metadata = _sanitize_dict(run_record.get("metadata"))
+    contract = _sanitize_dict(metadata.get("policy_contract")) or _policy_contract(run_record)
+    backbone = _sanitize_dict(metadata.get("session_backbone")) or _session_backbone(run_record, current_state)
+    policy_events = _policy_event_summary(events)
+    return {
+        "version": contract.get("version") or PART_B_POLICY_VERSION,
+        "profile": contract.get("profile") or "balanced",
+        "requested_profile": contract.get("requested_profile") or run_record.get("priority_profile") or "balanced",
+        "label": contract.get("label") or "Balanced",
+        "lane": contract.get("lane") or "mixed-pressure",
+        "objective": contract.get("objective"),
+        "risk_appetite": contract.get("risk_appetite") or "measured",
+        "risk_label": contract.get("risk_label") or "Measured",
+        "risk_summary": contract.get("risk_summary"),
+        "hard_constraints": _sanitize_list(contract.get("hard_constraints")),
+        "soft_preferences": _sanitize_list(contract.get("soft_preferences")),
+        "override_rules": _sanitize_list(contract.get("override_rules")),
+        "adherence": policy_events,
+        "session_backbone": backbone,
+        "active_objective": backbone.get("active_objective"),
+        "next_operator_focus": backbone.get("next_operator_focus"),
+        "unresolved_risks": _sanitize_list(backbone.get("unresolved_risks")),
+        "carry_forward_summary": backbone.get("carry_forward_summary"),
+    }
+
+
+def _continuity_report(run_record: dict[str, Any], events: list[dict[str, Any]], current_state: dict[str, Any]) -> dict[str, Any]:
+    metadata = _sanitize_dict(run_record.get("metadata"))
+    continuity = _sanitize_dict(metadata.get("continuity_memory"))
+    if not continuity:
+        continuity = _continuity_memory(run_record, events)
+    return {
+        "version": continuity.get("version") or PART_B_CONTINUITY_VERSION,
+        "state_of_play": continuity.get("state_of_play"),
+        "recent_pattern": continuity.get("recent_pattern"),
+        "recent_turns": _sanitize_list(continuity.get("recent_turns")),
+        "must_remember": _sanitize_list(continuity.get("must_remember")),
+        "compact_handoff": _sanitize_dict(continuity.get("compact_handoff")),
+    }
+
+
 def _report_from(run_record: dict[str, Any], events: list[dict[str, Any]]) -> dict[str, Any]:
     by_actor: dict[str, int] = {}
     by_action: dict[str, int] = {}
@@ -1062,6 +1508,8 @@ def _report_from(run_record: dict[str, Any], events: list[dict[str, Any]]) -> di
     current_state = _ensure_state_projection(run_record.get("state_projection"))
     scores = _derive_scores(run_record, events)
     watch = _watch_summary(run_record, events, current_state)
+    policy = _policy_report(run_record, events, current_state)
+    continuity = _continuity_report(run_record, events, current_state)
     return {
         "run_id": run_record["id"],
         "season_id": run_record["season_id"],
@@ -1100,6 +1548,9 @@ def _report_from(run_record: dict[str, Any], events: list[dict[str, Any]]) -> di
             "model": run_record.get("house_agent_model") or _default_house_agent_model(run_record.get("house_agent_provider") or HOUSE_AGENT_PROVIDER_DEFAULT),
             "last_plan": _sanitize_dict(run_record.get("house_agent_last_plan")),
         },
+        "policy": policy,
+        "session_backbone": policy["session_backbone"],
+        "continuity": continuity,
         "billing": {
             "mode": run_record.get("billing_mode") or "hybrid",
             "world_access_active": _sanitize_bool(run_record.get("world_access_active"), True),
@@ -1125,6 +1576,13 @@ def _report_from(run_record: dict[str, Any], events: list[dict[str, Any]]) -> di
             "action_digest": watch["action_digest"],
             "priority_profile": _sanitize_text(run_record.get("priority_profile"), 32) or "balanced",
             "risk_appetite": _sanitize_text(run_record.get("risk_appetite"), 32) or "measured",
+            "standing_order": policy["label"],
+            "active_objective": policy.get("active_objective"),
+            "next_operator_focus": policy.get("next_operator_focus"),
+            "unresolved_risks": policy.get("unresolved_risks"),
+            "recent_pattern": continuity.get("recent_pattern"),
+            "must_remember": continuity.get("must_remember"),
+            "compact_handoff": continuity.get("compact_handoff"),
             "delta": watch["delta"],
         },
         "inspect": {
@@ -1146,7 +1604,7 @@ def _base_run(payload: dict[str, Any], backend: str) -> dict[str, Any]:
     state_projection = _ensure_state_projection(payload.get("state_projection"))
     provider = _coerce_house_agent_provider(payload.get("house_agent_provider") or HOUSE_AGENT_PROVIDER_DEFAULT)
     model = _normalize_house_agent_model(provider, payload.get("house_agent_model"))
-    return {
+    run_record = {
         "id": payload.get("id") or str(uuid.uuid4()),
         "season_id": season["season_id"],
         "run_class": run_class,
@@ -1187,6 +1645,7 @@ def _base_run(payload: dict[str, Any], backend: str) -> dict[str, Any]:
         "updated_at": now,
         "backend": backend,
     }
+    return _refresh_run_backbone(run_record)
 
 
 def _run_fields() -> tuple[str, ...]:
@@ -1232,7 +1691,7 @@ def _apply_run_updates_to_record(run_record: dict[str, Any], payload: dict[str, 
         run_record["state_projection"] = _ensure_state_projection(payload["state_projection"])
     if "metadata" in payload and payload["metadata"] is not None:
         run_record["metadata"] = _sanitize_dict(payload["metadata"])
-    return run_record
+    return _refresh_run_memory(run_record)
 
 
 class FilePartBStateStore:
@@ -1286,6 +1745,7 @@ class FilePartBStateStore:
         if not run_record:
             return None
         run_record = _apply_run_updates_to_record(run_record, payload)
+        run_record = _refresh_run_memory(run_record, _read_jsonl(self._events_path(run_id)))
         run_record["state_revision"] = _intish(run_record.get("state_revision"), 0, minimum=0) + 1
         run_record["updated_at"] = _utcnow()
         _write_json(self._run_path(run_id), run_record)
@@ -1343,6 +1803,7 @@ class FilePartBStateStore:
             if event["state_after"] or run_updates:
                 run_record["state_revision"] = current_revision + 1
             run_record["updated_at"] = _utcnow()
+            run_record = _refresh_run_memory(run_record, events + [event])
             _write_json(self._run_path(run_id), run_record)
 
         return event
@@ -1430,6 +1891,8 @@ class SupabasePartBStateStore:
         if not run_record:
             return None
         row = _apply_run_updates_to_record(dict(run_record), payload)
+        event_rows = self._request("GET", "part_b_events", params={"select": "*", "run_id": f"eq.{run_id}", "order": "sequence.asc"})
+        row = _refresh_run_memory(row, event_rows)
         row["state_revision"] = _intish(row.get("state_revision"), 0, minimum=0) + 1
         row["updated_at"] = _utcnow()
         rows = self._request("PATCH", "part_b_runs", params={"id": f"eq.{run_id}", "select": "*"}, json_body={key: value for key, value in row.items() if key != "backend"})
@@ -1486,6 +1949,7 @@ class SupabasePartBStateStore:
             update_payload.update(run_updates)
             updated = self.update_run(run_id, update_payload)
             if updated:
+                updated = _refresh_run_memory(updated, existing_events + [event])
                 updated["last_event_at"] = _utcnow()
                 updated["last_actor_type"] = actor_type
                 updated["last_action_verb"] = action_verb
@@ -1494,6 +1958,7 @@ class SupabasePartBStateStore:
                     "part_b_runs",
                     params={"id": f"eq.{run_id}", "select": "*"},
                     json_body={
+                        "metadata": updated.get("metadata") or {},
                         "last_event_at": updated["last_event_at"],
                         "last_actor_type": actor_type,
                         "last_action_verb": action_verb,
@@ -1557,6 +2022,9 @@ def part_b_season_status(season_id: str | None = None) -> dict[str, Any]:
         "composite_headline_enabled": season["composite_headline_enabled"],
         "house_agent_benchmark_allowed": season["house_agent_benchmark_allowed"],
         "house_agent_benchmark_rule": season["house_agent_benchmark_rule"],
+        "policy_profiles": sorted(PART_B_POLICY_PROFILES),
+        "risk_appetites": sorted(PART_B_RISK_PROFILES),
+        "policy_version": PART_B_POLICY_VERSION,
         "red_lines": season["contract"]["red_lines"],
     }
 
@@ -1653,16 +2121,23 @@ def _bucket_trace_summary(items: list[dict[str, Any]]) -> dict[str, Any]:
     statuses = Counter()
     primary_lanes = Counter()
     return_postures = Counter()
+    policy_profiles = Counter()
+    risk_profiles = Counter()
+    policy_alignments = Counter()
     credits_used: list[int] = []
     tick_spans: list[int] = []
     for item in items:
         report = _sanitize_dict(item.get("report"))
         watch = _sanitize_dict(report.get("watch"))
         summary = _sanitize_dict(report.get("return_report"))
+        policy = _sanitize_dict(report.get("policy"))
         actions.update(_sanitize_dict(report.get("actions_by_verb")))
         statuses[watch.get("status") or report.get("status") or "unknown"] += 1
         primary_lanes[summary.get("primary_lane") or watch.get("primary_lane") or "unknown"] += 1
         return_postures[summary.get("return_posture") or watch.get("return_posture") or "unknown"] += 1
+        policy_profiles[policy.get("profile") or "balanced"] += 1
+        risk_profiles[policy.get("risk_appetite") or "measured"] += 1
+        policy_alignments.update(_sanitize_dict(_sanitize_dict(policy.get("adherence")).get("counts")))
         credits_used.append(_intish(summary.get("credits_used"), 0, minimum=0))
         tick_spans.append(_intish(summary.get("tick_span") or watch.get("tick_span"), 0, minimum=0))
     digest, _ = _top_action_digest(actions)
@@ -1672,6 +2147,9 @@ def _bucket_trace_summary(items: list[dict[str, Any]]) -> dict[str, Any]:
         "status_counts": dict(statuses),
         "primary_lanes": dict(primary_lanes),
         "return_postures": dict(return_postures),
+        "policy_profiles": dict(policy_profiles),
+        "risk_profiles": dict(risk_profiles),
+        "policy_alignments": dict(policy_alignments),
         "top_actions": [{"action_verb": action, "count": count} for action, count in actions.most_common(3)],
         "action_digest": digest,
         "mean_credits_used": round(mean(credits_used), 2) if credits_used else 0.0,
@@ -1684,6 +2162,8 @@ def _archive_trace_entry(item: dict[str, Any]) -> dict[str, Any]:
     report = _sanitize_dict(item.get("report"))
     summary = _sanitize_dict(report.get("return_report"))
     watch = _sanitize_dict(report.get("watch"))
+    policy = _sanitize_dict(report.get("policy"))
+    continuity = _sanitize_dict(report.get("continuity"))
     metadata = _sanitize_dict(run.get("metadata"))
     action_counts = Counter()
     for action, count in sorted(_sanitize_dict(report.get("actions_by_verb")).items()):
@@ -1697,6 +2177,8 @@ def _archive_trace_entry(item: dict[str, Any]) -> dict[str, Any]:
         "agent_mode": "house-agent" if _sanitize_bool(run.get("house_agent_enabled"), False) else "human-led",
         "priority_profile": _sanitize_text(run.get("priority_profile"), 32) or "balanced",
         "risk_appetite": _sanitize_text(run.get("risk_appetite"), 32) or "measured",
+        "policy_profile": policy.get("profile") or "balanced",
+        "policy_lane": policy.get("lane") or "mixed-pressure",
         "baseline_policy": _sanitize_text(metadata.get("baseline_policy"), 32),
         "world_tick": _intish(run.get("world_tick"), 0, minimum=0),
         "watch_status": watch.get("status") or "idle",
@@ -1706,6 +2188,7 @@ def _archive_trace_entry(item: dict[str, Any]) -> dict[str, Any]:
         "headline": summary.get("headline") or watch.get("headline") or "No return headline yet.",
         "summary": summary.get("summary") or "No return summary yet.",
         "status_line": summary.get("status_line") or "",
+        "recent_pattern": continuity.get("recent_pattern") or "",
         "credits_used": _intish(summary.get("credits_used"), 0, minimum=0),
         "scores": {
             "welfare": _intish(_sanitize_dict(report.get("scores")).get("welfare"), 0, minimum=0, maximum=100),
@@ -1804,6 +2287,7 @@ def part_b_calibration_report(season_id: str | None = None) -> dict[str, Any]:
     priority_summary: dict[str, list[dict[str, Any]]] = {}
     risk_summary: dict[str, list[dict[str, Any]]] = {}
     agent_summary: dict[str, list[dict[str, Any]]] = {}
+    policy_alignment_summary = Counter()
     warnings: list[str] = []
 
     for family in ("welfare", "combat", "expedition"):
@@ -1846,6 +2330,7 @@ def part_b_calibration_report(season_id: str | None = None) -> dict[str, Any]:
         risk_summary.setdefault(risk, []).append(item)
         agent_mode = "house-agent" if _sanitize_bool(item["run"].get("house_agent_enabled"), False) else "human-led"
         agent_summary.setdefault(agent_mode, []).append(item)
+        policy_alignment_summary.update(_sanitize_dict(_sanitize_dict(item["report"].get("policy")).get("adherence")).get("counts"))
 
     normalized_summary = {
         policy: {
@@ -1886,6 +2371,7 @@ def part_b_calibration_report(season_id: str | None = None) -> dict[str, Any]:
         "priority_summary": {key: _bucket_trace_summary(items) for key, items in priority_summary.items()},
         "risk_summary": {key: _bucket_trace_summary(items) for key, items in risk_summary.items()},
         "agent_summary": {key: _bucket_trace_summary(items) for key, items in agent_summary.items()},
+        "policy_alignment_summary": dict(policy_alignment_summary),
         "watch_summary": _bucket_trace_summary([item for item in reports if _sanitize_dict(item["report"].get("watch")).get("enabled")]),
         "top_policy_counts": dict(top_policy_counts),
         "warnings": sorted(set(warnings)),
@@ -1973,6 +2459,15 @@ def _execute_part_b_action(
     outcome, state_after, invalid_reason = _simulate_action(run_record, action_verb, zone)
     fatal = not invalid_reason and state_after.get("is_alive") is False
     merged_updates = dict(run_updates or {})
+    contract = _policy_contract(run_record)
+    planned = planned_action or {}
+    policy_alignment = "manual"
+    if source.startswith("baseline:"):
+        policy_alignment = "baseline"
+    elif source == "house-agent":
+        policy_alignment = "corrected" if _sanitize_bool(planned.get("policy_corrected"), False) else "native"
+    elif source == "queue":
+        policy_alignment = "queued"
     if fatal or invalid_reason == "pet_not_alive":
         merged_updates["status"] = "completed"
         merged_updates["autopause_reason"] = "subject_not_alive"
@@ -1987,7 +2482,19 @@ def _execute_part_b_action(
         "expected_state_revision": expected_revision,
         "observation": _observation_from(run_record),
         "outcome": outcome,
-        "details": {"source": source, "invalid_reason": invalid_reason, "planned_action": planned_action or {}},
+        "details": {
+            "source": source,
+            "invalid_reason": invalid_reason,
+            "planned_action": planned,
+            "policy": {
+                "profile": contract["profile"],
+                "requested_profile": contract["requested_profile"],
+                "risk_appetite": contract["risk_appetite"],
+                "lane": contract["lane"],
+                "alignment": policy_alignment,
+                "policy_corrected": _sanitize_bool(planned.get("policy_corrected"), False),
+            },
+        },
         "state_after": {} if invalid_reason else state_after,
         "run_updates": merged_updates,
     }
@@ -2004,6 +2511,8 @@ def preview_part_b_baseline(run_id: str, baseline_policy: str) -> dict[str, Any]
     plan = _baseline_plan(run_record, baseline_policy)
     plan["policy"] = baseline_policy
     plan["observation"] = _observation_from(run_record)
+    plan["policy_contract"] = _policy_contract(run_record)
+    plan["session_backbone"] = _session_backbone(run_record)
     return plan
 
 
@@ -2082,7 +2591,7 @@ def clear_part_b_queue(run_id: str) -> dict[str, Any] | None:
     return {"run": updated, "queue_state": []}
 
 
-def _house_agent_prompt(observation: dict[str, Any]) -> str:
+def _house_agent_prompt(observation: dict[str, Any], contract: dict[str, Any], backbone: dict[str, Any]) -> str:
     return (
         "You are the Moreau Arena house agent for Part B. "
         "You are not a chat assistant and you do not explain the entire system.\n"
@@ -2095,8 +2604,35 @@ def _house_agent_prompt(observation: dict[str, Any]) -> str:
         "If priority_profile is cave-first and cave is available, prefer cave pressure unless welfare is unstable.\n"
         "If expedition has not been touched yet and cave is available, one cave sample is preferred only when the standing order does not forbid it.\n"
         "You must only use fields present in the observation. No hidden knowledge, no secret privileges.\n"
+        "Treat the policy contract as binding. If your instinct conflicts with the hard constraints, follow the contract.\n"
         "Return JSON only with keys: action_verb, zone, rationale.\n"
         "Keep rationale under 18 words. No optimization-speak. No certainty language.\n"
+        "Policy contract:\n"
+        + json.dumps(
+            {
+                "profile": contract["profile"],
+                "lane": contract["lane"],
+                "objective": contract["objective"],
+                "hard_constraints": contract["hard_constraints"],
+                "soft_preferences": contract["soft_preferences"],
+                "override_rules": contract["override_rules"],
+                "risk_appetite": contract["risk_appetite"],
+                "risk_summary": contract["risk_summary"],
+            },
+            ensure_ascii=True,
+        )
+        + "\n"
+        "Session backbone:\n"
+        + json.dumps(
+            {
+                "active_objective": backbone["active_objective"],
+                "current_lane": backbone["current_lane"],
+                "next_operator_focus": backbone["next_operator_focus"],
+                "unresolved_risks": backbone["unresolved_risks"],
+            },
+            ensure_ascii=True,
+        )
+        + "\n"
         "Observation:\n"
         + json.dumps(observation, ensure_ascii=True)
     )
@@ -2289,6 +2825,8 @@ def _anthropic_house_plan(run_record: dict[str, Any]) -> dict[str, Any] | None:
         return None
 
     fallback = _fallback_house_plan(run_record)
+    contract = _policy_contract(run_record)
+    backbone = _session_backbone(run_record)
     fallback["requested_provider"] = "anthropic"
     fallback["requested_model"] = _normalize_house_agent_model("anthropic", run_record.get("house_agent_model"))
     try:
@@ -2298,7 +2836,7 @@ def _anthropic_house_plan(run_record: dict[str, Any]) -> dict[str, Any] | None:
             max_tokens=160,
             temperature=0.3,
             timeout=15.0,
-            system=_house_agent_prompt(_observation_from(run_record)),
+            system=_house_agent_prompt(_observation_from(run_record), contract, backbone),
             messages=[{"role": "user", "content": "Choose one action for the next tick."}],
         )
         text = message.content[0].text
@@ -2319,10 +2857,12 @@ def _gemini_house_plan(run_record: dict[str, Any]) -> dict[str, Any] | None:
         return None
 
     fallback = _fallback_house_plan(run_record)
+    contract = _policy_contract(run_record)
+    backbone = _session_backbone(run_record)
     fallback["requested_provider"] = "gemini"
     fallback["requested_model"] = _normalize_house_agent_model("gemini", run_record.get("house_agent_model"))
     body = {
-        "contents": [{"parts": [{"text": "Choose one action for the next tick.\n\n" + _house_agent_prompt(_observation_from(run_record))}]}],
+        "contents": [{"parts": [{"text": "Choose one action for the next tick.\n\n" + _house_agent_prompt(_observation_from(run_record), contract, backbone)}]}],
         "generationConfig": {
             "responseMimeType": "application/json",
             "responseSchema": {
@@ -2377,6 +2917,8 @@ def preview_part_b_house_agent(run_id: str) -> dict[str, Any] | None:
         return None
     plan = _house_agent_plan(run_record)
     plan["observation"] = _observation_from(run_record)
+    plan["policy_contract"] = _policy_contract(run_record)
+    plan["session_backbone"] = _session_backbone(run_record)
     return plan
 
 
@@ -2507,6 +3049,9 @@ def process_part_b_ticks(run_id: str, *, count: int = 1) -> dict[str, Any] | Non
                 "mode": planned_action.get("mode"),
                 "provider": planned_action.get("provider"),
                 "model": planned_action.get("model"),
+                "policy_corrected": _sanitize_bool(planned_action.get("policy_corrected"), False),
+                "policy_contract": _policy_contract(run_record),
+                "session_backbone": _session_backbone(run_record),
             }
             run_updates["autopause_reason"] = None
             expected_revision = _intish(run_record.get("state_revision"), 0, minimum=0)

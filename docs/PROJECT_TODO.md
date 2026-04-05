@@ -35,6 +35,8 @@ Last updated: 2026-03-27
 - Supabase production readiness: `docs/PART_B_SUPABASE_PRODUCTION_READINESS.md`
 - 10-point closure checklist: `docs/PART_B_10_POINT_COMPLETION_CHECKLIST.md`
 - Current next move: `public alpha cadence + richer live traces + operator return proof`
+- Phase 1 architecture now includes: `explicit policy contract + durable session backbone + policy-aware reports`
+- Phase 2 architecture now includes: `rolling continuity memory + compact handoff payloads + Chronicler-ready continuity context`
 
 ## Moreau Island Phase Next
 
@@ -108,3 +110,5 @@ Last updated: 2026-03-27
 - [x] Part B standing-order / risk calibration layer
 - [x] Part B public alpha packaging pass
 - [x] Moreau Island phase-next site and bible framing pass
+- [x] Part B Phase 1 policy/session backbone pass
+- [x] Part B Phase 2 continuity memory pass

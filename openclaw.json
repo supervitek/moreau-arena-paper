@@ -1,0 +1,39 @@
+{
+  "$schema": "https://openclaws.io/schema/2026.3/config.json",
+  "name": "krakenshu-self",
+  "description": "Autonomous self-improvement system for Claude (Layer 3)",
+
+  "model": "claude-opus-4-6",
+  "provider": "anthropic",
+
+  "gateway": {
+    "port": 18789,
+    "host": "127.0.0.1"
+  },
+
+  "heartbeat": {
+    "enabled": true,
+    "intervalMinutes": 30,
+    "command": "self/scripts/heartbeat_check.sh",
+    "onTrigger": "self/scripts/heartbeat_escalate.sh",
+    "onHardStop": "echo 'CONSTITUTION CHANGED — ALL AUTONOMY PAUSED' | tee self/logs/daily/$(date +%Y-%m-%d).md",
+    "lightContext": true
+  },
+
+  "memory": {
+    "enabled": false,
+    "note": "We use self/state.json instead of OpenClaw memory"
+  },
+
+  "sandbox": {
+    "workdir": "/Users/cc/Desktop/Claude/a/moreau-arena-paper",
+    "allowedPaths": [
+      "/Users/cc/Desktop/Claude/a/moreau-arena-paper/self/"
+    ]
+  },
+
+  "auth": {
+    "type": "oauth",
+    "note": "Uses Claude Max subscription via claude -p (ANTHROPIC_API_KEY unset in scripts)"
+  }
+}

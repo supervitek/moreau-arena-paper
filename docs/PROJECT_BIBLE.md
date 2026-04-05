@@ -196,6 +196,22 @@ Current approved structure:
 - `combat`
 - `expedition`
 - `composite` is intentionally not the headline score in the first season
+- `Part B` now has an explicit standing-order layer:
+  - `balanced`
+  - `grow-safely`
+  - `arena-first`
+  - `cave-first`
+- each run also carries a durable session backbone:
+  - active objective
+  - current lane
+  - wake conditions
+  - unresolved risks
+  - next operator focus
+- each run now also carries a continuity layer:
+  - rolling recent-turn memory
+  - must-remember reminders
+  - compact handoff payload
+  - carry-forward summary for the next cycle
 
 ## 8. Infrastructure and Deployment
 

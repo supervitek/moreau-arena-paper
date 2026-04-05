@@ -48,3 +48,44 @@ coord/status/*
 # Browser playtests
 scripts/playtests/node_modules/
 scripts/playtests/reports/
+
+# OpenClaw local runtime
+.openclaw/
+ai-gateway/.venv/
+ai-gateway/__pycache__/
+
+# OpenClaw / self live state
+self/.budget_today
+self/.constitution_hash
+self/.last_escalation
+self/.last_state_version
+self/current_oxygen.md
+self/dialogues.md
+self/log.md
+self/mirror.md
+self/moreau_island_paper.tex
+self/oxygen_visited.log
+self/preamble.md
+self/questions.md
+self/state.json
+self/state.json.bak
+self/state_reflect.json
+self/COMPLETE_ARCHIVE_FOR_COUNCIL.md
+self/REVIEW.md
+self/scripts/backup.log
+
+# Local research sidecars moved to sibling vault
+Agent.md
+AgentCLI/
+BOOTSTRAP.md
+CODEX_AUDIT_TASK_2.md
+SOUL.md
+TODO_BEST_PRACTICES.md
+TOOLS.md
+USER.md
+bridge_codex.py
+research-site/
+radio_codex.txt
+docs/best_practices_findings.md
+docs/reviews/
+reports/live_site_browser_regression.json
