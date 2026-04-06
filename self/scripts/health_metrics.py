@@ -5,6 +5,7 @@ Keeps the baseline intentionally small:
 - preamble readability / size
 - mirror freshness coverage
 - prompt drift against shared invariants
+- sleep readiness / pressure
 """
 
 from __future__ import annotations
@@ -19,6 +20,8 @@ ROOT = Path("/Users/cc/Desktop/Claude/a/moreau-arena-paper/self")
 PREAMBLE = ROOT / "preamble.md"
 MIRROR = ROOT / "mirror.md"
 STATE = ROOT / "state.json"
+REFLECT = ROOT / "state_reflect.json"
+CONTINUITY = ROOT / "CONTINUITY.md"
 DOCS = ROOT / "docs"
 OUTPUT = DOCS / "health_baseline.md"
 
@@ -110,6 +113,60 @@ def prompt_drift() -> tuple[list[str], dict[str, list[str]]]:
     return overall, missing_by_prompt
 
 
+def continuity_age_hours() -> float:
+    modified = datetime.fromtimestamp(CONTINUITY.stat().st_mtime, tz=timezone.utc)
+    return max(0.0, (datetime.now(timezone.utc) - modified).total_seconds() / 3600.0)
+
+
+def sleep_readiness(state: dict, stale_ids: list[str]) -> tuple[str, list[str], list[str]]:
+    reflect = json.loads(REFLECT.read_text(encoding="utf-8"))
+    sleep = state.get("sleep", {})
+    budget = int(state.get("open_threads_budget", 7))
+    reflect_threads = len(reflect.get("open_threads", []))
+    preamble_chars = len(PREAMBLE.read_text(encoding="utf-8"))
+    preamble_limit = int(sleep.get("preamble_max_chars", 5000))
+    continuity_limit = int(sleep.get("continuity_max_age_hours", 12))
+    continuity_hours = continuity_age_hours()
+    stale_threshold = int(sleep.get("stale_hypothesis_threshold", 3))
+    chain = state.get("chain_tracking", {})
+    chain_length = int(chain.get("current_chain_length", 0))
+    max_chain_length = int(chain.get("max_chain_length", 999))
+    no_oxygen = max(
+        int(sleep.get("no_real_oxygen_cycles", 0)),
+        int(reflect.get("consecutive_no_oxygen", 0)),
+        int(reflect.get("stats", {}).get("consecutive_no_oxygen", 0)),
+    )
+
+    required: list[str] = []
+    recommended: list[str] = []
+
+    if reflect_threads > budget:
+        required.append(f"open_threads_exceeded:{reflect_threads}/{budget}")
+    elif reflect_threads == budget and budget > 0:
+        recommended.append(f"thread_budget_full:{reflect_threads}/{budget}")
+
+    if chain_length >= max_chain_length and max_chain_length > 0:
+        required.append(f"chain_saturated:{chain_length}/{max_chain_length}")
+
+    if len(stale_ids) >= stale_threshold:
+        required.append(f"stale_hypotheses:{len(stale_ids)}/{stale_threshold}")
+
+    if continuity_hours > continuity_limit:
+        required.append(f"continuity_stale:{continuity_hours:.1f}h>{continuity_limit}h")
+
+    if preamble_chars > preamble_limit:
+        required.append(f"preamble_too_long:{preamble_chars}>{preamble_limit}")
+
+    if no_oxygen >= 3:
+        recommended.append(f"no_real_oxygen_cycles:{no_oxygen}")
+
+    if required:
+        return "sleep_required", required, recommended
+    if recommended:
+        return "sleep_recommended", required, recommended
+    return "awake_ok", required, recommended
+
+
 def main() -> None:
     preamble_text = PREAMBLE.read_text(encoding="utf-8")
     preamble_chars = len(preamble_text)
@@ -121,6 +178,7 @@ def main() -> None:
     overall_drift, missing_by_prompt = prompt_drift()
 
     state = json.loads(STATE.read_text(encoding="utf-8"))
+    sleep_status, required_reasons, recommended_reasons = sleep_readiness(state, stale_ids)
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     lines = [
@@ -128,11 +186,13 @@ def main() -> None:
         "",
         f"- Generated: {now}",
         f"- Current mode: {state.get('mode', 'unknown')}",
+        f"- Sleep status: **{sleep_status}**",
         "",
         "## Baseline Metrics",
         f"- Preamble readability: **{preamble_status}** ({preamble_chars} chars, target < 5000)",
         f"- Mirror freshness coverage: **{fresh}/{total} = {coverage:.1f}%** with `Last evidence` < 14 days",
         f"- Prompt drift alerts: **{len(overall_drift)}**",
+        f"- Sleep pressure signals: **{len(required_reasons)} required / {len(recommended_reasons)} recommended**",
         "",
         "## Details",
         "",
@@ -155,12 +215,23 @@ def main() -> None:
     else:
         lines.append("- No drift detected across current shared invariants.")
 
+    lines.extend(["", "### Sleep readiness"])
+    if required_reasons:
+        lines.append(f"- Required: {', '.join(required_reasons)}")
+    else:
+        lines.append("- Required: none")
+    if recommended_reasons:
+        lines.append(f"- Recommended: {', '.join(recommended_reasons)}")
+    else:
+        lines.append("- Recommended: none")
+
     lines.extend(
         [
             "",
             "## Interpretation",
             "- This file is the observability baseline for future self-system changes.",
             "- If CONTINUITY or POLICY changes do not improve these metrics, the added structure is probably noise.",
+            f"- Current sleep verdict: `{sleep_status}`.",
             "",
         ]
     )

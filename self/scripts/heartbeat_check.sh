@@ -17,6 +17,7 @@ PAUSE_FILE="$SELF_DIR/.paused"
 BUDGET_FILE="$SELF_DIR/.budget_today"
 TODAY=$(date +%Y-%m-%d)
 DAILY_LOG="$SELF_DIR/logs/daily/$TODAY.md"
+CONTINUITY="$SELF_DIR/CONTINUITY.md"
 
 # --- PAUSE CHECK ---
 if [ -f "$PAUSE_FILE" ]; then
@@ -55,6 +56,79 @@ if [ ! -d "$SELF_DIR/logs/daily" ]; then
 fi
 if [ ! -f "$SELF_DIR/predictions.csv" ]; then
     echo "WARNING: self/predictions.csv symlink broken" >> "$DAILY_LOG"
+fi
+
+# --- SLEEP PRESSURE CHECK ---
+SLEEP_SIGNAL=$(python3 - <<'PY'
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+
+root = Path("/Users/cc/Desktop/Claude/a/moreau-arena-paper/self")
+state = json.loads((root / "state.json").read_text(encoding="utf-8"))
+reflect = json.loads((root / "state_reflect.json").read_text(encoding="utf-8"))
+mirror = (root / "mirror.md").read_text(encoding="utf-8")
+sleep = state.get("sleep", {})
+budget = int(state.get("open_threads_budget", 7))
+threads = len(reflect.get("open_threads", []))
+chain = state.get("chain_tracking", {})
+chain_len = int(chain.get("current_chain_length", 0))
+chain_max = int(chain.get("max_chain_length", 999))
+stale_threshold = int(sleep.get("stale_hypothesis_threshold", 3))
+preamble_limit = int(sleep.get("preamble_max_chars", 5000))
+continuity_limit = int(sleep.get("continuity_max_age_hours", 12))
+
+stale = 0
+inside = False
+for line in mirror.splitlines():
+    if line.startswith("## Active Hypotheses"):
+        inside = True
+        continue
+    if inside and line.startswith("## "):
+        break
+    if inside and "TTL status:" in line and ("STALE" in line or "EXPIRED" in line):
+        stale += 1
+
+preamble_chars = len((root / "preamble.md").read_text(encoding="utf-8"))
+cont_age = 0.0
+cont = root / "CONTINUITY.md"
+if cont.exists():
+    modified = datetime.fromtimestamp(cont.stat().st_mtime, tz=timezone.utc)
+    cont_age = max(0.0, (datetime.now(timezone.utc) - modified).total_seconds() / 3600.0)
+
+required = []
+recommended = []
+if threads > budget:
+    required.append(f"open_threads_exceeded:{threads}/{budget}")
+elif threads == budget and budget > 0:
+    recommended.append(f"thread_budget_full:{threads}/{budget}")
+if chain_len >= chain_max and chain_max > 0:
+    required.append(f"chain_saturated:{chain_len}/{chain_max}")
+if stale >= stale_threshold:
+    required.append(f"stale_hypotheses:{stale}/{stale_threshold}")
+if preamble_chars > preamble_limit:
+    required.append(f"preamble_too_long:{preamble_chars}>{preamble_limit}")
+if cont_age > continuity_limit:
+    required.append(f"continuity_stale:{cont_age:.1f}h>{continuity_limit}h")
+
+if required:
+    print("required|" + ",".join(required))
+elif recommended:
+    print("recommended|" + ",".join(recommended))
+else:
+    print("ok|")
+PY
+)
+
+SLEEP_LEVEL="${SLEEP_SIGNAL%%|*}"
+SLEEP_REASONS="${SLEEP_SIGNAL#*|}"
+if [ "$SLEEP_LEVEL" = "required" ]; then
+    echo "ESCALATE: sleep_required — $SLEEP_REASONS" >> "$DAILY_LOG"
+    echo "ESCALATE: sleep_required — $SLEEP_REASONS"
+    exit 1
+fi
+if [ "$SLEEP_LEVEL" = "recommended" ]; then
+    echo "NOTICE: sleep_recommended — $SLEEP_REASONS" >> "$DAILY_LOG"
 fi
 
 # --- COOLDOWN CHECK (30 min) ---
