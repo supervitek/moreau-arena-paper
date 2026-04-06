@@ -41,10 +41,16 @@ PY
 
 if [ "$SLEEP_STATE" = "sleep_prep" ] || [ "$SLEEP_STATE" = "dream" ]; then
     echo "[$NOW] Circuit B redirected to DREAM due to sleep state: $SLEEP_STATE." >> "$LOG_DIR/$TODAY.md"
-    python3 "$SELF_DIR/scripts/dream_cycle.py" >> "$LOG_DIR/$TODAY.md" 2>&1
-    python3 "$SELF_DIR/scripts/refresh_continuity.py" >> "$LOG_DIR/$TODAY.md" 2>&1 || true
-    echo "[$NOW] Circuit B DREAM cycle complete." >> "$LOG_DIR/$TODAY.md"
-    exit 0
+    if python3 "$SELF_DIR/scripts/dream_cycle.py" >> "$LOG_DIR/$TODAY.md" 2>&1; then
+        python3 "$SELF_DIR/scripts/wake_transition.py" >> "$LOG_DIR/$TODAY.md" 2>&1 || true
+        python3 "$SELF_DIR/scripts/refresh_continuity.py" >> "$LOG_DIR/$TODAY.md" 2>&1 || true
+        echo "[$NOW] Circuit B DREAM cycle complete." >> "$LOG_DIR/$TODAY.md"
+        exit 0
+    else
+        python3 "$SELF_DIR/scripts/refresh_continuity.py" >> "$LOG_DIR/$TODAY.md" 2>&1 || true
+        echo "[$NOW] Circuit B DREAM cycle FAILED — system left in recovery." >> "$LOG_DIR/$TODAY.md"
+        exit 1
+    fi
 fi
 
 python3 - <<'PY'

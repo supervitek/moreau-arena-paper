@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import re
+import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 from subprocess import run
@@ -47,6 +48,22 @@ def append_sleep_log(previous: str, current: str, wake_with: str) -> None:
         )
 
 
+def append_failure_log(previous: str, error_text: str) -> None:
+    if not SLEEP_LOG.exists():
+        SLEEP_LOG.write_text(
+            "# Sleep Log\n\nAuto-generated transition log for the self-system.\nThis is an audit trail, not a diary.\n\n",
+            encoding="utf-8",
+        )
+    with SLEEP_LOG.open("a", encoding="utf-8") as handle:
+        handle.write(
+            f"- {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')} | {previous} -> recovery\n"
+            "  - forced: no\n"
+            "  - hard_triggers: dream_failure\n"
+            "  - soft_triggers: none\n"
+            f"  - error: {error_text}\n"
+        )
+
+
 def choose_wake_with(state: dict, reflect_state: dict, stale: list[str]) -> str:
     handoff = reflect_state.get("sleep_handoff", {})
     must_close = handoff.get("must_close") or []
@@ -62,6 +79,27 @@ def choose_wake_with(state: dict, reflect_state: dict, stale: list[str]) -> str:
     if must_summarize:
         return f"Use the last closed chain as the first wake anchor: {must_summarize[0]}"
     return state.get("next_task") or reflect_state.get("next_action") or "Wake quietly and prefer one closure over new opening."
+
+
+def enter_recovery(state: dict, reflect_state: dict, previous_sleep_state: str, error_text: str) -> None:
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    state["mode"] = "recovery"
+    sleep = state.setdefault("sleep", {})
+    sleep["state"] = "recovery"
+    sleep["sleep_pressure"] = max(1, int(sleep.get("sleep_pressure", 0)))
+    sleep["last_transition_at"] = now
+    sleep["last_health_status"] = "dream_failed"
+    sleep["last_sleep_reason"] = f"dream_failure:{error_text}"
+    state["last_updated"] = now
+    state["last_updated_by"] = "dream_cycle_recovery"
+    state["next_task"] = f"Recovery required: inspect dream failure and restore continuity before further reflection. ({error_text})"
+    reflect_state.setdefault("sleep_handoff", {})
+    reflect_state["sleep_handoff"]["wake_with"] = state["next_task"]
+    reflect_state["last_updated"] = now
+    reflect_state["last_updated_by"] = "dream_cycle_recovery"
+    STATE.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    REFLECT_STATE.write_text(json.dumps(reflect_state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    append_failure_log(previous_sleep_state, error_text)
 
 
 def main() -> None:
@@ -80,92 +118,116 @@ def main() -> None:
     if not sleep.get("last_sleep_start"):
         sleep["last_sleep_start"] = sleep["last_transition_at"]
     STATE.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    try:
+        run(
+            ["python3", str(ROOT / "scripts/index_thinking.py")],
+            check=True,
+        )
+        run(
+            ["python3", str(ROOT / "scripts/health_metrics.py")],
+            check=True,
+        )
+        run(
+            ["python3", str(ROOT / "scripts/refresh_continuity.py")],
+            check=True,
+        )
+        state = json.loads(STATE.read_text())
+        reflect_state = json.loads(REFLECT_STATE.read_text())
+        mirror_text = MIRROR.read_text(encoding="utf-8")
 
-    run(
-        ["python3", str(ROOT / "scripts/index_thinking.py")],
-        check=True,
-    )
-    run(
-        ["python3", str(ROOT / "scripts/health_metrics.py")],
-        check=True,
-    )
-    run(
-        ["python3", str(ROOT / "scripts/refresh_continuity.py")],
-        check=True,
-    )
-    state = json.loads(STATE.read_text())
-    reflect_state = json.loads(REFLECT_STATE.read_text())
-    mirror_text = MIRROR.read_text(encoding="utf-8")
+        chain_history = state.get("chain_tracking", {}).get("chain_history", [])
+        stale = stale_hypotheses(mirror_text)
+        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        wake_with = choose_wake_with(state, reflect_state, stale)
 
-    chain_history = state.get("chain_tracking", {}).get("chain_history", [])
-    stale = stale_hypotheses(mirror_text)
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    wake_with = choose_wake_with(state, reflect_state, stale)
+        sleep = state.setdefault("sleep", {})
+        sleep["dream_cycles_completed"] = int(sleep.get("dream_cycles_completed", 0)) + 1
+        sleep["last_transition_at"] = now
+        sleep["last_health_status"] = "ok"
+        reflect_state.setdefault("sleep_handoff", {})
+        reflect_state["sleep_handoff"] = {
+            "must_close": reflect_state["sleep_handoff"].get("must_close", []),
+            "must_park": reflect_state["sleep_handoff"].get("must_park", []),
+            "must_summarize": reflect_state["sleep_handoff"].get("must_summarize", []),
+            "wake_with": wake_with,
+        }
+        reflect_state["last_updated"] = now
+        reflect_state["last_updated_by"] = "dream_cycle"
+        state["last_updated"] = now
+        state["last_updated_by"] = "dream_cycle"
+        STATE.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        REFLECT_STATE.write_text(json.dumps(reflect_state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
-    sleep = state.setdefault("sleep", {})
-    sleep["dream_cycles_completed"] = int(sleep.get("dream_cycles_completed", 0)) + 1
-    sleep["last_transition_at"] = now
-    sleep["last_health_status"] = "ok"
-    reflect_state.setdefault("sleep_handoff", {})
-    reflect_state["sleep_handoff"] = {
-        "must_close": reflect_state["sleep_handoff"].get("must_close", []),
-        "must_park": reflect_state["sleep_handoff"].get("must_park", []),
-        "must_summarize": reflect_state["sleep_handoff"].get("must_summarize", []),
-        "wake_with": wake_with,
-    }
-    reflect_state["last_updated"] = now
-    reflect_state["last_updated_by"] = "dream_cycle"
-    state["last_updated"] = now
-    state["last_updated_by"] = "dream_cycle"
-    STATE.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    REFLECT_STATE.write_text(json.dumps(reflect_state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-
-    lines = [
-        "# Dream Cycle Report",
-        "",
-        f"- Generated: {now}",
-        f"- Entered from sleep state: {previous_sleep_state}",
-        f"- Current chain root: {state.get('chain_tracking', {}).get('current_chain_root', 'null')}",
-        f"- Current chain length: {state.get('chain_tracking', {}).get('current_chain_length', 0)}",
-        f"- Closed chains recorded: {len(chain_history)}",
-        f"- Reflection count: {reflect_state.get('stats', {}).get('total_reflections', 0)}",
-        "",
-        "## Closed Chains",
-    ]
-    if chain_history:
-        for entry in chain_history[-10:]:
-            lines.append(
-                f"- {entry.get('root', '?')}: length={entry.get('length', '?')}, "
-                f"status={entry.get('status', '?')}, summary={entry.get('summary', '')}"
-            )
-    else:
-        lines.append("- None recorded yet.")
-
-    lines.extend(["", "## Stale Hypotheses"])
-    if stale:
-        for hypothesis in stale:
-            lines.append(f"- {hypothesis}")
-    else:
-        lines.append("- None.")
-
-    lines.extend(
-        [
+        lines = [
+            "# Dream Cycle Report",
             "",
-            "## Actions Performed",
-            "- Refreshed `self/thinking/INDEX.md`.",
-            "- Refreshed `self/docs/health_baseline.md`.",
-            "- Refreshed `self/CONTINUITY.md`.",
-            "- Reviewed chain history from `state.json`.",
-            "- Reviewed TTL statuses from `mirror.md`.",
+            f"- Generated: {now}",
+            f"- Entered from sleep state: {previous_sleep_state}",
+            f"- Current chain root: {state.get('chain_tracking', {}).get('current_chain_root', 'null')}",
+            f"- Current chain length: {state.get('chain_tracking', {}).get('current_chain_length', 0)}",
+            f"- Closed chains recorded: {len(chain_history)}",
+            f"- Reflection count: {reflect_state.get('stats', {}).get('total_reflections', 0)}",
             "",
-            "## Wake With",
-            f"- {wake_with}",
+            "## Closed Chains",
+        ]
+        if chain_history:
+            for entry in chain_history[-10:]:
+                lines.append(
+                    f"- {entry.get('root', '?')}: length={entry.get('length', '?')}, "
+                    f"status={entry.get('status', '?')}, summary={entry.get('summary', '')}"
+                )
+        else:
+            lines.append("- None recorded yet.")
+
+        lines.extend(["", "## Stale Hypotheses"])
+        if stale:
+            for hypothesis in stale:
+                lines.append(f"- {hypothesis}")
+        else:
+            lines.append("- None.")
+
+        lines.extend(
+            [
+                "",
+                "## Actions Performed",
+                "- Refreshed `self/thinking/INDEX.md`.",
+                "- Refreshed `self/docs/health_baseline.md`.",
+                "- Refreshed `self/CONTINUITY.md`.",
+                "- Reviewed chain history from `state.json`.",
+                "- Reviewed TTL statuses from `mirror.md`.",
+                "",
+                "## Wake With",
+                f"- {wake_with}",
+                "",
+            ]
+        )
+        REPORT.write_text("\n".join(lines), encoding="utf-8")
+        append_sleep_log(previous_sleep_state, "dream", wake_with)
+        print(REPORT)
+    except Exception as exc:
+        error_text = f"{type(exc).__name__}: {exc}"
+        enter_recovery(state, reflect_state, previous_sleep_state, error_text)
+        failure_lines = [
+            "# Dream Cycle Report",
+            "",
+            f"- Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')}",
+            f"- Entered from sleep state: {previous_sleep_state}",
+            "- Outcome: FAILURE",
+            f"- Error: {error_text}",
+            "",
+            "## Traceback",
+            "```text",
+            traceback.format_exc().rstrip(),
+            "```",
+            "",
+            "## Recovery",
+            "- sleep.state set to `recovery`.",
+            "- continuity preserved for manual inspection.",
+            "- expansion should remain blocked until recovery is acknowledged.",
             "",
         ]
-    )
-    REPORT.write_text("\n".join(lines), encoding="utf-8")
-    append_sleep_log(previous_sleep_state, "dream", wake_with)
-    print(REPORT)
+        REPORT.write_text("\n".join(failure_lines), encoding="utf-8")
+        raise SystemExit(error_text)
 
 
 if __name__ == "__main__":

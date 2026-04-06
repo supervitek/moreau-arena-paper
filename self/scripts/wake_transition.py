@@ -60,6 +60,9 @@ def main() -> None:
     sleep["last_transition_at"] = now_utc()
     sleep["last_health_status"] = "ok" if target == "awake" else sleep.get("last_health_status", "ok")
     state["mode"] = "quiet" if target == "awake" else "wake"
+    sleep["last_sleep_reason"] = None if target == "awake" else sleep.get("last_sleep_reason")
+    if target == "awake":
+        sleep["sleep_pressure"] = 0
 
     wake_with = reflect.get("sleep_handoff", {}).get("wake_with")
     if wake_with and not wake_with.startswith("forced:"):
@@ -81,14 +84,21 @@ def main() -> None:
         lines = CONTINUITY.read_text(encoding="utf-8").splitlines()
         updated = []
         replaced = False
+        wake_inserted = False
         for line in lines:
             if line.startswith("- Mode: "):
                 updated.append(f"- Mode: {state.get('mode', 'unknown')} | sleep: {target}")
                 replaced = True
+            elif line == "## For next wave" and wake_with:
+                updated.extend(["## Wake note", f"- {wake_with}", ""])
+                updated.append(line)
+                wake_inserted = True
             else:
                 updated.append(line)
         if not replaced:
             updated.extend(["", "## Wake note", f"- sleep state: {target}"])
+        elif wake_with and not wake_inserted:
+            updated.extend(["", "## Wake note", f"- {wake_with}"])
         CONTINUITY.write_text("\n".join(updated) + "\n", encoding="utf-8")
 
     save_json(STATE, state)
