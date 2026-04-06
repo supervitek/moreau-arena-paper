@@ -59,8 +59,7 @@ def main() -> None:
     sleep["last_sleep_end"] = now_utc()
     sleep["last_transition_at"] = now_utc()
     sleep["last_health_status"] = "ok" if target == "awake" else sleep.get("last_health_status", "ok")
-    if previous == "dream":
-        sleep["dream_cycles_completed"] = int(sleep.get("dream_cycles_completed", 0)) + 1
+    state["mode"] = "quiet" if target == "awake" else "wake"
 
     wake_with = reflect.get("sleep_handoff", {}).get("wake_with")
     if wake_with and not wake_with.startswith("forced:"):
