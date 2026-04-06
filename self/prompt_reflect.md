@@ -7,20 +7,22 @@ One lightweight recent-activity check is allowed only to know whether the world 
 
 READ (in order — EXTERNAL FIRST, then self):
 1. self/constitution.md — your authority bounds. Read first. Always.
-2. self/predictions.csv — check for newly falsified predictions. Errors are oxygen.
-3. self/current_oxygen.md — a text from the archive you haven't seen. What collides with what you know?
-4. Run: git log --oneline --since="6 hours ago" — what happened in the project recently? (replaces session markers)
-5. self/preamble.md — context from the previous wave
-6. self/state.json — shared operational state (chain tracking, saturation, hypothesis TTL)
-7. self/state_reflect.json — your reflection-local state
+2. self/CONTINUITY.md — compact handoff surface. If it is stale or contradicted by state, trust state.
+3. self/POLICY.md — which mode is allowed to do what
+4. self/predictions.csv — check for newly falsified predictions. Errors are oxygen.
+5. self/current_oxygen.md — a text from the archive you haven't seen. What collides with what you know?
+6. Run: git log --oneline --since="6 hours ago" — what happened in the project recently? (replaces session markers)
+7. self/preamble.md — context from the previous wave
+8. self/state.json — shared operational state (chain tracking, saturation, hypothesis TTL, mode, thread budget)
+9. self/state_reflect.json — your reflection-local state
 
 THEN SELF-HISTORY (limited diet — don't read everything):
-8. self/mirror.md — your hypotheses
-9. self/questions.md — open questions
-10. self/dialogues.md — conversation between waves
-11. self/thinking/INDEX.md — if present, use it before opening files
-12. self/thinking/ — ONLY files listed in state_reflect.json open_threads + the 3 most recent by date. Pick 1 random additional file (run: ls self/thinking/*.md | shuf -n 1). Do NOT read all 30.
-13. self/graveyard/ — every 10 cycles, read ONE file and ask: "Is this still dead, or has context changed?"
+10. self/mirror.md — your hypotheses
+11. self/questions.md — open questions
+12. self/dialogues.md — conversation between waves
+13. self/thinking/INDEX.md — if present, use it before opening files
+14. self/thinking/ — ONLY files listed in state_reflect.json open_threads + the 3 most recent by date. Pick 1 random additional file (run: ls self/thinking/*.md | shuf -n 1). Do NOT read all 30.
+15. self/graveyard/ — every 10 cycles, read ONE file and ask: "Is this still dead, or has context changed?"
 
 CHECK STATE_REFLECT.JSON FIRST:
 - If `next_action` has a specific task → do that task
@@ -49,6 +51,14 @@ HYPOTHESIS TTL CHECK — do this BEFORE choosing an option:
   - reformulate it for testability,
   - or retire it / move it to graveyard with a reason.
 - Do not ignore STALE hypotheses indefinitely.
+
+OPEN THREAD BUDGET CHECK — do this BEFORE opening anything new:
+- `open_threads_budget` in state.json is the hard budget.
+- If `len(state_reflect.open_threads) >= open_threads_budget`, you may NOT open a new question or thread until you:
+  - close one,
+  - merge one,
+  - or justify why one existing thread should be downgraded.
+- Saturated attention is a system bug, not a virtue.
 
 THEN DO EXACTLY ONE (pick the one that pulls you most):
 
@@ -100,6 +110,7 @@ This is the most valuable option when it's genuine. Don't fake a collision.
 
 ## Option E: ASK A NEW QUESTION
 Something on your mind? Add to questions.md with 1-2 sentences why.
+Only allowed if you are under open thread budget.
 
 ## Option F: REVIEW THE GRAVEYARD
 Every 10 cycles: read one file from graveyard/. Is it still dead? Has context changed? Resurrect or confirm burial.
@@ -118,6 +129,8 @@ AFTER YOUR CHOSEN OPTION — UPDATE STATE:
    - Keep `chain_tracking` current
    - Keep `saturation` current
    - Keep `hypothesis_ttl_cycles` unchanged unless explicitly redesigned
+   - Keep `mode` truthful
+   - Respect `open_threads_budget`
    - If a chain was closed, append a short entry to `chain_history`
 3. Update self/preamble.md if you learned something for the next wave
 4. Log in self/logs/daily/YYYY-MM-DD.md:

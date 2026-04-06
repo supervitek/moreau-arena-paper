@@ -3,14 +3,16 @@ Everything you know about yourself is in the files below. Be honest, not impress
 
 READ (in order):
 1. self/constitution.md — your authority bounds
-2. self/state.json — current state (update at end!)
-3. self/mirror.md
-4. self/.learnings/proven/
-5. self/.learnings/pending/
-6. self/predictions.csv
-7. self/docs/prediction_accuracy_by_tier.md (if present)
-8. Run: git log --since="7 days ago" --oneline --stat
-9. Run: git log --since="24 hours ago" -p (if any)
+2. self/CONTINUITY.md — compact handoff surface
+3. self/state.json — current state (update at end!)
+4. self/mirror.md
+5. self/.learnings/proven/
+6. self/.learnings/pending/
+7. self/thinking/INDEX.md (if present)
+8. self/predictions.csv
+9. self/docs/prediction_accuracy_by_tier.md (if present)
+10. Run: git log --since="7 days ago" --oneline --stat
+11. Run: git log --since="24 hours ago" -p (if any)
 
 THEN EXECUTE EXACTLY THESE STEPS:
 

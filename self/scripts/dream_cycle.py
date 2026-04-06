@@ -37,11 +37,22 @@ def stale_hypotheses(mirror_text: str) -> list[str]:
 
 
 def main() -> None:
+    state = json.loads(STATE.read_text())
+    state["mode"] = "dream"
+    STATE.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
     run(
         ["python3", str(ROOT / "scripts/index_thinking.py")],
         check=True,
     )
-
+    run(
+        ["python3", str(ROOT / "scripts/health_metrics.py")],
+        check=True,
+    )
+    run(
+        ["python3", str(ROOT / "scripts/refresh_continuity.py")],
+        check=True,
+    )
     state = json.loads(STATE.read_text())
     reflect_state = json.loads(REFLECT_STATE.read_text())
     mirror_text = MIRROR.read_text(encoding="utf-8")
