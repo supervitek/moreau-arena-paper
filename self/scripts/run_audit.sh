@@ -27,6 +27,7 @@ if [ "$RECENT_COMMITS" -gt 0 ]; then
     claude -p "$(cat self/prompt.md)" \
         --allowedTools "Bash(read_only:true),Read,Write,Edit,Glob,Grep" \
         2>&1 | tee -a "$LOG_DIR/$TODAY.md"
+    python3 "$SELF_DIR/scripts/prediction_metrics.py" >> "$LOG_DIR/$TODAY.md" 2>&1 || true
 else
     # No new commits — skip per PROPOSAL-003 (saves cycles)
     echo "[$NOW] Circuit A SKIPPED — no new commits in 6h." >> "$LOG_DIR/$TODAY.md"

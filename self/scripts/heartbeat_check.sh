@@ -50,6 +50,12 @@ fi
 if [ ! -d "$SELF_DIR/thinking" ]; then
     echo "WARNING: self/thinking symlink broken" >> "$DAILY_LOG"
 fi
+if [ ! -d "$SELF_DIR/logs/daily" ]; then
+    echo "WARNING: self/logs/daily symlink broken" >> "$DAILY_LOG"
+fi
+if [ ! -f "$SELF_DIR/predictions.csv" ]; then
+    echo "WARNING: self/predictions.csv symlink broken" >> "$DAILY_LOG"
+fi
 
 # --- COOLDOWN CHECK (30 min) ---
 if [ -f "$COOLDOWN_FILE" ]; then

@@ -73,6 +73,8 @@ self/state_reflect.json
 self/COMPLETE_ARCHIVE_FOR_COUNCIL.md
 self/REVIEW.md
 self/scripts/backup.log
+self/scripts/backup.launchd.err.log
+self/scripts/backup.launchd.out.log
 
 # Local research sidecars moved to sibling vault
 Agent.md

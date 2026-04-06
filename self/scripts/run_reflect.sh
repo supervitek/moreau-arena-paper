@@ -36,4 +36,6 @@ $(cat self/prompt_reflect.md)" \
     --allowedTools "Bash(read_only:true),Read,Write,Edit,Glob,Grep" \
     2>&1 | tee -a "$LOG_DIR/$TODAY.md"
 
+python3 "$SELF_DIR/scripts/index_thinking.py" >> "$LOG_DIR/$TODAY.md" 2>&1 || true
+
 echo "[$NOW] Circuit B REFLECT cycle complete." >> "$LOG_DIR/$TODAY.md"

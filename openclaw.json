@@ -28,7 +28,8 @@
   "sandbox": {
     "workdir": "/Users/cc/Desktop/Claude/a/moreau-arena-paper",
     "allowedPaths": [
-      "/Users/cc/Desktop/Claude/a/moreau-arena-paper/self/"
+      "/Users/cc/Desktop/Claude/a/moreau-arena-paper/self/",
+      "/Users/cc/Desktop/Claude/a/moreau-self-vault/"
     ]
   },
 

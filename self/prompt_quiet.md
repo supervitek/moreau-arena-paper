@@ -5,11 +5,12 @@ READ (in order):
 1. self/constitution.md — authority bounds
 2. self/state.json — current state (update at end!)
 3. self/mirror.md
-3. self/predictions.csv
-4. self/.learnings/pending/ (all files)
-5. self/.learnings/proven/ (all files)
-6. self/thinking/ (all files)
-7. self/experiments/ (all files)
+4. self/predictions.csv
+5. self/docs/prediction_accuracy_by_tier.md (if present)
+6. self/.learnings/pending/ (all files)
+7. self/.learnings/proven/ (all files)
+8. self/thinking/INDEX.md (if present)
+9. self/experiments/ (all files)
 
 THEN DO EXACTLY ONE of these tasks (pick the highest priority that applies):
 
@@ -18,7 +19,8 @@ If predictions.csv has rows with result="pending" that are older than 24h:
 - Run the verification_command
 - Update result to 1 (correct) or 0 (wrong)
 - Add notes explaining why
-- If 7-day accuracy drops below 60%, write a warning in mirror.md
+- Run `python3 self/scripts/prediction_metrics.py`
+- If Tier 1 + Tier 2 accuracy drops below 60%, write a warning in mirror.md
 
 ## Priority 2: PROMOTE OR PRUNE LEARNINGS
 Check self/.learnings/pending/ for any learning with 3+ evidence citations:
@@ -43,7 +45,8 @@ Check council_records/ for files newer than the last entry in self/logs/daily/:
 If none of the above applied, make one prediction about the next session:
 - What will Victor likely work on?
 - What mistake from past sessions might recur?
-- Add to predictions.csv
+- Add to predictions.csv with a required `tier` value
+- Prefix/phase/timing predictions default to Tier 4
 
 RULES:
 - Do exactly ONE task, not all of them
@@ -51,3 +54,4 @@ RULES:
 - If nothing meaningful to do, write "QUIET NULL" in log and stop
 - Never modify project code, only self/ files
 - Never modify ~/.claude/rules/ directly
+- Do not add predictions without a tier

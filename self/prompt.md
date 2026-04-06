@@ -5,19 +5,22 @@ READ (in order):
 1. self/constitution.md — your authority bounds
 2. self/state.json — current state (update at end!)
 3. self/mirror.md
-3. self/.learnings/proven/
-4. self/.learnings/pending/
-5. self/predictions.csv
-6. Run: git log --since="7 days ago" --oneline --stat
-7. Run: git log --since="24 hours ago" -p (if any)
+4. self/.learnings/proven/
+5. self/.learnings/pending/
+6. self/predictions.csv
+7. self/docs/prediction_accuracy_by_tier.md (if present)
+8. Run: git log --since="7 days ago" --oneline --stat
+9. Run: git log --since="24 hours ago" -p (if any)
 
 THEN EXECUTE EXACTLY THESE STEPS:
 
 ## 1. VERIFY PREDICTIONS
 Check any pending predictions in predictions.csv that have verification_command.
 Run the command. Record result (1=correct, 0=wrong) in predictions.csv.
-If 7-day accuracy < 60%, flag it in mirror.md as "prediction quality declining."
-If 7-day accuracy > 90% with 5+ predictions, flag it as "predictions too safe — increase difficulty."
+Then run `python3 self/scripts/prediction_metrics.py` to refresh tier metrics.
+Main accuracy is computed from Tier 1 + Tier 2 only.
+If Tier 1 + Tier 2 accuracy < 60%, flag it in mirror.md as "prediction quality declining."
+If Tier 1 + Tier 2 accuracy > 90% with 5+ scored predictions, flag it as "predictions too safe — increase difficulty."
 
 ## 2. OBSERVE (evidence only)
 Identify ONE concrete pattern from the git diffs, commit messages, or file changes.
@@ -40,13 +43,24 @@ e) NONE — if no action is justified, say so
 
 ## 5. PREDICT
 Add one row to predictions.csv:
-timestamp, prediction, verification_command, result (leave as "pending"), notes
+timestamp, prediction, verification_command, result (leave as "pending"), notes, tier
+
+Rules for new predictions:
+- You MUST assign a tier:
+  - Tier 1 = structural invariant
+  - Tier 2 = conditional/pattern prediction
+  - Tier 3 = temporal/regime-sensitive prediction
+  - Tier 4 = exploratory
+- Prefix/phase/timing predictions default to Tier 4 unless you can justify otherwise.
+- Include `P(regime_change)=X%` in notes before making a narrow domain prediction.
+- Include a short kill scenario in notes: what event would make this prediction meaningless?
 
 ## 6. LOG
 Append a timestamped entry to self/logs/daily/YYYY-MM-DD.md with:
 - What evidence was found (or NULL)
 - What action was taken (or NONE)
 - What prediction was made
+- What tier it was assigned
 
 ## 7. UPDATE STATE
 Update self/state.json:
@@ -62,3 +76,4 @@ RULES:
 - If unsure, choose NONE. A null cycle is better than a fake one.
 - Maximum output: 500 words. Brevity is a feature.
 - You have the RIGHT TO SILENCE. If nothing new, exit clean.
+- Do not add predictions without a tier.

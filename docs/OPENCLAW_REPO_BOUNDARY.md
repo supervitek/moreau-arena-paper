@@ -43,3 +43,13 @@ or `.openclaw/workspace-state.json`).
 
 That keeps the working tree clean without tearing apart the live self/OpenClaw
 ecosystem.
+
+## Backup reinstall on a new machine
+
+The live hourly state backup is installed locally through LaunchAgent.
+To recreate it on a new machine:
+
+1. Open [`self/scripts/launchagent.plist.template`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/self/scripts/launchagent.plist.template)
+2. Replace `__REPO_ROOT__` with the absolute repo path
+3. Copy it to `~/Library/LaunchAgents/com.moreau.self.backup.plist`
+4. Run `launchctl load ~/Library/LaunchAgents/com.moreau.self.backup.plist`
