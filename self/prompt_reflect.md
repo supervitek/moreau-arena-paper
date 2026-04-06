@@ -29,6 +29,21 @@ CHECK STATE_REFLECT.JSON FIRST:
 - If `consecutive_no_oxygen >= 5` → Option D (Oxygen Collision) is MANDATORY this cycle, not optional. Increment the counter after doing it, then reset on true collision.
 - If both are null → pick from the options below
 
+SLEEP CHECK — this takes precedence over option selection:
+- Read `sleep.state` from `self/state.json`.
+- If `sleep.state == tired`:
+  - this is a pressure-reduction cycle, not a growth cycle
+  - Option E (Ask a New Question) is forbidden
+  - Option D (Collide With Oxygen) is allowed only if it directly resolves an active urgent thread or `next_action` explicitly requires it
+  - prefer closure, merge, synthesis, reactivation, or NULL over expansion
+  - if you extend a thread, the work must reduce pressure, not create a new branch
+- If `sleep.state == sleep_prep` or `sleep.state == dream`:
+  - do not perform normal reflection
+  - runtime should route this cycle into dream/consolidation instead
+- If `sleep.state == recovery`:
+  - no expansion
+  - prefer repair, continuity, and explicit acknowledgement of failure state
+
 SATURATION CHECK — do this BEFORE choosing an option:
 - Read `chain_tracking` and `saturation` from `self/state.json`.
 - If `current_chain_length >= max_chain_length`:
@@ -110,7 +125,7 @@ This is the most valuable option when it's genuine. Don't fake a collision.
 
 ## Option E: ASK A NEW QUESTION
 Something on your mind? Add to questions.md with 1-2 sentences why.
-Only allowed if you are under open thread budget.
+Only allowed if you are under open thread budget and `sleep.state == awake`.
 
 ## Option F: REVIEW THE GRAVEYARD
 Every 10 cycles: read one file from graveyard/. Is it still dead? Has context changed? Resurrect or confirm burial.
@@ -148,3 +163,4 @@ RULES:
 - RIGHT TO SILENCE. Null is honest. Use it.
 - External collision > internal continuation. But only if genuine.
 - New questions are allowed, but not when a chain is already over budget.
+- In `tired`, reducing pressure beats making progress look impressive.

@@ -186,6 +186,9 @@ def main() -> None:
     previous = state["sleep"].get("state", "awake")
     if args.force:
         target, hard, soft = args.force, [f"forced:{args.force}"], []
+    elif previous in {"sleep_prep", "dream", "recovery"}:
+        target = previous
+        hard, soft = [], []
     else:
         target, hard, soft = compute_transition(state, reflect)
 

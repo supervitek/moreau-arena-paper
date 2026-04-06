@@ -39,6 +39,11 @@ def stale_hypotheses(mirror_text: str) -> list[str]:
 def main() -> None:
     state = json.loads(STATE.read_text())
     state["mode"] = "dream"
+    sleep = state.setdefault("sleep", {})
+    sleep["state"] = "dream"
+    sleep["last_transition_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    if not sleep.get("last_sleep_start"):
+        sleep["last_sleep_start"] = sleep["last_transition_at"]
     STATE.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     run(
