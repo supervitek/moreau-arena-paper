@@ -118,6 +118,42 @@ def continuity_age_hours() -> float:
     return max(0.0, (datetime.now(timezone.utc) - modified).total_seconds() / 3600.0)
 
 
+def thinking_texture_ratios() -> tuple[dict[str, int], int]:
+    # Mirror, not KPI:
+    # this exists to catch texture death, not to optimize toward a target ratio.
+    #
+    # Named failure mode:
+    # if janitor-like maintenance starts dominating while other health signals stay green,
+    # the system can look stable while becoming obedient and dead.
+    #
+    # Threshold hypothesis for observation only:
+    # janitor_ratio > 0.60 across the recent slice is suspicious enough to inspect manually,
+    # not enough to drive automatic enforcement.
+    counts = {"new_property": 0, "refinement": 0, "reframe": 0, "janitor_like": 0}
+    files = sorted((ROOT / "thinking").glob("*.md"), key=lambda p: p.stat().st_mtime, reverse=True)[:20]
+    for path in files:
+        text = path.read_text(encoding="utf-8")
+        class_match = re.search(r"- type:\s*(new_property|refinement|reframe|return_to_root)", text)
+        if class_match:
+            label = class_match.group(1)
+            if label in counts:
+                counts[label] += 1
+        lower = text.lower()
+        if any(token in lower for token in ("close ", "merge ", "retire ", "park ", "triage ", "cleanup", "pressure reduction")):
+            counts["janitor_like"] += 1
+    return counts, len(files)
+
+
+def recovery_state_age_hours(state: dict) -> float | None:
+    sleep = state.get("sleep", {})
+    if sleep.get("state") != "recovery":
+        return None
+    dt = parse_date(sleep.get("last_transition_at"))
+    if not dt:
+        return None
+    return max(0.0, (datetime.now(timezone.utc) - dt).total_seconds() / 3600.0)
+
+
 def sleep_readiness(state: dict, stale_ids: list[str]) -> tuple[str, list[str], list[str]]:
     reflect = json.loads(REFLECT.read_text(encoding="utf-8"))
     sleep = state.get("sleep", {})
@@ -160,6 +196,10 @@ def sleep_readiness(state: dict, stale_ids: list[str]) -> tuple[str, list[str], 
     if no_oxygen >= 3:
         recommended.append(f"no_real_oxygen_cycles:{no_oxygen}")
 
+    recovery_age = recovery_state_age_hours(state)
+    if recovery_age is not None and recovery_age > 24:
+        required.append(f"recovery_stuck:{recovery_age:.1f}h>24h")
+
     if required:
         return "sleep_required", required, recommended
     if recommended:
@@ -179,7 +219,13 @@ def main() -> None:
 
     state = json.loads(STATE.read_text(encoding="utf-8"))
     sleep_status, required_reasons, recommended_reasons = sleep_readiness(state, stale_ids)
+    texture_counts, texture_total = thinking_texture_ratios()
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    new_ratio = (texture_counts["new_property"] / texture_total) if texture_total else 0.0
+    refinement_ratio = (texture_counts["refinement"] / texture_total) if texture_total else 0.0
+    reframe_ratio = (texture_counts["reframe"] / texture_total) if texture_total else 0.0
+    janitor_ratio = (texture_counts["janitor_like"] / texture_total) if texture_total else 0.0
 
     lines = [
         "# Health Baseline",
@@ -193,6 +239,7 @@ def main() -> None:
         f"- Mirror freshness coverage: **{fresh}/{total} = {coverage:.1f}%** with `Last evidence` < 14 days",
         f"- Prompt drift alerts: **{len(overall_drift)}**",
         f"- Sleep pressure signals: **{len(required_reasons)} required / {len(recommended_reasons)} recommended**",
+        f"- Texture ratios (recent thinking slice): **new_property {new_ratio:.2f} / refinement {refinement_ratio:.2f} / reframe {reframe_ratio:.2f} / janitor_like {janitor_ratio:.2f}**",
         "",
         "## Details",
         "",
@@ -214,6 +261,19 @@ def main() -> None:
             lines.append(f"- {prompt_name}: missing {', '.join(missing)}")
     else:
         lines.append("- No drift detected across current shared invariants.")
+
+    lines.extend(
+        [
+            "",
+            "### Thinking texture",
+            f"- Files sampled: {texture_total}",
+            f"- new_property: {texture_counts['new_property']}",
+            f"- refinement: {texture_counts['refinement']}",
+            f"- reframe: {texture_counts['reframe']}",
+            f"- janitor_like: {texture_counts['janitor_like']}",
+            "- These are mirrors, not KPIs. Do not optimize toward them directly.",
+        ]
+    )
 
     lines.extend(["", "### Sleep readiness"])
     if required_reasons:
