@@ -64,6 +64,10 @@ def append_failure_log(previous: str, error_text: str) -> None:
         )
 
 
+def as_recommendation(text: str) -> str:
+    return f"Recommendation: {text} May refuse if a stronger local truth appears on wake."
+
+
 def choose_wake_with(state: dict, reflect_state: dict, stale: list[str]) -> str:
     handoff = reflect_state.get("sleep_handoff", {})
     must_close = handoff.get("must_close") or []
@@ -71,14 +75,17 @@ def choose_wake_with(state: dict, reflect_state: dict, stale: list[str]) -> str:
     must_summarize = handoff.get("must_summarize") or []
 
     if must_close:
-        return f"Close or merge one active thread first: {must_close[0]}"
+        return as_recommendation(f"Close or merge one active thread first: {must_close[0]}.")
     if must_park:
-        return f"Park or reactivate deliberately, not both: {must_park[0]}"
+        return as_recommendation(f"Park or reactivate deliberately, not both: {must_park[0]}.")
     if stale:
-        return f"Triage one stale hypothesis before new expansion: {stale[0]}"
+        return as_recommendation(f"Triage one stale hypothesis before new expansion: {stale[0]}.")
     if must_summarize:
-        return f"Use the last closed chain as the first wake anchor: {must_summarize[0]}"
-    return state.get("next_task") or reflect_state.get("next_action") or "Wake quietly and prefer one closure over new opening."
+        return as_recommendation(f"Use the last closed chain as the first wake anchor: {must_summarize[0]}.")
+    fallback = state.get("next_task") or reflect_state.get("next_action") or "Wake quietly and prefer one closure over new opening."
+    if fallback.startswith("Recommendation:"):
+        return fallback
+    return as_recommendation(fallback.rstrip(".") + ".")
 
 
 def enter_recovery(state: dict, reflect_state: dict, previous_sleep_state: str, error_text: str) -> None:
