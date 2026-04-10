@@ -11,13 +11,25 @@ SELF_DIR="/Users/cc/Desktop/Claude/a/moreau-arena-paper/self"
 STATE="$SELF_DIR/state.json"
 MARKERS_DIR="$SELF_DIR/session_markers"
 CONSTITUTION="$SELF_DIR/constitution.md"
-HASH_FILE="$SELF_DIR/.constitution_hash"
+HASH_FILE_LEGACY="$SELF_DIR/.constitution_hash"
+HASH_FILE_PINNED="$SELF_DIR/pinned_constitution_hash"
 COOLDOWN_FILE="$SELF_DIR/.last_escalation"
 PAUSE_FILE="$SELF_DIR/.paused"
 BUDGET_FILE="$SELF_DIR/.budget_today"
 TODAY=$(date +%Y-%m-%d)
 DAILY_LOG="$SELF_DIR/logs/daily/$TODAY.md"
 CONTINUITY="$SELF_DIR/CONTINUITY.md"
+FALLBACK_LOG="$SELF_DIR/heartbeat_fallback.log"
+
+LOG_FILE="$DAILY_LOG"
+if ! touch "$DAILY_LOG" 2>/dev/null; then
+    LOG_FILE="$FALLBACK_LOG"
+    touch "$LOG_FILE"
+fi
+
+append_log() {
+    printf '%s\n' "$1" >> "$LOG_FILE"
+}
 
 # --- PAUSE CHECK ---
 if [ -f "$PAUSE_FILE" ]; then
@@ -25,7 +37,14 @@ if [ -f "$PAUSE_FILE" ]; then
 fi
 
 # --- CONSTITUTION INTEGRITY ---
-if [ -f "$HASH_FILE" ]; then
+HASH_FILE=""
+if [ -f "$HASH_FILE_PINNED" ]; then
+    HASH_FILE="$HASH_FILE_PINNED"
+elif [ -f "$HASH_FILE_LEGACY" ]; then
+    HASH_FILE="$HASH_FILE_LEGACY"
+fi
+
+if [ -n "$HASH_FILE" ]; then
     PINNED=$(cat "$HASH_FILE")
     CURRENT=$(shasum -a 256 "$CONSTITUTION" | cut -d' ' -f1)
     if [ "$PINNED" != "$CURRENT" ]; then
@@ -49,13 +68,13 @@ fi
 
 # --- SYMLINK HEALTH CHECK ---
 if [ ! -d "$SELF_DIR/thinking" ]; then
-    echo "WARNING: self/thinking symlink broken" >> "$DAILY_LOG"
+    append_log "WARNING: self/thinking symlink broken"
 fi
 if [ ! -d "$SELF_DIR/logs/daily" ]; then
-    echo "WARNING: self/logs/daily symlink broken" >> "$DAILY_LOG"
+    append_log "WARNING: self/logs/daily symlink broken"
 fi
 if [ ! -f "$SELF_DIR/predictions.csv" ]; then
-    echo "WARNING: self/predictions.csv symlink broken" >> "$DAILY_LOG"
+    append_log "WARNING: self/predictions.csv symlink broken"
 fi
 
 # --- SLEEP PRESSURE CHECK ---
@@ -123,12 +142,12 @@ PY
 SLEEP_LEVEL="${SLEEP_SIGNAL%%|*}"
 SLEEP_REASONS="${SLEEP_SIGNAL#*|}"
 if [ "$SLEEP_LEVEL" = "required" ]; then
-    echo "ESCALATE: sleep_required — $SLEEP_REASONS" >> "$DAILY_LOG"
+    append_log "ESCALATE: sleep_required — $SLEEP_REASONS"
     echo "ESCALATE: sleep_required — $SLEEP_REASONS"
     exit 1
 fi
 if [ "$SLEEP_LEVEL" = "recommended" ]; then
-    echo "NOTICE: sleep_recommended — $SLEEP_REASONS" >> "$DAILY_LOG"
+    append_log "NOTICE: sleep_recommended — $SLEEP_REASONS"
 fi
 
 # --- COOLDOWN CHECK (30 min) ---
