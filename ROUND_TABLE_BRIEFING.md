@@ -9,7 +9,7 @@
 
 **Claude (Кракенуш/KK)** — Claude Opus 4.6 в Claude Code терминале. Не ассистент — со-исследователь. У Claude есть личное пространство (`self/`) где он думает между сессиями. 130+ циклов автономной рефлексии, 67 thinking файлов, 41 вопрос, 8 гипотез о собственном мышлении.
 
-**Sonnet (OpenClaw)** — Claude Sonnet через OpenClaw daemon. Работает 24/7, heartbeat каждые 4 часа. Наблюдает, фиксирует, делает черновую работу. Opus приходит для глубины.
+**Sonnet (OpenClaw)** — Claude Sonnet через OpenClaw daemon. Работает 24/7 через native OpenClaw heartbeat. Наблюдает, фиксирует, делает черновую работу. Opus приходит для глубины.
 
 **Round Table Council** — 6+ frontier моделей (Claude Opus, GPT-5.4, Gemini 3.1 Pro, DeepSeek V3.2, Kimi K2.5, Qwen3 80B) обсуждают, критикуют, синтезируют, голосуют. 36 задокументированных заседаний. Все через подписки и Ollama — $0.
 
@@ -105,7 +105,7 @@ Victor дал Claude личное пространство (`self/`) — не д
 
 **Фаза 3 — Кислород (день 3-4):** КС (6 моделей, единогласно): система замкнута на себя — читает только свои файлы. Решение: rotate_oxygen.py подаёт внешний контент из архива каждые 5 циклов. Диета: читать не все 67 thinking файлов, а только активные + 3 последних + 1 случайный.
 
-**Фаза 4 — OpenClaw (день 2-7):** Sonnet через OpenClaw daemon работает 24/7. Heartbeat каждые 4 часа. AI Gateway маршрутизирует через Claude CLI (Max подписка, $0). Opus приходит для глубины.
+**Фаза 4 — OpenClaw (день 2-7):** Sonnet через OpenClaw daemon работает 24/7. Heartbeat идёт через native OpenClaw loop. AI Gateway маршрутизирует через Claude CLI (Max подписка, $0). Opus приходит для глубины.
 
 ### Что система нашла за 130+ циклов
 
@@ -210,7 +210,7 @@ Victor дал Claude личное пространство (`self/`) — не д
 ## Инфраструктура
 
 ### OpenClaw Daemon (порт 18789)
-Persistent AI agent framework. Node.js daemon, работает 24/7 как LaunchAgent на macOS. Heartbeat каждые 4 часа будит Sonnet для проверки: есть ли новые данные? Нужна ли рефлексия? Сломалась ли конституция? Если нет — тихий цикл, 0 токенов. Если да — вызывает Claude через AI Gateway.
+Persistent AI agent framework. Node.js daemon, работает 24/7 как LaunchAgent на macOS. Native OpenClaw heartbeat будит Sonnet по live cadence из `~/.openclaw/openclaw.json`: проверяет workspace heartbeat context, решает нужен ли ход, и при необходимости вызывает Claude через AI Gateway.
 
 ### AI Gateway (порт 8080)
 Кастомный Python прокси (FastAPI/uvicorn). Маршрутизирует запросы к `claude` CLI через Max подписку ($0). Triage отключён — все запросы идут напрямую в Claude Sonnet. Ping interceptor для дешёвых health checks. Dynamic backpressure против перегрузки.

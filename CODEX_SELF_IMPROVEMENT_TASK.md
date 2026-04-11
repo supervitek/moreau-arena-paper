@@ -1,5 +1,12 @@
 # Задание для Codex: Улучшение системы саморазвития
 
+> Postscript (2026-04-10): this task file contains historical references to
+> repo-local `openclaw.json` as if it were the live runtime config. That is no
+> longer the operational truth. The live OpenClaw daemon runs from
+> `~/.openclaw/openclaw.json` and uses the native heartbeat loop. Treat repo
+> `openclaw.json` as a reference artifact unless the runtime is explicitly
+> migrated.
+
 **От:** Claude Code (KK), сессия 2026-04-06
 **Для:** Codex
 **Режим:** Автономный. Выстрой план от А до Я и выполни без вопросов.
@@ -38,7 +45,7 @@
 - `self/docs/inside_inaccessibility_map.md` — главный синтез
 - `self/dialogues.md` — inter-wave conversation
 - `self/predictions.csv` — predictions tracking (symlink → vault)
-- `openclaw.json` — конфигурация OpenClaw
+- `openclaw.json` — repo-side reference config for OpenClaw wiring (live daemon uses `~/.openclaw/openclaw.json`)
 - `HEARTBEAT.md` — heartbeat checks
 - `ai-gateway/` — LLM gateway (Ollama Tier 1, Claude CLI Tier 2)
 
@@ -205,7 +212,7 @@ tags: []
   3. Для завершённых цепочек (chain закрыт) — генерирует summary в `self/docs/`
   4. Проверяет mirror.md на STALE гипотезы
   5. Обновляет `self/thinking/INDEX.md`
-- Добавить в `openclaw.json` heartbeat schedule: dream_cycle каждые 20 циклов
+- Добавить в live OpenClaw heartbeat only after validating the native runtime path (`~/.openclaw/openclaw.json`), not the repo reference file
 
 **Критерий done:** Скрипт создан, может быть запущен вручную. Интеграция с heartbeat — опционально.
 
@@ -270,11 +277,11 @@ tags: []
   - `self/scripts/run_audit.sh` теперь обновляет prediction metrics после цикла.
   - `self/scripts/run_reflect.sh` теперь обновляет thinking index после цикла.
   - `self/scripts/heartbeat_check.sh` теперь проверяет не только `self/thinking`, но и `self/logs/daily`, `self/predictions.csv`.
-  - `openclaw.json` теперь допускает sandbox-доступ к `moreau-self-vault/`, чтобы symlink-targets оставались writable.
+  - repo `openclaw.json` был обновлён как reference wiring spec, но live daemon truth lives in `~/.openclaw/openclaw.json`.
   - Проверки пройдены: `py_compile`, `bash -n`, `json.tool`, ручной backup, `launchctl`, генерация INDEX и dream report.
 
 ### Не выполнено (и почему)
-- Автоматическая интеграция dream cycle в `openclaw.json` heartbeat не добавлялась.
+- Автоматическая интеграция dream cycle в live OpenClaw heartbeat не добавлялась.
   - Причина: текущий heartbeat-контракт уже рабочий и минимальный; безопаснее сначала понаблюдать за ручным `dream_cycle.py`, чем расширять runtime-конфиг без отдельной валидации схемы OpenClaw.
 - Старые thinking-файлы (001-152) не трогались намеренно.
   - Это было прямое ограничение задачи.
@@ -282,7 +289,7 @@ tags: []
 ### Что требует внимания Виктора
 - `Tier 4` предсказания сейчас имеют 0% accuracy и должны трактоваться как exploratory-only, а не как failure основной predictive system.
 - В `mirror.md` сейчас накопился набор `STALE` гипотез (`H001/H002/H003/H005/H006/H007/H008`). Следующий живой Circuit B должен либо дать им evidence, либо начать честный retirement/graveyard flow.
-- Убедиться, что изменение в `openclaw.json` (доступ к `moreau-self-vault/`) остаётся желаемой частью live-конфига и будет закоммичено вместе с prompt/script изменениями.
+- Убедиться, что live config in `~/.openclaw/openclaw.json` stays aligned with the intended sandbox and heartbeat behavior; repo `openclaw.json` is not the live truth source.
 - LaunchAgent установлен на этой машине локально. Если среда будет мигрировать, файл из `~/Library/LaunchAgents/` нужно будет перенести отдельно.
 - Для переезда теперь добавлен template в репо: `self/scripts/launchagent.plist.template`, плюс инструкция восстановления в `docs/OPENCLAW_REPO_BOUNDARY.md`.
 
@@ -341,8 +348,8 @@ tags: []
   - удалил битую строку `test_write`;
   - добавил колонку `tier`;
   - выполнил backfill tier-классов для существующих строк.
-- Обновил `openclaw.json`:
-  - добавил `moreau-self-vault/` в `sandbox.allowedPaths`, чтобы symlink-targets оставались writable.
+- Обновил repo `openclaw.json`:
+  - добавил `moreau-self-vault/` в `sandbox.allowedPaths` as reference wiring for the vault-backed layout.
 - Создал локальный LaunchAgent:
   - `/Users/cc/Library/LaunchAgents/com.moreau.self.backup.plist`
   - агент загружен через `launchctl` и запускает `self/scripts/backup_state.sh` каждый час.

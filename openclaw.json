@@ -1,7 +1,7 @@
 {
   "$schema": "https://openclaws.io/schema/2026.3/config.json",
   "name": "krakenshu-self",
-  "description": "Autonomous self-improvement system for Claude (Layer 3)",
+  "description": "REFERENCE ONLY — live runtime uses ~/.openclaw/openclaw.json via native OpenClaw heartbeat; this file documents repo-side wiring and recovery architecture.",
 
   "model": "claude-opus-4-6",
   "provider": "anthropic",

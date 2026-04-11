@@ -6,6 +6,30 @@ Live site: https://moreauarena.com
 
 ---
 
+## 0. OpenClaw Reality Check
+
+There are two different OpenClaw layers in this repo history, and new threads
+need to know which one is live.
+
+- **Live runtime truth:** `~/.openclaw/openclaw.json`
+- **Live loop:** native OpenClaw heartbeat
+- **Repo `openclaw.json`:** reference artifact / repo-side wiring spec, not the
+  daemon's live config source
+- **Repo scripts under `self/scripts/`:** safety, recovery, and fallback tools
+  around the live daemon
+
+If debugging the live self/OpenClaw system, do **not** start with repo
+`openclaw.json`. Start with:
+
+1. `~/.openclaw/openclaw.json`
+2. `openclaw health`
+3. `openclaw gateway health`
+4. `~/.openclaw/cron/jobs.json`
+5. `self/logs/daily/`
+6. `docs/OPENCLAW_REPO_BOUNDARY.md`
+
+---
+
 ## 1. Project Goal
 
 **Moreau Arena** is a contamination-resistant benchmark for evaluating LLM strategic reasoning. LLMs design creature builds (stat allocations + animal choice) that fight in a simulated combat engine. Because game mechanics are novel and unpublished, models cannot rely on memorized strategies.

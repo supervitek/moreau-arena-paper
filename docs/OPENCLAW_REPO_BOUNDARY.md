@@ -1,13 +1,37 @@
 # OpenClaw Repo Boundary
 
-This repo now separates the OpenClaw/self system into two layers:
+This repo now separates the OpenClaw/self system into two layers.
+
+## Operational truth source
+
+The **live** OpenClaw daemon does **not** read the repo-local
+`/Users/cc/Desktop/Claude/a/moreau-arena-paper/openclaw.json` as its runtime
+source of truth.
+
+The live daemon runs from:
+
+- `~/.openclaw/openclaw.json`
+
+and uses the **native OpenClaw heartbeat loop** (`agents.defaults.heartbeat`),
+not the repo-local `command` / `onTrigger` wiring model.
+
+That means:
+
+- `~/.openclaw/openclaw.json` = **live operational canon**
+- repo `openclaw.json` = **reference artifact / repo-side wiring spec**
+- `self/scripts/heartbeat_check.sh` = deterministic safety / recovery layer
+- `self/scripts/heartbeat_escalate.sh` = manual or fallback escalation path
+- `self/scripts/health_watchdog.sh` = daemon safety net, not the primary loop
+
+Do **not** infer live runtime behavior from the repo-local `openclaw.json`
+alone.
 
 ## Main repo: live operational scaffolding
 
 The main repo keeps the code and stable scaffolding that the live OpenClaw/self
-runtime depends on directly:
+runtime depends on directly, plus one reference config artifact:
 
-- `openclaw.json`
+- `openclaw.json` (reference only; not the live config source)
 - `ai-gateway/`
 - `HEARTBEAT.md`
 - stable `self/` prompts and scripts
@@ -34,6 +58,26 @@ holds the heavier research layer and archive surfaces:
 These are surfaced back into `self/` via symlinks, so the live system keeps the
 same paths while the main repo stays lighter.
 
+## Why this split exists
+
+There are two different "epochs" in the repo:
+
+1. a repo-native wiring idea (`openclaw.json` with explicit shell hooks)
+2. the live OpenClaw-native runtime (`~/.openclaw/openclaw.json` +
+   native heartbeat)
+
+The live system currently works through the second path.
+
+We intentionally keep the repo-local `openclaw.json` as a **reference** because
+it still documents:
+
+- the intended repo-side safety model,
+- recovery scripts,
+- sandbox expectations,
+- and the repo architecture around self/OpenClaw.
+
+But it is no longer treated as the live daemon's primary truth source.
+
 ## Git hygiene rule
 
 We version stable scaffolding and code in the main repo. We do **not** version
@@ -43,6 +87,20 @@ or `.openclaw/workspace-state.json`).
 
 That keeps the working tree clean without tearing apart the live self/OpenClaw
 ecosystem.
+
+## Operator rule
+
+When debugging live OpenClaw behavior, inspect in this order:
+
+1. `~/.openclaw/openclaw.json`
+2. `openclaw health`
+3. `openclaw gateway health`
+4. `~/.openclaw/cron/jobs.json`
+5. `self/logs/daily/`
+6. repo-local scripts under `self/scripts/`
+
+Treat repo-local `openclaw.json` as documentation unless and until the runtime
+is explicitly migrated.
 
 ## Backup reinstall on a new machine
 

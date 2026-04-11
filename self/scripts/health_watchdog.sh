@@ -1,6 +1,7 @@
 #!/bin/bash
 # Health watchdog — checks both OpenClaw liveness and heartbeat freshness.
 # Run via launchd or cron as a safety net.
+# The primary loop is the native OpenClaw heartbeat from ~/.openclaw/openclaw.json.
 
 set -euo pipefail
 
