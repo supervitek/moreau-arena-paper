@@ -176,7 +176,8 @@ if [ -f "$STATE" ]; then
         # Check if WE processed this already (anti-loop)
         LAST_BY=$(python3 -c "import json; print(json.load(open('$STATE')).get('last_updated_by',''))" 2>/dev/null || echo "")
         if echo "$LAST_BY" | grep -q "heartbeat"; then
-            # We wrote this ourselves, skip
+            # We wrote this ourselves, sync version and skip
+            echo "$CURRENT_VER" > "$SELF_DIR/.last_state_version"
             exit 0
         fi
         echo "ESCALATE: state.json version changed ($LAST_VER -> $CURRENT_VER)"
