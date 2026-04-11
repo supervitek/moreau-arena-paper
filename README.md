@@ -8,6 +8,19 @@ Companion repository for the paper:
 
 **Key result:** Same 13 agents, same game, different scaffolding -- the leaderboard flips 180 degrees. LLMs go from losing to hand-coded bots (37.5% win rate) to crushing them (89.75%).
 
+## Orientation
+
+If you are new to the repo, start here instead of guessing from old docs:
+
+- [`PROJECT_TRUTH.md`](./PROJECT_TRUTH.md) — one low-context truth file
+- [`START_HERE_ENGINEER.md`](./START_HERE_ENGINEER.md) — engineering entry
+- [`START_HERE_WAVE.md`](./START_HERE_WAVE.md) — new AI thread entry
+- [`START_HERE_OPERATIONS.md`](./START_HERE_OPERATIONS.md) — live debugging entry
+
+For high-context project history and current strategic shape:
+
+- [`docs/PROJECT_BIBLE.md`](./docs/PROJECT_BIBLE.md)
+
 ## Project Structure
 
 | Component | Status | Description |

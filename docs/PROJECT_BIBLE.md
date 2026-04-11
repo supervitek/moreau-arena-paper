@@ -7,6 +7,13 @@ This file is the fastest way to bring a new coding agent up to the real current 
 
 It is intentionally opinionated. When this file conflicts with older agent docs, prefer this file plus the current code on `main`.
 
+Low-context orientation first:
+- [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/PROJECT_TRUTH.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/PROJECT_TRUTH.md)
+- role entrypoints:
+  - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/START_HERE_ENGINEER.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/START_HERE_ENGINEER.md)
+  - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/START_HERE_WAVE.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/START_HERE_WAVE.md)
+  - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/START_HERE_OPERATIONS.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/START_HERE_OPERATIONS.md)
+
 Technical companion:
 - [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_BIBLE_TECHNICAL_APPENDIX.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_BIBLE_TECHNICAL_APPENDIX.md)
 - House-agent boundary:
@@ -65,11 +72,12 @@ These principles are load-bearing.
 When context conflicts, use this order:
 
 1. Current code on `main`
-2. This file
-3. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_TODO.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_TODO.md)
-4. The current finalized roadmap docs
-5. Older handoff docs like [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/HANDOFF_FOR_CODEX.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/HANDOFF_FOR_CODEX.md)
-6. Legacy agent rules that no longer match actual workflow
+2. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/PROJECT_TRUTH.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/PROJECT_TRUTH.md)
+3. This file
+4. [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_TODO.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/docs/PROJECT_TODO.md)
+5. The current finalized roadmap docs
+6. Older handoff docs like [`/Users/cc/Desktop/Claude/a/moreau-arena-paper/HANDOFF_FOR_CODEX.md`](/Users/cc/Desktop/Claude/a/moreau-arena-paper/HANDOFF_FOR_CODEX.md)
+7. Legacy agent rules that no longer match actual workflow
 
 Important: some older docs say “never push to `main` directly.”  
 Actual working reality on this project is different:

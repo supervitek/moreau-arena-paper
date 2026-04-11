@@ -1,5 +1,11 @@
 # Start Here — Moreau Arena Handoff Package
 
+For the current live repo state, start first with:
+
+- [`../PROJECT_TRUTH.md`](../PROJECT_TRUTH.md)
+
+Then return here if you specifically need the older self-contained handoff package.
+
 ## What Is This?
 
 This is a self-contained handoff package for the **Moreau Arena** project — a contamination-resistant benchmark for evaluating LLM strategic reasoning through creature combat simulation. The package contains everything needed to understand the project, reproduce results, and continue development. All tables and numbers in this package are either (a) taken directly from frozen source-of-truth files or (b) programmatically generated from raw tournament data via `scripts/generate_results_summary.py`.

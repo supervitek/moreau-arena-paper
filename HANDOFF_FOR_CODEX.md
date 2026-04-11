@@ -1,8 +1,25 @@
 # HANDOFF FOR CODEX — Moreau Arena
 
 Generated: 2026-03-10
-Branch: `main` (clean, up to date with origin)
+Snapshot note: this document began as a 2026-03-10 handoff snapshot; verify the
+current git state separately
 Live site: https://moreauarena.com
+
+---
+
+## Fast Entry Before This File
+
+If this is a brand-new thread or a brand-new engineer, do not start here first.
+
+Start with:
+
+- [`PROJECT_TRUTH.md`](./PROJECT_TRUTH.md)
+- then one of:
+  - [`START_HERE_ENGINEER.md`](./START_HERE_ENGINEER.md)
+  - [`START_HERE_WAVE.md`](./START_HERE_WAVE.md)
+  - [`START_HERE_OPERATIONS.md`](./START_HERE_OPERATIONS.md)
+
+This handoff remains useful as a high-context repo history document.
 
 ---
 
