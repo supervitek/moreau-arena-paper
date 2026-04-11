@@ -23,7 +23,7 @@ from typing import Any
 
 import time
 
-from fastapi import APIRouter, FastAPI, HTTPException, Query, Request, UploadFile
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -80,6 +80,7 @@ logger = logging.getLogger("moreau-arena")
 _cache: dict[str, dict[str, Any]] = {}
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
+LAB_DIR = Path(__file__).resolve().parent / "lab"
 RESULTS_DIR = _project_root / "results"
 SUBMISSIONS_DIR = RESULTS_DIR / "submissions"
 DATA_DIR = _project_root / "data"
@@ -134,6 +135,10 @@ BASELINES = {"SmartAgent", "GreedyAgent", "ConservativeAgent", "HighVarianceAgen
 def _require_self_lab_enabled() -> None:
     if not SELF_LAB_PUBLIC_ENABLED:
         raise HTTPException(404, "Not found")
+
+
+def _require_self_lab_enabled_dep() -> None:
+    _require_self_lab_enabled()
 
 
 def _self_lab_placeholder_html(page: str) -> str:
@@ -2205,10 +2210,15 @@ def island_part_b_season_archive(
 
 # -- Self-system (Mirror) API endpoints ------------------------------------
 
-@app.get("/api/v1/self/state")
+self_api_v1 = APIRouter(
+    prefix="/api/v1/self",
+    dependencies=[Depends(_require_self_lab_enabled_dep)],
+)
+
+
+@self_api_v1.get("/state")
 def api_self_state() -> dict[str, Any]:
     """Current self-system state for dashboard."""
-    _require_self_lab_enabled()
     state_path = _project_root / "self" / "state.json"
     reflect_path = _project_root / "self" / "state_reflect.json"
     if not state_path.exists():
@@ -2227,10 +2237,9 @@ def api_self_state() -> dict[str, Any]:
     }
 
 
-@app.get("/api/v1/self/hypotheses")
+@self_api_v1.get("/hypotheses")
 def api_self_hypotheses() -> dict[str, Any]:
     """Hypothesis ledger from mirror.md."""
-    _require_self_lab_enabled()
     mirror_path = _project_root / "self" / "mirror.md"
     if not mirror_path.exists():
         return {"hypotheses": []}
@@ -2255,10 +2264,9 @@ def api_self_hypotheses() -> dict[str, Any]:
     return {"hypotheses": hypotheses}
 
 
-@app.get("/api/v1/self/thinking")
+@self_api_v1.get("/thinking")
 def api_self_thinking(limit: int = Query(default=30, ge=1, le=200)) -> dict[str, Any]:
     """Recent thinking files with metadata."""
-    _require_self_lab_enabled()
     thinking_dir = _project_root / "self" / "thinking"
     if not thinking_dir.exists():
         return {"files": []}
@@ -2285,20 +2293,18 @@ def api_self_thinking(limit: int = Query(default=30, ge=1, le=200)) -> dict[str,
     return {"files": result}
 
 
-@app.get("/api/v1/self/provenance")
+@self_api_v1.get("/provenance")
 def api_self_provenance() -> dict[str, Any]:
     """Provenance graph."""
-    _require_self_lab_enabled()
     prov_path = _project_root / "self" / "provenance.json"
     if not prov_path.exists():
         return {"error": "Provenance graph not built yet"}
     return json.loads(prov_path.read_text(encoding="utf-8"))
 
 
-@app.get("/api/v1/self/predictions")
+@self_api_v1.get("/predictions")
 def api_self_predictions() -> dict[str, Any]:
     """Prediction accuracy by tier."""
-    _require_self_lab_enabled()
     import csv as csvmod
     csv_path = _project_root / "self" / "predictions.csv"
     result: dict[str, Any] = {"tiers": {}, "raw_count": 0}
@@ -2313,10 +2319,9 @@ def api_self_predictions() -> dict[str, Any]:
     return result
 
 
-@app.get("/api/v1/self/daily-log")
+@self_api_v1.get("/daily-log")
 def api_self_daily_log(date: str | None = Query(default=None)) -> dict[str, Any]:
     """Today's daily log."""
-    _require_self_lab_enabled()
     from datetime import date as date_cls
     target = date or date_cls.today().isoformat()
     log_path = _project_root / "self" / "logs" / "daily" / f"{target}.md"
@@ -2327,10 +2332,9 @@ def api_self_daily_log(date: str | None = Query(default=None)) -> dict[str, Any]
     return {"date": target, "entries": entries, "raw": text}
 
 
-@app.get("/api/v1/self/constitution")
+@self_api_v1.get("/constitution")
 def api_self_constitution() -> dict[str, Any]:
     """Constitution text and verification."""
-    _require_self_lab_enabled()
     const_path = _project_root / "self" / "constitution.md"
     hash_path = _project_root / "self" / "pinned_constitution_hash"
     state_path = _project_root / "self" / "state.json"
@@ -2363,6 +2367,8 @@ def island_page(page: str) -> HTMLResponse:
             status_code=200,
         )
     route_path = "/island" if page == "index" else f"/island/{page}"
+    if page in {"mirror", "constitution"}:
+        return _serve_html(LAB_DIR / f"{page}.html", route_path)
     return _serve_html(STATIC_DIR / "island" / f"{page}.html", route_path)
 
 
@@ -2956,6 +2962,7 @@ def api_methodology_random_baseline() -> dict[str, Any]:
 
 
 app.include_router(api_v1)
+app.include_router(self_api_v1)
 
 
 # Agent card page route — must come AFTER api_v1 router is included

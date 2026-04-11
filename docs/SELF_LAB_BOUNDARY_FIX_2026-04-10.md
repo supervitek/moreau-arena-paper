@@ -40,8 +40,13 @@ The correct default is:
 
 - `/api/v1/self/*` endpoints are now disabled by default unless
   `MOREAU_ENABLE_SELF_LAB=1`
+- the self API is grouped under a dedicated gated router, so future
+  `/api/v1/self/*` additions inherit the boundary automatically
 - `/island/mirror` and `/island/constitution` now render a controlled local-lab
   placeholder unless that same explicit opt-in is enabled
+- the real lab HTML for mirror/constitution was moved out of `web/static/` into
+  `web/lab/`, so the templates are no longer reachable through the public
+  static file mount
 - the `MIRROR` button was removed from public Island home navigation
 
 ### Truth docs
