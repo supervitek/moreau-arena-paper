@@ -35,6 +35,7 @@ Most confusion in new threads comes from mixing them.
 - `OpenClaw / self` is live and working again as of 2026-04-10
 - Live OpenClaw runtime is driven by `~/.openclaw/openclaw.json`, not the repo-local `openclaw.json`
 - Repo-local `openclaw.json` is a reference artifact, not the daemon's live runtime truth source
+- Public Island routes do **not** expose the self/OpenClaw dashboard by default; `MOREAU_ENABLE_SELF_LAB=1` is required for explicit local lab use
 
 ## The Layers
 
@@ -63,6 +64,7 @@ When documents conflict, use this order:
 The Moreau repo is public/product/research-facing.
 The `self/` and OpenClaw continuity layer is private/local and operational.
 Do not assume every OpenClaw artifact belongs in the public repo.
+Do not ship half-live self telemetry into the public Island UX by default.
 
 ### 2. Repo `openclaw.json` vs live OpenClaw config
 

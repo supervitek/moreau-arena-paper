@@ -85,6 +85,7 @@ SUBMISSIONS_DIR = RESULTS_DIR / "submissions"
 DATA_DIR = _project_root / "data"
 SEASON1_DIR = _project_root / "season1"
 SITE_ORIGIN = os.environ.get("MOREAU_SITE_ORIGIN", "https://moreauarena.com").rstrip("/")
+SELF_LAB_PUBLIC_ENABLED = os.environ.get("MOREAU_ENABLE_SELF_LAB", "").strip().lower() in {"1", "true", "yes", "on"}
 DEFAULT_OG_IMAGE = f"{SITE_ORIGIN}/static/og-image.png"
 DEFAULT_META_DESCRIPTION = (
     "Moreau Arena: a contamination-resistant creature combat benchmark, Season 1 arena, "
@@ -128,6 +129,117 @@ REFERENCE_BUILDS = [
 
 
 BASELINES = {"SmartAgent", "GreedyAgent", "ConservativeAgent", "HighVarianceAgent", "RandomAgent"}
+
+
+def _require_self_lab_enabled() -> None:
+    if not SELF_LAB_PUBLIC_ENABLED:
+        raise HTTPException(404, "Not found")
+
+
+def _self_lab_placeholder_html(page: str) -> str:
+    page_title = "Mirror" if page == "mirror" else "Constitution"
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{page_title} — The Island — Moreau Arena</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <style>
+    :root {{
+      --bg: #090606;
+      --panel: #140d0d;
+      --border: #392222;
+      --text: #f3ece7;
+      --muted: #b49d93;
+      --accent: #d06b43;
+    }}
+    * {{ box-sizing: border-box; }}
+    body {{
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at top, rgba(208,107,67,0.14), transparent 34%),
+        linear-gradient(180deg, #0a0606 0%, var(--bg) 100%);
+      color: var(--text);
+      font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }}
+    .card {{
+      width: min(760px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 18px 60px rgba(0,0,0,0.32);
+    }}
+    .eyebrow {{
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 0.77rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }}
+    h1 {{
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.1;
+    }}
+    p {{
+      margin: 0 0 14px;
+      color: var(--muted);
+    }}
+    .note {{
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-left: 3px solid var(--accent);
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+    }}
+    .actions {{
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }}
+    a {{
+      color: var(--text);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      padding: 11px 16px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.03);
+    }}
+    a:hover {{
+      border-color: var(--accent);
+    }}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="eyebrow">Local Lab Boundary</div>
+    <h1>{page_title} stays local by default.</h1>
+    <p>
+      The Island site is public. The OpenClaw/self layer is private, operational,
+      and local-first. This route is intentionally not exposed in the public build.
+    </p>
+    <p>
+      That separation is deliberate: the public Island should not depend on half-live
+      private telemetry, and the private self-system should not leak onto the public site by default.
+    </p>
+    <div class="note">
+      Enable <code>MOREAU_ENABLE_SELF_LAB=1</code> only for explicit local lab use.
+    </div>
+    <div class="actions">
+      <a href="/island/home">Back to Island</a>
+      <a href="/docs/PROJECT_BIBLE.md">Project Bible</a>
+    </div>
+  </main>
+</body>
+</html>"""
 
 
 def _compute_agent_cards() -> dict[str, dict[str, Any]]:
@@ -2096,6 +2208,7 @@ def island_part_b_season_archive(
 @app.get("/api/v1/self/state")
 def api_self_state() -> dict[str, Any]:
     """Current self-system state for dashboard."""
+    _require_self_lab_enabled()
     state_path = _project_root / "self" / "state.json"
     reflect_path = _project_root / "self" / "state_reflect.json"
     if not state_path.exists():
@@ -2117,6 +2230,7 @@ def api_self_state() -> dict[str, Any]:
 @app.get("/api/v1/self/hypotheses")
 def api_self_hypotheses() -> dict[str, Any]:
     """Hypothesis ledger from mirror.md."""
+    _require_self_lab_enabled()
     mirror_path = _project_root / "self" / "mirror.md"
     if not mirror_path.exists():
         return {"hypotheses": []}
@@ -2144,6 +2258,7 @@ def api_self_hypotheses() -> dict[str, Any]:
 @app.get("/api/v1/self/thinking")
 def api_self_thinking(limit: int = Query(default=30, ge=1, le=200)) -> dict[str, Any]:
     """Recent thinking files with metadata."""
+    _require_self_lab_enabled()
     thinking_dir = _project_root / "self" / "thinking"
     if not thinking_dir.exists():
         return {"files": []}
@@ -2173,6 +2288,7 @@ def api_self_thinking(limit: int = Query(default=30, ge=1, le=200)) -> dict[str,
 @app.get("/api/v1/self/provenance")
 def api_self_provenance() -> dict[str, Any]:
     """Provenance graph."""
+    _require_self_lab_enabled()
     prov_path = _project_root / "self" / "provenance.json"
     if not prov_path.exists():
         return {"error": "Provenance graph not built yet"}
@@ -2182,6 +2298,7 @@ def api_self_provenance() -> dict[str, Any]:
 @app.get("/api/v1/self/predictions")
 def api_self_predictions() -> dict[str, Any]:
     """Prediction accuracy by tier."""
+    _require_self_lab_enabled()
     import csv as csvmod
     csv_path = _project_root / "self" / "predictions.csv"
     result: dict[str, Any] = {"tiers": {}, "raw_count": 0}
@@ -2199,6 +2316,7 @@ def api_self_predictions() -> dict[str, Any]:
 @app.get("/api/v1/self/daily-log")
 def api_self_daily_log(date: str | None = Query(default=None)) -> dict[str, Any]:
     """Today's daily log."""
+    _require_self_lab_enabled()
     from datetime import date as date_cls
     target = date or date_cls.today().isoformat()
     log_path = _project_root / "self" / "logs" / "daily" / f"{target}.md"
@@ -2212,6 +2330,7 @@ def api_self_daily_log(date: str | None = Query(default=None)) -> dict[str, Any]
 @app.get("/api/v1/self/constitution")
 def api_self_constitution() -> dict[str, Any]:
     """Constitution text and verification."""
+    _require_self_lab_enabled()
     const_path = _project_root / "self" / "constitution.md"
     hash_path = _project_root / "self" / "pinned_constitution_hash"
     state_path = _project_root / "self" / "state.json"
@@ -2235,6 +2354,14 @@ def island_page(page: str) -> HTMLResponse:
     allowed = {"index", "home", "create", "kennel", "train", "lab", "pit", "graveyard", "profile", "leaderboard", "achievements", "onboarding", "dreams", "crimson", "rivals", "prophecy", "shrine", "artifacts", "menagerie", "succession", "deep-tide", "black-market", "tides", "pact", "genesis", "confessions", "oath", "arena", "breeding", "lineage", "synergies", "cosmetics", "caretaker", "ecology", "mirror", "constitution"}
     if page not in allowed:
         return _serve_html(STATIC_DIR / "island" / "index.html", "/island", html=_island_not_found_html(page), status_code=404)
+    if page in {"mirror", "constitution"} and not SELF_LAB_PUBLIC_ENABLED:
+        route_path = f"/island/{page}"
+        return _serve_html(
+            STATIC_DIR / "island" / "home.html",
+            route_path,
+            html=_self_lab_placeholder_html(page),
+            status_code=200,
+        )
     route_path = "/island" if page == "index" else f"/island/{page}"
     return _serve_html(STATIC_DIR / "island" / f"{page}.html", route_path)
 

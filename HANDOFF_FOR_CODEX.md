@@ -34,6 +34,9 @@ need to know which one is live.
   daemon's live config source
 - **Repo scripts under `self/scripts/`:** safety, recovery, and fallback tools
   around the live daemon
+- **Public web rule:** self/OpenClaw lab routes are local-only by default and
+  must not be surfaced in the public Island navigation unless explicitly
+  enabled for lab use
 
 If debugging the live self/OpenClaw system, do **not** start with repo
 `openclaw.json`. Start with:

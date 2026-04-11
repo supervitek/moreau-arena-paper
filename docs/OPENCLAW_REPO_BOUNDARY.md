@@ -37,6 +37,23 @@ runtime depends on directly, plus one reference config artifact:
 - stable `self/` prompts and scripts
 - canonical operational files that still live at the same paths
 
+## Public site boundary
+
+The public Island site and the private OpenClaw/self layer are **not** the same
+surface.
+
+Rules:
+
+- public Island pages must not depend on half-live self telemetry
+- self/OpenClaw API routes are disabled by default in the public web build
+- local lab exposure requires explicit opt-in via `MOREAU_ENABLE_SELF_LAB=1`
+- internal self artifacts may exist in the repo for local work without being
+  part of the public Island UX
+
+This prevents a mixed state where the website exposes partial private telemetry,
+broken panels, or internal operational artifacts that only make sense on the
+local machine.
+
 ## Sibling vault: heavy research memory
 
 The sibling vault at:
