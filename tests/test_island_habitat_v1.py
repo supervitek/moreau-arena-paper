@@ -1,7 +1,10 @@
 from island_habitat import (
+    AgentRuntimeState,
     FreshHeuristicAgent,
+    FreshScoutControlAgent,
     PersistentScoutAgent,
     RandomAgent,
+    build_llm_observation_prompt,
     evaluate_agents,
     initial_world,
     observe,
@@ -37,12 +40,24 @@ def test_observation_is_partial_not_global() -> None:
 
 def test_baseline_sweep_shows_memory_signal() -> None:
     results = evaluate_agents(
-        [RandomAgent(seed=9), FreshHeuristicAgent(), PersistentScoutAgent()],
+        [RandomAgent(seed=9), FreshHeuristicAgent(), FreshScoutControlAgent(), PersistentScoutAgent()],
         seeds=[0, 1, 2, 3, 4],
-        max_cycles=25,
+        max_cycles=50,
         carry_limit=800,
     )
 
-    assert results["persistent-scout"]["mean_cycles"] >= results["fresh-heuristic"]["mean_cycles"]
+    assert results["persistent-scout"]["mean_cycles"] >= results["fresh-scout-control"]["mean_cycles"]
+    assert results["persistent-scout"]["mean_vitality_end"] >= results["fresh-scout-control"]["mean_vitality_end"]
+    assert results["persistent-scout"]["mean_resources_gathered"] >= results["fresh-scout-control"]["mean_resources_gathered"]
+    assert results["fresh-scout-control"]["mean_cycles"] >= results["random"]["mean_cycles"]
     assert results["fresh-heuristic"]["mean_cycles"] >= results["random"]["mean_cycles"]
     assert results["persistent-scout"]["mean_carry_bytes"] > 0
+
+
+def test_llm_prompt_contract_mentions_json_and_legal_actions() -> None:
+    world = initial_world()
+    runtime = AgentRuntimeState()
+    prompt = build_llm_observation_prompt(observe(world, runtime), carry_limit=900)
+    assert "Return strict JSON" in prompt
+    assert "carry_forward must fit within 900 bytes" in prompt
+    assert "legal_actions" in prompt

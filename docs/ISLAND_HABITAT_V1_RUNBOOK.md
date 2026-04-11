@@ -24,15 +24,26 @@ Implementation surfaces:
   - `REST`
 - partial observability
 - carry-forward state with hard cap
-- 3 baseline agents:
+- 4 baseline/control agents:
   - random
   - fresh heuristic
+  - fresh scout control
   - persistent scout
+- one LLM adapter seam:
+  - prompt contract
+  - JSON decision contract
+  - fallback to `REST` on invalid action
 
 ## Quick Run
 
 ```bash
 python3 scripts/run_island_habitat_v1.py --cycles 25 --seeds 5
+```
+
+To inspect the exact prompt contract a future LLM agent will receive:
+
+```bash
+python3 scripts/run_island_habitat_v1.py --emit-llm-prompt
 ```
 
 This writes logs under:
@@ -47,7 +58,7 @@ You get:
 ## What To Read In The Output
 
 First:
-- compare `persistent-scout` vs `fresh-heuristic`
+- compare `persistent-scout` vs `fresh-scout-control`
 
 The point is not to prove anything cosmic.
 The point is to see whether carry-forward state changes behavior enough to matter.
@@ -55,6 +66,8 @@ The point is to see whether carry-forward state changes behavior enough to matte
 Look at:
 
 - `mean_cycles`
+- `mean_vitality_end`
+- `mean_resources_gathered`
 - `death_rate`
 - `mean_action_diversity`
 - `mean_carry_bytes`
@@ -66,6 +79,59 @@ Then open one run log and inspect:
 - what it did
 - what it wrote forward
 - whether later actions actually reflect remembered state
+
+Right now the strongest honest question is:
+
+- does `persistent-scout` beat the same scout logic with memory removed?
+
+Current honest status:
+
+- `persistent-scout` is now at survival parity with `fresh-scout-control`
+- it finishes slightly healthier and gathers slightly more on the same seeds
+- strict fresh control no longer gets offscreen routing or carry-forward leakage
+
+That is enough to justify first LLM hookup.
+It is not yet a dramatic memory-gap victory, and the runbook should not pretend otherwise.
+
+## First Real LLM Hookup
+
+The runner can now execute one real agent through a command seam.
+
+Your command must:
+
+- read the full prompt from `stdin`
+- print strict JSON with keys:
+  - `action`
+  - `carry_forward`
+  - `rationale`
+
+Example shape:
+
+```json
+{"action":"MOVE:grove","carry_forward":"{\"note\":\"grove has food\"}","rationale":"start from the only legal move"}
+```
+
+Run one live agent like this:
+
+```bash
+python3 scripts/run_island_habitat_v1.py \
+  --llm-command 'python3 /absolute/path/to/your_agent_bridge.py' \
+  --agent-name sonnet-habitat \
+  --cycles 50 \
+  --seed 0
+```
+
+This writes:
+
+- `results/island_habitat_v1/<timestamp>/summary.json`
+- `results/island_habitat_v1/<timestamp>/<agent-name>_seed0.jsonl`
+
+Recommended first hookup sequence:
+
+1. Run `--emit-llm-prompt` and inspect the exact contract.
+2. Connect one bridge command that returns strict JSON.
+3. Run one seed only.
+4. Open the JSONL log and inspect divergence manually before sweeping more seeds.
 
 ## What This Does Not Yet Do
 
@@ -81,8 +147,8 @@ This is the hidden proving ground only.
 
 ## Next Honest Step
 
-If the current sweep produces a real signal, the next step is:
+The next step is:
 
-1. add a fresh-agent control that replays the same cycle conditions without carry-forward
-2. plug in one real LLM agent
-3. inspect divergence manually before adding more world complexity
+1. plug in one real LLM agent through the existing command seam
+2. inspect divergence manually before adding more world complexity
+3. only then decide whether pressure needs one more sharpen pass

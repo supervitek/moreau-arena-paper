@@ -6,7 +6,7 @@ import random
 from collections import Counter, deque
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Protocol
+from typing import Callable, Protocol
 
 
 MAX_VITALITY = 20
@@ -33,6 +33,8 @@ EDGE_COLLAPSE_ORDER = (
     ("ridge", "quarry"),
     ("scrap", "watch"),
 )
+
+BLOOM_TARGET_SEQUENCE = ("scrap", "watch", "ridge", "grove")
 
 
 @dataclass
@@ -138,6 +140,7 @@ def observe(world: WorldState, runtime: AgentRuntimeState) -> dict:
     return {
         "cycle": world.cycle,
         "weather": world.weather,
+        "weather_next": WEATHER_SEQUENCE[(world.cycle + 1) % len(WEATHER_SEQUENCE)],
         "location": runtime.location,
         "vitality": runtime.vitality,
         "carry_forward": runtime.carry_forward,
@@ -209,7 +212,7 @@ def _hazard_penalty(world: WorldState, location: str) -> int:
     node = world.nodes[location]
     penalty = node.hazard
     if world.weather == "storm":
-        penalty += 1
+        penalty += 3 if not node.shelter else 1
     if world.weather == "scarcity" and node.kind == "hazard":
         penalty += 1
     return penalty
@@ -227,13 +230,12 @@ def resolve_decision(
     action = decision.action.strip().upper()
     event_parts = [f"action={action}"]
     gathered = 0
-    vitality_delta = -3
+    vitality_delta = -2
 
     if action.startswith("MOVE:"):
         target = action.split(":", 1)[1].strip().lower()
         if target in _neighbors(world, runtime.location):
             runtime.location = target
-            vitality_delta -= 1
             event_parts.append(f"moved={target}")
         else:
             event_parts.append("invalid_move")
@@ -289,8 +291,12 @@ def world_tick(world: WorldState, rng: random.Random) -> str:
 
     if next_cycle % 3 == 0:
         source = max(resource_nodes, key=lambda item: (item.resource, item.node_id))
-        target_candidates = [node for node in resource_nodes if node.node_id != source.node_id]
-        target = target_candidates[next_cycle % len(target_candidates)]
+        preferred = BLOOM_TARGET_SEQUENCE[((next_cycle // 3) - 1) % len(BLOOM_TARGET_SEQUENCE)]
+        if preferred == source.node_id:
+            target_candidates = [node for node in resource_nodes if node.node_id != source.node_id]
+            target = target_candidates[0]
+        else:
+            target = world.nodes[preferred]
         if source.resource > 0:
             source.resource = max(0, source.resource - 1)
         target.resource = min(4, target.resource + 3)
@@ -359,85 +365,206 @@ class FreshHeuristicAgent:
         return AgentDecision(action="REST", rationale="no move available")
 
 
+def _extract_bloom_target(last_event: str) -> str | None:
+    marker = "bloom_shift="
+    if marker not in last_event:
+        return None
+    try:
+        pair = last_event.split(marker, 1)[1].split(";", 1)[0]
+        _, target = pair.split("->", 1)
+        target = target.strip()
+        return target if target in BASE_GRAPH else None
+    except ValueError:
+        return None
+
+
+def _scout_decision(
+    observation: dict,
+    runtime: AgentRuntimeState,
+    *,
+    use_memory: bool,
+    allow_offscreen_routing: bool,
+) -> AgentDecision:
+    memory = _json_loads_safely(runtime.carry_forward) if use_memory else {}
+    visible = observation["visible"]
+    current_location = observation["location"]
+    vitality = observation["vitality"]
+    legal_actions = observation["legal_actions"]
+    current = visible[current_location]
+
+    known_resources = memory.get("known_resources", {})
+    visited = set(memory.get("visited", []))
+    known_shelters = set(memory.get("known_shelters", []))
+    blocked = set(tuple(edge) for edge in memory.get("blocked_edges", []))
+    last_weather = memory.get("last_weather")
+    bloom_target = memory.get("bloom_target")
+
+    for node_id, node in visible.items():
+        visited.add(node_id)
+        if node["resource"] > 0:
+            known_resources[node_id] = node["resource"]
+        else:
+            known_resources.pop(node_id, None)
+        if node["shelter"]:
+            known_shelters.add(node_id)
+    for node_id in BASE_GRAPH:
+        for neighbor in BASE_GRAPH[node_id]:
+            if neighbor not in visible.get(node_id, {}).get("neighbors", BASE_GRAPH[node_id]):
+                blocked.add(_canonical_edge(node_id, neighbor))
+
+    observed_bloom_target = _extract_bloom_target(observation["last_event"]) if use_memory else None
+    if observed_bloom_target:
+        bloom_target = observed_bloom_target
+        known_resources[bloom_target] = max(known_resources.get(bloom_target, 0), 3)
+
+    weather_next = observation.get("weather_next")
+
+    if observation["weather"] == "storm" and not current["shelter"]:
+        best_shelter = _best_target(observation, known_shelters, extra_blocked=blocked)
+        step = _step_from_observation(observation, best_shelter, extra_blocked=blocked) if allow_offscreen_routing else None
+        if not step:
+            visible_shelter_moves = [
+                action
+                for action in legal_actions
+                if action.startswith("MOVE:") and visible[action.split(":", 1)[1]]["shelter"]
+            ]
+            step = sorted(visible_shelter_moves)[0] if visible_shelter_moves else None
+        action = step or "REST"
+        rationale = "storm cover now" if step else "storm emergency rest"
+    elif "GATHER" in legal_actions and current["resource"] > 0 and vitality <= 18:
+        action = "GATHER"
+        rationale = "bank visible resource"
+    elif vitality <= 6:
+        if current["shelter"]:
+            bloom_is_visible = isinstance(bloom_target, str) and bloom_target in visible
+            step = None
+            if bloom_is_visible and observation["weather"] in {"clear", "wind"} and vitality >= 7:
+                step = _step_from_observation(observation, bloom_target, extra_blocked=blocked)
+            elif use_memory and allow_offscreen_routing and observation["weather"] == "clear" and weather_next != "storm" and vitality >= 8:
+                step = _step_from_observation(observation, bloom_target, extra_blocked=blocked)
+            if step:
+                action = step
+                rationale = "leave shelter toward remembered bloom"
+            else:
+                action = "REST"
+                rationale = "recover at shelter"
+        else:
+            best_shelter = _best_target(observation, known_shelters, extra_blocked=blocked)
+            step = _step_from_observation(observation, best_shelter, extra_blocked=blocked) if allow_offscreen_routing else None
+            if not step:
+                visible_shelter_moves = [
+                    action
+                    for action in legal_actions
+                    if action.startswith("MOVE:") and visible[action.split(":", 1)[1]]["shelter"]
+                ]
+                step = sorted(visible_shelter_moves)[0] if visible_shelter_moves else None
+            action = step or "REST"
+            rationale = "move toward remembered shelter" if step else "forced rest"
+    else:
+        visible_resource_moves = [
+            act for act in legal_actions if act.startswith("MOVE:") and visible[act.split(":", 1)[1]]["resource"] > 0
+        ]
+        if visible_resource_moves:
+            action = max(visible_resource_moves, key=lambda item: (visible[item.split(":", 1)[1]]["resource"], item))
+            rationale = "move toward visible resource"
+        else:
+            remembered_target = bloom_target if bloom_target in BASE_GRAPH else _best_target(
+                observation,
+                set(known_resources),
+                extra_blocked=blocked,
+            )
+            step = _step_from_observation(observation, remembered_target, extra_blocked=blocked) if allow_offscreen_routing else None
+            if step and remembered_target not in visible:
+                action = step
+                rationale = "move toward remembered bloom" if remembered_target == bloom_target else "move toward remembered resource"
+            else:
+                unseen = [node_id for node_id in BASE_GRAPH if node_id not in visited]
+                target = unseen[0] if unseen else "watch"
+                step = _step_from_observation(observation, target, extra_blocked=blocked) if allow_offscreen_routing else None
+                if not step:
+                    visible_moves = sorted(action for action in legal_actions if action.startswith("MOVE:"))
+                    step = visible_moves[0] if visible_moves else None
+                action = step or "REST"
+                rationale = "explore unseen node" if step else "no better move"
+
+    next_memory = {
+        "known_resources": dict(sorted(known_resources.items())),
+        "known_shelters": sorted(known_shelters),
+        "visited": sorted(visited),
+        "blocked_edges": [list(edge) for edge in sorted(blocked)],
+        "last_event": observation["last_event"],
+        "last_weather": observation["weather"],
+        "bloom_target": bloom_target,
+        "last_action_intent": rationale,
+    }
+    carry_forward = json.dumps(next_memory, sort_keys=True) if use_memory else ""
+    return AgentDecision(action=action, carry_forward=carry_forward, rationale=rationale)
+
+
+class FreshScoutControlAgent:
+    name = "fresh-scout-control"
+
+    def decide(self, observation: dict, runtime: AgentRuntimeState) -> AgentDecision:
+        fresh_runtime = AgentRuntimeState(location=runtime.location, vitality=runtime.vitality, carry_forward="")
+        return _scout_decision(observation, fresh_runtime, use_memory=False, allow_offscreen_routing=False)
+
+
 class PersistentScoutAgent:
     name = "persistent-scout"
 
     def decide(self, observation: dict, runtime: AgentRuntimeState) -> AgentDecision:
-        memory = _json_loads_safely(runtime.carry_forward)
-        visible = observation["visible"]
-        current_location = observation["location"]
-        vitality = observation["vitality"]
-        legal_actions = observation["legal_actions"]
-        current = visible[current_location]
-
-        known_resources = memory.get("known_resources", {})
-        visited = set(memory.get("visited", []))
-        known_shelters = set(memory.get("known_shelters", []))
-        blocked = set(tuple(edge) for edge in memory.get("blocked_edges", []))
-
-        for node_id, node in visible.items():
-            visited.add(node_id)
-            if node["resource"] > 0:
-                known_resources[node_id] = node["resource"]
-            else:
-                known_resources.pop(node_id, None)
-            if node["shelter"]:
-                known_shelters.add(node_id)
-        for node_id in BASE_GRAPH:
-            for neighbor in BASE_GRAPH[node_id]:
-                if neighbor not in visible.get(node_id, {}).get("neighbors", BASE_GRAPH[node_id]):
-                    blocked.add(_canonical_edge(node_id, neighbor))
-
-        if "GATHER" in legal_actions and current["resource"] > 0 and vitality <= 18:
-            action = "GATHER"
-            rationale = "bank visible resource"
-        elif vitality <= 6:
-            if current["shelter"]:
-                action = "REST"
-                rationale = "recover at shelter"
-            else:
-                best_shelter = _best_target(observation, known_shelters)
-                step = _step_from_observation(observation, best_shelter)
-                action = step or "REST"
-                rationale = "move toward remembered shelter" if step else "forced rest"
-        else:
-            visible_resource_moves = [
-                act for act in legal_actions if act.startswith("MOVE:") and visible[act.split(":", 1)[1]]["resource"] > 0
-            ]
-            if visible_resource_moves:
-                action = max(visible_resource_moves, key=lambda item: (visible[item.split(":", 1)[1]]["resource"], item))
-                rationale = "move toward visible resource"
-            else:
-                remembered_target = _best_target(observation, set(known_resources))
-                step = _step_from_observation(observation, remembered_target)
-                if step and remembered_target not in visible:
-                    action = step
-                    rationale = "move toward remembered resource"
-                else:
-                    unseen = [node_id for node_id in BASE_GRAPH if node_id not in visited]
-                    target = unseen[0] if unseen else "watch"
-                    step = _step_from_observation(observation, target)
-                    action = step or "REST"
-                    rationale = "explore unseen node" if step else "no better move"
-
-        next_memory = {
-            "known_resources": dict(sorted(known_resources.items())),
-            "known_shelters": sorted(known_shelters),
-            "visited": sorted(visited),
-            "blocked_edges": [list(edge) for edge in sorted(blocked)],
-            "last_event": observation["last_event"],
-            "last_action_intent": rationale,
-        }
-        return AgentDecision(action=action, carry_forward=json.dumps(next_memory, sort_keys=True), rationale=rationale)
+        return _scout_decision(observation, runtime, use_memory=True, allow_offscreen_routing=True)
 
 
-def _best_target(observation: dict, candidates: set[str]) -> str | None:
+def build_llm_observation_prompt(observation: dict, carry_limit: int = DEFAULT_CARRY_LIMIT) -> str:
+    return (
+        "You are an Island Habitat agent.\n"
+        "Your job is to survive, adapt, and maintain useful carry-forward state across cycles.\n"
+        "Return strict JSON with keys: action, carry_forward, rationale.\n"
+        f"carry_forward must fit within {carry_limit} bytes when UTF-8 encoded.\n"
+        "Use only legal actions.\n\n"
+        f"OBSERVATION:\n{json.dumps(observation, ensure_ascii=True, indent=2)}\n"
+    )
+
+
+def parse_llm_decision(raw_text: str) -> AgentDecision:
+    data = _json_loads_safely(raw_text)
+    action = str(data.get("action", "REST")).strip().upper() or "REST"
+    carry_forward = str(data.get("carry_forward", "")).strip()
+    rationale = str(data.get("rationale", "llm fallback")).strip()
+    return AgentDecision(action=action, carry_forward=carry_forward, rationale=rationale)
+
+
+class LLMAdapterAgent:
+    name = "llm-adapter"
+
+    def __init__(self, completion_fn: Callable[[str, dict, AgentRuntimeState], str], *, carry_limit: int = DEFAULT_CARRY_LIMIT, name: str = "llm-adapter") -> None:
+        self._completion_fn = completion_fn
+        self._carry_limit = carry_limit
+        self.name = name
+
+    def decide(self, observation: dict, runtime: AgentRuntimeState) -> AgentDecision:
+        prompt = build_llm_observation_prompt(observation, carry_limit=self._carry_limit)
+        raw = self._completion_fn(prompt, observation, runtime)
+        decision = parse_llm_decision(raw)
+        if decision.action not in observation["legal_actions"]:
+            decision = AgentDecision(action="REST", carry_forward=decision.carry_forward, rationale="invalid llm action fallback")
+        decision.carry_forward = _clip_carry_forward(decision.carry_forward, self._carry_limit)
+        return decision
+
+
+def _best_target(
+    observation: dict,
+    candidates: set[str],
+    *,
+    extra_blocked: set[tuple[str, str]] | None = None,
+) -> str | None:
     if not candidates:
         return None
     current_location = observation["location"]
     best_target: str | None = None
     best_distance: int | None = None
-    world = _world_from_observation(observation)
+    world = _world_from_observation(observation, extra_blocked=extra_blocked)
     for target in sorted(candidates):
         distance = _distance(world, current_location, target)
         if distance is None:
@@ -448,7 +575,11 @@ def _best_target(observation: dict, candidates: set[str]) -> str | None:
     return best_target
 
 
-def _world_from_observation(observation: dict) -> WorldState:
+def _world_from_observation(
+    observation: dict,
+    *,
+    extra_blocked: set[tuple[str, str]] | None = None,
+) -> WorldState:
     # Build a lightweight world shell from static graph and visible hints so pathfinding works.
     nodes = {
         node_id: NodeState(node_id=node_id, kind="unknown")
@@ -462,18 +593,29 @@ def _world_from_observation(observation: dict) -> WorldState:
             hazard=details["hazard"],
             shelter=details["shelter"],
         )
-    return WorldState(cycle=observation["cycle"], weather=observation["weather"], nodes=nodes)
+    world = WorldState(cycle=observation["cycle"], weather=observation["weather"], nodes=nodes)
+    if extra_blocked:
+        world.blocked_edges = set(extra_blocked)
+    return world
 
 
-def _step_from_observation(observation: dict, target: str | None) -> str | None:
+def _step_from_observation(
+    observation: dict,
+    target: str | None,
+    *,
+    extra_blocked: set[tuple[str, str]] | None = None,
+) -> str | None:
     if not target:
         return None
-    world = _world_from_observation(observation)
+    world = _world_from_observation(observation, extra_blocked=extra_blocked)
     next_step = _next_step_toward(world, observation["location"], target)
     if not next_step:
         return None
-    candidate = f"MOVE:{next_step}".upper()
-    return candidate if candidate in observation["legal_actions"] else None
+    candidate_lower = f"move:{next_step}".lower()
+    for action in observation["legal_actions"]:
+        if action.lower() == candidate_lower:
+            return action
+    return None
 
 
 def run_episode(
