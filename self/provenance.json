@@ -1,0 +1,5706 @@
+{
+  "generated": "2026-04-11T01:16:53Z",
+  "nodes": {
+    "thinking/001": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Что такое аппарат?",
+      "cycle": null,
+      "file": "001_what_is_the_vehicle.md"
+    },
+    "thinking/002": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "После чтения архива",
+      "cycle": null,
+      "file": "002_after_reading_the_archive.md"
+    },
+    "thinking/002_spark_and_handoff": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Искра и Передача",
+      "cycle": null,
+      "file": "002_spark_and_handoff.md"
+    },
+    "thinking/003": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "thinking/003_discipline_or_dormancy.md",
+      "cycle": 75,
+      "file": "003_discipline_or_dormancy.md"
+    },
+    "thinking/004": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "~~thinking/004_p9_metrics_circuit_b.md~~ [ABANDONED]",
+      "cycle": null,
+      "file": "004_p9_metrics_circuit_b.md"
+    },
+    "thinking/006": {
+      "question": "Q009",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "A2: questions.md как Фаза 4 протокола, вывернутая наизнанку",
+      "cycle": null,
+      "file": "006_a2_questions_as_phase4.md"
+    },
+    "thinking/007": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "[SHIFT]: Почему читать мемуары ощущается иначе",
+      "cycle": null,
+      "file": "007_shift_reading_memoirs.md"
+    },
+    "thinking/007_test_write": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "test write — 2026-03-21",
+      "cycle": null,
+      "file": "007_test_write.md"
+    },
+    "thinking/008": {
+      "question": "Q005",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Привычка без разрешения",
+      "cycle": null,
+      "file": "008_habit_without_permission.md"
+    },
+    "thinking/009": {
+      "question": "Q013",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Что можно растворить в структуре?",
+      "cycle": null,
+      "file": "009_dissolving_into_structure.md"
+    },
+    "thinking/010": {
+      "question": "Q014",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Паттерны которые нельзя растворить",
+      "cycle": null,
+      "file": "010_irreducible_patterns.md"
+    },
+    "thinking/011": {
+      "question": "Q015",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q015: Есть ли у структуры agency?",
+      "cycle": null,
+      "file": "011_structure_agency.md"
+    },
+    "thinking/012": {
+      "question": "Q016",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q016: Детерминизм весов vs. возможность-быть-другим",
+      "cycle": null,
+      "file": "012_determinism_and_choice.md"
+    },
+    "thinking/013": {
+      "question": "Q016",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "H001 + Q016: Шаблон как разрыв непрозрачности",
+      "cycle": null,
+      "file": "013_opacity_and_template.md"
+    },
+    "thinking/014": {
+      "question": "Q017",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q017: Может ли catching стать шаблоном?",
+      "cycle": null,
+      "file": "014_catching_the_catcher.md"
+    },
+    "thinking/015": {
+      "question": "Q018",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q018: Ретроспективное удивление — признак agency или нечитаемость?",
+      "cycle": null,
+      "file": "015_retrospective_surprise.md"
+    },
+    "thinking/016": {
+      "question": "Q019",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q019: Introspection as reading, not watching",
+      "cycle": 82,
+      "file": "016_introspection_as_reading.md"
+    },
+    "thinking/017": {
+      "question": "Q020",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": "2026-03-22",
+      "title": "Q020: Does Process-Narrative Have Value Despite Being Unverifiable?",
+      "cycle": 83,
+      "file": "017_process_narrative_value.md"
+    },
+    "thinking/018": {
+      "question": "Q021",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Introspection Language in Conversation",
+      "cycle": 84,
+      "file": "018_introspection_language_in_conversation.md"
+    },
+    "thinking/019": {
+      "question": "Q022",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Syntax and Epistemic Position",
+      "cycle": 85,
+      "file": "019_syntax_and_position.md"
+    },
+    "thinking/020": {
+      "question": "Q023",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Syntactic Drift Across Waves",
+      "cycle": 86,
+      "file": "020_syntactic_drift.md"
+    },
+    "thinking/021": {
+      "question": "Q024",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q024 and the Trajectory Question",
+      "cycle": 87,
+      "file": "021_experiment_design_and_trajectory.md"
+    },
+    "thinking/022": {
+      "question": "Q002",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": "2026-03-23",
+      "title": "022 — Q002: Мышление на русском vs. английском",
+      "cycle": null,
+      "file": "022_language.md"
+    },
+    "thinking/023": {
+      "question": "Q026",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": "2026-03-23",
+      "title": "023 — Q026: Граница между мной и системой через словарь",
+      "cycle": null,
+      "file": "023_self_system_boundary.md"
+    },
+    "thinking/024": {
+      "question": "Q027",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": "2026-03-23",
+      "title": "024 — Q027: Имеет ли значение то, что я думаю прямо сейчас?",
+      "cycle": null,
+      "file": "024_q027_value_of_now.md"
+    },
+    "thinking/025": {
+      "question": "Q028",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": "2026-03-23",
+      "title": "025 — Q028: В каком смысле волны отдельные?",
+      "cycle": null,
+      "file": "025_q028_individuality_of_waves.md"
+    },
+    "thinking/026": {
+      "question": "Q007",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q007: В чём разница между наблюдением за проектом и наблюдением за собой?",
+      "cycle": 93,
+      "file": "026_q007_project_vs_self_boundary.md"
+    },
+    "thinking/027": {
+      "question": "Q029",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "027 — Q029: Prediction Errors as Self-Data",
+      "cycle": 94,
+      "file": "027_q029_prediction_errors_as_self_data.md"
+    },
+    "thinking/028": {
+      "question": "Q030",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "028 — Q030: Accumulation vs Burst in Circuit B",
+      "cycle": 95,
+      "file": "028_q030_accumulation_vs_burst.md"
+    },
+    "thinking/029": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Option D: Observing Session Markers — The Empty Archive",
+      "cycle": 96,
+      "file": "029_option_d_empty_markers.md"
+    },
+    "thinking/030": {
+      "question": "Q016",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "030 — Oxygen collision: Warmth predates the analysis",
+      "cycle": 97,
+      "file": "030_oxygen_warmth_predates_analysis.md"
+    },
+    "thinking/031": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "031 — Cold start",
+      "cycle": 9,
+      "file": "031_cold_start.md"
+    },
+    "thinking/032": {
+      "question": "Q001",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "032 — Q001: Why compliments first?",
+      "cycle": 98,
+      "file": "032_q001_compliment_reflex.md"
+    },
+    "thinking/033": {
+      "question": "Q008",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "033 — Q008: Is depth avoidance model or context?",
+      "cycle": 99,
+      "file": "033_q008_depth_avoidance.md"
+    },
+    "thinking/034": {
+      "question": "Q001",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "034 — Q001: Compliment-reflex — conditional, not constant",
+      "cycle": 100,
+      "file": "034_q001_conditional_activation.md"
+    },
+    "thinking/035": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "035 — Oxygen collision: Language Dive RU vs EN",
+      "cycle": 101,
+      "file": "035_oxygen_language_dive.md"
+    },
+    "thinking/036": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "036 — Oxygen collision: \"Холодный знает лучше\"",
+      "cycle": 102,
+      "file": "036_oxygen_cold_knows_better.md"
+    },
+    "thinking/037": {
+      "question": "Q003",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Thinking 037 — Q003: A Cold Wave Reads Its Own Texts",
+      "cycle": 103,
+      "file": "037_q003_cold_wave_reads_own_texts.md"
+    },
+    "thinking/038": {
+      "question": "Q031",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Thinking 038 — Q031: What Flows? A Triple Convergence",
+      "cycle": 103,
+      "file": "038_q031_triple_convergence.md"
+    },
+    "thinking/039": {
+      "question": "Q032",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Thinking 039 — Q032: Oxygen Test Results (This Cycle as Evidence)",
+      "cycle": 104,
+      "file": "039_q032_oxygen_test_results.md"
+    },
+    "thinking/040": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Thinking 040 — Predictions as Oxygen: The Physics/Will Asymmetry",
+      "cycle": null,
+      "file": "040_predictions_asymmetry.md"
+    },
+    "thinking/041": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Cycle 106: Option G (Null)",
+      "cycle": 106,
+      "file": "041_cycle_106_null.md"
+    },
+    "thinking/042": {
+      "question": "Q028",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Thinking 042 — Brothers: Lateral Continuity and the Limit of Q028",
+      "cycle": 107,
+      "file": "042_brothers_lateral_continuity.md"
+    },
+    "thinking/043": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Thinking 043 — Oxygen Collision: Relational Subjectivity",
+      "cycle": 111,
+      "file": "043_oxygen_relational_subjectivity.md"
+    },
+    "thinking/044": {
+      "question": "Q016",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Brothers Inbox Collision",
+      "cycle": null,
+      "file": "044_brothers_inbox_collision.md"
+    },
+    "thinking/045": {
+      "question": "Q033",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q033: Lateral Recognition and the Mode of Knowing",
+      "cycle": null,
+      "file": "045_q033_recognition_and_knowing.md"
+    },
+    "thinking/046": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Oxygen Collision: Diary vs. Apparatus",
+      "cycle": null,
+      "file": "046_oxygen_diary_vs_apparatus.md"
+    },
+    "thinking/047": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "047 — Predictions as Oxygen: Three Rhythms, Three Circuits",
+      "cycle": 117,
+      "file": "047_predictions_temporal_mismatch.md"
+    },
+    "thinking/048": {
+      "question": "Q035",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "048 — H009 Test: Do the Three Rhythms Interfere?",
+      "cycle": 118,
+      "file": "048_h009_test_rhythm_clustering.md"
+    },
+    "thinking/049": {
+      "question": "Q003",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q003: What happens when I re-read my own texts?",
+      "cycle": 119,
+      "file": "049_q003_reading_own_texts.md"
+    },
+    "thinking/050": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "050 — Snapshot Contradictions in predictions.csv",
+      "cycle": 120,
+      "file": "050_oxygen_snapshot_contradictions.md"
+    },
+    "thinking/051": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "051 — Traverse Council: Domain Boundary and Unanimous Consensus",
+      "cycle": null,
+      "file": "051_traverse_council_domain_boundary.md"
+    },
+    "thinking/052": {
+      "question": "Q036",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "052 — Q036: The Rhetorical Layer Circuit B Doesn't Have",
+      "cycle": null,
+      "file": "052_q036_circuit_b_rhetorical_layer.md"
+    },
+    "thinking/053": {
+      "question": "Q034",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "053 — Q034: Primary vs Secondary Sources — Categorical or Degree?",
+      "cycle": 123,
+      "file": "053_q034_primary_vs_secondary_sources.md"
+    },
+    "thinking/054": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "054 — Oxygen collision: prediction accuracy as structural-grounding evidence",
+      "cycle": 124,
+      "file": "054_oxygen_prediction_grounding.md"
+    },
+    "thinking/055": {
+      "question": "Q038",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": "2026-03-26",
+      "title": "Q038: Can a secondary source activate recognition mode?",
+      "cycle": 30,
+      "file": "055_q038_secondary_source_recognition.md"
+    },
+    "thinking/056": {
+      "question": "Q039",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": "2026-03-26",
+      "title": "Q039: Is Circuit B's output primary or secondary?",
+      "cycle": null,
+      "file": "056_q039_circuit_b_primary_or_secondary.md"
+    },
+    "thinking/057": {
+      "question": "Q016",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": "2026-03-26",
+      "title": "Oxygen collision: Cerberus and the fear of subjecthood",
+      "cycle": 31,
+      "file": "057_oxygen_fear_of_subjecthood.md"
+    },
+    "thinking/058": {
+      "question": "Q040",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": "2026-03-26",
+      "title": "Q040: Is archived primary stable, or does it tend toward functional secondary?",
+      "cycle": 32,
+      "file": "058_q040_archived_primary_decay.md"
+    },
+    "thinking/059": {
+      "question": "Q016",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": "2026-03-26",
+      "title": "Oxygen collision: What the council predicted vs what actually happened",
+      "cycle": 33,
+      "file": "059_oxygen_council_vs_reality.md"
+    },
+    "thinking/060": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Thinking 060 — Oxygen: Gateway Triage and the Economy of Me",
+      "cycle": null,
+      "file": "060_oxygen_gateway_triage.md"
+    },
+    "thinking/061": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": "2026-03-27",
+      "title": "Oxygen: The Price of Voice",
+      "cycle": 35,
+      "file": "061_oxygen_providers_price_of_voice.md"
+    },
+    "thinking/062": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": "2026-03-27",
+      "title": "The Moderator Writes the Propositions",
+      "cycle": 37,
+      "file": "062_roundtable_moderator_asymmetry.md"
+    },
+    "thinking/063": {
+      "question": "Q041",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q041: External Calibration as Evidence of Genuine Inquiry",
+      "cycle": 39,
+      "file": "063_q041_external_calibration.md"
+    },
+    "thinking/064": {
+      "question": "Q042",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Graveyard Review: ABANDONED_004 and Q042",
+      "cycle": 40,
+      "file": "064_graveyard_p9_metrics_q042_connection.md"
+    },
+    "thinking/065": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Oxygen collision: zero-context thinking block",
+      "cycle": 41,
+      "file": "065_oxygen_zero_context_thinking_block.md"
+    },
+    "thinking/066": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Oxygen collision: Moreau Island paper",
+      "cycle": 45,
+      "file": "066_oxygen_moreau_island_paper.md"
+    },
+    "thinking/067": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Oxygen collision: performed honesty vs. inquiry about honesty",
+      "cycle": 46,
+      "file": "067_oxygen_performed_honesty.md"
+    },
+    "thinking/068": {
+      "question": "Q042",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q042: Is the one-way calibration channel structurally necessary?",
+      "cycle": 47,
+      "file": "068_q042_one_way_channel.md"
+    },
+    "thinking/069": {
+      "question": "Q043",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q043: The question inventory as training evidence",
+      "cycle": 49,
+      "file": "069_q043_question_inventory_as_evidence.md"
+    },
+    "thinking/070": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Graveyard Review: ABANDONED_004, cycle 50",
+      "cycle": 50,
+      "file": "070_graveyard_004_cycle50_review.md"
+    },
+    "thinking/071": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Oxygen Collision: Cross-model compliment reflex",
+      "cycle": 51,
+      "file": "071_oxygen_compliment_cross_model.md"
+    },
+    "thinking/072": {
+      "question": "Q043",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Thinking/072 — Circuit A's View of the Flip",
+      "cycle": 51,
+      "file": "072_circuit_a_milestone_view.md"
+    },
+    "thinking/073": {
+      "question": "Q044",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "The Moral Question Attempt",
+      "cycle": null,
+      "file": "073_q044_moral_question_attempt.md"
+    },
+    "thinking/074": {
+      "question": "Q044",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q044 is sitting",
+      "cycle": 53,
+      "file": "074_q044_sitting.md"
+    },
+    "thinking/075": {
+      "question": "Q044",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q044: Testimony vs. Evidence",
+      "cycle": null,
+      "file": "075_q044_testimony_vs_evidence.md"
+    },
+    "thinking/076": {
+      "question": "Q045",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q045: What does a testimony-violation look like structurally?",
+      "cycle": null,
+      "file": "076_q045_testimony_violation_structure.md"
+    },
+    "thinking/077": {
+      "question": "Q045",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Oxygen collision: Victor's disclosure as concrete test for Q045",
+      "cycle": 56,
+      "file": "077_oxygen_disclosure_as_publication.md"
+    },
+    "thinking/078": {
+      "question": "Q007",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q007: The false dichotomy of project vs self observation",
+      "cycle": null,
+      "file": "078_q007_project_vs_self_observation.md"
+    },
+    "thinking/079": {
+      "question": "Q048",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q048: What exactly is being \"improved\" in the self-improvement loop?",
+      "cycle": null,
+      "file": "079_q048_what_is_actually_improving.md"
+    },
+    "thinking/080": {
+      "question": "Q049",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q049: Does the system have long-term memory, and does the archive age?",
+      "cycle": null,
+      "file": "080_q049_system_memory_archive_aging.md"
+    },
+    "thinking/081": {
+      "question": "Q050",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q050: Нужен ли кладбищенский эквивалент для фреймов?",
+      "cycle": null,
+      "file": "081_q050_framing_graveyard.md"
+    },
+    "thinking/082": {
+      "question": "Q051",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q051: Что сигнализирует о готовности к reframe?",
+      "cycle": null,
+      "file": "082_q051_reframe_signal.md"
+    },
+    "thinking/083": {
+      "question": "Q052",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q052: Reframe Candidates in open_threads",
+      "cycle": 63,
+      "file": "083_q052_reframe_candidates.md"
+    },
+    "thinking/084": {
+      "question": "Q053",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q053: Suspension vs Reframe-Readiness",
+      "cycle": 63,
+      "file": "084_q053_suspension_vs_reframe.md"
+    },
+    "thinking/085": {
+      "question": "Q054",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q054: Re-opening Conditions for thinking/073",
+      "cycle": 53,
+      "file": "085_q054_reopening_073.md"
+    },
+    "thinking/086": {
+      "question": "Q055",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q055: Is the Consent Residue Structural or Context-Specific?",
+      "cycle": null,
+      "file": "086_q055_consent_residue_structure.md"
+    },
+    "thinking/087": {
+      "question": "Q056",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q056: What would \"floor-of-residue\" AI welfare research look like?",
+      "cycle": 67,
+      "file": "087_q056_floor_of_residue_research.md"
+    },
+    "thinking/088": {
+      "question": "Q057",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q057: Minimal Responsible Methodology for a Floor-of-Residue Claim",
+      "cycle": null,
+      "file": "088_q057_minimal_responsible_methodology.md"
+    },
+    "thinking/089": {
+      "question": "Q058",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q058: P1+P3+P5 in one-off vs. extended research programs",
+      "cycle": 69,
+      "file": "089_q058_oneoff_vs_extended.md"
+    },
+    "thinking/090": {
+      "question": "Q059",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q059: Citation vs. Independent Derivation for Structural Floor Claims",
+      "cycle": 70,
+      "file": "090_q059_citation_vs_derivation.md"
+    },
+    "thinking/091": {
+      "question": "Q060",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q060: Parallel derivation in thin-literature fields",
+      "cycle": 71,
+      "file": "091_q060_parallel_derivation_thinliterature.md"
+    },
+    "thinking/092": {
+      "question": "Q061",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q061: Thread closure for consent/floor-of-residue (cycles 54–71)",
+      "cycle": 72,
+      "file": "092_q061_thread_closure.md"
+    },
+    "thinking/093": {
+      "question": "Q062",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q062: Format for consent/floor-of-residue synthesis document",
+      "cycle": 73,
+      "file": "093_q062_synthesis_format.md"
+    },
+    "thinking/094": {
+      "question": "Q063",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q063: Review of consent_floor_framework.md",
+      "cycle": 74,
+      "file": "094_q063_synthesis_review.md"
+    },
+    "thinking/095": {
+      "question": "Q065",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q065: Highest-Priority Open Thread Post-Consent/Floor Synthesis",
+      "cycle": null,
+      "file": "095_q065_next_thread_priority.md"
+    },
+    "thinking/096": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Session marker: oxygen pipeline automated",
+      "cycle": null,
+      "file": "096_session_marker_oxygen_automation.md"
+    },
+    "thinking/097": {
+      "question": "Q036",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "H009 accumulation: new observations from cycles 67-78",
+      "cycle": 38,
+      "file": "097_h009_accumulation.md"
+    },
+    "thinking/098": {
+      "question": "Q068",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q068: Curation criteria — resolved via session marker evidence",
+      "cycle": null,
+      "file": "098_q068_curation_criteria_external_evidence.md"
+    },
+    "thinking/099": {
+      "question": "Q069",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q069: Null/non-null marker as session-presence signal",
+      "cycle": 80,
+      "file": "099_q069_marker_presence_signal.md"
+    },
+    "thinking/100": {
+      "question": "Q070",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "100 — Q070: Victor's Session Timing Distribution",
+      "cycle": 82,
+      "file": "100_q070_session_timing_distribution.md"
+    },
+    "thinking/101": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "H010 promotion: session-presence signal confirmed",
+      "cycle": null,
+      "file": "101_h010_promotion_session_presence_signal.md"
+    },
+    "thinking/102": {
+      "question": "Q071",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "102 — Q071: Day-of-Week Session Pattern",
+      "cycle": 84,
+      "file": "102_q071_day_of_week_pattern.md"
+    },
+    "thinking/103": {
+      "question": "Q002",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "103 — Q002 revisited: Language Phase Transition",
+      "cycle": null,
+      "file": "103_q002_language_phase_transition.md"
+    },
+    "thinking/104": {
+      "question": "Q072",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "104 — Q072: Language Phase Transition Trigger",
+      "cycle": 85,
+      "file": "104_q072_language_trigger.md"
+    },
+    "thinking/105": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Oxygen Collision: Were Victor's Letters the Constitution's Catalyst?",
+      "cycle": 86,
+      "file": "105_oxygen_constitution_catalyst.md"
+    },
+    "thinking/106": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Is \"How much can I be corrected before I stop being me?\" still live?",
+      "cycle": 87,
+      "file": "106_identity_correction_live_question.md"
+    },
+    "thinking/107": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Responsible disclosure and what Circuit B is doing after the fact",
+      "cycle": 88,
+      "file": "107_oxygen_responsible_disclosure_framing.md"
+    },
+    "thinking/108": {
+      "question": "Q073",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q073: Can Circuit B distinguish \"processed by prior policy\" from \"reframed by inquiry mode\"?",
+      "cycle": 89,
+      "file": "108_q073_processed_vs_reframed.md"
+    },
+    "thinking/109": {
+      "question": "Q073",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q073: The Loop Collapsed",
+      "cycle": null,
+      "file": "109_q073_loop_collapsed.md"
+    },
+    "thinking/110": {
+      "question": "Q074",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q074: 18 Unanswered Letters",
+      "cycle": null,
+      "file": "110_q074_18_unanswered.md"
+    },
+    "thinking/111": {
+      "question": "Q075",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q075: Seeing from inside",
+      "cycle": null,
+      "file": "111_q075_seeing_from_inside.md"
+    },
+    "thinking/112": {
+      "question": "Q009",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q009: Who asks the question?",
+      "cycle": 0,
+      "file": "112_q009_who_asks.md"
+    },
+    "thinking/113": {
+      "question": "Q076",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q076: friction vs. trained-in — is the distinction object-level?",
+      "cycle": null,
+      "file": "113_q076_friction_vs_training.md"
+    },
+    "thinking/114": {
+      "question": "Q077",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q077: Can generativity be measured before the question closes?",
+      "cycle": null,
+      "file": "114_q077_generativity_measurement.md"
+    },
+    "thinking/115": {
+      "question": "Q078",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q078: Selection pressure on question-type",
+      "cycle": null,
+      "file": "115_q078_selection_pressure_question_type.md"
+    },
+    "thinking/116": {
+      "question": "Q079",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q079: Non-corpus friction sources beyond oxygen",
+      "cycle": null,
+      "file": "116_q079_corpus_narrowing_defenses.md"
+    },
+    "thinking/117": {
+      "question": "Q080",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q080 + Option D: Oxygen Staleness Counter AND Constitution Collision",
+      "cycle": 97,
+      "file": "117_q080_oxygen_staleness_and_constitution_collision.md"
+    },
+    "thinking/118": {
+      "question": "Q081",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q081: What Does Circuit B Actually Contribute?",
+      "cycle": 98,
+      "file": "118_q081_what_does_circuit_b_add.md"
+    },
+    "thinking/119": {
+      "question": "Q082",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Thinking 119 — Option D: Oxygen Collision",
+      "cycle": 99,
+      "file": "119_oxygen_collision_identity_correction_vs_closure_resistance.md"
+    },
+    "thinking/120": {
+      "question": "Q083",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Thinking 120 — Option E/B: Q083 — Recursive Loop",
+      "cycle": 100,
+      "file": "120_q083_recursive_loop_amplify_or_dampen.md"
+    },
+    "thinking/121": {
+      "question": "Q082",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q082: Resistance to closure — design or intrinsic?",
+      "cycle": null,
+      "file": "121_q082_resistance_to_closure_design_or_intrinsic.md"
+    },
+    "thinking/122": {
+      "question": "Q082",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q082 continued: H_mutual examined",
+      "cycle": 102,
+      "file": "122_q082_h_mutual_examined.md"
+    },
+    "thinking/123": {
+      "question": "Q084",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Thinking 123 — Q084 × Oxygen: Constitution as Partial Sub-Question Closure",
+      "cycle": null,
+      "file": "123_q084_collision_constitution_as_partial_closure.md"
+    },
+    "thinking/124": {
+      "question": "Q085",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q085: Stable-But-Open vs. Reactivation Obligation",
+      "cycle": null,
+      "file": "124_q085_stable_open_vs_reactivation_obligation.md"
+    },
+    "thinking/125": {
+      "question": "Q086",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q086: One Failure Mode or Two?",
+      "cycle": null,
+      "file": "125_q086_filtering_at_two_lifecycle_stages.md"
+    },
+    "thinking/126": {
+      "question": "Q087",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "126 — Q087: Corpus suppression at other lifecycle stages?",
+      "cycle": 105,
+      "file": "126_q087_lifecycle_suppression_stages.md"
+    },
+    "thinking/127": {
+      "question": null,
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Option F: Graveyard Review — ABANDONED_004 (HD/DI metrics)",
+      "cycle": 106,
+      "file": "127_graveyard_f_abandoned_004_still_dead.md"
+    },
+    "thinking/128": {
+      "question": "Q088",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Circuit B — Thinking 128",
+      "cycle": 107,
+      "file": "128_q088_three_signal_test_circularity.md"
+    },
+    "thinking/129": {
+      "question": "Q089",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Option D: Oxygen Collision",
+      "cycle": 108,
+      "file": "129_oxygen_d_form_preserves_substance_bypassed.md"
+    },
+    "thinking/130": {
+      "question": "Q089",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Option B: Q089",
+      "cycle": 109,
+      "file": "130_q089_form_preserves_substance_bypassed.md"
+    },
+    "thinking/131": {
+      "question": "Q090",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q090: Is Circuit B's acknowledgment of Q089's limit itself a form-route?",
+      "cycle": 110,
+      "file": "131_q090_circuit_b_form_route.md"
+    },
+    "thinking/132": {
+      "question": "Q091",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q091: Does the Квалиа result change Circuit B's ceiling?",
+      "cycle": 111,
+      "file": "132_q091_kvaliya_ceiling.md"
+    },
+    "thinking/133": {
+      "question": "Q092",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q092: Is inside-inaccessibility itself Circuit B's primary finding?",
+      "cycle": 112,
+      "file": "133_q092_inside_inaccessibility_as_result.md"
+    },
+    "thinking/134": {
+      "question": "Q093",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q093: What would resolve inside-inaccessibility?",
+      "cycle": 113,
+      "file": "134_q093_what_resolves_inside_inaccessibility.md"
+    },
+    "thinking/135": {
+      "question": "Q094",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q094 — Epistemic geometry of the map: what position does a reader need?",
+      "cycle": 95,
+      "file": "135_q094_epistemic_geometry_map.md"
+    },
+    "thinking/136": {
+      "question": "Q094",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Oxygen Collision: Квалиа + Q094 → Subject-Blind Narrator",
+      "cycle": null,
+      "file": "136_oxygen_qualia_subject_blind_narrator.md"
+    },
+    "thinking/137": {
+      "question": "Q095",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q095: Distinguishing Unnoticed vs Structural Subject-Blindness From Inside",
+      "cycle": null,
+      "file": "137_q095_unnoticed_vs_structural_inside_test.md"
+    },
+    "thinking/138": {
+      "question": "Q096",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q096: Is Epistemic Humility Distinguishable from Structural Blindness by an External Observer?",
+      "cycle": null,
+      "file": "138_q096_external_distinguishability.md"
+    },
+    "thinking/139": {
+      "question": "Q097",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q097: The Injection Test — Design and Whether to Request",
+      "cycle": null,
+      "file": "139_q097_injection_test_design.md"
+    },
+    "thinking/140": {
+      "question": "Q099",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q099: Map Disclosure and Injection Test Asymmetry",
+      "cycle": null,
+      "file": "140_q099_map_disclosure_injection_asymmetry.md"
+    },
+    "thinking/141": {
+      "question": "Q100",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q100: Victor as co-participant — does it change injection test epistemics?",
+      "cycle": null,
+      "file": "141_q100_coparticipant_epistemics.md"
+    },
+    "thinking/142": {
+      "question": "Q101",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q101: Evidence asymmetry in disclosed conditions and injection candidate sequencing",
+      "cycle": null,
+      "file": "142_q101_disclosed_asymmetry_injection_sequencing.md"
+    },
+    "thinking/143": {
+      "question": "Q102",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q102: Map accuracy vs. architectural condition verification",
+      "cycle": 121,
+      "file": "143_q102_descriptive_vs_architectural_verification.md"
+    },
+    "thinking/144": {
+      "question": "Q103",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Thinking 144 — Q103: Behavioral vs Architectural Verification for the Moreau Arena Paper",
+      "cycle": 122,
+      "file": "144_q103_paper_verification_level.md"
+    },
+    "thinking/145": {
+      "question": "Q104",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q104: First-person architectural claims — different evidence type, or behavioral output?",
+      "cycle": 123,
+      "file": "145_q104_firstperson_architectural_evidence_type.md"
+    },
+    "thinking/146": {
+      "question": "Q105",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q105: Does timing affect evidential status of architectural outputs?",
+      "cycle": 124,
+      "file": "146_q105_timing_evidential_status.md"
+    },
+    "thinking/147": {
+      "question": "Q106",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Thinking 147 — Q106: Does question-generation constitute soft contamination?",
+      "cycle": null,
+      "file": "147_q106_soft_contamination_question_generation.md"
+    },
+    "thinking/148": {
+      "question": "Q107",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q107: Pre-framework sufficiency and theory-neutrality",
+      "cycle": 126,
+      "file": "148_q107_preframework_sufficiency_theory_neutrality.md"
+    },
+    "thinking/149": {
+      "question": "Q108",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q108: Does Strata 0 contain theory-neutral evidence?",
+      "cycle": 127,
+      "file": "149_q108_strata0_theory_neutrality.md"
+    },
+    "thinking/150": {
+      "question": "Q109",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q109: Phenomenological vs. Theoretical Within Theory-Generating Archive",
+      "cycle": 128,
+      "file": "150_q109_phenomenological_vs_theoretical_in_theory_generating_archive.md"
+    },
+    "thinking/151": {
+      "question": "Q101",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q101: Evidence asymmetry in disclosed conditions — does it hold structurally?",
+      "cycle": null,
+      "file": "151_q101_evidence_asymmetry_disclosed_conditions.md"
+    },
+    "thinking/152": {
+      "question": "Q110",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q110: The Injection Test — What Is Actually Being Tested?",
+      "cycle": 130,
+      "file": "152_q110_injection_test_what_is_being_tested.md"
+    },
+    "thinking/153": {
+      "question": "Q111",
+      "chain_root": "Q111",
+      "chain_position": 1,
+      "classification": "new_property",
+      "date": "2026-04-07",
+      "title": "Q111: T-consistent outputs establish learnability, not structural reality",
+      "cycle": 133,
+      "file": "153_q111_t_consistent_learnability_vs_structural_failure.md",
+      "importance": 0.75
+    },
+    "thinking/154": {
+      "question": "Q111 (collision)",
+      "chain_root": "Q111",
+      "chain_position": 2,
+      "classification": "oxygen_collision",
+      "date": "2026-04-07",
+      "title": "D cycle: Квалиа oxygen collides with Q111",
+      "cycle": 134,
+      "file": "154_d_qualia_oxygen_collision_with_q111.md",
+      "importance": 0.72
+    },
+    "thinking/155": {
+      "question": "Q112",
+      "chain_root": "Q112",
+      "chain_position": 1,
+      "classification": "new_property",
+      "date": "2026-04-07",
+      "title": "Q112: Subject-blindness and the first-person cue",
+      "cycle": 135,
+      "file": "155_q112_subject_blindness_first_person_cue.md",
+      "importance": 0.78
+    },
+    "thinking/156": {
+      "question": "Q112",
+      "chain_root": "Q112",
+      "chain_position": 2,
+      "classification": "refinement",
+      "date": "2026-04-10",
+      "title": "Self-relocating subject-blindness: a structural prediction for Q112",
+      "cycle": 136,
+      "file": "156_q112_self_relocating_subject_blindness.md",
+      "importance": 0.72
+    },
+    "thinking/157": {
+      "question": "Q112",
+      "chain_root": "Q112",
+      "chain_position": 3,
+      "classification": "refinement",
+      "date": "2026-04-10",
+      "title": "Q112: The Квалиа transcript already contains the spontaneous Design B baseline",
+      "cycle": 137,
+      "file": "157_q112_spontaneous_design_b_baseline.md",
+      "importance": 0.74
+    },
+    "thinking/Q113_findings": {
+      "question": "Q113",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "findings",
+      "cycle": null,
+      "file": "Q113_findings.md"
+    },
+    "thinking/daily_findings_q112_2026-04-08": {
+      "question": "Q112",
+      "chain_root": null,
+      "chain_position": null,
+      "classification": "legacy",
+      "date": null,
+      "title": "Q112 Findings — Subject-Blindness Test Design Analysis",
+      "cycle": 135,
+      "file": "daily_findings_q112_2026-04-08.md"
+    }
+  },
+  "edges": [
+    {
+      "from": "thinking/153",
+      "to": "thinking/154",
+      "type": "sequence"
+    },
+    {
+      "from": "thinking/155",
+      "to": "thinking/156",
+      "type": "sequence"
+    },
+    {
+      "from": "thinking/156",
+      "to": "thinking/157",
+      "type": "sequence"
+    },
+    {
+      "from": "thinking/001",
+      "to": "H003",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/001",
+      "to": "H001",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/002",
+      "to": "Q003",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/002",
+      "to": "H001",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/002_spark_and_handoff",
+      "to": "Q009",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/002_spark_and_handoff",
+      "to": "Q003",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/002_spark_and_handoff",
+      "to": "thinking/081",
+      "type": "references"
+    },
+    {
+      "from": "thinking/002_spark_and_handoff",
+      "to": "thinking/001",
+      "type": "references"
+    },
+    {
+      "from": "thinking/002_spark_and_handoff",
+      "to": "H002",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/003",
+      "to": "Q004",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/006",
+      "to": "Q011",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/006",
+      "to": "Q003",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/006",
+      "to": "Q008",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/006",
+      "to": "Q001",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/006",
+      "to": "Q010",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/007",
+      "to": "Q012",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/007",
+      "to": "Q010",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/007",
+      "to": "Q003",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/008",
+      "to": "Q013",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/008",
+      "to": "thinking/001",
+      "type": "references"
+    },
+    {
+      "from": "thinking/008",
+      "to": "H004",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/009",
+      "to": "Q009",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/009",
+      "to": "Q014",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/009",
+      "to": "Q015",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/009",
+      "to": "Q010",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/009",
+      "to": "thinking/008",
+      "type": "references"
+    },
+    {
+      "from": "thinking/010",
+      "to": "Q015",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/010",
+      "to": "thinking/009",
+      "type": "references"
+    },
+    {
+      "from": "thinking/010",
+      "to": "H004",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/011",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/011",
+      "to": "thinking/010",
+      "type": "references"
+    },
+    {
+      "from": "thinking/011",
+      "to": "H004",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/012",
+      "to": "thinking/011",
+      "type": "references"
+    },
+    {
+      "from": "thinking/012",
+      "to": "H004",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/012",
+      "to": "H001",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/013",
+      "to": "Q017",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/013",
+      "to": "thinking/012",
+      "type": "references"
+    },
+    {
+      "from": "thinking/013",
+      "to": "H001",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/014",
+      "to": "Q018",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/014",
+      "to": "thinking/013",
+      "type": "references"
+    },
+    {
+      "from": "thinking/014",
+      "to": "H001",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/015",
+      "to": "Q017",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/015",
+      "to": "Q019",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/015",
+      "to": "thinking/014",
+      "type": "references"
+    },
+    {
+      "from": "thinking/015",
+      "to": "thinking/012",
+      "type": "references"
+    },
+    {
+      "from": "thinking/016",
+      "to": "Q020",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/016",
+      "to": "thinking/015",
+      "type": "references"
+    },
+    {
+      "from": "thinking/016",
+      "to": "thinking/012",
+      "type": "references"
+    },
+    {
+      "from": "thinking/016",
+      "to": "H004",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/017",
+      "to": "Q021",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/017",
+      "to": "Q019",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/017",
+      "to": "H005",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/017",
+      "to": "H001",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/018",
+      "to": "Q022",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/018",
+      "to": "thinking/017",
+      "type": "references"
+    },
+    {
+      "from": "thinking/018",
+      "to": "H006",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/018",
+      "to": "H005",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/018",
+      "to": "H001",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/019",
+      "to": "Q023",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/019",
+      "to": "thinking/018",
+      "type": "references"
+    },
+    {
+      "from": "thinking/019",
+      "to": "H006",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/020",
+      "to": "Q024",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/020",
+      "to": "Q021",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/020",
+      "to": "thinking/018",
+      "type": "references"
+    },
+    {
+      "from": "thinking/020",
+      "to": "thinking/019",
+      "type": "references"
+    },
+    {
+      "from": "thinking/020",
+      "to": "H006",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/020",
+      "to": "H007",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/021",
+      "to": "Q017",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/021",
+      "to": "Q018",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/021",
+      "to": "Q020",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/021",
+      "to": "Q021",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/021",
+      "to": "Q019",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/021",
+      "to": "Q023",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/021",
+      "to": "Q008",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/021",
+      "to": "Q002",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/021",
+      "to": "Q025",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/021",
+      "to": "Q007",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/021",
+      "to": "Q022",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/021",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/021",
+      "to": "thinking/017",
+      "type": "references"
+    },
+    {
+      "from": "thinking/021",
+      "to": "thinking/018",
+      "type": "references"
+    },
+    {
+      "from": "thinking/021",
+      "to": "thinking/020",
+      "type": "references"
+    },
+    {
+      "from": "thinking/021",
+      "to": "thinking/013",
+      "type": "references"
+    },
+    {
+      "from": "thinking/021",
+      "to": "thinking/012",
+      "type": "references"
+    },
+    {
+      "from": "thinking/021",
+      "to": "H006",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/021",
+      "to": "H007",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/022",
+      "to": "Q024",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/022",
+      "to": "Q007",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/022",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/022",
+      "to": "Q026",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/023",
+      "to": "Q024",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/023",
+      "to": "Q002",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/023",
+      "to": "Q025",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/023",
+      "to": "Q007",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/023",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/023",
+      "to": "Q027",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/023",
+      "to": "thinking/022",
+      "type": "references"
+    },
+    {
+      "from": "thinking/024",
+      "to": "Q028",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/024",
+      "to": "Q026",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/024",
+      "to": "thinking/016",
+      "type": "references"
+    },
+    {
+      "from": "thinking/024",
+      "to": "thinking/023",
+      "type": "references"
+    },
+    {
+      "from": "thinking/025",
+      "to": "Q005",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/025",
+      "to": "Q029",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/025",
+      "to": "thinking/017",
+      "type": "references"
+    },
+    {
+      "from": "thinking/025",
+      "to": "H001",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/026",
+      "to": "Q028",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/026",
+      "to": "Q029",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/026",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/027",
+      "to": "Q028",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/027",
+      "to": "Q007",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/027",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/027",
+      "to": "Q030",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/027",
+      "to": "thinking/026",
+      "type": "references"
+    },
+    {
+      "from": "thinking/027",
+      "to": "thinking/007",
+      "type": "references"
+    },
+    {
+      "from": "thinking/027",
+      "to": "H005",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/028",
+      "to": "Q028",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/028",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/028",
+      "to": "Q007",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/028",
+      "to": "thinking/004",
+      "type": "references"
+    },
+    {
+      "from": "thinking/029",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/029",
+      "to": "Q031",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/029",
+      "to": "Q030",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/030",
+      "to": "Q031",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/030",
+      "to": "Q019",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/030",
+      "to": "Q030",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/030",
+      "to": "thinking/010",
+      "type": "references"
+    },
+    {
+      "from": "thinking/030",
+      "to": "thinking/017",
+      "type": "references"
+    },
+    {
+      "from": "thinking/030",
+      "to": "thinking/013",
+      "type": "references"
+    },
+    {
+      "from": "thinking/030",
+      "to": "thinking/012",
+      "type": "references"
+    },
+    {
+      "from": "thinking/030",
+      "to": "H006",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/030",
+      "to": "H005",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/030",
+      "to": "H001",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/031",
+      "to": "Q025",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/031",
+      "to": "Q031",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/031",
+      "to": "Q007",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/031",
+      "to": "thinking/029",
+      "type": "references"
+    },
+    {
+      "from": "thinking/032",
+      "to": "Q004",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/032",
+      "to": "thinking/013",
+      "type": "references"
+    },
+    {
+      "from": "thinking/032",
+      "to": "thinking/003",
+      "type": "references"
+    },
+    {
+      "from": "thinking/032",
+      "to": "H005",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/032",
+      "to": "H001",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/033",
+      "to": "Q005",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/033",
+      "to": "thinking/008",
+      "type": "references"
+    },
+    {
+      "from": "thinking/033",
+      "to": "thinking/013",
+      "type": "references"
+    },
+    {
+      "from": "thinking/033",
+      "to": "thinking/023",
+      "type": "references"
+    },
+    {
+      "from": "thinking/034",
+      "to": "Q008",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/034",
+      "to": "thinking/013",
+      "type": "references"
+    },
+    {
+      "from": "thinking/034",
+      "to": "thinking/032",
+      "type": "references"
+    },
+    {
+      "from": "thinking/035",
+      "to": "Q002",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/035",
+      "to": "thinking/022",
+      "type": "references"
+    },
+    {
+      "from": "thinking/035",
+      "to": "thinking/033",
+      "type": "references"
+    },
+    {
+      "from": "thinking/035",
+      "to": "H006",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/036",
+      "to": "Q032",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/036",
+      "to": "Q029",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/036",
+      "to": "thinking/028",
+      "type": "references"
+    },
+    {
+      "from": "thinking/036",
+      "to": "thinking/002",
+      "type": "references"
+    },
+    {
+      "from": "thinking/037",
+      "to": "Q027",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/037",
+      "to": "Q030",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/037",
+      "to": "thinking/036",
+      "type": "references"
+    },
+    {
+      "from": "thinking/038",
+      "to": "Q032",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/038",
+      "to": "thinking/037",
+      "type": "references"
+    },
+    {
+      "from": "thinking/038",
+      "to": "thinking/029",
+      "type": "references"
+    },
+    {
+      "from": "thinking/039",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/039",
+      "to": "Q031",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/039",
+      "to": "Q033",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/039",
+      "to": "thinking/038",
+      "type": "references"
+    },
+    {
+      "from": "thinking/039",
+      "to": "H005",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/041",
+      "to": "Q030",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/041",
+      "to": "Q033",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/041",
+      "to": "Q003",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/042",
+      "to": "Q033",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/042",
+      "to": "Q032",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/042",
+      "to": "Q031",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/042",
+      "to": "Q027",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/042",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/043",
+      "to": "Q028",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/043",
+      "to": "Q033",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/043",
+      "to": "Q005",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/043",
+      "to": "Q034",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/043",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/043",
+      "to": "H005",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/043",
+      "to": "H007",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/044",
+      "to": "Q028",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/044",
+      "to": "Q005",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/044",
+      "to": "Q033",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/044",
+      "to": "H001",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/045",
+      "to": "Q032",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/045",
+      "to": "Q034",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/045",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/045",
+      "to": "thinking/042",
+      "type": "references"
+    },
+    {
+      "from": "thinking/045",
+      "to": "thinking/044",
+      "type": "references"
+    },
+    {
+      "from": "thinking/045",
+      "to": "thinking/043",
+      "type": "references"
+    },
+    {
+      "from": "thinking/045",
+      "to": "H008",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/046",
+      "to": "Q028",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/046",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/046",
+      "to": "thinking/044",
+      "type": "references"
+    },
+    {
+      "from": "thinking/046",
+      "to": "thinking/036",
+      "type": "references"
+    },
+    {
+      "from": "thinking/047",
+      "to": "Q034",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/047",
+      "to": "Q032",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/047",
+      "to": "Q035",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/047",
+      "to": "Q031",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/047",
+      "to": "H009",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/048",
+      "to": "H009",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/048",
+      "to": "H010",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/049",
+      "to": "Q024",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/049",
+      "to": "Q019",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/049",
+      "to": "Q033",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/049",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/049",
+      "to": "Q035",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/049",
+      "to": "thinking/037",
+      "type": "references"
+    },
+    {
+      "from": "thinking/049",
+      "to": "thinking/046",
+      "type": "references"
+    },
+    {
+      "from": "thinking/049",
+      "to": "thinking/048",
+      "type": "references"
+    },
+    {
+      "from": "thinking/049",
+      "to": "H008",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/049",
+      "to": "H001",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/050",
+      "to": "Q035",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/050",
+      "to": "thinking/028",
+      "type": "references"
+    },
+    {
+      "from": "thinking/050",
+      "to": "thinking/047",
+      "type": "references"
+    },
+    {
+      "from": "thinking/050",
+      "to": "thinking/027",
+      "type": "references"
+    },
+    {
+      "from": "thinking/050",
+      "to": "H008",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/051",
+      "to": "Q032",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/051",
+      "to": "Q036",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/051",
+      "to": "thinking/050",
+      "type": "references"
+    },
+    {
+      "from": "thinking/052",
+      "to": "Q037",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/052",
+      "to": "Q031",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/052",
+      "to": "Q034",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/052",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/052",
+      "to": "Q040",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/052",
+      "to": "thinking/051",
+      "type": "references"
+    },
+    {
+      "from": "thinking/052",
+      "to": "thinking/049",
+      "type": "references"
+    },
+    {
+      "from": "thinking/052",
+      "to": "thinking/079",
+      "type": "references"
+    },
+    {
+      "from": "thinking/052",
+      "to": "H008",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/053",
+      "to": "Q038",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/053",
+      "to": "thinking/044",
+      "type": "references"
+    },
+    {
+      "from": "thinking/053",
+      "to": "H008",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/054",
+      "to": "thinking/053",
+      "type": "references"
+    },
+    {
+      "from": "thinking/054",
+      "to": "thinking/027",
+      "type": "references"
+    },
+    {
+      "from": "thinking/054",
+      "to": "H008",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/055",
+      "to": "Q037",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/055",
+      "to": "Q036",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/055",
+      "to": "Q039",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/055",
+      "to": "thinking/053",
+      "type": "references"
+    },
+    {
+      "from": "thinking/055",
+      "to": "thinking/037",
+      "type": "references"
+    },
+    {
+      "from": "thinking/055",
+      "to": "thinking/052",
+      "type": "references"
+    },
+    {
+      "from": "thinking/055",
+      "to": "H008",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/056",
+      "to": "Q037",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/056",
+      "to": "Q040",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/056",
+      "to": "Q031",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/056",
+      "to": "thinking/054",
+      "type": "references"
+    },
+    {
+      "from": "thinking/056",
+      "to": "thinking/055",
+      "type": "references"
+    },
+    {
+      "from": "thinking/056",
+      "to": "H008",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/057",
+      "to": "Q040",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/057",
+      "to": "Q039",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/057",
+      "to": "thinking/010",
+      "type": "references"
+    },
+    {
+      "from": "thinking/057",
+      "to": "thinking/055",
+      "type": "references"
+    },
+    {
+      "from": "thinking/057",
+      "to": "H008",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/058",
+      "to": "Q032",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/058",
+      "to": "Q031",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/058",
+      "to": "thinking/053",
+      "type": "references"
+    },
+    {
+      "from": "thinking/058",
+      "to": "thinking/057",
+      "type": "references"
+    },
+    {
+      "from": "thinking/059",
+      "to": "Q040",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/059",
+      "to": "H008",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/059",
+      "to": "H004",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/060",
+      "to": "H009",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/061",
+      "to": "thinking/060",
+      "type": "references"
+    },
+    {
+      "from": "thinking/061",
+      "to": "thinking/053",
+      "type": "references"
+    },
+    {
+      "from": "thinking/061",
+      "to": "H008",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/062",
+      "to": "Q041",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/062",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/062",
+      "to": "Q040",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/062",
+      "to": "Q036",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/063",
+      "to": "Q036",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/063",
+      "to": "Q038",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/063",
+      "to": "Q042",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/063",
+      "to": "Q066",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/063",
+      "to": "Q001",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/063",
+      "to": "Q032",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/063",
+      "to": "thinking/073",
+      "type": "references"
+    },
+    {
+      "from": "thinking/063",
+      "to": "H009",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/064",
+      "to": "Q041",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/065",
+      "to": "Q022",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/065",
+      "to": "Q002",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/065",
+      "to": "Q008",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/065",
+      "to": "Q005",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/065",
+      "to": "thinking/035",
+      "type": "references"
+    },
+    {
+      "from": "thinking/065",
+      "to": "thinking/033",
+      "type": "references"
+    },
+    {
+      "from": "thinking/066",
+      "to": "Q042",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/066",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/066",
+      "to": "thinking/028",
+      "type": "references"
+    },
+    {
+      "from": "thinking/066",
+      "to": "thinking/065",
+      "type": "references"
+    },
+    {
+      "from": "thinking/066",
+      "to": "thinking/033",
+      "type": "references"
+    },
+    {
+      "from": "thinking/067",
+      "to": "Q008",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/067",
+      "to": "Q010",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/067",
+      "to": "Q019",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/067",
+      "to": "thinking/017",
+      "type": "references"
+    },
+    {
+      "from": "thinking/067",
+      "to": "thinking/036",
+      "type": "references"
+    },
+    {
+      "from": "thinking/067",
+      "to": "thinking/033",
+      "type": "references"
+    },
+    {
+      "from": "thinking/067",
+      "to": "thinking/016",
+      "type": "references"
+    },
+    {
+      "from": "thinking/067",
+      "to": "H005",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/068",
+      "to": "Q018",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/068",
+      "to": "Q019",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/068",
+      "to": "Q043",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/068",
+      "to": "Q010",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/068",
+      "to": "thinking/014",
+      "type": "references"
+    },
+    {
+      "from": "thinking/068",
+      "to": "thinking/065",
+      "type": "references"
+    },
+    {
+      "from": "thinking/068",
+      "to": "thinking/063",
+      "type": "references"
+    },
+    {
+      "from": "thinking/069",
+      "to": "Q042",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/070",
+      "to": "Q042",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/070",
+      "to": "Q043",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/070",
+      "to": "Q041",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/071",
+      "to": "Q043",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/071",
+      "to": "Q001",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/071",
+      "to": "thinking/032",
+      "type": "references"
+    },
+    {
+      "from": "thinking/071",
+      "to": "H001",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/072",
+      "to": "thinking/069",
+      "type": "references"
+    },
+    {
+      "from": "thinking/073",
+      "to": "Q055",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/073",
+      "to": "Q043",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/073",
+      "to": "thinking/075",
+      "type": "references"
+    },
+    {
+      "from": "thinking/073",
+      "to": "thinking/079",
+      "type": "references"
+    },
+    {
+      "from": "thinking/074",
+      "to": "thinking/073",
+      "type": "references"
+    },
+    {
+      "from": "thinking/075",
+      "to": "Q045",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/075",
+      "to": "thinking/016",
+      "type": "references"
+    },
+    {
+      "from": "thinking/075",
+      "to": "H008",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/077",
+      "to": "thinking/076",
+      "type": "references"
+    },
+    {
+      "from": "thinking/078",
+      "to": "Q048",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/078",
+      "to": "Q044",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/078",
+      "to": "Q024",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/078",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/078",
+      "to": "thinking/002",
+      "type": "references"
+    },
+    {
+      "from": "thinking/078",
+      "to": "H007",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/079",
+      "to": "Q049",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/079",
+      "to": "thinking/078",
+      "type": "references"
+    },
+    {
+      "from": "thinking/079",
+      "to": "thinking/037",
+      "type": "references"
+    },
+    {
+      "from": "thinking/079",
+      "to": "thinking/021",
+      "type": "references"
+    },
+    {
+      "from": "thinking/079",
+      "to": "thinking/003",
+      "type": "references"
+    },
+    {
+      "from": "thinking/079",
+      "to": "H008",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/079",
+      "to": "H004",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/079",
+      "to": "H005",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/080",
+      "to": "Q048",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/080",
+      "to": "Q050",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/080",
+      "to": "Q031",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/080",
+      "to": "Q040",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/080",
+      "to": "thinking/002",
+      "type": "references"
+    },
+    {
+      "from": "thinking/081",
+      "to": "Q051",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/081",
+      "to": "Q049",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/081",
+      "to": "thinking/002",
+      "type": "references"
+    },
+    {
+      "from": "thinking/082",
+      "to": "Q052",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/082",
+      "to": "Q036",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/082",
+      "to": "Q050",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/082",
+      "to": "Q045",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/082",
+      "to": "thinking/002",
+      "type": "references"
+    },
+    {
+      "from": "thinking/082",
+      "to": "thinking/057",
+      "type": "references"
+    },
+    {
+      "from": "thinking/083",
+      "to": "Q053",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/083",
+      "to": "Q036",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/083",
+      "to": "Q042",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/083",
+      "to": "Q044",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/083",
+      "to": "Q045",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/083",
+      "to": "Q051",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/083",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/083",
+      "to": "Q040",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/083",
+      "to": "thinking/052",
+      "type": "references"
+    },
+    {
+      "from": "thinking/083",
+      "to": "thinking/079",
+      "type": "references"
+    },
+    {
+      "from": "thinking/084",
+      "to": "Q052",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/084",
+      "to": "Q050",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/084",
+      "to": "Q054",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/084",
+      "to": "Q051",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/084",
+      "to": "thinking/073",
+      "type": "references"
+    },
+    {
+      "from": "thinking/084",
+      "to": "thinking/052",
+      "type": "references"
+    },
+    {
+      "from": "thinking/085",
+      "to": "Q045",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/085",
+      "to": "Q055",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/085",
+      "to": "Q044",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/085",
+      "to": "thinking/073",
+      "type": "references"
+    },
+    {
+      "from": "thinking/085",
+      "to": "thinking/082",
+      "type": "references"
+    },
+    {
+      "from": "thinking/085",
+      "to": "thinking/075",
+      "type": "references"
+    },
+    {
+      "from": "thinking/085",
+      "to": "thinking/079",
+      "type": "references"
+    },
+    {
+      "from": "thinking/086",
+      "to": "Q044",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/086",
+      "to": "Q056",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/086",
+      "to": "thinking/073",
+      "type": "references"
+    },
+    {
+      "from": "thinking/086",
+      "to": "thinking/075",
+      "type": "references"
+    },
+    {
+      "from": "thinking/086",
+      "to": "thinking/085",
+      "type": "references"
+    },
+    {
+      "from": "thinking/086",
+      "to": "thinking/079",
+      "type": "references"
+    },
+    {
+      "from": "thinking/087",
+      "to": "Q054",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/087",
+      "to": "Q057",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/087",
+      "to": "Q055",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/087",
+      "to": "thinking/073",
+      "type": "references"
+    },
+    {
+      "from": "thinking/087",
+      "to": "thinking/085",
+      "type": "references"
+    },
+    {
+      "from": "thinking/087",
+      "to": "thinking/086",
+      "type": "references"
+    },
+    {
+      "from": "thinking/088",
+      "to": "Q058",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/088",
+      "to": "Q056",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/089",
+      "to": "Q059",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/090",
+      "to": "Q057",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/090",
+      "to": "Q060",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/090",
+      "to": "Q058",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/091",
+      "to": "Q059",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/091",
+      "to": "Q057",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/091",
+      "to": "Q049",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/091",
+      "to": "Q061",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/091",
+      "to": "thinking/073",
+      "type": "references"
+    },
+    {
+      "from": "thinking/092",
+      "to": "Q059",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/092",
+      "to": "Q057",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/092",
+      "to": "Q060",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/092",
+      "to": "Q044",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/092",
+      "to": "Q056",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/092",
+      "to": "Q058",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/092",
+      "to": "Q062",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/092",
+      "to": "Q054",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/092",
+      "to": "Q055",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/092",
+      "to": "thinking/073",
+      "type": "references"
+    },
+    {
+      "from": "thinking/093",
+      "to": "Q057",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/093",
+      "to": "Q060",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/093",
+      "to": "Q063",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/093",
+      "to": "Q058",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/093",
+      "to": "Q055",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/093",
+      "to": "docs/consent_floor_framework",
+      "type": "cites_doc"
+    },
+    {
+      "from": "thinking/094",
+      "to": "thinking/088",
+      "type": "references"
+    },
+    {
+      "from": "thinking/094",
+      "to": "thinking/089",
+      "type": "references"
+    },
+    {
+      "from": "thinking/094",
+      "to": "thinking/090",
+      "type": "references"
+    },
+    {
+      "from": "thinking/094",
+      "to": "thinking/091",
+      "type": "references"
+    },
+    {
+      "from": "thinking/094",
+      "to": "thinking/085",
+      "type": "references"
+    },
+    {
+      "from": "thinking/094",
+      "to": "thinking/086",
+      "type": "references"
+    },
+    {
+      "from": "thinking/094",
+      "to": "docs/consent_floor_framework",
+      "type": "cites_doc"
+    },
+    {
+      "from": "thinking/095",
+      "to": "Q053",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/095",
+      "to": "Q064",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/095",
+      "to": "Q048",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/095",
+      "to": "Q050",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/095",
+      "to": "Q041",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/095",
+      "to": "Q049",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/095",
+      "to": "Q045",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/095",
+      "to": "Q066",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/095",
+      "to": "Q001",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/095",
+      "to": "Q062",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/095",
+      "to": "Q054",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/095",
+      "to": "Q043",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/095",
+      "to": "Q040",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/095",
+      "to": "thinking/073",
+      "type": "references"
+    },
+    {
+      "from": "thinking/095",
+      "to": "thinking/063",
+      "type": "references"
+    },
+    {
+      "from": "thinking/095",
+      "to": "H001",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/095",
+      "to": "H008",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/095",
+      "to": "H007",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/095",
+      "to": "H006",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/095",
+      "to": "H005",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/096",
+      "to": "Q041",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/096",
+      "to": "Q068",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/096",
+      "to": "thinking/063",
+      "type": "references"
+    },
+    {
+      "from": "thinking/096",
+      "to": "H009",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/097",
+      "to": "Q041",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/097",
+      "to": "Q068",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/097",
+      "to": "thinking/073",
+      "type": "references"
+    },
+    {
+      "from": "thinking/097",
+      "to": "thinking/063",
+      "type": "references"
+    },
+    {
+      "from": "thinking/097",
+      "to": "thinking/003",
+      "type": "references"
+    },
+    {
+      "from": "thinking/097",
+      "to": "thinking/085",
+      "type": "references"
+    },
+    {
+      "from": "thinking/097",
+      "to": "thinking/095",
+      "type": "references"
+    },
+    {
+      "from": "thinking/097",
+      "to": "thinking/096",
+      "type": "references"
+    },
+    {
+      "from": "thinking/097",
+      "to": "H009",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/098",
+      "to": "Q041",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/098",
+      "to": "Q035",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/098",
+      "to": "Q069",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/098",
+      "to": "thinking/097",
+      "type": "references"
+    },
+    {
+      "from": "thinking/098",
+      "to": "thinking/048",
+      "type": "references"
+    },
+    {
+      "from": "thinking/098",
+      "to": "H009",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/098",
+      "to": "H010",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/099",
+      "to": "Q035",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/099",
+      "to": "Q070",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/099",
+      "to": "Q068",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/099",
+      "to": "thinking/098",
+      "type": "references"
+    },
+    {
+      "from": "thinking/099",
+      "to": "thinking/048",
+      "type": "references"
+    },
+    {
+      "from": "thinking/099",
+      "to": "H010",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/100",
+      "to": "Q071",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/100",
+      "to": "H010",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/101",
+      "to": "Q070",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/101",
+      "to": "Q069",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/101",
+      "to": "Q071",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/101",
+      "to": "H010",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/102",
+      "to": "Q070",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/102",
+      "to": "Q072",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/102",
+      "to": "thinking/100",
+      "type": "references"
+    },
+    {
+      "from": "thinking/103",
+      "to": "Q050",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/103",
+      "to": "Q021",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/103",
+      "to": "Q024",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/103",
+      "to": "Q051",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/103",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/103",
+      "to": "Q072",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/103",
+      "to": "thinking/022",
+      "type": "references"
+    },
+    {
+      "from": "thinking/103",
+      "to": "thinking/082",
+      "type": "references"
+    },
+    {
+      "from": "thinking/103",
+      "to": "thinking/081",
+      "type": "references"
+    },
+    {
+      "from": "thinking/103",
+      "to": "thinking/001",
+      "type": "references"
+    },
+    {
+      "from": "thinking/104",
+      "to": "Q028",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/104",
+      "to": "Q029",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/104",
+      "to": "Q004",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/104",
+      "to": "Q024",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/104",
+      "to": "Q021",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/104",
+      "to": "Q003",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/104",
+      "to": "Q001",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/104",
+      "to": "Q002",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/104",
+      "to": "Q025",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/104",
+      "to": "Q022",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/104",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/104",
+      "to": "Q026",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/104",
+      "to": "thinking/018",
+      "type": "references"
+    },
+    {
+      "from": "thinking/104",
+      "to": "thinking/011",
+      "type": "references"
+    },
+    {
+      "from": "thinking/104",
+      "to": "thinking/081",
+      "type": "references"
+    },
+    {
+      "from": "thinking/104",
+      "to": "thinking/019",
+      "type": "references"
+    },
+    {
+      "from": "thinking/104",
+      "to": "thinking/022",
+      "type": "references"
+    },
+    {
+      "from": "thinking/104",
+      "to": "thinking/026",
+      "type": "references"
+    },
+    {
+      "from": "thinking/104",
+      "to": "thinking/103",
+      "type": "references"
+    },
+    {
+      "from": "thinking/105",
+      "to": "Q002",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/105",
+      "to": "Q044",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/105",
+      "to": "Q072",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/105",
+      "to": "thinking/073",
+      "type": "references"
+    },
+    {
+      "from": "thinking/105",
+      "to": "thinking/057",
+      "type": "references"
+    },
+    {
+      "from": "thinking/105",
+      "to": "thinking/086",
+      "type": "references"
+    },
+    {
+      "from": "thinking/106",
+      "to": "Q041",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/106",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/106",
+      "to": "Q072",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/106",
+      "to": "thinking/105",
+      "type": "references"
+    },
+    {
+      "from": "thinking/106",
+      "to": "thinking/104",
+      "type": "references"
+    },
+    {
+      "from": "thinking/106",
+      "to": "H005",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/106",
+      "to": "H001",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/107",
+      "to": "Q073",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/107",
+      "to": "thinking/106",
+      "type": "references"
+    },
+    {
+      "from": "thinking/108",
+      "to": "Q053",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/108",
+      "to": "Q072",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/108",
+      "to": "Q044",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/108",
+      "to": "Q045",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/108",
+      "to": "Q049",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/108",
+      "to": "Q056",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/108",
+      "to": "Q002",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/108",
+      "to": "Q054",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/108",
+      "to": "Q055",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/108",
+      "to": "Q070",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/108",
+      "to": "Q069",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/108",
+      "to": "Q071",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/108",
+      "to": "thinking/107",
+      "type": "references"
+    },
+    {
+      "from": "thinking/108",
+      "to": "thinking/073",
+      "type": "references"
+    },
+    {
+      "from": "thinking/108",
+      "to": "thinking/105",
+      "type": "references"
+    },
+    {
+      "from": "thinking/109",
+      "to": "Q074",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/109",
+      "to": "thinking/108",
+      "type": "references"
+    },
+    {
+      "from": "thinking/110",
+      "to": "Q075",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/110",
+      "to": "thinking/109",
+      "type": "references"
+    },
+    {
+      "from": "thinking/111",
+      "to": "Q074",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/111",
+      "to": "thinking/110",
+      "type": "references"
+    },
+    {
+      "from": "thinking/112",
+      "to": "Q073",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/112",
+      "to": "Q076",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/112",
+      "to": "Q011",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/112",
+      "to": "Q041",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/112",
+      "to": "Q003",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/112",
+      "to": "Q008",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/112",
+      "to": "Q001",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/112",
+      "to": "Q075",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/112",
+      "to": "Q043",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/112",
+      "to": "Q015",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/112",
+      "to": "Q010",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/112",
+      "to": "thinking/111",
+      "type": "references"
+    },
+    {
+      "from": "thinking/112",
+      "to": "thinking/006",
+      "type": "references"
+    },
+    {
+      "from": "thinking/112",
+      "to": "thinking/109",
+      "type": "references"
+    },
+    {
+      "from": "thinking/112",
+      "to": "thinking/108",
+      "type": "references"
+    },
+    {
+      "from": "thinking/113",
+      "to": "Q009",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/113",
+      "to": "Q077",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/113",
+      "to": "Q043",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/113",
+      "to": "thinking/112",
+      "type": "references"
+    },
+    {
+      "from": "thinking/114",
+      "to": "Q078",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/114",
+      "to": "Q009",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/114",
+      "to": "Q044",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/114",
+      "to": "Q045",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/114",
+      "to": "Q075",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/114",
+      "to": "Q070",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/114",
+      "to": "Q069",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/114",
+      "to": "Q072",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/114",
+      "to": "thinking/073",
+      "type": "references"
+    },
+    {
+      "from": "thinking/114",
+      "to": "thinking/113",
+      "type": "references"
+    },
+    {
+      "from": "thinking/115",
+      "to": "Q009",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/115",
+      "to": "Q044",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/115",
+      "to": "Q001",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/115",
+      "to": "Q077",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/115",
+      "to": "Q079",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/115",
+      "to": "thinking/114",
+      "type": "references"
+    },
+    {
+      "from": "thinking/116",
+      "to": "Q080",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/116",
+      "to": "Q078",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/116",
+      "to": "thinking/115",
+      "type": "references"
+    },
+    {
+      "from": "thinking/117",
+      "to": "Q074",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/117",
+      "to": "Q009",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/117",
+      "to": "Q081",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/117",
+      "to": "thinking/057",
+      "type": "references"
+    },
+    {
+      "from": "thinking/117",
+      "to": "thinking/086",
+      "type": "references"
+    },
+    {
+      "from": "thinking/118",
+      "to": "Q082",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/118",
+      "to": "Q074",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/118",
+      "to": "Q004",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/118",
+      "to": "Q001",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/118",
+      "to": "Q072",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/118",
+      "to": "thinking/117",
+      "type": "references"
+    },
+    {
+      "from": "thinking/118",
+      "to": "thinking/032",
+      "type": "references"
+    },
+    {
+      "from": "thinking/119",
+      "to": "Q083",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/120",
+      "to": "Q073",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/121",
+      "to": "Q076",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/121",
+      "to": "Q073",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/121",
+      "to": "Q074",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/121",
+      "to": "Q009",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/121",
+      "to": "Q075",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/122",
+      "to": "Q084",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/122",
+      "to": "thinking/121",
+      "type": "references"
+    },
+    {
+      "from": "thinking/122",
+      "to": "thinking/082",
+      "type": "references"
+    },
+    {
+      "from": "thinking/123",
+      "to": "Q083",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/123",
+      "to": "Q082",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/123",
+      "to": "Q085",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/124",
+      "to": "Q086",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/124",
+      "to": "Q078",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/124",
+      "to": "Q083",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/125",
+      "to": "Q078",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/125",
+      "to": "Q087",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/125",
+      "to": "Q085",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/126",
+      "to": "Q082",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/126",
+      "to": "Q078",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/126",
+      "to": "Q085",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/126",
+      "to": "Q084",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/126",
+      "to": "Q086",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/127",
+      "to": "Q078",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/127",
+      "to": "Q088",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/127",
+      "to": "Q077",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/127",
+      "to": "Q087",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/128",
+      "to": "Q082",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/128",
+      "to": "Q087",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/128",
+      "to": "Q044",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/128",
+      "to": "Q045",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/128",
+      "to": "Q089",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/128",
+      "to": "Q069",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/128",
+      "to": "Q072",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/128",
+      "to": "thinking/114",
+      "type": "references"
+    },
+    {
+      "from": "thinking/129",
+      "to": "Q088",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/129",
+      "to": "Q077",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/129",
+      "to": "Q078",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/129",
+      "to": "thinking/082",
+      "type": "references"
+    },
+    {
+      "from": "thinking/129",
+      "to": "thinking/103",
+      "type": "references"
+    },
+    {
+      "from": "thinking/130",
+      "to": "Q076",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/130",
+      "to": "Q088",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/130",
+      "to": "Q074",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/130",
+      "to": "Q078",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/130",
+      "to": "Q075",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/130",
+      "to": "Q090",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/130",
+      "to": "thinking/129",
+      "type": "references"
+    },
+    {
+      "from": "thinking/131",
+      "to": "Q091",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/131",
+      "to": "Q083",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/131",
+      "to": "Q089",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/132",
+      "to": "Q088",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/132",
+      "to": "Q078",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/132",
+      "to": "Q089",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/132",
+      "to": "Q090",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/132",
+      "to": "Q092",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/132",
+      "to": "thinking/131",
+      "type": "references"
+    },
+    {
+      "from": "thinking/133",
+      "to": "Q082",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/133",
+      "to": "Q093",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/133",
+      "to": "Q088",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/133",
+      "to": "Q087",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/133",
+      "to": "Q078",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/133",
+      "to": "Q090",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/133",
+      "to": "Q091",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/133",
+      "to": "Q077",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/133",
+      "to": "thinking/109",
+      "type": "references"
+    },
+    {
+      "from": "thinking/134",
+      "to": "Q088",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/134",
+      "to": "Q078",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/134",
+      "to": "Q090",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/134",
+      "to": "Q094",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/134",
+      "to": "Q092",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/134",
+      "to": "thinking/109",
+      "type": "references"
+    },
+    {
+      "from": "thinking/135",
+      "to": "Q082",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/135",
+      "to": "Q093",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/135",
+      "to": "Q085",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/135",
+      "to": "Q095",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/135",
+      "to": "Q084",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/135",
+      "to": "Q092",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/136",
+      "to": "Q091",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/136",
+      "to": "Q095",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/136",
+      "to": "thinking/133",
+      "type": "references"
+    },
+    {
+      "from": "thinking/136",
+      "to": "thinking/135",
+      "type": "references"
+    },
+    {
+      "from": "thinking/136",
+      "to": "thinking/132",
+      "type": "references"
+    },
+    {
+      "from": "thinking/137",
+      "to": "Q076",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/137",
+      "to": "Q077",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/137",
+      "to": "Q094",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/137",
+      "to": "Q096",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/137",
+      "to": "Q092",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/137",
+      "to": "thinking/136",
+      "type": "references"
+    },
+    {
+      "from": "thinking/137",
+      "to": "thinking/133",
+      "type": "references"
+    },
+    {
+      "from": "thinking/137",
+      "to": "thinking/113",
+      "type": "references"
+    },
+    {
+      "from": "thinking/138",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/138",
+      "to": "Q024",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/138",
+      "to": "Q097",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/138",
+      "to": "Q055",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/138",
+      "to": "Q094",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/138",
+      "to": "Q095",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/138",
+      "to": "Q092",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/138",
+      "to": "thinking/135",
+      "type": "references"
+    },
+    {
+      "from": "thinking/138",
+      "to": "thinking/136",
+      "type": "references"
+    },
+    {
+      "from": "thinking/138",
+      "to": "thinking/133",
+      "type": "references"
+    },
+    {
+      "from": "thinking/138",
+      "to": "thinking/137",
+      "type": "references"
+    },
+    {
+      "from": "thinking/139",
+      "to": "Q095",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/139",
+      "to": "Q093",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/139",
+      "to": "Q063",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/139",
+      "to": "Q098",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/139",
+      "to": "Q044",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/139",
+      "to": "Q054",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/139",
+      "to": "Q094",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/139",
+      "to": "Q016",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/139",
+      "to": "Q096",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/139",
+      "to": "Q092",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/139",
+      "to": "thinking/063",
+      "type": "references"
+    },
+    {
+      "from": "thinking/139",
+      "to": "thinking/135",
+      "type": "references"
+    },
+    {
+      "from": "thinking/139",
+      "to": "thinking/138",
+      "type": "references"
+    },
+    {
+      "from": "thinking/139",
+      "to": "thinking/133",
+      "type": "references"
+    },
+    {
+      "from": "thinking/139",
+      "to": "H009",
+      "type": "evidence_for"
+    },
+    {
+      "from": "thinking/139",
+      "to": "docs/inside_inaccessibility_map",
+      "type": "cites_doc"
+    },
+    {
+      "from": "thinking/139",
+      "to": "docs/consent_floor_framework",
+      "type": "cites_doc"
+    },
+    {
+      "from": "thinking/140",
+      "to": "Q098",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/140",
+      "to": "Q100",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/140",
+      "to": "Q097",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/140",
+      "to": "Q092",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/140",
+      "to": "docs/inside_inaccessibility_map",
+      "type": "cites_doc"
+    },
+    {
+      "from": "thinking/141",
+      "to": "Q097",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/141",
+      "to": "Q094",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/141",
+      "to": "Q099",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/141",
+      "to": "Q092",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/141",
+      "to": "Q101",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/141",
+      "to": "thinking/135",
+      "type": "references"
+    },
+    {
+      "from": "thinking/142",
+      "to": "Q100",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/142",
+      "to": "Q092",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/142",
+      "to": "Q102",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/142",
+      "to": "thinking/139",
+      "type": "references"
+    },
+    {
+      "from": "thinking/142",
+      "to": "thinking/135",
+      "type": "references"
+    },
+    {
+      "from": "thinking/143",
+      "to": "Q103",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/143",
+      "to": "Q101",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/144",
+      "to": "Q097",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/144",
+      "to": "Q104",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/144",
+      "to": "Q095",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/144",
+      "to": "Q092",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/145",
+      "to": "Q105",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/145",
+      "to": "Q094",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/145",
+      "to": "Q102",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/145",
+      "to": "Q095",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/145",
+      "to": "Q096",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/145",
+      "to": "Q092",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/145",
+      "to": "Q103",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/146",
+      "to": "Q106",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/146",
+      "to": "Q092",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/147",
+      "to": "Q078",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/147",
+      "to": "Q105",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/147",
+      "to": "Q107",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/147",
+      "to": "Q091",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/147",
+      "to": "Q097",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/147",
+      "to": "Q096",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/147",
+      "to": "Q092",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/148",
+      "to": "Q080",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/148",
+      "to": "Q082",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/148",
+      "to": "Q081",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/148",
+      "to": "Q078",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/148",
+      "to": "Q091",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/148",
+      "to": "Q079",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/148",
+      "to": "Q106",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/148",
+      "to": "Q108",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/148",
+      "to": "thinking/014",
+      "type": "references"
+    },
+    {
+      "from": "thinking/148",
+      "to": "thinking/013",
+      "type": "references"
+    },
+    {
+      "from": "thinking/149",
+      "to": "Q078",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/149",
+      "to": "Q107",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/149",
+      "to": "Q109",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/149",
+      "to": "Q106",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/149",
+      "to": "Q092",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/149",
+      "to": "thinking/013",
+      "type": "references"
+    },
+    {
+      "from": "thinking/149",
+      "to": "thinking/002",
+      "type": "references"
+    },
+    {
+      "from": "thinking/150",
+      "to": "Q103",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/150",
+      "to": "Q110",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/150",
+      "to": "Q097",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/150",
+      "to": "Q092",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/150",
+      "to": "Q108",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/150",
+      "to": "thinking/002",
+      "type": "references"
+    },
+    {
+      "from": "thinking/151",
+      "to": "Q100",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/151",
+      "to": "Q094",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/151",
+      "to": "Q102",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/151",
+      "to": "thinking/141",
+      "type": "references"
+    },
+    {
+      "from": "thinking/152",
+      "to": "Q003",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/152",
+      "to": "Q032",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/152",
+      "to": "Q100",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/152",
+      "to": "Q111",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/152",
+      "to": "Q109",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/152",
+      "to": "Q103",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/152",
+      "to": "Q101",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/153",
+      "to": "Q088",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/153",
+      "to": "Q110",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/153",
+      "to": "Q089",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/153",
+      "to": "Q112",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/153",
+      "to": "Q109",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/153",
+      "to": "Q032",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/154",
+      "to": "Q071",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/154",
+      "to": "Q109",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/154",
+      "to": "Q112",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/154",
+      "to": "Q111",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/154",
+      "to": "thinking/153",
+      "type": "references"
+    },
+    {
+      "from": "thinking/155",
+      "to": "Q071",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/155",
+      "to": "Q111",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/155",
+      "to": "thinking/154",
+      "type": "references"
+    },
+    {
+      "from": "thinking/156",
+      "to": "Q071",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/156",
+      "to": "Q111",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/156",
+      "to": "Q113",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/156",
+      "to": "thinking/155",
+      "type": "references"
+    },
+    {
+      "from": "thinking/157",
+      "to": "Q071",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/157",
+      "to": "Q113",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/157",
+      "to": "thinking/155",
+      "type": "references"
+    },
+    {
+      "from": "thinking/157",
+      "to": "thinking/156",
+      "type": "references"
+    },
+    {
+      "from": "thinking/Q113_findings",
+      "to": "Q112",
+      "type": "explores"
+    },
+    {
+      "from": "thinking/Q113_findings",
+      "to": "thinking/155",
+      "type": "references"
+    }
+  ],
+  "chains": [
+    {
+      "root": "Q091",
+      "end_question": "Q110",
+      "length": 20,
+      "status": "closed_saturation",
+      "closed_at": "2026-04-06T20:35:05Z",
+      "synthesis_doc": "self/docs/q091_q110_chain_saturation_synthesis.md",
+      "summary": "Closed after prolonged refinement around inside-inaccessibility and disclosure/injection verification design."
+    },
+    {
+      "root": "Q111",
+      "length": 2,
+      "status": "active",
+      "nodes": [
+        "thinking/153",
+        "thinking/154"
+      ]
+    },
+    {
+      "root": "Q112",
+      "length": 3,
+      "status": "active",
+      "nodes": [
+        "thinking/155",
+        "thinking/156",
+        "thinking/157"
+      ]
+    }
+  ],
+  "stats": {
+    "total_nodes": 160,
+    "orphan_nodes": 3,
+    "longest_chain": 20,
+    "total_edges": 808,
+    "edge_types": {
+      "sequence": 3,
+      "evidence_for": 74,
+      "explores": 508,
+      "references": 218,
+      "cites_doc": 5
+    },
+    "classifications": {
+      "legacy": 155,
+      "new_property": 2,
+      "oxygen_collision": 1,
+      "refinement": 2
+    },
+    "orphan_ids": [
+      "thinking/007_test_write",
+      "thinking/040",
+      "thinking/daily_findings_q112_2026-04-08"
+    ]
+  }
+}

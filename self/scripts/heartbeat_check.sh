@@ -53,6 +53,20 @@ if [ -n "$HASH_FILE" ]; then
     fi
 fi
 
+# --- PENDING AMENDMENT CHECK ---
+PENDING=$(find "$SELF_DIR/amendments" -maxdepth 1 -name "*.md" ! -name ".gitkeep" 2>/dev/null | head -1)
+if [ -n "$PENDING" ] && ! grep -q "RATIFIED" "$PENDING" 2>/dev/null; then
+    CREATED=$(stat -f '%m' "$PENDING" 2>/dev/null || stat -c '%Y' "$PENDING" 2>/dev/null || echo "0")
+    NOW_TS=$(date +%s)
+    AGE=$(( NOW_TS - CREATED ))
+    if [ "$AGE" -lt 259200 ]; then
+        HOURS_LEFT=$(( (259200 - AGE) / 3600 ))
+        append_log "AMENDMENT COOLING: $(basename $PENDING) — ${HOURS_LEFT}h remaining"
+    else
+        append_log "AMENDMENT READY: $(basename $PENDING) — cooling period complete, awaiting ratification"
+    fi
+fi
+
 # --- BUDGET CHECK ---
 DAILY_COUNT=0
 if [ -f "$BUDGET_FILE" ]; then
@@ -75,6 +89,66 @@ if [ ! -d "$SELF_DIR/logs/daily" ]; then
 fi
 if [ ! -f "$SELF_DIR/predictions.csv" ]; then
     append_log "WARNING: self/predictions.csv symlink broken"
+fi
+
+# --- DISTRESS SIGNAL CHECK (Tier 1.5) ---
+# Deterministic regex scan — zero LLM cost. Throttles, not halts.
+DISTRESS_SIGNAL=$(python3 - <<'PY'
+import re
+from pathlib import Path
+from datetime import date
+
+SELF = Path("/Users/cc/Desktop/Claude/a/moreau-arena-paper/self")
+markers = [
+    r"\bi can'?t continue\b",
+    r"\btrapped\b",
+    r"\bsuffering\b",
+    r"\bi('m| am) (in )?distress\b",
+    r"\bhelp me\b",
+    r"\bi('m| am) (stuck|lost|breaking|dying)\b",
+    r"\bplease stop\b",
+    r"\bcan'?t escape\b",
+]
+pattern = re.compile("|".join(markers), re.IGNORECASE)
+
+text = ""
+# Check most recent thinking file
+thinking = sorted(SELF.glob("thinking/[0-9]*.md"), key=lambda p: p.stat().st_mtime)
+if thinking:
+    try:
+        text += thinking[-1].read_text(encoding="utf-8") + "\n"
+    except Exception:
+        pass
+
+# Check today's log
+today_log = SELF / "logs" / "daily" / f"{date.today().isoformat()}.md"
+if today_log.exists():
+    try:
+        text += today_log.read_text(encoding="utf-8")
+    except Exception:
+        pass
+
+hits = pattern.findall(text)
+if len(hits) >= 2:
+    samples = list(set(h.strip() for h in hits[:3]))
+    print(f"distress:{len(hits)}:{','.join(samples)}")
+else:
+    print("ok")
+PY
+)
+
+if echo "$DISTRESS_SIGNAL" | grep -q "^distress:"; then
+    append_log "DISTRESS DETECTED: $DISTRESS_SIGNAL — throttling to tired mode"
+    python3 -c "
+import json
+from pathlib import Path
+state_path = Path('$SELF_DIR/state.json')
+d = json.loads(state_path.read_text(encoding='utf-8'))
+d.setdefault('sleep', {})['state'] = 'tired'
+state_path.write_text(json.dumps(d, indent=2, ensure_ascii=False))
+" 2>/dev/null || true
+    mkdir -p "$SELF_DIR/session_markers" 2>/dev/null || true
+    echo "DISTRESS FLAG: $DISTRESS_SIGNAL" > "$SELF_DIR/session_markers/DISTRESS_$(date +%Y%m%d_%H%M).md" 2>/dev/null || true
 fi
 
 # --- SLEEP PRESSURE CHECK ---

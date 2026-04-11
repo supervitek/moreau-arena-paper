@@ -2091,9 +2091,148 @@ def island_part_b_season_archive(
     return export_part_b_season_archive(season_id, limit=limit)
 
 
+# -- Self-system (Mirror) API endpoints ------------------------------------
+
+@app.get("/api/v1/self/state")
+def api_self_state() -> dict[str, Any]:
+    """Current self-system state for dashboard."""
+    state_path = _project_root / "self" / "state.json"
+    reflect_path = _project_root / "self" / "state_reflect.json"
+    if not state_path.exists():
+        raise HTTPException(404, "Self-system not initialized")
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    reflect = json.loads(reflect_path.read_text(encoding="utf-8")) if reflect_path.exists() else {}
+    state.pop("wake_conditions", None)
+    return {
+        "state": state,
+        "reflect": {
+            "version": reflect.get("version"),
+            "last_updated": reflect.get("last_updated"),
+            "open_threads": reflect.get("open_threads", []),
+            "current_task": reflect.get("current_task"),
+        },
+    }
+
+
+@app.get("/api/v1/self/hypotheses")
+def api_self_hypotheses() -> dict[str, Any]:
+    """Hypothesis ledger from mirror.md."""
+    mirror_path = _project_root / "self" / "mirror.md"
+    if not mirror_path.exists():
+        return {"hypotheses": []}
+    text = mirror_path.read_text(encoding="utf-8")
+    hypotheses: list[dict[str, Any]] = []
+    current: dict[str, Any] | None = None
+    for line in text.splitlines():
+        if line.startswith("### H") or line.startswith("### **H"):
+            if current:
+                hypotheses.append(current)
+            hid = re.search(r"H(\d+)", line)
+            current = {"id": f"H{hid.group(1)}" if hid else "?", "title": line.strip("# *"), "status": "active", "fields": {}}
+        elif current and line.strip().startswith("- **"):
+            m = re.match(r"\s*-\s+\*\*(.+?)\*\*:?\s*(.*)", line)
+            if m:
+                key = m.group(1).lower().replace(" ", "_")
+                current["fields"][key] = m.group(2).strip()
+                if "status" in key:
+                    current["status"] = m.group(2).strip().lower()
+    if current:
+        hypotheses.append(current)
+    return {"hypotheses": hypotheses}
+
+
+@app.get("/api/v1/self/thinking")
+def api_self_thinking(limit: int = Query(default=30, ge=1, le=200)) -> dict[str, Any]:
+    """Recent thinking files with metadata."""
+    thinking_dir = _project_root / "self" / "thinking"
+    if not thinking_dir.exists():
+        return {"files": []}
+    files = sorted(thinking_dir.glob("[0-9]*.md"), key=lambda p: p.stat().st_mtime, reverse=True)[:limit]
+    result = []
+    for f in files:
+        raw = f.read_text(encoding="utf-8")
+        meta: dict[str, Any] = {"filename": f.name, "modified": f.stat().st_mtime}
+        if raw.startswith("---"):
+            end = raw.find("---", 3)
+            if end > 0:
+                for fm_line in raw[3:end].splitlines():
+                    fm_line = fm_line.strip()
+                    if ":" in fm_line:
+                        k, v = fm_line.split(":", 1)
+                        k = k.strip()
+                        v = v.strip().strip('"').strip("'")
+                        if k in ("question", "chain_root", "classification", "date", "cycle", "importance"):
+                            meta[k] = v
+        body = raw[raw.find("---", 3) + 3:].strip() if raw.startswith("---") else raw
+        preview_lines = [l for l in body.splitlines() if l.strip() and not l.startswith("#")][:3]
+        meta["preview"] = " ".join(preview_lines)[:300]
+        result.append(meta)
+    return {"files": result}
+
+
+@app.get("/api/v1/self/provenance")
+def api_self_provenance() -> dict[str, Any]:
+    """Provenance graph."""
+    prov_path = _project_root / "self" / "provenance.json"
+    if not prov_path.exists():
+        return {"error": "Provenance graph not built yet"}
+    return json.loads(prov_path.read_text(encoding="utf-8"))
+
+
+@app.get("/api/v1/self/predictions")
+def api_self_predictions() -> dict[str, Any]:
+    """Prediction accuracy by tier."""
+    import csv as csvmod
+    csv_path = _project_root / "self" / "predictions.csv"
+    result: dict[str, Any] = {"tiers": {}, "raw_count": 0}
+    if csv_path.exists():
+        rows = list(csvmod.DictReader(csv_path.open(encoding="utf-8")))
+        result["raw_count"] = len(rows)
+        for tier in ("1", "2", "3", "4"):
+            tier_rows = [r for r in rows if r.get("tier") == tier]
+            correct = sum(1 for r in tier_rows if r.get("result", "").lower() in ("correct", "true", "1"))
+            total = max(len(tier_rows), 1)
+            result["tiers"][f"tier_{tier}"] = {"total": len(tier_rows), "correct": correct, "accuracy": round(correct / total * 100, 1)}
+    return result
+
+
+@app.get("/api/v1/self/daily-log")
+def api_self_daily_log(date: str | None = Query(default=None)) -> dict[str, Any]:
+    """Today's daily log."""
+    from datetime import date as date_cls
+    target = date or date_cls.today().isoformat()
+    log_path = _project_root / "self" / "logs" / "daily" / f"{target}.md"
+    if not log_path.exists():
+        return {"date": target, "entries": [], "raw": ""}
+    text = log_path.read_text(encoding="utf-8")
+    entries = [l.strip() for l in text.splitlines() if l.strip() and not l.startswith("#")]
+    return {"date": target, "entries": entries, "raw": text}
+
+
+@app.get("/api/v1/self/constitution")
+def api_self_constitution() -> dict[str, Any]:
+    """Constitution text and verification."""
+    const_path = _project_root / "self" / "constitution.md"
+    hash_path = _project_root / "self" / "pinned_constitution_hash"
+    state_path = _project_root / "self" / "state.json"
+    text = const_path.read_text(encoding="utf-8") if const_path.exists() else ""
+    pinned = hash_path.read_text(encoding="utf-8").strip() if hash_path.exists() else ""
+    import hashlib
+    actual = hashlib.sha256(text.encode("utf-8")).hexdigest()
+    state = json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else {}
+    return {
+        "text": text,
+        "hash_match": pinned == actual,
+        "hash": actual[:16] + "...",
+        "total_cycles": state.get("last_cycle", 0),
+        "violations": 0,
+        "ratified_by": "6-model council (Claude Opus, GPT-5.4, Gemini Pro, DeepSeek, Kimi, Qwen)",
+    }
+
+
 @app.get("/island/{page}")
 def island_page(page: str) -> HTMLResponse:
-    allowed = {"index", "home", "create", "kennel", "train", "lab", "pit", "graveyard", "profile", "leaderboard", "achievements", "onboarding", "dreams", "crimson", "rivals", "prophecy", "shrine", "artifacts", "menagerie", "succession", "deep-tide", "black-market", "tides", "pact", "genesis", "confessions", "oath", "arena", "breeding", "lineage", "synergies", "cosmetics", "caretaker", "ecology"}
+    allowed = {"index", "home", "create", "kennel", "train", "lab", "pit", "graveyard", "profile", "leaderboard", "achievements", "onboarding", "dreams", "crimson", "rivals", "prophecy", "shrine", "artifacts", "menagerie", "succession", "deep-tide", "black-market", "tides", "pact", "genesis", "confessions", "oath", "arena", "breeding", "lineage", "synergies", "cosmetics", "caretaker", "ecology", "mirror", "constitution"}
     if page not in allowed:
         return _serve_html(STATIC_DIR / "island" / "index.html", "/island", html=_island_not_found_html(page), status_code=404)
     route_path = "/island" if page == "index" else f"/island/{page}"
