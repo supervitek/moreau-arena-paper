@@ -25,7 +25,7 @@ import time
 
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
@@ -80,12 +80,21 @@ logger = logging.getLogger("moreau-arena")
 _cache: dict[str, dict[str, Any]] = {}
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
+PLAIN_SITE_CARE_DIR = STATIC_DIR / "plain-site-care"
 LAB_DIR = Path(__file__).resolve().parent / "lab"
 RESULTS_DIR = _project_root / "results"
 SUBMISSIONS_DIR = RESULTS_DIR / "submissions"
 DATA_DIR = _project_root / "data"
 SEASON1_DIR = _project_root / "season1"
 SITE_ORIGIN = os.environ.get("MOREAU_SITE_ORIGIN", "https://moreauarena.com").rstrip("/")
+PLAIN_SITE_CARE_HOSTS = {
+    host.strip().lower()
+    for host in os.environ.get(
+        "PLAIN_SITE_CARE_HOSTS",
+        "plainsitecare.com,www.plainsitecare.com",
+    ).split(",")
+    if host.strip()
+}
 SELF_LAB_PUBLIC_ENABLED = os.environ.get("MOREAU_ENABLE_SELF_LAB", "").strip().lower() in {"1", "true", "yes", "on"}
 DEFAULT_OG_IMAGE = f"{SITE_ORIGIN}/static/og-image.png"
 DEFAULT_META_DESCRIPTION = (
@@ -139,6 +148,28 @@ def _require_self_lab_enabled() -> None:
 
 def _require_self_lab_enabled_dep() -> None:
     _require_self_lab_enabled()
+
+
+def _request_host(request: Request) -> str:
+    return request.headers.get("host", "").split(":", 1)[0].strip().lower()
+
+
+def _is_plain_site_care_request(request: Request) -> bool:
+    return _request_host(request) in PLAIN_SITE_CARE_HOSTS
+
+
+def _plain_site_care_response(path: str) -> FileResponse:
+    files = {
+        "/": PLAIN_SITE_CARE_DIR / "index.html",
+        "/index.html": PLAIN_SITE_CARE_DIR / "index.html",
+        "/styles.css": PLAIN_SITE_CARE_DIR / "styles.css",
+        "/robots.txt": PLAIN_SITE_CARE_DIR / "robots.txt",
+        "/sitemap.xml": PLAIN_SITE_CARE_DIR / "sitemap.xml",
+    }
+    file_path = files.get(path)
+    if file_path is None or not file_path.exists():
+        return FileResponse(PLAIN_SITE_CARE_DIR / "404.html", status_code=404)
+    return FileResponse(file_path)
 
 
 def _self_lab_placeholder_html(page: str) -> str:
@@ -1018,6 +1049,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Moreau Arena", version="2.0.0", lifespan=lifespan)
+
+
+@app.middleware("http")
+async def route_plain_site_care(request: Request, call_next):
+    path = request.url.path
+    if _is_plain_site_care_request(request):
+        return _plain_site_care_response(path)
+    return await call_next(request)
 
 # CORS middleware — allow all origins
 app.add_middleware(
