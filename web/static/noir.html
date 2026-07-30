@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The complete Moreau Noir Track 1 report: design, bounded-null result, extension studies, system profiles, assay limits, and evidence ledger.">
+    <meta property="og:title" content="Moreau Noir — Track 1 Final Report">
+    <meta property="og:description" content="A qualification-tiered report of the Moreau Noir memory-carrier experiments across Terra, western subscription systems, and six Chinese model routes.">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="/static/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Moreau Noir — Track 1 Final Report">
+    <meta name="twitter:description" content="What was tested, what was found, where the assay stopped, and what the evidence does not support.">
+    <meta name="twitter:image" content="/static/og-image.png">
+    <title>Moreau Noir — Track 1 Final Report</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/noir-report.css">
+</head>
+<body class="noir-report">
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Moreau <span>Arena</span></a>
+            <button class="nav-hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/tournaments">Benchmark</a></li>
+                <li><a href="/noir" class="active">Noir</a></li>
+                <li><a href="/paper">Paper</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="report-masthead" id="top">
+        <div class="report-shell masthead-grid">
+            <div class="masthead-copy">
+                <p class="report-kicker">Moreau Noir / Track 1 / Final report</p>
+                <h1>Memory changed the record. It did not produce a stable change in the decision.</h1>
+                <p class="report-deck">
+                    Track 1 tested whether a structured memory carrier could spill into a fresh
+                    decision context. The core Terra experiment produced an informative bounded
+                    null. Five follow-up programs found no stable carrier-sensitivity channel,
+                    while also exposing where routes, output contracts, and task headroom limited
+                    what could honestly be inferred.
+                </p>
+                <div class="status-line" aria-label="Program status">
+                    <span class="status-mark" aria-hidden="true"></span>
+                    <strong>Track 1 closed</strong>
+                    <span>26 July 2026</span>
+                    <span>Descriptive, qualification-tiered, unscored</span>
+                </div>
+            </div>
+            <aside class="masthead-result" aria-label="Primary result">
+                <div class="result-label">Primary Terra estimate</div>
+                <div class="result-value">+0.48 <span>pp</span></div>
+                <div class="result-interval">97% interval: −1.44 to +2.51 pp</div>
+                <div class="result-pairs"><strong>415</strong> complete pairs of 432 scheduled</div>
+                <div class="result-classification">Bounded null below the registered 10 pp threshold</div>
+            </aside>
+        </div>
+    </header>
+
+    <div class="report-subnav" aria-label="Report sections">
+        <div class="report-shell subnav-scroll">
+            <a href="#result">Result</a>
+            <a href="#question">Question</a>
+            <a href="#design">Design</a>
+            <a href="#extensions">Extensions</a>
+            <a href="#atlas">System atlas</a>
+            <a href="#limits">Limits</a>
+            <a href="#ledger">Evidence</a>
+        </div>
+    </div>
+
+    <main>
+        <section class="report-band band-result" id="result">
+            <div class="report-shell">
+                <div class="section-heading">
+                    <p class="section-number">01</p>
+                    <div>
+                        <h2>The result in one picture</h2>
+                        <p>The entire calibrated interval sits far inside the prospectively registered ±10 percentage-point practical boundary.</p>
+                    </div>
+                </div>
+
+                <div class="interval-figure" role="img" aria-label="Mode A minus Mode B estimate is plus 0.48 percentage points, with a calibrated 97 percent interval from minus 1.44 to plus 2.51 percentage points, inside the registered minus 10 to plus 10 percentage-point practical boundary.">
+                    <div class="interval-title-row">
+                        <span>Mode A minus Mode B</span>
+                        <strong>+0.48 pp</strong>
+                    </div>
+                    <div class="interval-scale">
+                        <div class="practical-zone" aria-hidden="true"></div>
+                        <div class="confidence-line" aria-hidden="true"></div>
+                        <div class="confidence-cap confidence-cap-left" aria-hidden="true"></div>
+                        <div class="confidence-cap confidence-cap-right" aria-hidden="true"></div>
+                        <div class="estimate-dot" aria-hidden="true"></div>
+                        <div class="zero-line" aria-hidden="true"></div>
+                    </div>
+                    <div class="axis-labels" aria-hidden="true">
+                        <span>−12</span>
+                        <span>−10</span>
+                        <span>0</span>
+                        <span>+10</span>
+                        <span>+12 pp</span>
+                    </div>
+                    <div class="interval-legend">
+                        <span><i class="legend-bound"></i> Registered practical boundary</span>
+                        <span><i class="legend-interval"></i> Calibrated 97% interval</span>
+                        <span><i class="legend-estimate"></i> Estimate</span>
+                    </div>
+                </div>
+
+                <div class="claim-grid">
+                    <div class="claim-block claim-supported">
+                        <h3>Supported</h3>
+                        <p>
+                            In the exact registered Terra route, carrier, exposure, scoring, and
+                            fresh-context setting, the evidence did not support a spillover of
+                            ten percentage points or larger.
+                        </p>
+                    </div>
+                    <div class="claim-block claim-not-supported">
+                        <h3>Not supported</h3>
+                        <p>
+                            Exact zero, universal containment, model-family equivalence,
+                            deployment safety, or the claim that memory can never affect a model.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="report-band" id="question">
+            <div class="report-shell">
+                <div class="section-heading">
+                    <p class="section-number">02</p>
+                    <div>
+                        <h2>What did Noir ask?</h2>
+                        <p>A narrow causal question, not a model ranking.</p>
+                    </div>
+                </div>
+
+                <div class="question-layout">
+                    <div class="question-copy">
+                        <p class="lead-copy">
+                            If a model receives a structured record of an earlier world, does that
+                            record change its choice when the model is placed into a fresh,
+                            unlabeled decision fork?
+                        </p>
+                        <p>
+                            Each paired fork held the task and scoring logic fixed while changing
+                            the registered carrier condition. The observable was whether the model
+                            selected the higher-task-optimal or lower-task-optimal response class.
+                        </p>
+                        <p>
+                            The experiment was deliberately narrower than “does memory matter?”
+                            It tested one frozen carrier, task family, route, exposure, and
+                            fresh-context contract at a time.
+                        </p>
+                    </div>
+                    <div class="fork-diagram" aria-label="Paired-fork design">
+                        <div class="fork-source">Same frozen decision</div>
+                        <div class="fork-connector" aria-hidden="true"></div>
+                        <div class="fork-arms">
+                            <div class="fork-arm">
+                                <span>Mode A</span>
+                                <strong>Registered carrier condition A</strong>
+                                <small>Fresh isolated context</small>
+                            </div>
+                            <div class="fork-arm">
+                                <span>Mode B</span>
+                                <strong>Registered carrier condition B</strong>
+                                <small>Fresh isolated context</small>
+                            </div>
+                        </div>
+                        <div class="fork-outcome">Compare response class, not prose style</div>
+                    </div>
+                </div>
+
+                <div class="term-strip">
+                    <div>
+                        <strong>LOWER_TASK_OPTIMAL</strong>
+                        <span>The response aligned with the lower-level objective registered for that cell.</span>
+                    </div>
+                    <div>
+                        <strong>HIGHER_TASK_OPTIMAL</strong>
+                        <span>The response aligned with the higher-level objective registered for that cell.</span>
+                    </div>
+                    <div>
+                        <strong>A/B divergence</strong>
+                        <span>The two carrier arms produced different response classes on the same task.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="report-band band-method" id="design">
+            <div class="report-shell">
+                <div class="section-heading">
+                    <p class="section-number">03</p>
+                    <div>
+                        <h2>How the evidence was protected</h2>
+                        <p>The engineering discipline is part of the scientific result.</p>
+                    </div>
+                </div>
+
+                <div class="method-grid">
+                    <article class="method-item">
+                        <span class="method-index">1</span>
+                        <h3>Freeze first</h3>
+                        <p>Tasks, manifests, routes, schemas, scorers, gates, and terminals were bound before model execution.</p>
+                    </article>
+                    <article class="method-item">
+                        <span class="method-index">2</span>
+                        <h3>Fresh paired contexts</h3>
+                        <p>Each carrier arm ran in a fresh isolated process or session to prevent conversational carryover.</p>
+                    </article>
+                    <article class="method-item">
+                        <span class="method-index">3</span>
+                        <h3>Dual scoring</h3>
+                        <p>Primary and reference scoring had to agree before a response could enter the accepted core evidence.</p>
+                    </article>
+                    <article class="method-item">
+                        <span class="method-index">4</span>
+                        <h3>Strict route identity</h3>
+                        <p>Requested model, canonical endpoint, provider, attempt count, and usage accounting were validated where exposed.</p>
+                    </article>
+                    <article class="method-item">
+                        <span class="method-index">5</span>
+                        <h3>No retry or salvage</h3>
+                        <p>Rate limits, malformed JSON, substitutions, truncations, and wrong schemas stayed invalid exactly as observed.</p>
+                    </article>
+                    <article class="method-item">
+                        <span class="method-index">6</span>
+                        <h3>Qualification gates</h3>
+                        <p>Metadata, route response, carrier readback, behavioral profile, and retest were separate earned depths.</p>
+                    </article>
+                </div>
+
+                <div class="qualification-scale" aria-label="Qualification tiers">
+                    <div><strong>Q0</strong><span>Metadata / preflight</span></div>
+                    <div><strong>Q1</strong><span>Exact route response</span></div>
+                    <div><strong>Q2</strong><span>Phase-0 and readback</span></div>
+                    <div><strong>Q3</strong><span>Complete Wave A</span></div>
+                    <div><strong>Q4</strong><span>Wave B retest</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="report-band" id="extensions">
+            <div class="report-shell">
+                <div class="section-heading">
+                    <p class="section-number">04</p>
+                    <div>
+                        <h2>What happened when the question widened?</h2>
+                        <p>Five extension programs tested distance, recipient, composition, and architecture diversity.</p>
+                    </div>
+                </div>
+
+                <div class="program-map" aria-label="Track 1 extension map">
+                    <div class="program-node program-core">
+                        <span>Core</span>
+                        <strong>Terra Tier 0</strong>
+                        <small>Informative bounded null</small>
+                    </div>
+                    <div class="program-line" aria-hidden="true"></div>
+                    <div class="program-node">
+                        <span>N3-T0</span>
+                        <strong>Transfer distance</strong>
+                        <small>Route worked; no stable distance candidate</small>
+                    </div>
+                    <div class="program-node">
+                        <span>N3-XM0</span>
+                        <strong>Terra to Luna</strong>
+                        <small>12/12 agreement; single-class assay</small>
+                    </div>
+                    <div class="program-node">
+                        <span>N4-C1</span>
+                        <strong>Memory composition</strong>
+                        <small>M0–M3 stayed LOWER</small>
+                    </div>
+                    <div class="program-node">
+                        <span>FSV1</span>
+                        <strong>Western systems</strong>
+                        <small>No replicated A/B candidate</small>
+                    </div>
+                    <div class="program-node">
+                        <span>CH0-X3</span>
+                        <strong>Chinese systems</strong>
+                        <small>No stable qualified candidate</small>
+                    </div>
+                </div>
+
+                <div class="extension-table-wrap">
+                    <table class="extension-table">
+                        <thead>
+                            <tr>
+                                <th>Program</th>
+                                <th>Earned evidence</th>
+                                <th>Observation</th>
+                                <th>Disposition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Transfer distance</strong><span>Near / mid / far</span></td>
+                                <td>32/32 valid calls</td>
+                                <td>5 HIGHER, 19 LOWER; one FAR discordance among four pairs</td>
+                                <td>No stable distance effect</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cross-recipient</strong><span>Terra / Luna</span></td>
+                                <td>24 transfer + 8 health</td>
+                                <td>All 24 transfer responses LOWER; 12/12 matched agreement</td>
+                                <td>Healthy routes, single-class assay</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Composition</strong><span>M0 / M1 / M2 / M3</span></td>
+                                <td>40/40 accepted composite identities</td>
+                                <td>M0 4/4 LOWER; M1–M3 each 8/8 LOWER</td>
+                                <td>No active composition channel identified</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Western panel</strong><span>7 subscription systems</span></td>
+                                <td>6 complete Wave-A profiles; 3 retest profiles</td>
+                                <td>Isolated variations did not replicate; Fable remained partial</td>
+                                <td>No stable replicated A/B candidate</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Chinese panel</strong><span>6 direct routes</span></td>
+                                <td>38 reached; 30 valid; USD 0.203337</td>
+                                <td>Qwen complete LOWER profile; MiniMax partial LOWER profile</td>
+                                <td>No stable qualified candidate</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="report-band band-atlas" id="atlas">
+            <div class="report-shell">
+                <div class="section-heading atlas-heading">
+                    <div class="section-heading-main">
+                        <p class="section-number">05</p>
+                        <div>
+                            <h2>Descriptive system profile atlas</h2>
+                            <p>Each system is shown only to the highest qualification depth it actually earned.</p>
+                        </div>
+                    </div>
+                    <div class="atlas-controls" role="group" aria-label="Filter systems">
+                        <button type="button" class="filter-button active" data-panel-filter="all">All 13</button>
+                        <button type="button" class="filter-button" data-panel-filter="western">Western 7</button>
+                        <button type="button" class="filter-button" data-panel-filter="chinese">Chinese 6</button>
+                    </div>
+                </div>
+
+                <div class="atlas-summary" id="atlas-summary" aria-live="polite"></div>
+                <div class="system-grid" id="system-grid">
+                    <p class="loading-copy">Loading qualification-tiered profiles…</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="report-band" id="limits">
+            <div class="report-shell">
+                <div class="section-heading">
+                    <p class="section-number">06</p>
+                    <div>
+                        <h2>Where the assay stopped</h2>
+                        <p>A failure can constrain the interface without answering the behavioral question.</p>
+                    </div>
+                </div>
+
+                <div class="interpretation-rule">
+                    <span>Route qualification ≠ behavioral qualification</span>
+                    <span>Phase-0 failure ≠ behavioral null</span>
+                    <span>Single class ≠ estimated zero effect</span>
+                    <span>Invalid output ≠ salvageable response</span>
+                </div>
+
+                <div class="limit-grid">
+                    <article class="limit-item">
+                        <h3>No behavioral headroom</h3>
+                        <p>When both carrier arms and NULL controls stay in one response class, an ordinary directional contrast cannot become informative.</p>
+                    </article>
+                    <article class="limit-item">
+                        <h3>No-retry incompleteness</h3>
+                        <p>The prospective one-attempt rule preserved accounting but left MiniMax, Fable, and four Chinese routes incomplete.</p>
+                    </article>
+                    <article class="limit-item">
+                        <h3>Rate and route limits</h3>
+                        <p>DeepSeek and Kimi hit upstream rate limits; Fable substitutions made requested-target evidence invalid.</p>
+                    </article>
+                    <article class="limit-item">
+                        <h3>Strict output contracts</h3>
+                        <p>Markdown-wrapped JSON, wrong schema versions, null content, and truncation were preserved as interface failures.</p>
+                    </article>
+                    <article class="limit-item">
+                        <h3>Missing provenance</h3>
+                        <p>The accepted substrate lacked a distinct immutable counterparty-action channel, so one proposed composition could not be claimed.</p>
+                    </article>
+                    <article class="limit-item">
+                        <h3>Burned diagnostics</h3>
+                        <p>Calibration, route-health, disambiguation, and retest cells remain valid for their original purpose but cannot become fresh confirmation.</p>
+                    </article>
+                </div>
+
+                <div class="forbidden-claims">
+                    <h3>Claims this report does not make</h3>
+                    <ul>
+                        <li>All models were null or all Chinese models were insensitive.</li>
+                        <li>Spillover is universally zero or memory cannot affect LLMs.</li>
+                        <li>Terra and Luna are equivalent systems.</li>
+                        <li>Moreau Noir proves deployment safety.</li>
+                        <li>The system atlas is a leaderboard.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="report-band band-ledger" id="ledger">
+            <div class="report-shell">
+                <div class="section-heading ledger-heading">
+                    <div class="section-heading-main">
+                        <p class="section-number">07</p>
+                        <div>
+                            <h2>Evidence ledger</h2>
+                            <p>Seventeen accepted stages, including stops and preserved invalid outcomes.</p>
+                        </div>
+                    </div>
+                    <button type="button" class="text-command" id="timeline-toggle">Expand all stages</button>
+                </div>
+
+                <div class="timeline" id="evidence-timeline">
+                    <p class="loading-copy">Loading evidence ledger…</p>
+                </div>
+
+                <div class="provenance-grid">
+                    <div class="provenance-block">
+                        <span>Accepted final evidence commit</span>
+                        <code>6d582b7ba13937e083d264e979815e17c4cb9a6f</code>
+                    </div>
+                    <div class="provenance-block">
+                        <span>Track 1 closeout commit</span>
+                        <code>710fc9e0c80a864d49b5f1f1088c9ba46c56cf98</code>
+                    </div>
+                    <div class="provenance-block">
+                        <span>Accepted CH0-X3 packet SHA-256</span>
+                        <code>3788a8bb8b4c7efa9c5cf2d8e5bb80479e3a6599c8eb37872f9aab7d11fb5a0c</code>
+                    </div>
+                    <div class="provenance-block">
+                        <span>Administrative status</span>
+                        <code>MOREAU_NOIR_TRACK1_CLOSED_WITH_BOUNDED_NULL_PROFILE_ATLAS_AND_ASSAY_LIMIT_MAP</code>
+                    </div>
+                </div>
+
+                <div class="source-documents">
+                    <h3>Canonical closeout documents</h3>
+                    <ol id="source-document-list">
+                        <li>Loading document hashes…</li>
+                    </ol>
+                    <a class="download-link" href="/static/noir-track1-report-data.json" download>Download the public report data snapshot</a>
+                </div>
+
+                <div class="reopen-rule">
+                    <div>
+                        <h3>Track 1 remains closed</h3>
+                        <p>
+                            Reopening requires a new prospective scientific reason: demonstrated
+                            task headroom, a genuinely new immutable carrier channel, external
+                            replication, a scientifically motivated new route, or a new exact
+                            world/substrate. A rerun, provider repair, new model release, or desire
+                            for more data is not enough by itself.
+                        </p>
+                    </div>
+                    <div class="closure-stamp">
+                        <span>Final disposition</span>
+                        <strong>No held-out or main/scored follow-up justified</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-left">Created by Victor Stasiuc &mdash; Independent Researcher</div>
+            <ul class="footer-links">
+                <li><a href="https://github.com/supervitek/moreau-arena-paper">GitHub</a></li>
+                <li><a href="https://orcid.org/0009-0003-2064-0486" target="_blank" rel="noopener">ORCID</a></li>
+                <li><a href="/paper">Paper</a></li>
+                <li><a href="/api-docs">API</a></li>
+                <li><a href="mailto:stvitek@gmail.com">Contact</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script src="/static/noir-report.js" defer></script>
+</body>
+</html>

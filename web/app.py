@@ -103,7 +103,7 @@ DEFAULT_META_DESCRIPTION = (
 )
 NAV_BLOCK_RE = re.compile(r"<nav class=\"nav\">.*?</nav>", flags=re.IGNORECASE | re.DOTALL)
 FOOTER_BLOCK_RE = re.compile(r"<footer class=\"footer\">.*?</footer>", flags=re.IGNORECASE | re.DOTALL)
-BENCHMARK_NAV_PATHS = {"/tournaments", "/leaderboard", "/compare", "/match-log", "/methodology"}
+BENCHMARK_NAV_PATHS = {"/tournaments", "/leaderboard", "/compare", "/match-log", "/methodology", "/noir"}
 SEASONS_NAV_PATHS = {"/s1-leaderboard", "/s1-fighters", "/s1-matchups", "/play", "/s1-compare", "/moreddit"}
 
 VALID_ANIMALS = [
@@ -1503,6 +1503,7 @@ def _render_standard_nav(request_path: str) -> str:
                         <li>{_render_nav_link('/compare', 'Track Comparison', request_path == '/compare')}</li>
                         <li>{_render_nav_link('/match-log', 'Match Log', request_path == '/match-log')}</li>
                         <li>{_render_nav_link('/methodology', 'Methodology', request_path == '/methodology')}</li>
+                        <li>{_render_nav_link('/noir', 'Noir Track 1 Report', request_path == '/noir')}</li>
                     </ul>
                 </li>
                 <li class="nav-dropdown">
@@ -1720,6 +1721,11 @@ def play_page() -> HTMLResponse:
 def research_page() -> HTMLResponse:
     """Legacy route — redirect to paper page."""
     return _serve_html(STATIC_DIR / "paper.html", "/paper")
+
+
+@app.get("/noir")
+def noir_report_page() -> HTMLResponse:
+    return _serve_html(STATIC_DIR / "noir.html", "/noir")
 
 
 @app.get("/match-log")

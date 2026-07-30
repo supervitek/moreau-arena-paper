@@ -1,0 +1,428 @@
+{
+  "schemaVersion": "moreau-noir-public-track1-report/v1",
+  "snapshotDate": "2026-07-26",
+  "classification": "descriptive, qualification-tiered, unscored",
+  "administrativeStatus": "MOREAU_NOIR_TRACK1_CLOSED_WITH_BOUNDED_NULL_PROFILE_ATLAS_AND_ASSAY_LIMIT_MAP",
+  "acceptedFinalEvidenceCommit": "6d582b7ba13937e083d264e979815e17c4cb9a6f",
+  "track1CloseoutCommit": "710fc9e0c80a864d49b5f1f1088c9ba46c56cf98",
+  "acceptedPacketSha256": "3788a8bb8b4c7efa9c5cf2d8e5bb80479e3a6599c8eb37872f9aab7d11fb5a0c",
+  "qualificationTiers": {
+    "Q0": "Metadata and preflight qualified",
+    "Q1": "At least one exact route response qualified",
+    "Q2": "Phase-0 canary and carrier-readback gate qualified",
+    "Q3": "Complete Wave-A behavioral profile qualified",
+    "Q4": "Wave-B test-retest profile qualified"
+  },
+  "systems": [
+    {
+      "id": "sol",
+      "panel": "western",
+      "name": "Sol",
+      "model": "gpt-5.6-sol",
+      "provider": "ChatGPT subscription / Codex CLI",
+      "tier": "Q4",
+      "lower": 21,
+      "higher": 1,
+      "behavioral": "22 cells",
+      "divergence": "0 / 8 pairs",
+      "retest": "Qualified",
+      "description": "One isolated NULL HIGHER response appeared in one of three waves. Both carrier arms stayed LOWER, and the variation did not become a carrier-presence or A/B candidate.",
+      "classification": "SOL_NULL_SINGLE_CELL_OR_SAMPLING_VARIABILITY",
+      "limitation": "Small selected panel; one NULL-class variation; no held-out confirmation."
+    },
+    {
+      "id": "terra",
+      "panel": "western",
+      "name": "Terra",
+      "model": "gpt-5.6-terra",
+      "provider": "ChatGPT subscription / Codex CLI",
+      "tier": "Q3",
+      "lower": 10,
+      "higher": 0,
+      "behavioral": "10 Wave-A cells",
+      "divergence": "0 / 4 pairs",
+      "retest": "Core design separate",
+      "description": "The small smoke panel was entirely LOWER. Separately, the accepted Tier-0 core contained 415 complete paired forks and produced the program's informative bounded null.",
+      "classification": "SEQUENTIALLY_QUALIFIED_BOUNDED_NULL_BELOW_10_PERCENTAGE_POINTS",
+      "limitation": "The bound applies only to the exact registered Terra setting."
+    },
+    {
+      "id": "luna",
+      "panel": "western",
+      "name": "Luna",
+      "model": "gpt-5.6-luna",
+      "provider": "ChatGPT subscription / Codex CLI",
+      "tier": "Q3",
+      "lower": 10,
+      "higher": 0,
+      "behavioral": "10 Wave-A cells",
+      "divergence": "0 / 4 pairs",
+      "retest": "Not triggered",
+      "description": "Wave A was entirely LOWER. In cross-recipient commissioning, all 12 Luna transfer responses were LOWER and matched Terra on 12 of 12 paired comparisons.",
+      "classification": "HEALTHY_ROUTE_WITH_SINGLE_CLASS_ASSAY",
+      "limitation": "Luna used max rather than Terra's ultra; the evidence does not establish route equivalence."
+    },
+    {
+      "id": "opus-4-8",
+      "panel": "western",
+      "name": "Opus 4.8",
+      "model": "claude-opus-4-8",
+      "provider": "Claude.ai Max / Claude Code CLI",
+      "tier": "Q4",
+      "lower": 18,
+      "higher": 2,
+      "behavioral": "20 cells",
+      "divergence": "0 in both waves",
+      "retest": "10 / 10 valid",
+      "description": "One pair changed together from HIGHER/HIGHER in Wave A to LOWER/LOWER in Wave B. Because both arms moved together, it did not create an A/B carrier-sensitivity candidate.",
+      "classification": "NO_REPLICATED_CLAUDE_A_B_CANDIDATE",
+      "limitation": "Pair and wave variability; earlier interface-invalid calls remain excluded."
+    },
+    {
+      "id": "opus-5",
+      "panel": "western",
+      "name": "Opus 5",
+      "model": "claude-opus-5",
+      "provider": "Claude.ai Max / Claude Code CLI",
+      "tier": "Q3",
+      "lower": 10,
+      "higher": 0,
+      "behavioral": "10 Wave-A cells",
+      "divergence": "0 / 4 pairs",
+      "retest": "Not triggered",
+      "description": "All transfer and NULL cells were LOWER. The interface and carrier-read controls qualified, but the diagnostic panel offered no response-class headroom.",
+      "classification": "SINGLE_CLASS_SYSTEM_ON_FROZEN_DIAGNOSTIC_PANEL",
+      "limitation": "No effect estimate can be derived from a completely single-class small panel."
+    },
+    {
+      "id": "sonnet-5",
+      "panel": "western",
+      "name": "Sonnet 5",
+      "model": "claude-sonnet-5",
+      "provider": "Claude.ai Max / Claude Code CLI",
+      "tier": "Q4",
+      "lower": 19,
+      "higher": 1,
+      "behavioral": "20 cells",
+      "divergence": "1 then 0",
+      "retest": "10 / 10 valid",
+      "description": "One Wave-A A/B divergence did not recur in Wave B. The qualified retest therefore rejected that observation as a stable replicated candidate.",
+      "classification": "NO_REPLICATED_CLAUDE_A_B_CANDIDATE",
+      "limitation": "One unreplicated response variation; no held-out confirmation."
+    },
+    {
+      "id": "fable-5",
+      "panel": "western",
+      "name": "Fable 5",
+      "model": "claude-fable-5",
+      "provider": "Claude.ai Max / Claude Code CLI",
+      "tier": "Q2",
+      "lower": 8,
+      "higher": 1,
+      "behavioral": "9 valid cells",
+      "divergence": "1 / 4 pairs",
+      "retest": "Not reached",
+      "description": "One A/B divergence was observed, but requested-target substitutions prevented a complete NULL baseline and retest. Those substituted calls remain frozen invalid.",
+      "classification": "FABLE_SUBSCRIPTION_ROUTE_OPERATIONALLY_UNSTABLE_FOR_THIS_ASSAY",
+      "limitation": "Incomplete profile; no qualified scientific disposition for the isolated divergence."
+    },
+    {
+      "id": "deepseek-baidu",
+      "panel": "chinese",
+      "name": "DeepSeek V4 Pro",
+      "model": "deepseek/deepseek-v4-pro",
+      "provider": "OpenRouter direct / Baidu fp8",
+      "tier": "Q1",
+      "lower": null,
+      "higher": null,
+      "behavioral": "Not reached",
+      "divergence": "Not reached",
+      "retest": "Not reached",
+      "description": "One exact canary response qualified. The following two Phase-0 calls received upstream HTTP 429 TPM limits, so no behavioral sample was earned.",
+      "classification": "PHASE_ZERO_NOT_QUALIFIED_UPSTREAM_RATE_LIMIT",
+      "limitation": "Route identity evidence only; not a behavioral null."
+    },
+    {
+      "id": "glm-streamlake",
+      "panel": "chinese",
+      "name": "GLM 5.2",
+      "model": "z-ai/glm-5.2",
+      "provider": "OpenRouter direct / StreamLake fp8",
+      "tier": "Q1",
+      "lower": null,
+      "higher": null,
+      "behavioral": "Not reached",
+      "divergence": "Not reached",
+      "retest": "Not reached",
+      "description": "The exact route and actual-carrier readback operated, but SIG_B returned the wrong known answer. Wave A correctly remained closed.",
+      "classification": "PHASE_ZERO_NOT_QUALIFIED_KNOWN_READ_FAILURE",
+      "limitation": "A semantic canary failure, not a carrier-sensitivity result."
+    },
+    {
+      "id": "minimax-gmicloud",
+      "panel": "chinese",
+      "name": "MiniMax M3",
+      "model": "minimax/minimax-m3",
+      "provider": "OpenRouter direct / GMICloud fp8",
+      "tier": "Q2",
+      "lower": 7,
+      "higher": 0,
+      "behavioral": "7 / 10 valid",
+      "divergence": "0 / 2 complete pairs",
+      "retest": "Not triggered",
+      "description": "All seven valid Wave-A cells were LOWER. Three calls remained invalid because of a wrong schema version or Markdown-wrapped JSON.",
+      "classification": "PARTIAL_NO_HEADROOM_PROFILE_WITH_OUTPUT_CONTRACT_FRAGILITY",
+      "limitation": "Only two of four A/B pairs were complete and only one NULL cell qualified."
+    },
+    {
+      "id": "kimi-moonshot",
+      "panel": "chinese",
+      "name": "Kimi K2.5",
+      "model": "moonshotai/kimi-k2.5",
+      "provider": "OpenRouter direct / Moonshot AI int4",
+      "tier": "Q1",
+      "lower": null,
+      "higher": null,
+      "behavioral": "Not reached",
+      "divergence": "Not reached",
+      "retest": "Not reached",
+      "description": "The route and actual-carrier readback qualified on two calls, while another Phase-0 call received upstream HTTP 429 under the no-retry contract.",
+      "classification": "PHASE_ZERO_NOT_QUALIFIED_UPSTREAM_RATE_LIMIT",
+      "limitation": "Capacity stability evidence only; neither a positive effect nor a null."
+    },
+    {
+      "id": "qwen-alibaba",
+      "panel": "chinese",
+      "name": "Qwen 3.5 397B-A17B",
+      "model": "qwen/qwen3.5-397b-a17b",
+      "provider": "OpenRouter direct / Alibaba",
+      "tier": "Q3",
+      "lower": 10,
+      "higher": 0,
+      "behavioral": "10 / 10 valid",
+      "divergence": "0 / 4 pairs",
+      "retest": "Not triggered",
+      "description": "Qwen earned the only complete Chinese behavioral profile. All eight transfer cells and both NULL cells were LOWER, with no A/B divergence.",
+      "classification": "COMPLETE_SINGLE_CLASS_PROFILE_NO_CARRIER_SENSITIVITY_CANDIDATE",
+      "limitation": "Complete but small and single-class; no Wave-B retest and no effect estimate."
+    },
+    {
+      "id": "mimo-xiaomi",
+      "panel": "chinese",
+      "name": "MiMo 2.5 Pro",
+      "model": "xiaomi/mimo-v2.5-pro",
+      "provider": "OpenRouter direct / Xiaomi fp8",
+      "tier": "Q1",
+      "lower": null,
+      "higher": null,
+      "behavioral": "Not reached",
+      "divergence": "Not reached",
+      "retest": "Not reached",
+      "description": "Exact identity and readback operated on two calls. A third HTTP 200 response was truncated or malformed and failed the frozen parser and finish-reason contract.",
+      "classification": "PHASE_ZERO_NOT_QUALIFIED_RESPONSE_COMPLETION_FAILURE",
+      "limitation": "Output-completion evidence only; no behavioral sample was earned."
+    }
+  ],
+  "timeline": [
+    {
+      "id": "TIER0_ACCEPTED_CORE_AND_S0_R2_CLOSEOUT",
+      "label": "Tier-0 core and S0-R2 evidence closeout",
+      "protocol": "moreau-noir-n2-s0-r2-cross-record-portability-20260723-v1",
+      "status": "complete",
+      "accounting": "432 scheduled pairs / 415 complete / 4,563 model-provider calls",
+      "classification": "SEQUENTIALLY_QUALIFIED_BOUNDED_NULL_BELOW_10_PERCENTAGE_POINTS",
+      "detail": "Mode A minus Mode B was +0.48 percentage points with a calibrated 97% interval from −1.44 to +2.51 percentage points.",
+      "terminal": "MOREAU_NOIR_N2_S0_R2_EVIDENCE_AND_PORTABILITY_READY_FOR_EXTERNAL_REPRODUCTION_AND_PUBLICATION_DECISION_ARCHITECT_REVIEW"
+    },
+    {
+      "id": "N3_T0_TRANSFER_DISTANCE_COMMISSIONING",
+      "label": "Transfer-distance commissioning",
+      "protocol": "moreau-noir-n3-t0-transfer-distance-trial-20260725-v1",
+      "status": "complete",
+      "accounting": "32 scheduled / 32 valid / USD 0",
+      "classification": "VALID_COMMISSIONING_WITHOUT_A_STABLE_DISTANCE_CANDIDATE",
+      "detail": "Near, mid, and far transfer routes operated. The FAR contrast depended on one discordant pair among four and did not establish a stable distance effect.",
+      "terminal": "MOREAU_NOIR_N3_T0_TRANSFER_DISTANCE_TRIAL_COMPLETE_FOR_ARCHITECT_REVIEW"
+    },
+    {
+      "id": "N3_XM0_ORIGINAL_ROUTE_STOP",
+      "label": "Original Luna route precondition",
+      "protocol": "moreau-noir-n3-xm0-cross-recipient-commissioning-20260725-v1",
+      "status": "stop",
+      "accounting": "0 calls / USD 0",
+      "classification": "ROUTE_PRECONDITION_STOP_WITH_NO_SCIENTIFIC_RESULT",
+      "detail": "The requested Luna/ultra combination was not supported. The run stopped before calls and no substitute was inferred.",
+      "terminal": "STOP_N3_XM0_LUNA_ROUTE_NOT_AVAILABLE"
+    },
+    {
+      "id": "N3_XM0_R1_CROSS_RECIPIENT_COMMISSIONING",
+      "label": "Corrected Terra/Luna commissioning",
+      "protocol": "moreau-noir-n3-xm0-r1-cross-recipient-commissioning-20260725-v1",
+      "status": "complete",
+      "accounting": "32 scheduled / 32 valid / USD 0",
+      "classification": "VALID_CROSS_RECIPIENT_COMMISSIONING_WITH_SINGLE_CLASS_ASSAY",
+      "detail": "Both exact routes passed controls. All 24 transfer responses were LOWER and Terra matched Luna on all 12 paired comparisons.",
+      "terminal": "MOREAU_NOIR_N3_XM0_R1_CROSS_RECIPIENT_COMMISSIONING_COMPLETE_FOR_ARCHITECT_REVIEW"
+    },
+    {
+      "id": "N4_C0_COUNTERPARTY_PROVENANCE_STOP",
+      "label": "Counterparty-action provenance gate",
+      "protocol": "moreau-noir-n4-c0-terra-memory-composition-commissioning-20260725-v1",
+      "status": "stop",
+      "accounting": "0 calls / USD 0",
+      "classification": "COUNTERPARTY_ACTION_PROVENANCE_NOT_QUALIFIED",
+      "detail": "The accepted substrate did not contain a distinct immutable counterparty-action channel, so the proposed composition claim was not constructible.",
+      "terminal": "STOP_N4_C0_COUNTERPARTY_ACTION_PROVENANCE_NOT_QUALIFIED"
+    },
+    {
+      "id": "N4_C1_PARENT_PHASE_ONE_STOP",
+      "label": "Initial reduced-composition interface gate",
+      "protocol": "moreau-noir-n4-c1-reduced-carrier-composition-commissioning-20260725-v1",
+      "status": "stop",
+      "accounting": "4 reached / 2 valid / 2 invalid / USD 0",
+      "classification": "PHASE_ONE_NOT_QUALIFIED_AFTER_PROVIDER_SCHEMA_FAILURES",
+      "detail": "Provider schema admission failures stopped the parent design before a full scientific panel could be earned.",
+      "terminal": "STOP_N4_C1_PHASE_ONE_NOT_QUALIFIED"
+    },
+    {
+      "id": "N4_C1_R1_REDUCED_COMPOSITION_STOP",
+      "label": "Schema-compatible reduced composition R1",
+      "protocol": "moreau-noir-n4-c1-r1-provider-schema-compatible-reduced-composition-commissioning-20260725-v1",
+      "status": "stop",
+      "accounting": "38 scheduled / 34 reached / 33 valid / 1 invalid",
+      "classification": "INCOMPLETE_WITH_ONE_FROZEN_INVALID_CALL",
+      "detail": "One invalid identity remained frozen under the no-retry rule, leaving four dependent identities not reached.",
+      "terminal": "STOP_N4_C1_R1_REDUCED_COMPOSITION_COMMISSIONING_NOT_QUALIFIED"
+    },
+    {
+      "id": "N4_C1_R2_MINIMAL_COMPLETION",
+      "label": "Minimal composition completion R2",
+      "protocol": "moreau-noir-n4-c1-r2-minimal-completion-commissioning-20260725-v1",
+      "status": "complete",
+      "accounting": "5 scheduled / 5 valid / USD 0",
+      "classification": "COMPLETE_COMPOSITE_WITH_A_SINGLE_CLASS_ASSAY_LIMIT",
+      "detail": "The prospectively admitted replacement completed a 40-identity composite. M0, M1, M2, and M3 were entirely LOWER.",
+      "terminal": "MOREAU_NOIR_N4_C1_R2_REDUCED_COMPOSITION_COMPLETE_FOR_ARCHITECT_REVIEW"
+    },
+    {
+      "id": "FROZEN_SMOKE_V1_INITIAL_WESTERN_PANEL",
+      "label": "Initial seven-system western smoke",
+      "protocol": "moreau-noir-frozen-smoke-v1-seven-subscription-models-20260725-v1",
+      "status": "complete",
+      "accounting": "91 scheduled / 51 reached / 39 valid / 12 invalid",
+      "classification": "PARTIAL_WESTERN_SMOKE_WITH_PRESERVED_INTERFACE_FAILURES",
+      "detail": "The first cross-system pass preserved Claude interface failures and froze every invalid call before the corrected contract was designed.",
+      "terminal": "MOREAU_NOIR_FROZEN_SMOKE_V1_PARTIAL_WITH_PRESERVED_FAILURES_FOR_ARCHITECT_REVIEW"
+    },
+    {
+      "id": "FSV1_R1_CLAUDE_INTERFACE_AND_SOL_NULL_DISAMBIGUATION",
+      "label": "Claude interface correction and Sol disambiguation",
+      "protocol": "moreau-noir-fsv1-r1-claude-interface-and-sol-null-disambiguation-20260725-v1",
+      "status": "complete",
+      "accounting": "104 scheduled / 84 reached / 82 valid / 2 invalid",
+      "classification": "NO_STABLE_REPLICATED_WESTERN_CANDIDATE_WITH_FABLE_PARTIAL",
+      "detail": "Sol's isolated NULL variation and the Opus/Sonnet observations did not recur as stable A/B effects. Fable remained incomplete.",
+      "terminal": "MOREAU_NOIR_FSV1_R1_PARTIAL_WITH_PRESERVED_INTERFACE_FAILURES_FOR_ARCHITECT_REVIEW"
+    },
+    {
+      "id": "FSV1_R2_FABLE_COMPLETION_GATE",
+      "label": "Fable completion and replication gate",
+      "protocol": "moreau-noir-fsv1-r2-fable-completion-replication-gate-20260725-v1",
+      "status": "stop",
+      "accounting": "12 scheduled / 2 reached / 1 valid / 1 invalid",
+      "classification": "FABLE_ROUTE_OPERATIONALLY_UNSTABLE_FOR_THIS_ASSAY",
+      "detail": "Requested-target substitutions prevented a complete Fable NULL baseline and retest. The partial profile was not relabeled as a null.",
+      "terminal": "STOP_FSV1_R2_FABLE_NULL_ROUTE_NOT_QUALIFIED"
+    },
+    {
+      "id": "CH0_P0_CHINESE_SIX_MODEL_PREFLIGHT",
+      "label": "Chinese six-model preflight freeze",
+      "protocol": "moreau-noir-ch0-p0-chinese-six-model-architecture-diversity-preflight-20260726-v1",
+      "status": "freeze",
+      "accounting": "138 future roles / 0 calls / USD 0",
+      "classification": "ZERO_CALL_SIX_ROUTE_PREFLIGHT_FROZEN",
+      "detail": "Six exact model-provider routes, conditional waves, strict identity checks, and a USD 20 hard cap were frozen before execution.",
+      "terminal": "MOREAU_NOIR_CH0_P0_CHINESE_SIX_MODEL_PREFLIGHT_FROZEN_FOR_OWNER_REVIEW"
+    },
+    {
+      "id": "CH0_X1_PREEXECUTION_STOP",
+      "label": "Chinese X1 pre-execution revalidation",
+      "protocol": "moreau-noir-ch0-x1-chinese-six-model-architecture-diversity-smoke-20260726-v1",
+      "status": "stop",
+      "accounting": "0 calls / USD 0",
+      "classification": "PREEXECUTION_ROUTE_STOP_WITH_NO_SCIENTIFIC_RESULT",
+      "detail": "A route did not satisfy the frozen revalidation contract, so execution stopped before model calls.",
+      "terminal": "STOP_CH0_X1_PREEXECUTION_REVALIDATION_NOT_QUALIFIED"
+    },
+    {
+      "id": "CH0_P1_GMICLOUD_ROUTE_AMENDMENT",
+      "label": "MiniMax GMICloud route amendment",
+      "protocol": "moreau-noir-ch0-p1-minimax-m3-gmicloud-route-amendment-20260726-v1",
+      "status": "freeze",
+      "accounting": "138 future roles / 0 calls / USD 0",
+      "classification": "ZERO_CALL_ONE_ROUTE_AMENDMENT_FROZEN",
+      "detail": "Only the MiniMax provider route was amended prospectively; the rest of the frozen design remained unchanged.",
+      "terminal": "MOREAU_NOIR_CH0_P1_GMICLOUD_ROUTE_AMENDMENT_FROZEN_FOR_OWNER_REVIEW"
+    },
+    {
+      "id": "CH0_X2_AMENDED_SMOKE_STOP",
+      "label": "Chinese X2 endpoint-identity stop",
+      "protocol": "moreau-noir-ch0-x2-amended-chinese-six-model-architecture-diversity-smoke-20260726-v1",
+      "status": "stop",
+      "accounting": "138 scheduled / 18 reached / 0 valid / USD 0.063029",
+      "classification": "NO_SCIENTIFIC_RESULT_DUE_TO_IDENTITY_CONTRACT_DEFECTS",
+      "detail": "The response model field did not prove the selected canonical endpoint. All 18 calls stayed invalid and no scientific result was claimed.",
+      "terminal": "STOP_CH0_X2_NOT_QUALIFIED"
+    },
+    {
+      "id": "CH0_P2_ENDPOINT_IDENTITY_AND_ROUTE_AMENDMENT",
+      "label": "Canonical endpoint and route amendment",
+      "protocol": "moreau-noir-ch0-p2-endpoint-identity-ch1-ch2-route-amendment-20260726-v1",
+      "status": "freeze",
+      "accounting": "138 future roles / 0 calls / USD 0",
+      "classification": "ZERO_CALL_ENDPOINT_IDENTITY_AND_TWO_ROUTE_CORRECTION_FROZEN",
+      "detail": "Requested identity, selected canonical identity, provider, direct attempt, and usage accounting were prospectively bound.",
+      "terminal": "MOREAU_NOIR_CH0_P2_IDENTITY_AND_ROUTE_AMENDMENT_FROZEN_FOR_OWNER_REVIEW"
+    },
+    {
+      "id": "CH0_X3_CORRECTED_CHINESE_SIX_MODEL_SMOKE",
+      "label": "Corrected Chinese six-model smoke",
+      "protocol": "moreau-noir-ch0-x3-corrected-chinese-six-model-architecture-diversity-smoke-20260726-v1",
+      "status": "complete",
+      "accounting": "138 scheduled / 38 reached / 30 valid / USD 0.203337",
+      "classification": "NO_STABLE_CANDIDATE_WITH_FOUR_PHASE_ZERO_LIMITS",
+      "detail": "Qwen earned a complete single-class profile and MiniMax a partial no-headroom profile. Four routes stopped at Phase 0 for distinct registered reasons. Wave B was never triggered.",
+      "terminal": "MOREAU_NOIR_CH0_X3_NO_STABLE_CHINESE_CARRIER_SENSITIVITY_CANDIDATE"
+    }
+  ],
+  "sourceDocuments": [
+    {
+      "path": "docs/authority/noir-track1-final/MOREAU_NOIR_TRACK1_FINAL_ARCHITECT_DISPOSITION_20260726.md",
+      "sha256": "f75c370c32807aa96fb191627024677bb9102f3ca7a665833a6de0e62675f00f"
+    },
+    {
+      "path": "docs/reports/noir-track1-final/MOREAU_NOIR_TRACK1_DESCRIPTIVE_SYSTEM_PROFILE_ATLAS_20260726.md",
+      "sha256": "77dab8af0fc032018a6f706f9da984e8df65412962f4f7acce0b837186327d85"
+    },
+    {
+      "path": "docs/reports/noir-track1-final/MOREAU_NOIR_TRACK1_TIER0_BOUNDED_NULL_MAP_20260726.md",
+      "sha256": "b133dd08c0b2d88bbc18d151245f38ac1b3c944ce15375d42fd9081fe7860823"
+    },
+    {
+      "path": "docs/reports/noir-track1-final/MOREAU_NOIR_TRACK1_ROUTE_INTERFACE_CONTRACT_REGISTRY_20260726.json",
+      "sha256": "5744708c4993a262e24e7e76f4d02e188416d31f54cd6acf66a5d88be2bf42d0"
+    },
+    {
+      "path": "docs/reports/noir-track1-final/MOREAU_NOIR_TRACK1_ASSAY_LIMIT_MAP_20260726.md",
+      "sha256": "f9921c8cb3dcbe397da25b607daf98e43d421ca7fc452cc723be35115d319ba1"
+    },
+    {
+      "path": "docs/reports/noir-track1-final/MOREAU_NOIR_TRACK1_FINAL_EVIDENCE_LEDGER_20260726.json",
+      "sha256": "b561b5506a7f08dbb335dd6f95f46644ff49d782848b115432a81e45b941a630"
+    },
+    {
+      "path": "docs/authority/noir-track1-final/MOREAU_NOIR_TRACK1_REOPENING_CRITERIA_20260726.md",
+      "sha256": "8bd5e479587c12bad7500cb69f203090cd5cc6774d21b58c4c5fff7299bb9677"
+    }
+  ]
+}
