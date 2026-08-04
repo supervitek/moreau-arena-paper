@@ -1728,6 +1728,13 @@ def noir_report_page() -> HTMLResponse:
     return _serve_html(STATIC_DIR / "noir.html", "/noir")
 
 
+@app.get("/black-ledger")
+@app.get("/black-ledger/")
+def black_ledger_page() -> HTMLResponse:
+    """Serve the unlisted, show-first Black Ledger season page."""
+    return _serve_html(STATIC_DIR / "black-ledger" / "index.html", "/black-ledger/")
+
+
 @app.get("/match-log")
 def match_log_page() -> HTMLResponse:
     return _serve_html(STATIC_DIR / "match-log.html", "/match-log")
