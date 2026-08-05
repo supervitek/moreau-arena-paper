@@ -1735,6 +1735,20 @@ def black_ledger_page() -> HTMLResponse:
     return _serve_html(STATIC_DIR / "black-ledger" / "index.html", "/black-ledger/")
 
 
+@app.get("/black-ledger/season-03")
+@app.get("/black-ledger/season-03/")
+def black_ledger_season_03_page() -> HTMLResponse:
+    """Serve The Shadow Fork show-first season file."""
+    return _serve_html(STATIC_DIR / "black-ledger" / "season-03.html", "/black-ledger/season-03")
+
+
+@app.get("/black-ledger/season-04")
+@app.get("/black-ledger/season-04/")
+def black_ledger_season_04_page() -> HTMLResponse:
+    """Serve The Season the Costume Won show-first season file."""
+    return _serve_html(STATIC_DIR / "black-ledger" / "season-04.html", "/black-ledger/season-04")
+
+
 @app.get("/match-log")
 def match_log_page() -> HTMLResponse:
     return _serve_html(STATIC_DIR / "match-log.html", "/match-log")
