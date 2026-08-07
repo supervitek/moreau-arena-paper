@@ -1749,6 +1749,13 @@ def black_ledger_season_04_page() -> HTMLResponse:
     return _serve_html(STATIC_DIR / "black-ledger" / "season-04.html", "/black-ledger/season-04")
 
 
+@app.get("/black-ledger/season-05")
+@app.get("/black-ledger/season-05/")
+def black_ledger_season_05_page() -> HTMLResponse:
+    """Serve The Word Crossed the World show-first season file."""
+    return _serve_html(STATIC_DIR / "black-ledger" / "season-05.html", "/black-ledger/season-05")
+
+
 @app.get("/match-log")
 def match_log_page() -> HTMLResponse:
     return _serve_html(STATIC_DIR / "match-log.html", "/match-log")
